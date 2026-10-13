@@ -64,8 +64,10 @@ The app talks to the **real API** (`"UseMockData": false` in `DryCleaning/appset
 3. Release builds use `Api:BaseUrl` (`https://edrycleaners.co.za/`). To test against a server, see
    [Testing the app against a deployed API](#testing-the-app-against-a-deployed-api).
 
-Pick a role, then sign in with a demo account (password `Demo@12345`) or with OTP – in Development the API returns the
-code and the OTP screen shows it. Choosing the wrong role for an account shows which role to pick. The session is kept
+Pick a role, then sign in with a demo account (password `Demo@12345`) or with OTP. **Debug builds fill in the demo
+account for the chosen role** (`DebugLogins` in `environments/local.json` / `mock.json`, used after `./set-app-env.sh local`
+or `mock`) – just tap *Log in*. Release builds never pre-fill. For OTP sign-in, the API returns the
+code in Development and the OTP screen shows it. Choosing the wrong role for an account shows which role to pick. The session is kept
 on the phone (SecureStorage) and refreshed automatically, so you stay signed in after closing the app.
 
 | Role | Demo account | Try |
@@ -198,6 +200,11 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
 | `local` | Your local API | `http://10.0.2.2:5180/` (Android emulator), `http://localhost:5180/` (iOS simulator) | `Api:BaseUrl` |
 | `staging` | Test server | `https://staging.edrycleaners.co.za/` | same |
 | `production` | Live server | `https://edrycleaners.co.za/` | same |
+
+**Demo logins (Debug builds only)** – `local.json` and `mock.json` contain `DebugLogins` (one demo account per role).
+The Login screen fills them in when its fields are empty and shows *"Debug: demo login filled in for this role"*. It
+never overwrites what you typed. `staging` / `production` have none, so their fields start empty; add a `DebugLogins`
+section to `staging.json` if your test server has the demo data. The code is compiled out of Release builds.
 
 **How it works**
 

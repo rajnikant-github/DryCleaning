@@ -50,6 +50,10 @@
 
                 <Label Text="{Binding ErrorText}" IsVisible="{Binding HasError}" TextColor="{StaticResource ErrorDark}" FontSize="14" />
 
+                <!--  Debug builds only: the fields were filled from DebugLogins in the environment profile  -->
+                <Label Text="Debug: demo login filled in for this role" IsVisible="{Binding IsDebugLoginFilled}"
+                       Style="{StaticResource Small}" Opacity="0.7" />
+
                 <Button Text="Forgot password?" Style="{StaticResource TextButton}" HorizontalOptions="Start"
                         Command="{Binding ForgotPasswordCommand}" />
 

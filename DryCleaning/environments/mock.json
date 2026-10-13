@@ -3,5 +3,19 @@
   "Features": {
     "UseMockData": true,
     "ShowDemoActions": true
+  },
+  "DebugLogins": {
+    "Customer": {
+      "Identifier": "sipho@example.co.za",
+      "Password": "Demo@12345"
+    },
+    "Provider": {
+      "Identifier": "thandi@sparkledrycleaners.co.za",
+      "Password": "Demo@12345"
+    },
+    "Driver": {
+      "Identifier": "bongani@drivers.edrycleaners.co.za",
+      "Password": "Demo@12345"
+    }
   }
 }

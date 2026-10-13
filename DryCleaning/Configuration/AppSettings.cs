@@ -27,6 +27,9 @@ public sealed class AppSettings
     public ApiSettings Api { get; set; } = new();
     public GoogleMapsSettings GoogleMaps { get; set; } = new();
 
+    /// <summary>Demo accounts pre-filled on the Login screen in Debug builds (from the environment profile).</summary>
+    public DebugLoginSettings DebugLogins { get; set; } = new();
+
     public static AppSettings Load()
     {
         try
