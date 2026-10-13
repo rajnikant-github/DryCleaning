@@ -431,3 +431,8 @@ FodyWeavers.xsd
 
 # App environment chosen with ./set-app-env.sh (local to each developer)
 DryCleaning/appsettings.env.json
+
+# App keys (Google Maps, ...) – never commit. Kept per environment on your machine only
+# (DryCleaning/environments/<name>.secrets.json); set-app-env copies the chosen one into the build.
+DryCleaning/environments/*.secrets.json
+DryCleaning/appsettings.secrets.json

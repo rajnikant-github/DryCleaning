@@ -9,11 +9,14 @@ namespace DryCleaning.Configuration;
 /// Change currency, VAT, feature flags or API URL there – no code changes needed.
 /// <c>./set-app-env.sh &lt;environment&gt;</c> writes <c>appsettings.env.json</c>; its values override
 /// <c>appsettings.json</c> (sections are merged, so a profile only lists what differs).
+/// Keys such as GoogleMaps:ApiKey live only on the developer's machine in <c>environments/&lt;name&gt;.secrets.json</c>
+/// (git-ignored); set-app-env copies the chosen environment's file to <c>appsettings.secrets.json</c>, merged last.
 /// </summary>
 public sealed class AppSettings
 {
     private const string BaseResource = "DryCleaning.appsettings.json";
     private const string EnvironmentResource = "DryCleaning.appsettings.env.json";
+    private const string SecretsResource = "DryCleaning.appsettings.secrets.json";
 
     /// <summary>Name of the environment profile in use (mock, local, staging, production), or empty for plain appsettings.json.</summary>
     public string Environment { get; set; } = string.Empty;
@@ -31,6 +34,8 @@ public sealed class AppSettings
             var merged = ReadResource(BaseResource) ?? new JsonObject();
             if (ReadResource(EnvironmentResource) is { } overrides)
                 Merge(merged, overrides);
+            if (ReadResource(SecretsResource) is { } secrets)
+                Merge(merged, secrets);
 
             return merged.Deserialize(AppSettingsJsonContext.Default.AppSettings) ?? new AppSettings();
         }

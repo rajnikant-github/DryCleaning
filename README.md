@@ -77,9 +77,22 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 **Demo data instead of the API:** set `"UseMockData": true` – no API needed, any email/phone + 4-character password,
 OTP `123456`, and the "simulate driver" / show-customer-code shortcuts (`Features:ShowDemoActions`).
 
-**Address search** uses Google (`GoogleMaps:ApiKey`): Places API (New) for suggestions and Geocoding API for
-"Use my current location". Enable both APIs for the key in Google Cloud Console and restrict the key to them.
-Leave `ApiKey` empty to use the sample Cape Town addresses.
+**Address search** uses Google: Places API (New) for suggestions and Geocoding API for "Use my current location".
+The key is **never committed** and is used **only in the `local` environment**. It lives on your machine in
+`DryCleaning/environments/local.secrets.json` (git-ignored):
+
+```json
+{ "GoogleMaps": { "ApiKey": "<your key>" } }
+```
+
+Create that file with your key, then run `./set-app-env.sh local` to copy it into the build.
+
+`set-app-env` copies only the chosen environment's `<name>.secrets.json` into the build (as the git-ignored
+`DryCleaning/appsettings.secrets.json`, merged last). `mock`, `staging` and `production` have no secrets file, so their
+builds contain no key. To give another environment a key later, create `environments/<name>.secrets.json` the same way.
+In Google Cloud Console enable both APIs, restrict the key to them, and (for released apps) to your Android package /
+iOS bundle id. Without a key the app uses sample Cape Town addresses. A key built into an app can be extracted
+from it – the API restrictions are what protect it.
 
 **Payments:** the app opens Paystack's checkout page and Paystack returns to the app via
 `edrycleaners://payment-complete` (must match `Paystack:CallbackUrl` in the API). The API then verifies the payment.
@@ -153,7 +166,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | OTP never arrives | Expected for now – use password login, or `Otp__ExposeCodeInResponse=true` on a test server. |
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
 | Photos missing after a restart/redeploy | `wwwroot/uploads` isn't on persistent storage. |
-| "Address search isn't working" | Enable Places API (New) and Geocoding API for `GoogleMaps:ApiKey` in Google Cloud Console, and check the key's restrictions. |
+| "Address search isn't working" | Check `DryCleaning/environments/<name>.secrets.json` has your key and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
 
 ## Switching environments
 
@@ -198,11 +211,14 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
   `Platforms/Android/Resources/xml/network_security_config.xml` (Android blocks plain `http` otherwise). That file
   is committed – remove the extra IP before a release. Start the API with the `http` profile so the phone can reach
   it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
+- Keys: `environments/<name>.secrets.json` (git-ignored) is copied as `appsettings.secrets.json` for that environment
+  only; switching to an environment without one removes the key from the build. `--reset` removes both files.
 - Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
 
 **Change or add an environment** – edit `DryCleaning/environments/staging.json` to your real test-server address
 (`Api:BaseUrl`), or add e.g. `uat.json` with the same shape and run `./set-app-env.sh uat`. Any setting from
-`appsettings.json` can go in a profile (for example a different `GoogleMaps:ApiKey` per environment).
+`appsettings.json` can go in a profile – but keys go in `environments/<name>.secrets.json` (git-ignored), never in
+a profile, because profiles are committed.
 
 **API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
 `Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
@@ -211,7 +227,9 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
 ## Configuration
 
 - **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-ZA), VAT, delivery fee, driver earning per job,
-  mock data and demo switches, API URLs (production + local Debug), Google Maps key, payment callback.
+  mock data and demo switches, API URLs (production + local Debug), payment callback.
+  Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
+  environment's keys, from `environments/<name>.secrets.json`) – all git-ignored, never committed.
 - **API** – `DryCleaning.Api/appsettings.json`: connection string, marketplace rules, JWT, Paystack, OTP, storage.
   Keep real secrets in `dotnet user-secrets` or environment variables.
 
