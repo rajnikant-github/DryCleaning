@@ -8,19 +8,5 @@
     "UseLocalApiInDebug": true,
     "LocalBaseUrlAndroid": "http://10.0.2.2:5180/",
     "LocalBaseUrlApple": "http://localhost:5180/"
-  },
-  "DebugLogins": {
-    "Customer": {
-      "Identifier": "sipho@example.co.za",
-      "Password": "Demo@12345"
-    },
-    "Provider": {
-      "Identifier": "thandi@sparkledrycleaners.co.za",
-      "Password": "Demo@12345"
-    },
-    "Driver": {
-      "Identifier": "bongani@drivers.edrycleaners.co.za",
-      "Password": "Demo@12345"
-    }
   }
 }
