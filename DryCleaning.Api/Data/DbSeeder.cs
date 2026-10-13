@@ -23,9 +23,23 @@ public static class DbSeeder
 
         // Apply migrations if the project has them; otherwise create the schema directly.
         if (db.Database.GetMigrations().Any())
-            await db.Database.MigrateAsync(ct);
+        {
+            try
+            {
+                await db.Database.MigrateAsync(ct);
+            }
+            catch (InvalidOperationException ex) when (ex.Message?.Contains("PendingModelChangesWarning") == true || ex.Message?.Contains("pending changes") == true)
+            {
+                // Migration failed because the EF model has changed but no migration was added.
+                // Log a clear error and skip seeding so the app can start. Developers should add a migration.
+                logger.LogError(ex, "EF Core model has pending changes; migrations were not applied. Add a new migration (dotnet ef migrations add <Name>) and apply it during deployment.");
+                return; // don't seed demo data when migrations couldn't be applied
+            }
+        }
         else
+        {
             await db.Database.EnsureCreatedAsync(ct);
+        }
 
         if (!seedDemoData || await db.Users.AnyAsync(ct))
             return;

@@ -5,35 +5,132 @@ SQL Server + EF Core 10, JWT auth, Swagger UI, Paystack payments. Tables follow 
 
 ## Run locally
 
-1. **SQL Server** – e.g. Docker on macOS (Apple Silicon):
+### Quick start – one command
+
+| OS | Script (in the repo root, next to `DryCleaning.sln`) |
+|---|---|
+| macOS (Intel or Apple Silicon) | `run-api.sh` – bash |
+| Windows 10/11 | `run-api.ps1` – PowerShell 5.1 or PowerShell 7 |
+
+Both scripts work the same way, in three phases:
+
+1. **Check** (changes nothing) – Docker Desktop installed and running, the `edry-sql` SQL Server container
+   (exists, running, accepts the SA password, port 1433 free), .NET 10 SDK, `dotnet-ef`, HTTPS dev
+   certificate, and the `AddPickupSlotAndItemNotes` migration. Each line shows OK, *fix* (the script can
+   fix it) or *need* (you must install it – the script stops and tells you what).
+2. **Fix** – lists what it will do, asks `Continue? [Y/n]`, then fixes only those items: starts Docker,
+   creates/starts the container, installs `dotnet-ef`, trusts the certificate, adds missing migrations.
+   It then waits until SQL Server accepts logins and builds the API.
+3. **Run** – starts the API (migrations are applied and demo data is seeded on startup) and opens Swagger.
+
+Ctrl+C stops the API; SQL Server keeps running in Docker so the next start is quick.
+
+#### macOS – `run-api.sh`
+
+Open Terminal (zsh or bash both work – the script always runs with bash):
+
+| Command | What it does |
+|---|---|
+| `./run-api.sh` | Check → fix what's missing (asks first) → run → open Swagger |
+| `./run-api.sh --check` | Checks only, changes nothing |
+| `./run-api.sh --yes` (or `-y`) | Fix without asking |
+| `./run-api.sh --reset-db` | Recreate the SQL Server container – **wipes local data**, reseeds demo data |
+| `./run-api.sh --reset-db --yes` | Fresh database without the prompt (options can be combined) |
+| `./run-api.sh --stop` | Stop the SQL Server container |
+| `./run-api.sh --help` (or `-h`) | Show the options |
+
+Other ways to start it:
+
+| Situation | Command |
+|---|---|
+| `permission denied` (e.g. after a fresh clone) | `chmod +x run-api.sh` once, or run `bash run-api.sh` |
+| From another folder | `~/Repos/DryCleaning/run-api.sh` – the script finds `DryCleaning.Api` relative to itself |
+| ⚠️ Don't use | `sh run-api.sh` – `sh` isn't bash; use `./run-api.sh` or `bash run-api.sh` |
+
+#### Windows – `run-api.ps1`
+
+Open **PowerShell** (Windows PowerShell or PowerShell 7) in the repo root. Docker Desktop must use the
+WSL 2 backend and **Linux containers** (the script checks this).
+
+| Command | What it does |
+|---|---|
+| `.\run-api.ps1` | Check → fix what's missing (asks first) → run → open Swagger |
+| `.\run-api.ps1 -Check` | Checks only, changes nothing |
+| `.\run-api.ps1 -Yes` | Fix without asking |
+| `.\run-api.ps1 -ResetDb` | Recreate the SQL Server container – **wipes local data**, reseeds demo data |
+| `.\run-api.ps1 -ResetDb -Yes` | Fresh database without the prompt |
+| `.\run-api.ps1 -Stop` | Stop the SQL Server container |
+| `.\run-api.ps1 -Help` | Show the options |
+
+The macOS-style options also work on Windows: `--check`, `--yes` / `-y`, `--reset-db`, `--stop`, `--help` / `-h`.
+
+Other ways to start it:
+
+| Situation | Command |
+|---|---|
+| *running scripts is disabled on this system* | `powershell -ExecutionPolicy Bypass -File .\run-api.ps1` (add options at the end, e.g. `-Check`) |
+| Allow local scripts permanently (current user) | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| Downloaded as a zip and still blocked | `Unblock-File .\run-api.ps1` |
+| PowerShell 7 | `pwsh .\run-api.ps1` |
+| From Command Prompt (cmd.exe) | `powershell -ExecutionPolicy Bypass -File run-api.ps1` |
+| From another folder | `C:\path\to\DryCleaning\run-api.ps1` |
+
+### Swagger
+
+Open **https://localhost:7180/swagger** (or http://localhost:5180/swagger).
+
+1. `POST /api/auth/login` → **Try it out** →
+   `{ "identifier": "bongani@drivers.edrycleaners.co.za", "password": "Demo@12345" }`
+2. Copy `accessToken` from the response.
+3. **Authorize** (top right) → paste the token (without `Bearer `) → Authorize.
+
+Demo users (seeded in Development, Cape Town data) – password for all: `Demo@12345`
+
+| Role | Login |
+|---|---|
+| Customer | sipho@example.co.za |
+| Provider | thandi@sparkledrycleaners.co.za |
+| Driver | bongani@drivers.edrycleaners.co.za |
+| Admin | admin@edrycleaners.co.za |
+
+OTP login in Development: the code is returned in the `POST /api/auth/otp/request` response (no SMS needed).
+
+### Manual setup (any OS)
+
+1. **SQL Server** (Docker; on Apple Silicon enable *Docker Desktop → Settings → General → Use Rosetta*):
    ```bash
-   docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong!Passw0rd" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+   docker run -d --name edry-sql --platform linux/amd64 \
+     -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong!Passw0rd" \
+     -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
    ```
-   Update `ConnectionStrings:DefaultConnection` in `appsettings.json` if your server/password differs.
-2. **Create the first migration** (recommended):
+   Wait for `docker logs edry-sql` to show *SQL Server is now ready for client connections*.
+   Change `ConnectionStrings:DefaultConnection` in `appsettings.json` if your server or password differs.
+2. **Tools**:
    ```bash
    dotnet tool install --global dotnet-ef
-   cd DryCleaning.Api
-   dotnet ef migrations add InitialCreate -o Data/Migrations
+   dotnet dev-certs https --trust
    ```
-   On startup the API applies migrations automatically. If no migrations exist it falls back to `EnsureCreated`.
-
-   **Schema additions for the Customer flow** (`Orders.PickupDate`, `Orders.PickupSlot`, `OrderItems.Notes`). If you already created `InitialCreate`, add a second migration:
-
+3. **Migrations** – after changing entities, add one (they're applied automatically on startup):
    ```bash
-   dotnet ef migrations add AddPickupSlotAndItemNotes -o Data/Migrations
+   cd DryCleaning.Api
+   dotnet ef migrations add <Name> -o Data/Migrations
    ```
-3. **Run** – `dotnet run` (or Rider), then open **https://localhost:7180/swagger**.
-   In Development, demo data is seeded (Cape Town). Password for all demo users: `Demo@12345`
+4. **Run** – `dotnet run --launch-profile https` (or the **https** profile in Rider).
 
-   | Role | Login |
-   |---|---|
-   | Admin | admin@edrycleaners.co.za |
-   | Provider | thandi@sparkledrycleaners.co.za |
-   | Driver | bongani@drivers.edrycleaners.co.za |
-   | Customer | sipho@example.co.za |
+### Troubleshooting
 
-   In Swagger: `POST /api/auth/login` → copy `accessToken` → **Authorize** → paste.
+| Symptom | Fix |
+|---|---|
+| `A network-related … error occurred while establishing a connection to SQL Server` / `Connection refused` | SQL Server isn't running or isn't ready yet: `docker start edry-sql`, wait ~30 s (or run the script). |
+| `Login failed for user 'sa'` | Container was created with another password: `./run-api.sh --reset-db` (Windows: `.\run-api.ps1 -ResetDb`) |
+| Container exits right after starting | Apple Silicon: enable Rosetta in Docker Desktop and give Docker ≥ 4 GB memory, then `./run-api.sh --reset-db` |
+| Log says *EF Core model has pending changes; migrations were not applied* | Add a migration (`dotnet ef migrations add <Name> -o Data/Migrations`) or just run `./run-api.sh`. |
+| API starts but there are no demo orders | Seeding only runs on an empty database. If a previous run failed half-way, run `./run-api.sh --reset-db` (Windows: `.\run-api.ps1 -ResetDb`). |
+| Windows: *Docker is in Windows containers mode* | Right-click the Docker tray icon → **Switch to Linux containers…** |
+| Windows: port 1433 in use | A local SQL Server service is running – stop it in *Services*, or `netstat -ano \| findstr :1433` to find it. |
+| Browser certificate warning | `dotnet dev-certs https --trust`, or use http://localhost:5180/swagger |
+| `401 Unauthorized` in Swagger | Token missing/expired (7 days) or wrong role – log in again with the right demo user. |
+| Paystack endpoints fail | Add your test keys (`sk_test_…`, `pk_test_…`) to `appsettings.Development.json`. |
 
 ## Configuration (`appsettings.json`)
 

@@ -4,6 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DryCleaning", "DryCleaning\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DryCleaning.Api", "DryCleaning.Api\DryCleaning.Api.csproj", "{4B6E2C1A-7D3F-4E8B-9A5C-2F1D6E8A3B70}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solutions", "Solutions", "{A3925DAB-4F73-414D-99C1-BB2B6A1D4FBA}"
+	ProjectSection(SolutionItems) = preProject
+		run-api.sh = run-api.sh
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

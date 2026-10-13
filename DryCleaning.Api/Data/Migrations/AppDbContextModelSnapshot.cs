@@ -387,6 +387,13 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Property<Guid>("PickupAddressId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("PickupDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("PickupSlot")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<Guid>("ServiceProviderId")
                         .HasColumnType("uniqueidentifier");
 
@@ -432,6 +439,10 @@ namespace DryCleaning.Api.Data.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
