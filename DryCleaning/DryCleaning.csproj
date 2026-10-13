@@ -54,8 +54,12 @@
         <EmbeddedResource Include="appsettings.json" LogicalName="DryCleaning.appsettings.json" />
         <!-- Environment overrides written by ./set-app-env.sh (git-ignored). Values here win over appsettings.json. -->
         <EmbeddedResource Include="appsettings.env.json" LogicalName="DryCleaning.appsettings.env.json" Condition="Exists('appsettings.env.json')" />
+        <EmbeddedResource Include="appsettings.json" LogicalName="DryCleaning.appsettings.json" />
+        <!-- Environment overrides written by ./set-app-env.sh (git-ignored). Values here win over appsettings.json. -->
+        <EmbeddedResource Include="appsettings.env.json" LogicalName="DryCleaning.appsettings.env.json" Condition="Exists('appsettings.env.json')" />
         <!-- Keys of the chosen environment, copied by ./set-app-env.sh from environments/<name>.secrets.json (git-ignored). Merged last. -->
         <EmbeddedResource Include="appsettings.secrets.json" LogicalName="DryCleaning.appsettings.secrets.json" Condition="Exists('appsettings.secrets.json')" />
+
     </ItemGroup>
 
     <ItemGroup>

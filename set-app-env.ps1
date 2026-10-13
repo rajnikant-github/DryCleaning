@@ -16,9 +16,14 @@ EDry Cleaners - switch the mobile app between environments (Windows PowerShell 5
 Profiles live in DryCleaning\environments\<name>.json and only list what differs from
 appsettings.json. The chosen one is copied to DryCleaning\appsettings.env.json (git-ignored) and
 built into the app - rebuild/redeploy the app after switching.
+Profiles live in DryCleaning\environments\<name>.json and only list what differs from
+appsettings.json. The chosen one is copied to DryCleaning\appsettings.env.json (git-ignored) and
+built into the app - rebuild/redeploy the app after switching.
+
 Keys (Google Maps) live only in DryCleaning\environments\<name>.secrets.json (git-ignored, on your
 machine). Only the chosen environment's keys are copied into the build; environments without a
 secrets file get no key (address search then uses sample addresses).
+
 "running scripts is disabled"? Use: powershell -ExecutionPolicy Bypass -File .\set-app-env.ps1 local
 #>
 [CmdletBinding()]
@@ -38,7 +43,11 @@ $AppDir = Join-Path $PSScriptRoot 'DryCleaning'
 $EnvDir = Join-Path $AppDir 'environments'
 $BaseFile = Join-Path $AppDir 'appsettings.json'
 $TargetFile = Join-Path $AppDir 'appsettings.env.json'
+$EnvDir = Join-Path $AppDir 'environments'
+$BaseFile = Join-Path $AppDir 'appsettings.json'
+$TargetFile = Join-Path $AppDir 'appsettings.env.json'
 $SecretsFile = Join-Path $AppDir 'appsettings.secrets.json'   # generated - keys of the chosen environment
+
 $NscFile = Join-Path $AppDir 'Platforms\Android\Resources\xml\network_security_config.xml'
 
 function Ok([string]$m)   { Write-Host "  [ok] $m" -ForegroundColor Green }
@@ -83,6 +92,7 @@ function Get-Profiles {
     if (-not (Test-Path -LiteralPath $EnvDir)) { return @() }
     return @(Get-ChildItem -LiteralPath $EnvDir -Filter '*.json' | Sort-Object Name | ForEach-Object { $_.BaseName } |
         Where-Object { $_ -notlike '*.secrets' })
+
 }
 
 function Show-List {
@@ -94,6 +104,7 @@ function Show-List {
         elseif ((Get-Value $json @('Api', 'UseLocalApiInDebug')) -eq $true) { $desc = "API on this machine (port $ApiPort)" }
         else { $desc = Get-Value $json @('Api', 'BaseUrl') }
         if (Test-Key (Join-Path $EnvDir "$p.secrets.json")) { $desc = "$desc - Google key" }
+
         if ($p -eq $current) { Write-Host "  * $p  $desc  (current)" -ForegroundColor Green }
         else { Write-Host "    $p  $desc" }
     }
@@ -119,6 +130,7 @@ function Show-Current {
     if (Test-Key $SecretsFile) { Write-Host "  Google Maps:   key set (environments\$envName.secrets.json)" }
     elseif (Get-Setting @('GoogleMaps', 'ApiKey')) { Write-Host '  Google Maps:   key set (in a committed file - move it to environments\<name>.secrets.json)' -ForegroundColor Yellow }
     else { Write-Host '  Google Maps:   no key - sample addresses' }
+
 }
 
 function Write-Utf8NoBom([string]$path, [string]$text) {
@@ -183,6 +195,7 @@ function Use-Profile([string]$name, [string]$ip) {
     if ($ip) { Add-DeviceIpToAndroid $ip }
     Set-Secrets $name
 
+
     # Sanity checks
     $mock = (Get-Setting @('Features', 'UseMockData')) -eq $true
     $base = [string](Get-Setting @('Api', 'BaseUrl'))
@@ -230,6 +243,7 @@ if ($List) { Show-List; exit 0 }
 if ($Reset) {
     foreach ($f in @($TargetFile, $SecretsFile)) { if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f } }
     Ok 'Removed DryCleaning\appsettings.env.json and appsettings.secrets.json - the app uses appsettings.json as committed (no keys).'
+
     Write-Host ''
     Show-Current
     exit 0

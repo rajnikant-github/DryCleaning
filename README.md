@@ -94,6 +94,7 @@ In Google Cloud Console enable both APIs, restrict the key to them, and (for rel
 iOS bundle id. Without a key the app uses sample Cape Town addresses. A key built into an app can be extracted
 from it – the API restrictions are what protect it.
 
+
 **Payments:** the app opens Paystack's checkout page and Paystack returns to the app via
 `edrycleaners://payment-complete` (must match `Paystack:CallbackUrl` in the API). The API then verifies the payment.
 Use Paystack test keys and a [test card](https://paystack.com/docs/payments/test-payments/) while developing.
@@ -168,6 +169,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Photos missing after a restart/redeploy | `wwwroot/uploads` isn't on persistent storage. |
 | "Address search isn't working" | Check `DryCleaning/environments/<name>.secrets.json` has your key and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
 
+
 ## Switching environments
 
 `set-app-env.sh` (macOS) / `set-app-env.ps1` (Windows) point the app at an environment without editing
@@ -213,12 +215,14 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
   it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
 - Keys: `environments/<name>.secrets.json` (git-ignored) is copied as `appsettings.secrets.json` for that environment
   only; switching to an environment without one removes the key from the build. `--reset` removes both files.
+
 - Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
 
 **Change or add an environment** – edit `DryCleaning/environments/staging.json` to your real test-server address
 (`Api:BaseUrl`), or add e.g. `uat.json` with the same shape and run `./set-app-env.sh uat`. Any setting from
 `appsettings.json` can go in a profile – but keys go in `environments/<name>.secrets.json` (git-ignored), never in
 a profile, because profiles are committed.
+
 
 **API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
 `Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
@@ -229,7 +233,8 @@ a profile, because profiles are committed.
 - **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-ZA), VAT, delivery fee, driver earning per job,
   mock data and demo switches, API URLs (production + local Debug), payment callback.
   Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
-  environment's keys, from `environments/<name>.secrets.json`) – all git-ignored, never committed.
+environment's keys, from `environments/<name>.secrets.json`) – all git-ignored, never committed.
+
 - **API** – `DryCleaning.Api/appsettings.json`: connection string, marketplace rules, JWT, Paystack, OTP, storage.
   Keep real secrets in `dotnet user-secrets` or environment variables.
 
