@@ -5,6 +5,7 @@ namespace DryCleaning.Api.Dtos;
 public sealed class ProductDto
 {
     public required Guid Id { get; init; }
+    public required Guid ServiceProviderId { get; init; }
     public required Guid CategoryId { get; init; }
     public required string CategoryName { get; init; }
     public required string Name { get; init; }

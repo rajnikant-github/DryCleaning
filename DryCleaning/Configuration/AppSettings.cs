@@ -13,6 +13,7 @@ public sealed class AppSettings
     public PricingSettings Pricing { get; set; } = new();
     public FeatureSettings Features { get; set; } = new();
     public ApiSettings Api { get; set; } = new();
+    public GoogleMapsSettings GoogleMaps { get; set; } = new();
 
     public static AppSettings Load()
     {

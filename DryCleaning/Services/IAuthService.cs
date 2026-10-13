@@ -9,4 +9,10 @@ public interface IAuthService
     Task<string> RequestOtpAsync(string identifier, UserRole role);
     Task<AuthResult> VerifyOtpAsync(string identifier, string code, UserRole role);
     Task LogoutAsync();
+
+    /// <summary>Signs back in with the session saved on this phone (API mode). True when a user is signed in.</summary>
+    Task<bool> RestoreSessionAsync();
+
+    /// <summary>Code to show on the OTP screen while testing (mock code, or the API's development code). Null in production.</summary>
+    string? OtpHint { get; }
 }

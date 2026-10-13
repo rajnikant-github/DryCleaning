@@ -96,6 +96,7 @@ public static class Mapping
         return new ProductDto
         {
             Id = p.Id,
+            ServiceProviderId = p.ServiceProviderId,
             CategoryId = p.CategoryId,
             CategoryName = p.Category?.Name ?? string.Empty,
             Name = p.Name,

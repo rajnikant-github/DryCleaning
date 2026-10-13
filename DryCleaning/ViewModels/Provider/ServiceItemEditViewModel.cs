@@ -78,7 +78,7 @@ public sealed partial class ServiceItemEditViewModel(ViewModelServices services,
 
         await catalog.SaveServiceItemAsync(new ServiceItem
         {
-            Id = IsNew ? Guid.NewGuid() : _serviceItemId,
+            Id = IsNew ? Guid.Empty : _serviceItemId,
             ProductId = _productId,
             Name = Name.Trim(),
             Description = Description.Trim(),

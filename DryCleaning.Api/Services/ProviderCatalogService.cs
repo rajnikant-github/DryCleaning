@@ -53,6 +53,9 @@ public sealed class ProviderCatalogService(AppDbContext db, CurrentProfile profi
 
     public async Task<ProductDto> GetProductAsync(Guid productId, CancellationToken ct) => (await LoadProductAsync(productId, ct)).ToDto();
 
+    public async Task<ServiceItemDto> GetServiceItemAsync(Guid serviceItemId, CancellationToken ct) =>
+        (await LoadServiceItemAsync(serviceItemId, ct)).ToDto();
+
     public async Task<ProductDto> CreateProductAsync(ProductRequest request, CancellationToken ct)
     {
         var provider = await profile.ProviderAsync(ct);

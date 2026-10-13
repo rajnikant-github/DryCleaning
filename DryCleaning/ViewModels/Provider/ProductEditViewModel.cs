@@ -75,7 +75,7 @@ public sealed partial class ProductEditViewModel(ViewModelServices services, IPr
         var product = IsNew ? new Product() : await catalog.GetProductAsync(_productId);
         var toSave = new Product
         {
-            Id = product.Id,
+            Id = IsNew ? Guid.Empty : product.Id,
             Name = Name.Trim(),
             Description = Description.Trim(),
             CategoryId = _categories[SelectedCategoryIndex].Id,

@@ -139,9 +139,12 @@ if (config.GetValue("Swagger:Enabled", true))
 }
 
 if (!app.Environment.IsDevelopment())
+{
     app.UseHsts();
-
-app.UseHttpsRedirection();
+    // Development skips this so the mobile app can call http://10.0.2.2:5180 (emulator) without
+    // being redirected to an https address the dev certificate doesn't cover.
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles(); // serves /uploads/... photos
 app.UseCors();
 app.UseAuthentication();

@@ -30,6 +30,24 @@
 	<string>EDry Cleaners uses your location to fill in your pickup address.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>EDry Cleaners uses the camera to photograph items when receiving, inspecting and packing orders.</string>
+	<!-- Debug: lets the app call the API on your Mac over http (./run-api.sh). Production uses HTTPS. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<!-- Paystack redirects back to the app with edrycleaners://payment-complete -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>co.za.edrycleaners.payment</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>edrycleaners</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>EDry Cleaners lets you attach order photos from your library.</string>
 </dict>

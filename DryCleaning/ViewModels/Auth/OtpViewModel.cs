@@ -33,8 +33,8 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
     public bool HasError => !string.IsNullOrEmpty(ErrorText);
     public bool CanResend => SecondsRemaining == 0;
     public string ResendText => CanResend ? "Resend OTP" : $"Resend OTP in {SecondsRemaining}s";
-    public bool ShowDemoHint => Services.Settings.Features.UseMockData;
-    public string DemoHint => $"Demo code: {MockAuthService.DemoOtp}";
+    public bool ShowDemoHint => !string.IsNullOrEmpty(auth.OtpHint);
+    public string DemoHint => $"Demo code: {auth.OtpHint}";
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -78,7 +78,18 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
 
     private async Task SendCodeAsync()
     {
-        Destination = await auth.RequestOtpAsync(_identifier, session.SelectedRole);
+        try
+        {
+            ErrorText = string.Empty;
+            Destination = await auth.RequestOtpAsync(_identifier, session.SelectedRole);
+        }
+        catch (Exception ex)
+        {
+            ErrorText = ex.Message;
+        }
+
+        OnPropertyChanged(nameof(ShowDemoHint));
+        OnPropertyChanged(nameof(DemoHint));
         await StartCountdownAsync();
     }
 
