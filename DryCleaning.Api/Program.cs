@@ -5,6 +5,7 @@ using DryCleaning.Api.Data;
 using DryCleaning.Api.Infrastructure.Auth;
 using DryCleaning.Api.Infrastructure.Errors;
 using DryCleaning.Api.Infrastructure.Payments;
+using DryCleaning.Api.Infrastructure.Push;
 using DryCleaning.Api.Infrastructure.Storage;
 using DryCleaning.Api.Infrastructure.Swagger;
 using DryCleaning.Api.Services;
@@ -24,12 +25,16 @@ builder.Services.Configure<PaystackOptions>(config.GetSection(PaystackOptions.Se
 builder.Services.Configure<OtpOptions>(config.GetSection(OtpOptions.Section));
 builder.Services.Configure<StorageOptions>(config.GetSection(StorageOptions.Section));
 
+// ── Push notifications (Firebase Cloud Messaging; log-only when not configured) ──
+builder.Services.AddPushNotifications(config);
+
 // ── Database (SQL Server) ────────────────────────────────────────────────────
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseSqlServer(
-        config.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing."),
-        sql => sql.EnableRetryOnFailure()));
+            config.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing."),
+            sql => sql.EnableRetryOnFailure())
+        .AddInterceptors(sp.GetRequiredService<NotificationPushInterceptor>())); // every saved notification is also pushed
 
 // ── Authentication (JWT) & authorization (roles) ─────────────────────────────
 var jwt = config.GetSection(JwtOptions.Section).Get<JwtOptions>() ?? new JwtOptions();
@@ -85,6 +90,7 @@ builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<OrderPhotoService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<AdminService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

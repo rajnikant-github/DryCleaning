@@ -37,7 +37,13 @@ public sealed class BcryptPasswordHasher : IPasswordHasher
 
 public interface ITokenService
 {
+    /// <summary>Creates the short-lived JWT access token (no refresh token – see AuthService.IssueAsync).</summary>
     AuthResponse Create(User user, Guid? profileId);
+
+    /// <summary>A new random refresh token and its SHA-256 hash (only the hash is stored).</summary>
+    (string Token, string Hash) NewRefreshToken();
+
+    string HashRefreshToken(string token);
 }
 
 public sealed class JwtTokenService(IOptions<JwtOptions> options) : ITokenService
@@ -72,6 +78,15 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : ITokenServic
         return new AuthResponse(token, expires, user.ToDto(profileId));
     }
 
+    public (string Token, string Hash) NewRefreshToken()
+    {
+        var token = Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(48));
+        return (token, HashRefreshToken(token));
+    }
+
+    public string HashRefreshToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token.Trim())));
+
     public static SymmetricSecurityKey SigningKey(JwtOptions settings) =>
         new(Encoding.UTF8.GetBytes(settings.SigningKey));
 }
@@ -95,6 +110,7 @@ public sealed class MemoryOtpService(IMemoryCache cache, IOptions<OtpOptions> op
         var max = (int)Math.Pow(10, settings.Length);
         var code = RandomNumberGenerator.GetInt32(0, max).ToString(new string('0', settings.Length));
         cache.Set(CacheKey(key), code, TimeSpan.FromSeconds(settings.ExpirySeconds));
+        cache.Remove(AttemptsKey(key));
 
         logger.LogInformation("OTP for {Destination}: {Code} (SMS sending not configured)", destination, code);
         return Task.FromResult(code);
@@ -107,11 +123,29 @@ public sealed class MemoryOtpService(IMemoryCache cache, IOptions<OtpOptions> op
 
         var ok = CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(code.Trim()));
         if (ok)
+        {
             cache.Remove(CacheKey(key));
-        return ok;
+            cache.Remove(AttemptsKey(key));
+            return true;
+        }
+
+        // Brute-force protection: the code is invalidated after MaxAttempts wrong guesses.
+        var attempts = (cache.TryGetValue(AttemptsKey(key), out int previous) ? previous : 0) + 1;
+        if (attempts >= options.Value.MaxAttempts)
+        {
+            cache.Remove(CacheKey(key));
+            cache.Remove(AttemptsKey(key));
+            logger.LogWarning("OTP for {Key} invalidated after {Attempts} wrong attempts", key, attempts);
+        }
+        else
+        {
+            cache.Set(AttemptsKey(key), attempts, TimeSpan.FromSeconds(options.Value.ExpirySeconds));
+        }
+        return false;
     }
 
     private static string CacheKey(string key) => $"otp:{key}";
+    private static string AttemptsKey(string key) => $"otp-attempts:{key}";
 }
 
 public sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser

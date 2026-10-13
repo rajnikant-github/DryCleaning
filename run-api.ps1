@@ -37,7 +37,8 @@ $SaPassword   = 'YourStrong!Passw0rd'
 $SqlPort      = 1433
 $SqlImage     = 'mcr.microsoft.com/mssql/server:2022-latest'
 $DotnetMajor  = 10
-$Migration    = 'AddPickupSlotAndItemNotes'
+# Named migrations, oldest first. A missing one is created (only if the model actually needs it).
+$Migrations   = @('AddPickupSlotAndItemNotes', 'AddPushDevicesAndRefreshTokens')
 $SwaggerUrl   = 'https://localhost:7180/swagger'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -235,7 +236,10 @@ if (Test-Command 'dotnet') {
 # dotnet-ef, dev certificate, migration
 function Test-DotnetEf { dotnet ef --version *> $null; return ($LASTEXITCODE -eq 0) }
 function Test-DevCert  { dotnet dev-certs https --check --trust *> $null; return ($LASTEXITCODE -eq 0) }
-function Test-Migration { return [bool](Get-ChildItem -Path (Join-Path $ApiDir 'Data\Migrations') -Filter "*_$Migration.cs" -ErrorAction SilentlyContinue) }
+function Test-Migration([string]$Name) {
+    return [bool](Get-ChildItem -Path $ApiDir -Recurse -Filter "*_$Name.cs" -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -notmatch '[\\/](bin|obj)[\\/]' })
+}
 
 if ($DotnetOk) {
     if (Test-DotnetEf) { Pass 'dotnet-ef tool' ((dotnet ef --version 2>$null | Select-Object -Last 1)) }
@@ -244,8 +248,10 @@ if ($DotnetOk) {
     if (Test-DevCert) { Pass 'HTTPS dev certificate' 'trusted' }
     else { Todo 'HTTPS dev certificate' 'not trusted -> will trust (Windows asks to confirm)'; $Actions.Add('Trust the HTTPS development certificate') }
 
-    if (Test-Migration) { Pass "Migration $Migration" 'present' }
-    else { Todo "Migration $Migration" 'missing -> will create'; $Actions.Add("Create migration $Migration") }
+    foreach ($m in $Migrations) {
+        if (Test-Migration $m) { Pass "Migration $m" 'present' }
+        else { Todo "Migration $m" 'missing -> will create'; $Actions.Add("Create migration $m") }
+    }
 
     Info 'Other pending model changes' 'checked after the build'
 }
@@ -372,14 +378,21 @@ Step 'Building the API'
 Invoke-Build
 Ok 'Build succeeded'
 
-if (-not (Test-Migration)) {
-    Step "Creating migration $Migration"
-    Add-Migration $Migration
+function Test-PendingChanges {
+    dotnet ef migrations has-pending-model-changes --no-build *> $efLog
+    return ($LASTEXITCODE -ne 0 -and ((Get-Content $efLog -Raw) -match 'changes have been made'))
+}
+
+foreach ($m in $Migrations) {
+    if (Test-Migration $m) { continue }
+    if (Test-PendingChanges) {
+        Step "Creating migration $m"
+        Add-Migration $m
+    }
 }
 
 Step 'Checking for other pending model changes'
-dotnet ef migrations has-pending-model-changes --no-build *> $efLog
-if ($LASTEXITCODE -ne 0 -and ((Get-Content $efLog -Raw) -match 'changes have been made')) {
+if (Test-PendingChanges) {
     Add-Migration ('ModelUpdate_' + (Get-Date -Format 'yyyyMMddHHmmss'))
 } else {
     Ok 'None - migrations are applied automatically when the API starts'

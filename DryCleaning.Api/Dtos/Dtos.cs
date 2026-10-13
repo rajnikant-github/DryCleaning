@@ -28,7 +28,17 @@ public sealed record ChangePasswordRequest(string CurrentPassword, string NewPas
 
 public sealed record UserDto(Guid Id, UserRole Role, string Name, string? Email, string? Phone, Guid? ProfileId, bool IsActive);
 
-public sealed record AuthResponse(string AccessToken, DateTime ExpiresAt, UserDto User);
+/// <param name="ExpiresAt">When the access token expires – call POST /api/auth/refresh before then.</param>
+/// <param name="RefreshToken">Keep in secure storage; exchange it at POST /api/auth/refresh. Rotates on every use.</param>
+public sealed record AuthResponse(string AccessToken, DateTime ExpiresAt, UserDto User, string? RefreshToken = null, DateTime? RefreshTokenExpiresAt = null);
+
+public sealed record RefreshTokenRequest(string RefreshToken);
+
+public sealed record ForgotPasswordRequest(string Identifier);
+
+public sealed record ResetPasswordRequest(string Identifier, string Code, string NewPassword);
+
+public sealed record RegisterDeviceRequest(string Token, DevicePlatform Platform);
 
 public sealed record UpdateProfileRequest(string Name, string? Email, string? Phone);
 

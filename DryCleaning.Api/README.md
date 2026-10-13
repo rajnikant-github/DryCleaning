@@ -16,7 +16,7 @@ Both scripts work the same way, in three phases:
 
 1. **Check** (changes nothing) – Docker Desktop installed and running, the `edry-sql` SQL Server container
    (exists, running, accepts the SA password, port 1433 free), .NET 10 SDK, `dotnet-ef`, HTTPS dev
-   certificate, and the `AddPickupSlotAndItemNotes` migration. Each line shows OK, *fix* (the script can
+   certificate, and the named migrations (`AddPickupSlotAndItemNotes`, `AddPushDevicesAndRefreshTokens`). Each line shows OK, *fix* (the script can
    fix it) or *need* (you must install it – the script stops and tells you what).
 2. **Fix** – lists what it will do, asks `Continue? [Y/n]`, then fixes only those items: starts Docker,
    creates/starts the container, installs `dotnet-ef`, trusts the certificate, adds missing migrations.
@@ -129,7 +129,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | Windows: *Docker is in Windows containers mode* | Right-click the Docker tray icon → **Switch to Linux containers…** |
 | Windows: port 1433 in use | A local SQL Server service is running – stop it in *Services*, or `netstat -ano \| findstr :1433` to find it. |
 | Browser certificate warning | `dotnet dev-certs https --trust`, or use http://localhost:5180/swagger |
-| `401 Unauthorized` in Swagger | Token missing/expired (7 days) or wrong role – log in again with the right demo user. |
+| `401 Unauthorized` in Swagger | Access token missing or expired (1 day in Development) or wrong role – log in again, or call `POST /api/auth/refresh` with the `refreshToken`. |
 | Paystack endpoints fail | Add your test keys (`sk_test_…`, `pk_test_…`) to `appsettings.Development.json`. |
 
 ## Configuration (`appsettings.json`)
@@ -137,9 +137,10 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | Section | Purpose |
 |---|---|
 | `Marketplace` | Currency (`ZAR`), VAT rate, delivery fee, driver earning per job, `RequirePaymentBeforeAccept` |
-| `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in user-secrets / env vars)** |
+| `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in user-secrets / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
-| `Otp` | Length/expiry. `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
+| `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
+| `Push` | `Enabled`, `FirebaseCredentialsPath` (Firebase service-account JSON). Empty path → pushes are only logged |
 | `Storage` | Upload folder under `wwwroot` and max photo size |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
 
@@ -147,7 +148,53 @@ Secrets (don't commit real keys):
 ```bash
 dotnet user-secrets set "Jwt:SigningKey" "<long random string>"
 dotnet user-secrets set "Paystack:SecretKey" "sk_live_..."
+dotnet user-secrets set "Push:FirebaseCredentialsPath" "/secure/path/firebase-service-account.json"
 ```
+
+## Sign-in, sessions and passwords
+
+| Action | Endpoint |
+|---|---|
+| Log in (password) | `POST /api/auth/login` |
+| Log in with a code | `POST /api/auth/otp/request` → `POST /api/auth/otp/verify` |
+| Renew the session | `POST /api/auth/refresh` `{ refreshToken }` |
+| Log out this device | `POST /api/auth/logout` `{ refreshToken }` |
+| Forgot password | `POST /api/auth/password/forgot` `{ identifier }` → `POST /api/auth/password/reset` `{ identifier, code, newPassword }` |
+| Change password (signed in) | `POST /api/auth/me/change-password` |
+
+- Login, register, OTP verify, refresh and password reset all return `accessToken` + `expiresAt` **and** a
+  `refreshToken` + `refreshTokenExpiresAt`. The app keeps the refresh token in secure storage and calls
+  `/api/auth/refresh` when the access token is about to expire (or on a 401).
+- **Refresh tokens rotate:** every refresh returns a new one and the old one stops working. If an old (already
+  used) refresh token is presented again, all of that user's sessions are revoked – it may have been stolen.
+  Only a SHA-256 hash of each refresh token is stored.
+- Password reset and change password sign the user out on every other device.
+- `password/forgot` answers the same way whether or not the account exists, so it can't be used to discover
+  accounts. In Development the code is returned as `devCode`.
+- Login and reset codes are invalidated after `Otp:MaxAttempts` (5) wrong guesses.
+
+## Push notifications (Firebase Cloud Messaging)
+
+Every in-app notification the API creates (new order, driver assigned, out for delivery, payment, …) is also
+sent as a push to the user's phones – Android and iOS through Firebase.
+
+| Action | Endpoint |
+|---|---|
+| Register this phone (after sign-in, on app start, when Firebase issues a new token) | `POST /api/me/devices` `{ token, platform: "Android" \| "iOS" }` |
+| Stop pushes to this phone (on logout) | `DELETE /api/me/devices?token=…` |
+
+Push payload: `notification.title` / `notification.body` plus `data.notificationId`, `data.type` and
+`data.orderId` (when the notification is about an order), so the app can open the right screen.
+
+**Setup**
+
+1. Create a Firebase project and add the Android and iOS apps (for iOS, upload the APNs key in
+   *Project settings → Cloud Messaging*).
+2. *Project settings → Service accounts → Generate new private key* – download the JSON. **Don't commit it.**
+3. Set `Push:FirebaseCredentialsPath` to that file (user-secrets or environment variable `Push__FirebaseCredentialsPath`).
+
+Without a credentials file the API runs normally and logs each push instead of sending it. Sending happens on a
+background queue, so API calls never wait for Firebase; tokens Firebase reports as expired are removed automatically.
 
 ## Paystack flow
 
@@ -211,3 +258,10 @@ driver's own and active – the customer's and provider's phone numbers.
 - `OrderVerifications`: `QR` = customer pickup code, `OTP` = delivery code, `Item` = driver item check at pickup / provider receipt check.
 - Order numbers come from a SQL sequence: `EDC-10001`, `EDC-10002`, …
 - Login OTPs are held in memory (no table in the schema) – plug an SMS provider into `MemoryOtpService`.
+- **Schema additions** (not in the V1 diagram):
+  - `Orders.PickupDate`, `Orders.PickupSlot`, `OrderItems.Notes` – customer pickup window and item instructions.
+  - `DeviceTokens` (UserId, Platform, Token – unique, LastSeenAt) – phones registered for push.
+  - `RefreshTokens` (UserId, TokenHash – unique SHA-256, ExpiresAt, RevokedAt, ReplacedByTokenHash) – sessions.
+
+  Migrations: `AddPickupSlotAndItemNotes`, `AddPushDevicesAndRefreshTokens` – the run scripts create them
+  automatically when missing, or run `dotnet ef migrations add <Name> -o Data/Migrations`.

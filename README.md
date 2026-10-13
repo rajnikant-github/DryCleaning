@@ -58,5 +58,6 @@ tested on one phone.
 
 - ✅ Mobile screens and workflows for Customer, Service Provider and Driver (mock data)
 - ✅ API for all three roles plus admin endpoints, Paystack payments, Swagger
-- ⏳ Connect the app to the API (replace mock services, token handling, Paystack checkout)
-- ⏳ Admin web portal, push notifications, refresh tokens / password reset, Google Places key
+- ✅ API: refresh tokens, forgot/reset password, push notifications (Firebase – needs your service-account file)
+- ⏳ Connect the app to the API (replace mock services, token refresh, push registration, Paystack checkout)
+- ⏳ Admin web portal, Google Places key, SMS/email provider for codes

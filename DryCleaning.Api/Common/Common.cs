@@ -60,7 +60,11 @@ public sealed class JwtOptions
     public string Issuer { get; set; } = "EDryCleaners";
     public string Audience { get; set; } = "EDryCleaners.App";
     public string SigningKey { get; set; } = string.Empty;
-    public int ExpiryMinutes { get; set; } = 60 * 24 * 7;
+    /// <summary>Access token lifetime. Keep it short – the app renews it with the refresh token.</summary>
+    public int ExpiryMinutes { get; set; } = 60;
+
+    /// <summary>Refresh token lifetime (sliding: every refresh issues a new one).</summary>
+    public int RefreshTokenDays { get; set; } = 30;
 }
 
 public sealed class PaystackOptions
@@ -84,6 +88,23 @@ public sealed class OtpOptions
 
     /// <summary>Development only: return the code in the API response instead of sending an SMS.</summary>
     public bool ExposeCodeInResponse { get; set; }
+
+    /// <summary>Wrong guesses allowed before a code is invalidated (login and password reset).</summary>
+    public int MaxAttempts { get; set; } = 5;
+}
+
+/// <summary>Section "Push": Firebase Cloud Messaging (Android + iOS).</summary>
+public sealed class PushOptions
+{
+    public const string Section = "Push";
+
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Path to the Firebase service-account JSON (Firebase console → Project settings → Service accounts).
+    /// When empty, pushes are only logged.
+    /// </summary>
+    public string? FirebaseCredentialsPath { get; set; }
 }
 
 public sealed class StorageOptions

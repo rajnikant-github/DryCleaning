@@ -71,6 +71,35 @@ public sealed class RequestOtpValidator : AbstractValidator<RequestOtpRequest>
     public RequestOtpValidator() => RuleFor(x => x.Identifier).NotEmpty().MaximumLength(100);
 }
 
+public sealed class RefreshTokenValidator : AbstractValidator<RefreshTokenRequest>
+{
+    public RefreshTokenValidator() => RuleFor(x => x.RefreshToken).NotEmpty().MaximumLength(200);
+}
+
+public sealed class ForgotPasswordValidator : AbstractValidator<ForgotPasswordRequest>
+{
+    public ForgotPasswordValidator() => RuleFor(x => x.Identifier).NotEmpty().MaximumLength(100);
+}
+
+public sealed class ResetPasswordValidator : AbstractValidator<ResetPasswordRequest>
+{
+    public ResetPasswordValidator()
+    {
+        RuleFor(x => x.Identifier).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Code).NotEmpty().Matches("^[0-9]{4,8}$");
+        RuleFor(x => x.NewPassword).Password();
+    }
+}
+
+public sealed class RegisterDeviceValidator : AbstractValidator<RegisterDeviceRequest>
+{
+    public RegisterDeviceValidator()
+    {
+        RuleFor(x => x.Token).NotEmpty().MaximumLength(512);
+        RuleFor(x => x.Platform).IsInEnum();
+    }
+}
+
 public sealed class VerifyOtpValidator : AbstractValidator<VerifyOtpRequest>
 {
     public VerifyOtpValidator()

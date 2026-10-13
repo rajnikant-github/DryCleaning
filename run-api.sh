@@ -22,7 +22,8 @@ SA_PASSWORD='YourStrong!Passw0rd'
 SQL_PORT=1433
 SQL_IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
 DOTNET_MAJOR=10
-MIGRATION="AddPickupSlotAndItemNotes"
+# Named migrations, oldest first. A missing one is created (only if the model actually needs it).
+MIGRATIONS=(AddPickupSlotAndItemNotes AddPushDevicesAndRefreshTokens)
 SWAGGER_URL="https://localhost:7180/swagger"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -79,6 +80,7 @@ sql_login() {   # 0 = login ok, 1 = not ready / unknown, 2 = wrong password
   return 1
 }
 port_in_use() { lsof -nP -iTCP:"$SQL_PORT" -sTCP:LISTEN >/dev/null 2>&1; }
+migration_exists() { find "$API_DIR" \( -name bin -o -name obj \) -prune -o -name "*_$1.cs" -print 2>/dev/null | grep -q .; }
 
 section "Checking your setup (no changes yet)"
 
@@ -153,11 +155,13 @@ if $DOTNET_OK; then
     todo "HTTPS dev certificate" "not trusted → will trust (macOS may ask your password)"; ACTIONS+=("Trust the HTTPS development certificate")
   fi
 
-  if ls "$API_DIR"/Data/Migrations/*_"$MIGRATION".cs >/dev/null 2>&1; then
-    pass "Migration $MIGRATION" "present"
-  else
-    todo "Migration $MIGRATION" "missing → will create"; ACTIONS+=("Create migration $MIGRATION")
-  fi
+  for m in "${MIGRATIONS[@]}"; do
+    if migration_exists "$m"; then
+      pass "Migration $m" "present"
+    else
+      todo "Migration $m" "missing → will create"; ACTIONS+=("Create migration $m")
+    fi
+  done
   info "Other pending model changes" "checked after the build"
 fi
 
@@ -269,13 +273,20 @@ step "Building the API"
 build
 ok "Build succeeded"
 
-if ! ls Data/Migrations/*_"$MIGRATION".cs >/dev/null 2>&1; then
-  step "Creating migration $MIGRATION"
-  add_migration "$MIGRATION"
-fi
+has_pending_changes() {
+  ! dotnet ef migrations has-pending-model-changes --no-build >/tmp/edry-ef.log 2>&1 && grep -qi "changes have been made" /tmp/edry-ef.log
+}
+
+for m in "${MIGRATIONS[@]}"; do
+  migration_exists "$m" && continue
+  if has_pending_changes; then
+    step "Creating migration $m"
+    add_migration "$m"
+  fi
+done
 
 step "Checking for other pending model changes"
-if ! dotnet ef migrations has-pending-model-changes --no-build >/tmp/edry-ef.log 2>&1 && grep -qi "changes have been made" /tmp/edry-ef.log; then
+if has_pending_changes; then
   add_migration "ModelUpdate_$(date +%Y%m%d%H%M%S)"
 else
   ok "None – migrations are applied automatically when the API starts"

@@ -254,3 +254,31 @@ public sealed class NotificationConfiguration : IEntityTypeConfiguration<Notific
         b.HasIndex(x => new { x.UserId, x.IsRead });
     }
 }
+
+// ── Schema additions ─────────────────────────────────────────────────────────
+
+public sealed class DeviceTokenConfiguration : IEntityTypeConfiguration<DeviceToken>
+{
+    public void Configure(EntityTypeBuilder<DeviceToken> b)
+    {
+        b.ToTable("DeviceTokens");
+        b.Property(x => x.Token).HasMaxLength(512).IsRequired();
+        b.HasIndex(x => x.Token).IsUnique();
+        b.HasIndex(x => x.UserId);
+        b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+    }
+}
+
+public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+{
+    public void Configure(EntityTypeBuilder<RefreshToken> b)
+    {
+        b.ToTable("RefreshTokens");
+        b.Property(x => x.TokenHash).HasMaxLength(64).IsRequired();
+        b.Property(x => x.ReplacedByTokenHash).HasMaxLength(64);
+        b.HasIndex(x => x.TokenHash).IsUnique();
+        b.HasIndex(x => new { x.UserId, x.ExpiresAt });
+        b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
+        b.Ignore(x => x.IsActive);
+    }
+}

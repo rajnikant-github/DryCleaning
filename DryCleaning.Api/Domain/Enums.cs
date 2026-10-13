@@ -99,3 +99,9 @@ public enum NotificationType
     Promo,
     System
 }
+
+public enum DevicePlatform
+{
+    Android,
+    iOS
+}

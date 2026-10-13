@@ -27,6 +27,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Dispute> Disputes => Set<Dispute>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    // Schema additions: push devices and refresh tokens
+    public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
         // Enums are stored as readable strings (e.g. "ReadyForDelivery").
