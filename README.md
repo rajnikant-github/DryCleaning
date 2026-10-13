@@ -8,6 +8,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | [`DryCleaning/`](DryCleaning/) | .NET MAUI app (Android + iOS, MVVM) – Customer, Service Provider and Driver roles in one app |
 | [`DryCleaning.Api/`](DryCleaning.Api/) | ASP.NET Core Web API (.NET 10) – SQL Server, EF Core, JWT, Swagger, Paystack. [API docs →](DryCleaning.Api/README.md) |
 | `run-api.sh` / `run-api.ps1` | One-command local API runner – macOS (bash) / Windows (PowerShell) |
+| `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
 | `DryCleaning.sln` | Solution with both projects |
 
 ## Contents
@@ -20,6 +21,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
   - [2. Server checklist](#2-server-checklist)
   - [3. Smoke test after each deploy](#3-smoke-test-after-each-deploy)
   - [Troubleshooting](#troubleshooting)
+- [Switching environments](#switching-environments)
 - [Configuration](#configuration)
 - [Status (V1)](#status-v1)
 
@@ -48,6 +50,9 @@ Demo users (password `Demo@12345`): `sipho@example.co.za` (Customer), `thandi@sp
 Open `DryCleaning.sln` in Rider (or Visual Studio) and run the **DryCleaning** project on an Android emulator or iOS simulator.
 
 The app talks to the **real API** (`"UseMockData": false` in `DryCleaning/appsettings.json`):
+
+> Tip: `./set-app-env.sh local` / `mock` / `staging` switches all of this in one command – see
+> [Switching environments](#switching-environments).
 
 1. Start the API first: `./run-api.sh` (it listens on `http://localhost:5180`).
 2. Run the app in **Debug**. It calls your machine automatically:
@@ -86,7 +91,9 @@ Use this when the API runs on a server (staging or production) instead of your m
 
 ### 1. Point the app at the server
 
-In `DryCleaning/appsettings.json`:
+Quickest: put the server address in `DryCleaning/environments/staging.json` and run `./set-app-env.sh staging`
+(see [Switching environments](#switching-environments)). The settings it applies, if you prefer to edit
+`DryCleaning/appsettings.json` directly:
 
 ```json
 "Features": { "UseMockData": false },
@@ -147,6 +154,59 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
 | Photos missing after a restart/redeploy | `wwwroot/uploads` isn't on persistent storage. |
 | "Address search isn't working" | Enable Places API (New) and Geocoding API for `GoogleMaps:ApiKey` in Google Cloud Console, and check the key's restrictions. |
+
+## Switching environments
+
+`set-app-env.sh` (macOS) / `set-app-env.ps1` (Windows) point the app at an environment without editing
+`DryCleaning/appsettings.json`:
+
+```bash
+./set-app-env.sh local                          # API on this machine (./run-api.sh) – emulator / simulator
+./set-app-env.sh local --device-ip 192.168.1.20 # API on this machine – physical phone on your Wi-Fi
+./set-app-env.sh mock                           # demo data, no API
+./set-app-env.sh staging                        # test server
+./set-app-env.sh production                     # https://edrycleaners.co.za/
+./set-app-env.sh --show                         # which environment / server the next build uses
+./set-app-env.sh --list                         # available environments (current one marked)
+./set-app-env.sh --reset                        # back to appsettings.json as committed
+```
+```powershell
+.\set-app-env.ps1 local                        # same commands on Windows
+.\set-app-env.ps1 local -DeviceIp 192.168.1.20
+.\set-app-env.ps1 -Show                        # also -List, -Reset, -Help (or --show, --list, ...)
+```
+
+Then **rebuild and run the app** – settings are built into the app. In Debug builds the role screen shows the
+environment and server at the bottom (e.g. `Environment: staging · https://staging.edrycleaners.co.za/`).
+
+| Environment | Data | Debug builds call | Release builds call |
+|---|---|---|---|
+| `mock` | Demo data on the phone | – | – |
+| `local` | Your local API | `http://10.0.2.2:5180/` (Android emulator), `http://localhost:5180/` (iOS simulator) | `Api:BaseUrl` |
+| `staging` | Test server | `https://staging.edrycleaners.co.za/` | same |
+| `production` | Live server | `https://edrycleaners.co.za/` | same |
+
+**How it works**
+
+- Each environment is a small file in `DryCleaning/environments/<name>.json` that lists only the settings that
+  differ from `appsettings.json` (sections are merged key by key).
+- The script validates it and copies it to `DryCleaning/appsettings.env.json`. That file is git-ignored, so switching
+  never shows up in `git status`; each developer picks their own environment.
+- The app embeds `appsettings.env.json` when it exists and `AppSettings.Load()` merges it over `appsettings.json`.
+  Without it the app uses `appsettings.json` exactly as committed.
+- `--device-ip` / `-DeviceIp` sets both local URLs to `http://<ip>:5180/` and adds the IP to
+  `Platforms/Android/Resources/xml/network_security_config.xml` (Android blocks plain `http` otherwise). That file
+  is committed – remove the extra IP before a release. Start the API with the `http` profile so the phone can reach
+  it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
+- Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
+
+**Change or add an environment** – edit `DryCleaning/environments/staging.json` to your real test-server address
+(`Api:BaseUrl`), or add e.g. `uat.json` with the same shape and run `./set-app-env.sh uat`. Any setting from
+`appsettings.json` can go in a profile (for example a different `GoogleMaps:ApiKey` per environment).
+
+**API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
+`Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
+[server checklist](#2-server-checklist).
 
 ## Configuration
 

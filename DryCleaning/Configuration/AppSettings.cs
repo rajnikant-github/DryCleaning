@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace DryCleaning.Configuration;
@@ -6,9 +7,17 @@ namespace DryCleaning.Configuration;
 /// <summary>
 /// App configuration loaded from the embedded <c>appsettings.json</c> at the project root.
 /// Change currency, VAT, feature flags or API URL there – no code changes needed.
+/// <c>./set-app-env.sh &lt;environment&gt;</c> writes <c>appsettings.env.json</c>; its values override
+/// <c>appsettings.json</c> (sections are merged, so a profile only lists what differs).
 /// </summary>
 public sealed class AppSettings
 {
+    private const string BaseResource = "DryCleaning.appsettings.json";
+    private const string EnvironmentResource = "DryCleaning.appsettings.env.json";
+
+    /// <summary>Name of the environment profile in use (mock, local, staging, production), or empty for plain appsettings.json.</summary>
+    public string Environment { get; set; } = string.Empty;
+
     public CurrencySettings Currency { get; set; } = new();
     public PricingSettings Pricing { get; set; } = new();
     public FeatureSettings Features { get; set; } = new();
@@ -19,15 +28,40 @@ public sealed class AppSettings
     {
         try
         {
-            using var stream = typeof(AppSettings).Assembly.GetManifestResourceStream("DryCleaning.appsettings.json");
-            if (stream is null)
-                return new AppSettings();
+            var merged = ReadResource(BaseResource) ?? new JsonObject();
+            if (ReadResource(EnvironmentResource) is { } overrides)
+                Merge(merged, overrides);
 
-            return JsonSerializer.Deserialize(stream, AppSettingsJsonContext.Default.AppSettings) ?? new AppSettings();
+            return merged.Deserialize(AppSettingsJsonContext.Default.AppSettings) ?? new AppSettings();
         }
         catch (JsonException)
         {
             return new AppSettings();
+        }
+    }
+
+    private static JsonObject? ReadResource(string name)
+    {
+        using var stream = typeof(AppSettings).Assembly.GetManifestResourceStream(name);
+        if (stream is null)
+            return null;
+
+        return JsonNode.Parse(stream, documentOptions: new JsonDocumentOptions
+        {
+            CommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        }) as JsonObject;
+    }
+
+    /// <summary>Copies <paramref name="overrides"/> into <paramref name="target"/>; nested sections are merged key by key.</summary>
+    internal static void Merge(JsonObject target, JsonObject overrides)
+    {
+        foreach (var (key, value) in overrides.ToList())
+        {
+            if (value is JsonObject section && target[key] is JsonObject existing)
+                Merge(existing, section);
+            else
+                target[key] = value?.DeepClone();
         }
     }
 }

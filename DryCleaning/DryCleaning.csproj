@@ -52,6 +52,8 @@
     <ItemGroup>
         <!-- App configuration: currency, VAT, feature flags, API URL -->
         <EmbeddedResource Include="appsettings.json" LogicalName="DryCleaning.appsettings.json" />
+        <!-- Environment overrides written by ./set-app-env.sh (git-ignored). Values here win over appsettings.json. -->
+        <EmbeddedResource Include="appsettings.env.json" LogicalName="DryCleaning.appsettings.env.json" Condition="Exists('appsettings.env.json')" />
     </ItemGroup>
 
     <ItemGroup>

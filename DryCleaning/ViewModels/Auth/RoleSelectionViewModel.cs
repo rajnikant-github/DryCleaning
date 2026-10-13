@@ -9,6 +9,25 @@ namespace DryCleaning.ViewModels.Auth;
 
 public sealed partial class RoleSelectionViewModel(ViewModelServices services, ISessionService session) : BaseViewModel(services)
 {
+    /// <summary>Debug builds show which environment (set-app-env) and server the app is using.</summary>
+    public bool ShowEnvironment =>
+#if DEBUG
+        true;
+#else
+        false;
+#endif
+
+    public string EnvironmentText
+    {
+        get
+        {
+            var settings = Services.Settings;
+            var name = string.IsNullOrWhiteSpace(settings.Environment) ? "appsettings.json" : settings.Environment;
+            var target = settings.Features.UseMockData ? "demo data" : settings.Api.ResolveBaseUrl();
+            return $"Environment: {name} · {target}";
+        }
+    }
+
     public override Task OnAppearingAsync()
     {
         State = ViewState.Content;
