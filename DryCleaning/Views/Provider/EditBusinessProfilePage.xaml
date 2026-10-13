@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Provider: edit business profile (name, description, contact, logo)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.EditBusinessProfilePage"
+                x:DataType="vm:EditBusinessProfileViewModel"
+                Title="Business Profile">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <!--  Logo  -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Border WidthRequest="96" HeightRequest="96" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 24" HorizontalOptions="Center">
+                        <Grid>
+                            <Label Text="🧺" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
+                        </Grid>
+                    </Border>
+                    <Button Text="{Binding LogoButtonText}" Style="{StaticResource TextButton}" HorizontalOptions="Center"
+                            Command="{Binding ChangeLogoCommand}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Business name" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding BusinessName}" Placeholder="Business name" MaxLength="100" Keyboard="Text" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Description" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Editor Text="{Binding Description}" Placeholder="What customers should know about you" MaxLength="500"
+                                AutoSize="TextChanges" MinimumHeightRequest="80" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Business phone" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Phone}" Placeholder="+27 21 555 0100" Keyboard="Telephone" MaxLength="20" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Business email" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Email}" Placeholder="hello@yourbusiness.co.za" Keyboard="Email" MaxLength="100" />
+                    </Border>
+                </VerticalStackLayout>
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasValidationMessage}">
+                    <Label Text="{Binding ValidationMessage}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Save Changes" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

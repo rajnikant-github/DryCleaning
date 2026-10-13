@@ -116,6 +116,31 @@ public sealed class ApiClient
         }
     }
 
+    /// <summary>Uploads one local file as multipart field "File" and reads the result.</summary>
+    public async Task<TResult> UploadFileAsync<TResult>(string path, string filePath, JsonTypeInfo<TResult> resultType, CancellationToken ct = default)
+    {
+        if (!File.Exists(filePath))
+            throw new ApiException("The photo could not be found on this phone. Please choose it again.");
+
+        using var response = await SendAsync(() =>
+        {
+            var file = new StreamContent(File.OpenRead(filePath));
+            file.Headers.ContentType = new MediaTypeHeaderValue(ContentTypeFor(filePath));
+            var form = new MultipartFormDataContent { { file, "File", Path.GetFileName(filePath) } };
+            return new HttpRequestMessage(HttpMethod.Post, path) { Content = form };
+        }, authorize: true, ct);
+        return await ReadAsync(response, resultType, ct);
+    }
+
+    /// <summary>Reverse of <see cref="AbsoluteUrl"/>: an address on this API back to "/uploads/x.jpg" before sending it.</summary>
+    public string? RelativeUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return null;
+        var root = BaseAddress.ToString();
+        return url.StartsWith(root, StringComparison.OrdinalIgnoreCase) ? "/" + url[root.Length..] : url;
+    }
+
     /// <summary>Turns "/uploads/x.jpg" from the API into a full URL the app can load.</summary>
     public string AbsoluteUrl(string url) =>
         string.IsNullOrWhiteSpace(url) || Uri.IsWellFormedUriString(url, UriKind.Absolute)

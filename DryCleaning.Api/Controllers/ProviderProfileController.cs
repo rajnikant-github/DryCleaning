@@ -20,6 +20,12 @@ public sealed class ProviderProfileController(ProviderProfileService profiles, P
     public Task<ProviderProfileDto> UpdateProfile(UpdateProviderProfileRequest request, CancellationToken ct) => profiles.UpdateAsync(request, ct);
 
     /// <summary>All global categories with whether my business offers them.</summary>
+    /// <summary>Upload a new business logo (JPG, PNG, HEIC or WEBP). Returns the updated profile with LogoUrl.</summary>
+    [HttpPost("profile/logo")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    public Task<ProviderProfileDto> UploadLogo([FromForm] UploadFileForm form, CancellationToken ct) => profiles.UploadLogoAsync(form.File, ct);
+
     [HttpGet("categories")]
     public Task<IReadOnlyList<ProviderCategoryDto>> GetCategories(CancellationToken ct) => catalog.GetCategoriesAsync(ct);
 

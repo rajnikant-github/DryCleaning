@@ -69,6 +69,91 @@ public sealed class ApiAuthService : IAuthService
         }
     }
 
+    public async Task<AuthResult> RegisterAsync(Registration registration)
+    {
+        var json = ApiJsonContext.Default;
+        var email = Clean(registration.Email);
+        var phone = Clean(registration.Phone);
+        try
+        {
+            var auth = registration.Role switch
+            {
+                UserRole.Customer => await _api.SendAsync(HttpMethod.Post, "api/auth/register/customer",
+                    new RegisterCustomerRequest { Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password },
+                    json.RegisterCustomerRequest, json.AuthResponse, authorize: false),
+                UserRole.Driver => await _api.SendAsync(HttpMethod.Post, "api/auth/register/driver",
+                    new RegisterDriverRequest
+                    {
+                        Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password,
+                        LicenseNumber = registration.LicenseNumber?.Trim() ?? string.Empty
+                    },
+                    json.RegisterDriverRequest, json.AuthResponse, authorize: false),
+                UserRole.Provider => await _api.SendAsync(HttpMethod.Post, "api/auth/register/provider",
+                    new RegisterProviderRequest
+                    {
+                        Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password,
+                        BusinessName = registration.BusinessName?.Trim() ?? string.Empty,
+                        Description = Clean(registration.Description),
+                        CategoryIds = registration.CategoryIds.Distinct().ToList()
+                    },
+                    json.RegisterProviderRequest, json.AuthResponse, authorize: false),
+                _ => throw new ApiException("Only Customer, Service Provider and Driver accounts can be created in the app.")
+            };
+
+            if (auth.User.Role == UserRole.Provider)
+            {
+                // New businesses are reviewed by an admin first – don't keep a session for them yet.
+                if (!string.IsNullOrEmpty(auth.RefreshToken))
+                    await RevokeAsync(auth.RefreshToken);
+                return AuthResult.Pending(PendingApprovalMessage);
+            }
+
+            await _tokens.SaveAsync(auth);
+            SignIn(auth);
+            return AuthResult.Ok();
+        }
+        catch (ApiException ex)
+        {
+            return AuthResult.Fail(ex.Message);
+        }
+    }
+
+    public async Task<string> RequestPasswordResetAsync(string identifier)
+    {
+        OtpHint = null;
+        var response = await _api.SendAsync(HttpMethod.Post, "api/auth/password/forgot",
+            new ForgotPasswordRequest { Identifier = identifier.Trim() },
+            ApiJsonContext.Default.ForgotPasswordRequest, ApiJsonContext.Default.RequestOtpResponse, authorize: false);
+        OtpHint = response.DevCode;
+        return response.Destination;
+    }
+
+    public async Task<AuthResult> ResetPasswordAsync(string identifier, string code, string newPassword, UserRole role)
+    {
+        try
+        {
+            var auth = await _api.SendAsync(HttpMethod.Post, "api/auth/password/reset",
+                new ResetPasswordRequest { Identifier = identifier.Trim(), Code = code.Trim(), NewPassword = newPassword },
+                ApiJsonContext.Default.ResetPasswordRequest, ApiJsonContext.Default.AuthResponse, authorize: false);
+            return await CompleteSignInAsync(auth, role);
+        }
+        catch (ApiException ex)
+        {
+            return AuthResult.Fail(ex.Message);
+        }
+    }
+
+    public Task ChangePasswordAsync(string currentPassword, string newPassword) =>
+        _api.SendAsync(HttpMethod.Post, "api/auth/me/change-password",
+            new ChangePasswordRequest { CurrentPassword = currentPassword, NewPassword = newPassword },
+            ApiJsonContext.Default.ChangePasswordRequest);
+
+    /// <summary>Shown after a Service Provider signs up (the business needs admin approval).</summary>
+    public const string PendingApprovalMessage =
+        "Thanks for registering! Your business is being reviewed by the EDry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
+
+    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
     public async Task LogoutAsync()
     {
         var auth = await _tokens.GetAsync();

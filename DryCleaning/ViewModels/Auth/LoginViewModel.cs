@@ -80,24 +80,11 @@ public sealed partial class LoginViewModel(ViewModelServices services, IAuthServ
     });
 
     [RelayCommand]
-    private async Task ForgotPasswordAsync()
-    {
-        var value = Identifier;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            value = await Dialogs.PromptAsync("Reset password", "Enter your mobile number or email. We'll send you a 6-digit code.", "Send code", "+27 82 555 0142") ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(value))
-                return;
-            Identifier = value;
-        }
-
-        await Navigation.GoToAsync(Routes.Otp, Param(Routes.IdentifierKey, value.Trim()));
-    }
+    private Task ForgotPasswordAsync() =>
+        Navigation.GoToAsync(Routes.ForgotPassword, Param(Routes.IdentifierKey, Identifier.Trim()));
 
     [RelayCommand]
-    private Task CreateAccountAsync() =>
-        Dialogs.AlertAsync("Become a provider",
-            "Service Provider accounts are verified by the EDry Cleaners team. Please email partners@edrycleaners.co.za to register your business.");
+    private Task CreateAccountAsync() => Navigation.GoToAsync(Routes.SignUp);
 
     [RelayCommand]
     private void TogglePassword() => IsPasswordHidden = !IsPasswordHidden;

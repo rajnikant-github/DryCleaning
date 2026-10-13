@@ -5,4 +5,16 @@ namespace DryCleaning.Services;
 public interface IProviderProfileService
 {
     Task<ProviderProfile> GetProfileAsync();
+
+    /// <summary>Saves business name, description, phone and email.</summary>
+    Task UpdateProfileAsync(ProviderProfileUpdate update);
+
+    /// <summary>Uploads a new logo from a local photo and returns its URL.</summary>
+    Task<string> UploadLogoAsync(string localPath);
+
+    /// <summary>All active marketplace categories, marking the ones this provider offers.</summary>
+    Task<IReadOnlyList<ProviderCategoryOption>> GetCategoryOptionsAsync();
+
+    /// <summary>Sets which categories this provider offers (at least one).</summary>
+    Task SetCategoriesAsync(IReadOnlyList<Guid> categoryIds);
 }

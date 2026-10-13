@@ -10,6 +10,18 @@ public interface IAuthService
     Task<AuthResult> VerifyOtpAsync(string identifier, string code, UserRole role);
     Task LogoutAsync();
 
+    /// <summary>Creates an account. Customers and drivers are signed in; providers get <see cref="AuthResult.PendingApproval"/>.</summary>
+    Task<AuthResult> RegisterAsync(Registration registration);
+
+    /// <summary>Sends a password-reset code and returns the masked destination.</summary>
+    Task<string> RequestPasswordResetAsync(string identifier);
+
+    /// <summary>Checks the reset code, sets the new password and signs in (other devices are signed out).</summary>
+    Task<AuthResult> ResetPasswordAsync(string identifier, string code, string newPassword, UserRole role);
+
+    /// <summary>Changes the signed-in user's password. Throws with a user-friendly message on failure.</summary>
+    Task ChangePasswordAsync(string currentPassword, string newPassword);
+
     /// <summary>Signs back in with the session saved on this phone (API mode). True when a user is signed in.</summary>
     Task<bool> RestoreSessionAsync();
 

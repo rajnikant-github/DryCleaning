@@ -84,6 +84,9 @@ public sealed partial class DriverProfileViewModel(ViewModelServices services, I
     private Task OpenNotificationsAsync() => Navigation.GoToAsync(Routes.Notifications);
 
     [RelayCommand]
+    private Task ChangePasswordAsync() => Navigation.GoToAsync(Routes.ChangePassword);
+
+    [RelayCommand]
     private Task HelpAsync() =>
         Dialogs.AlertAsync("Driver support", "Call +27 21 555 0100 (07:00–20:00, every day) or email drivers@edrycleaners.co.za.");
 

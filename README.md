@@ -68,6 +68,16 @@ Pick a role, then sign in with a demo account (password `Demo@12345`) or with OT
 code and the OTP screen shows it. Choosing the wrong role for an account shows which role to pick. The session is kept
 on the phone (SecureStorage) and refreshed automatically, so you stay signed in after closing the app.
 
+**Accounts and passwords in the app**
+
+| Where | What |
+|---|---|
+| Login → *Create account* | Sign up for the role picked on the Role screen. Customers and drivers are signed in straight away; a new **Service Provider** (business name, description, categories) is reviewed by an admin first, so the app confirms the registration and returns to Login. Passwords: at least 8 characters with a letter and a number. |
+| Login → *Forgot password?* | Enter your mobile number or email → enter the 6-digit code (shown on screen in Development) and a new password → you're signed in; other devices are signed out. |
+| Profile → *Change Password* | Customer, Service Provider and Driver profiles: current password + new password. |
+| Provider Profile → *Edit* (Business) | Business name, description, phone, email and logo (take or choose a photo – uploaded to `POST api/provider/profile/logo`). |
+| Provider Profile → *Manage* (Categories) | Switch the categories you offer on or off; customers only see your products in categories that are on. |
+
 | Role | Demo account | Try |
 |---|---|---|
 | Customer | `sipho@example.co.za` | Browse → provider → items → cart → pickup address & slot → pay (Paystack test card) → track |
@@ -240,4 +250,5 @@ a profile, because profiles are committed.
 - ✅ API: refresh tokens, forgot/reset password, push notifications (Firebase – needs your service-account file)
 - ✅ App connected to the API (sign-in + saved session with token refresh, all screens, photo upload, Paystack checkout, Google address search)
 - ⏳ Push notification registration in the app (needs your Firebase project files)
-- ⏳ Registration and forgot-password screens, Admin web portal, SMS/email provider for codes
+- ✅ App: sign-up (all roles), forgot/reset and change password, provider business profile (incl. logo) and categories
+- ⏳ Admin web portal, SMS/email provider for codes

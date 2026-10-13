@@ -14,6 +14,11 @@ public partial class AppShell : Shell
 
         // Pushed (non-tab) pages
         Routing.RegisterRoute(Routes.Otp, typeof(OtpPage));
+        Routing.RegisterRoute(Routes.SignUp, typeof(SignUpPage));
+        Routing.RegisterRoute(Routes.ForgotPassword, typeof(ForgotPasswordPage));
+        Routing.RegisterRoute(Routes.ChangePassword, typeof(ChangePasswordPage));
+        Routing.RegisterRoute(Routes.EditBusinessProfile, typeof(EditBusinessProfilePage));
+        Routing.RegisterRoute(Routes.ProviderCategories, typeof(ProviderCategoriesPage));
         Routing.RegisterRoute(Routes.Notifications, typeof(NotificationsPage));
         Routing.RegisterRoute(Routes.OrderDetail, typeof(OrderDetailPage));
         Routing.RegisterRoute(Routes.ReceiveOrder, typeof(ReceiveOrderPage));

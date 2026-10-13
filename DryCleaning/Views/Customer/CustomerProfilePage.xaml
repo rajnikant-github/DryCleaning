@@ -73,6 +73,15 @@
                         <BoxView Style="{StaticResource Divider}" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
                             <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="🔑" FontSize="18" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Change Password" FontSize="15" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                            <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>
                             <Label Text="💬" FontSize="18" VerticalOptions="Center" />

@@ -49,6 +49,9 @@ public sealed partial class CustomerProfileViewModel(
     private Task OpenNotificationsAsync() => Navigation.GoToAsync(Routes.Notifications);
 
     [RelayCommand]
+    private Task ChangePasswordAsync() => Navigation.GoToAsync(Routes.ChangePassword);
+
+    [RelayCommand]
     private Task HelpAsync() =>
         Dialogs.AlertAsync("Help & Support", "Email help@edrycleaners.co.za or call +27 21 555 0100 (Mon–Sat, 08:00–18:00).");
 

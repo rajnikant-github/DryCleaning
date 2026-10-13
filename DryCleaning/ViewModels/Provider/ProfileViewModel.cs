@@ -19,6 +19,12 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     [ObservableProperty] private string categoriesText = string.Empty;
     [ObservableProperty] private string ownerInitials = string.Empty;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasLogo))]
+    private ImageSource? logoSource;
+
+    public bool HasLogo => LogoSource is not null;
+
     protected override async Task<bool> LoadDataAsync()
     {
         var profile = await profiles.GetProfileAsync();
@@ -29,12 +35,22 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
         Phone = profile.Provider.Phone;
         Email = profile.Provider.Email;
         Address = profile.Address.FormattedAddress;
+        LogoSource = ImageSources.FromPathOrUrl(profile.Provider.LogoUrl);
         CategoriesText = string.Join("  ·  ", profile.Categories.Select(c => $"{CatalogIcons.ForCategory(c.Name)} {c.Name}"));
         return true;
     }
 
     [RelayCommand]
     private Task OpenNotificationsAsync() => Navigation.GoToAsync(Routes.Notifications);
+
+    [RelayCommand]
+    private Task EditBusinessProfileAsync() => Navigation.GoToAsync(Routes.EditBusinessProfile);
+
+    [RelayCommand]
+    private Task ManageCategoriesAsync() => Navigation.GoToAsync(Routes.ProviderCategories);
+
+    [RelayCommand]
+    private Task ChangePasswordAsync() => Navigation.GoToAsync(Routes.ChangePassword);
 
     [RelayCommand]
     private Task OpenServicesAsync() => Navigation.GoToAsync("//provider/services");

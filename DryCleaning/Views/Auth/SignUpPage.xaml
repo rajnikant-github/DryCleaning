@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Sign up (Customer / Service Provider / Driver – role from the Role screen)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Auth"
+                x:Class="DryCleaning.Views.Auth.SignUpPage"
+                x:DataType="vm:SignUpViewModel"
+                Title="Sign up">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="20,20,20,24" Spacing="16">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{Binding Heading}" Style="{StaticResource H1}" />
+                    <Label Text="{Binding Subheading}" Style="{StaticResource Caption}" FontSize="15" />
+                </VerticalStackLayout>
+
+                <!--  Business (Service Provider only)  -->
+                <VerticalStackLayout Spacing="16" IsVisible="{Binding IsProvider}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Business name" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource InputField}">
+                            <Entry Text="{Binding BusinessName}" Placeholder="e.g. Sparkle Dry Cleaners" MaxLength="100" Keyboard="Text" />
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="About your business (optional)" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource InputField}">
+                            <Editor Text="{Binding Description}" Placeholder="Services, specialities, opening hours…" MaxLength="500"
+                                    AutoSize="TextChanges" MinimumHeightRequest="80" />
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Categories you offer" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource Card}" Padding="0">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Categories}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="items:CategoryToggleItem">
+                                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10" Padding="12,8">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleCommand}" />
+                                            </Grid.GestureRecognizers>
+                                            <CheckBox IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Icon}" FontSize="18" VerticalOptions="Center" />
+                                            <Label Grid.Column="2" Text="{Binding Name}" FontSize="15" VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                    <Label Text="Your details (account owner)" Style="{StaticResource SectionLabel}" Margin="0,8,0,0" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Full name" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Name}" Placeholder="Your name" MaxLength="100" Keyboard="Text" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Mobile number" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Phone}" Placeholder="+27 82 123 4567" Keyboard="Telephone" MaxLength="20" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Email" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Email}" Placeholder="you@example.com" Keyboard="Email" MaxLength="100" />
+                    </Border>
+                    <Label Text="Add a mobile number, an email, or both – you can sign in with either." Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+
+                <!--  Driver only  -->
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding IsDriver}">
+                    <Label Text="Driver's licence number" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding LicenseNumber}" Placeholder="e.g. CA 456-218" MaxLength="50" Keyboard="Text" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Password" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry Text="{Binding Password}" Placeholder="Create a password" IsPassword="{Binding IsPasswordHidden}" MaxLength="100" />
+                            <Label Grid.Column="1" Text="{Binding PasswordToggleText}" Style="{StaticResource LinkLabel}" VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding TogglePasswordCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+                    <Label Text="{Binding PasswordHint}" Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Confirm password" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding ConfirmPassword}" Placeholder="Type it again" IsPassword="{Binding IsPasswordHidden}" MaxLength="100" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasValidationMessage}">
+                    <Label Text="{Binding ValidationMessage}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                </Border>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                    <Label Text="Already have an account?" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Text="Sign in" Style="{StaticResource LinkLabel}" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SignInInsteadCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Create account" Command="{Binding CreateAccountCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

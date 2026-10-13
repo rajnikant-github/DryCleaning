@@ -21,6 +21,11 @@ public static class Routes
 
     // Pushed pages (relative)
     public const string Otp = "otp";
+    public const string SignUp = "signup";
+    public const string ForgotPassword = "forgotpassword";
+    public const string ChangePassword = "changepassword";
+    public const string EditBusinessProfile = "editbusinessprofile";
+    public const string ProviderCategories = "providercategories";
     public const string Notifications = "notifications";
     public const string OrderDetail = "orderdetail";
     public const string ReceiveOrder = "receiveorder";

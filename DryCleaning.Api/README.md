@@ -262,6 +262,7 @@ driver's own and active – the customer's and provider's phone numbers.
 | One provider (products screen header) | `GET /api/providers/{providerId}?categoryId=…` |
 | One product with its prices (customer) | `GET /api/catalog/products/{productId}` |
 | Edit one service item (provider) | `GET /api/provider/service-items/{serviceItemId}` |
+| Upload business logo (provider, multipart field `File`) | `POST /api/provider/profile/logo` |
 | Customer order tab counts | `GET /api/customer/orders/counts` |
 | Provider order tab counts | `GET /api/provider/orders/counts` |
 | Driver dashboard (name, active job, today's jobs, unread) | `GET /api/driver/dashboard` |
