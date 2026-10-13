@@ -16,13 +16,9 @@
 # Profiles live in DryCleaning/environments/<name>.json and only list what differs from
 # appsettings.json. The chosen one is copied to DryCleaning/appsettings.env.json (git-ignored) and
 # built into the app – rebuild/redeploy the app after switching.
-# Profiles live in DryCleaning/environments/<name>.json and only list what differs from
-# appsettings.json. The chosen one is copied to DryCleaning/appsettings.env.json (git-ignored) and
-# built into the app – rebuild/redeploy the app after switching.
 # Keys (Google Maps) live only in DryCleaning/environments/<name>.secrets.json (git-ignored, on your
 # machine). Only the chosen environment's keys are copied into the build; environments without a
 # secrets file get no key (address search then uses sample addresses).
-
 # "permission denied"? Run once: chmod +x set-app-env.sh   (or use: bash set-app-env.sh)
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
@@ -32,11 +28,7 @@ APP_DIR="$SCRIPT_DIR/DryCleaning"
 ENV_DIR="$APP_DIR/environments"
 BASE_FILE="$APP_DIR/appsettings.json"
 TARGET_FILE="$APP_DIR/appsettings.env.json"
-ENV_DIR="$APP_DIR/environments"
-BASE_FILE="$APP_DIR/appsettings.json"
-TARGET_FILE="$APP_DIR/appsettings.env.json"
 SECRETS_FILE="$APP_DIR/appsettings.secrets.json"          # generated – keys of the chosen environment
-
 NSC_FILE="$APP_DIR/Platforms/Android/Resources/xml/network_security_config.xml"
 API_PORT=5180
 
@@ -61,10 +53,6 @@ setting() {
   echo "$v"
 }
 
-  [ -n "$v" ] || v="$(json_value "$1" "$BASE_FILE")"
-  echo "$v"
-}
-
 validate_json() {
   if command -v python3 >/dev/null 2>&1; then
     python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$1" 2>/dev/null || fail "$(basename "$1") is not valid JSON."
@@ -85,7 +73,6 @@ profiles() {
 
 has_key() { [ -n "$(json_value ApiKey "$1")" ]; }
 
-
 list() {
   echo "${bold}Environments${reset} ${dim}(DryCleaning/environments/)${reset}"
   local current; current="$(json_value Environment "$TARGET_FILE")"
@@ -95,7 +82,6 @@ list() {
     elif [ "$(json_value UseLocalApiInDebug "$f")" = "true" ]; then desc="API on this machine (port $API_PORT)"
     else desc="$(json_value BaseUrl "$f")"; fi
     has_key "$ENV_DIR/$p.secrets.json" && desc="$desc · Google key"
-
     if [ "$p" = "$current" ]; then echo "  ${green}● $p${reset}  ${dim}$desc  (current)${reset}"
     else echo "  ○ $p  ${dim}$desc${reset}"; fi
   done
@@ -118,7 +104,6 @@ show() {
   if has_key "$SECRETS_FILE"; then echo "  Google Maps:   key set ${dim}(environments/${name:-?}.secrets.json)${reset}"
   elif [ -n "$(setting ApiKey)" ]; then echo "  Google Maps:   key set ${yellow}(in a committed file – move it to environments/<name>.secrets.json)${reset}"
   else echo "  Google Maps:   no key – sample addresses"; fi
-
 }
 
 add_device_ip_to_android() {
@@ -170,7 +155,6 @@ use_profile() {
   [ -n "$ip" ] && add_device_ip_to_android "$ip"
   apply_secrets "$name"
 
-
   # Sanity checks
   local mock base; mock="$(setting UseMockData)"; base="$(setting BaseUrl)"
   if [ "$name" = "production" ] && [ "$mock" = "true" ]; then warn "production uses demo data (UseMockData: true)."; fi
@@ -214,7 +198,6 @@ case "$ACTION" in
   reset)
     rm -f "$TARGET_FILE" "$SECRETS_FILE"
     ok "Removed DryCleaning/appsettings.env.json and appsettings.secrets.json – the app uses appsettings.json as committed (no keys)."
-
     echo; show ;;
   use)
     if [ -z "$PROFILE" ]; then usage; echo; list; exit 1; fi
