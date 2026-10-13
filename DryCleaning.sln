@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solutions", "Solutions", "{
 	ProjectSection(SolutionItems) = preProject
 		run-api.sh = run-api.sh
 		README.md = README.md
+		run-api.ps1 = run-api.ps1
 	EndProjectSection
 EndProject
 Global
