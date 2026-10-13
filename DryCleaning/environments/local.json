@@ -1,0 +1,12 @@
+{
+  "Environment": "local",
+  "Features": {
+    "UseMockData": false,
+    "ShowDemoActions": false
+  },
+  "Api": {
+    "UseLocalApiInDebug": true,
+    "LocalBaseUrlAndroid": "http://10.0.2.2:5180/",
+    "LocalBaseUrlApple": "http://localhost:5180/"
+  }
+}

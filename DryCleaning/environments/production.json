@@ -1,0 +1,11 @@
+{
+  "Environment": "production",
+  "Features": {
+    "UseMockData": false,
+    "ShowDemoActions": false
+  },
+  "Api": {
+    "BaseUrl": "https://edrycleaners.co.za/",
+    "UseLocalApiInDebug": false
+  }
+}

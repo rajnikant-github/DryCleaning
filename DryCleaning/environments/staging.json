@@ -1,0 +1,11 @@
+{
+  "Environment": "staging",
+  "Features": {
+    "UseMockData": false,
+    "ShowDemoActions": false
+  },
+  "Api": {
+    "BaseUrl": "https://staging.edrycleaners.co.za/",
+    "UseLocalApiInDebug": false
+  }
+}

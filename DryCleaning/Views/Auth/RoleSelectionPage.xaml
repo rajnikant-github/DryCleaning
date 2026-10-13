@@ -71,6 +71,10 @@
 
             <Label Text="By continuing you agree to our Terms and Privacy Policy"
                    Style="{StaticResource Small}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+
+            <!--  Debug builds only: which environment / server this build talks to (./set-app-env.sh)  -->
+            <Label Text="{Binding EnvironmentText}" IsVisible="{Binding ShowEnvironment}"
+                   Style="{StaticResource Small}" HorizontalTextAlignment="Center" Opacity="0.7" />
         </VerticalStackLayout>
     </ScrollView>
 </views:BasePage>

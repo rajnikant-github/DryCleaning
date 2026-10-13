@@ -428,3 +428,6 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# App environment chosen with ./set-app-env.sh (local to each developer)
+DryCleaning/appsettings.env.json
