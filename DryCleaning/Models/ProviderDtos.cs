@@ -94,6 +94,9 @@ public sealed class OrderDetail
     /// <summary>Customer-only: OTP given to the delivery driver.</summary>
     public string? DeliveryOtp { get; init; }
 
+    /// <summary>Set while a pickup/delivery job is waiting on the driver marketplace.</summary>
+    public DriverJobType? AwaitingDriverFor { get; init; }
+
     public bool IsPaid => Payment?.Status == PaymentStatus.Success;
     public int ExpectedItemCount => Items.Sum(i => i.Quantity);
 }

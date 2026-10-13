@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D12 – Job completed  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverJobCompletedPage"
+                x:DataType="vm:DriverJobCompletedViewModel"
+                Title="Job Completed">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Border WidthRequest="96" HeightRequest="96" StrokeShape="RoundRectangle 48" StrokeThickness="0"
+                        BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center" Margin="0,24,0,0">
+                    <Label Text="✓" FontSize="48" TextColor="{StaticResource Success}" FontFamily="AppSemibold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Label Text="{Binding Headline}" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding Message}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+
+                <Border Style="{StaticResource Card}" BackgroundColor="{StaticResource SuccessSoft}" Stroke="{StaticResource TransparentBrush}">
+                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                        <Label Text="You earned" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Earnings, Converter={StaticResource Currency}}" Style="{StaticResource Display}"
+                               TextColor="{StaticResource SuccessDark}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="10">
+                        <Label Text="Order" Style="{StaticResource Caption}" />
+                        <Label Grid.Column="1" Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" HorizontalOptions="End" />
+                        <Label Grid.Row="1" Text="Route" Style="{StaticResource Caption}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding RouteText}" FontSize="14" HorizontalOptions="End" HorizontalTextAlignment="End" />
+                        <Label Grid.Row="2" Text="Completed" Style="{StaticResource Caption}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding CompletedText}" FontSize="14" HorizontalOptions="End" />
+                        <Label Grid.Row="3" Text="Today" Style="{StaticResource Caption}" />
+                        <Label Grid.Row="3" Grid.Column="1" FontSize="14" HorizontalOptions="End">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding CompletedToday}" FontFamily="AppSemibold" />
+                                    <Span Text=" jobs · " />
+                                    <Span Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="10">
+                <Button Text="Find More Jobs" Command="{Binding FindMoreJobsCommand}" />
+                <Button Text="Back to Dashboard" Command="{Binding GoToDashboardCommand}" Style="{StaticResource OutlineButton}" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

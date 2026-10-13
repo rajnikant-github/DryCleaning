@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D11 – Deliver with OTP  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverDeliverPage"
+                x:DataType="vm:DriverDeliverViewModel"
+                Title="Deliver">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
+                            <Label Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                               FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Deliver to" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="🏠" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Delivery OTP" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="Ask the customer for the 4-digit delivery code in their app. Only hand over the order once the code is accepted."
+                               Style="{StaticResource Caption}" />
+                        <controls:OtpView Code="{Binding Code}" Length="4" />
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasCodeError}" Padding="12,8">
+                            <Label Text="{Binding CodeError}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Proof of delivery (optional)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="A photo of the handover protects you and the customer." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="#F3E8FF" IsVisible="{Binding HasDemoCode}" Padding="12,8">
+                    <Label Text="{Binding DemoCodeText, StringFormat='🧪  {0}'}" TextColor="#7E22CE" FontSize="12" />
+                </Border>
+
+                <Button Text="Customer not available?" Style="{StaticResource TextButton}" Command="{Binding CustomerUnavailableCommand}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Confirm Delivery" Command="{Binding ConfirmCommand}" Style="{StaticResource SuccessButton}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

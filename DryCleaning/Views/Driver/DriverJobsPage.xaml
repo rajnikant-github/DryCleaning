@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D02 – Jobs (Available / My Jobs / Completed)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverJobsPage"
+                x:DataType="vm:DriverJobsViewModel"
+                Title="Jobs">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <controls:SegmentBar ItemsSource="{Binding Segments}" />
+
+        <Border Grid.Row="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" Margin="16,12,16,0" Padding="14,10"
+                IsVisible="{Binding ShowOfflineBanner}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="You're offline – go online to see and accept jobs." TextColor="{StaticResource WarningDark}" FontSize="13" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="Go online" Style="{StaticResource SmallPrimaryButton}" Command="{Binding GoOnlineCommand}" />
+            </Grid>
+        </Border>
+
+        <RefreshView Grid.Row="2" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Jobs}" SelectionMode="None">
+                <CollectionView.Header>
+                    <BoxView HeightRequest="12" Color="Transparent" />
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:DriverJobCardItem">
+                        <controls:DriverJobCardView Padding="16,0,16,12" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <controls:PageStateView Grid.Row="2"
+                                State="{Binding State}"
+                                RetryCommand="{Binding RetryCommand}"
+                                ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="🚚"
+                                EmptyTitle="{Binding EmptyTitle}"
+                                EmptyMessage="{Binding EmptyMessage}" />
+    </Grid>
+</views:BasePage>

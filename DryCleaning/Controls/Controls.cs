@@ -203,20 +203,31 @@ public sealed class QuantityStepper : ContentView
     }
 }
 
-/// <summary>6-box OTP input backed by a single hidden numeric Entry.</summary>
+/// <summary>OTP input (6 boxes by default) backed by a single hidden numeric Entry.</summary>
 public sealed class OtpView : ContentView
 {
     public static readonly BindableProperty CodeProperty = BindableProperty.Create(
         nameof(Code), typeof(string), typeof(OtpView), string.Empty, BindingMode.TwoWay,
         propertyChanged: (bindable, _, value) => ((OtpView)bindable).OnCodeChanged(value as string ?? string.Empty));
 
-    private const int Length = 6;
+    public static readonly BindableProperty LengthProperty = BindableProperty.Create(
+        nameof(Length), typeof(int), typeof(OtpView), 6,
+        propertyChanged: (bindable, _, _) => ((OtpView)bindable).BuildBoxes());
+
     private readonly Entry _entry;
+    private readonly HorizontalStackLayout _row = new() { Spacing = 8, HorizontalOptions = LayoutOptions.Center };
     private readonly List<(Border Box, Label Digit)> _boxes = [];
 
-    public OtpView()
+    public int Length
     {
-        var row = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.Center };
+        get => (int)GetValue(LengthProperty);
+        set => SetValue(LengthProperty, value);
+    }
+
+    private void BuildBoxes()
+    {
+        _boxes.Clear();
+        _row.Children.Clear();
         for (var i = 0; i < Length; i++)
         {
             var digit = new Label
@@ -237,9 +248,19 @@ public sealed class OtpView : ContentView
                 Content = digit
             };
             _boxes.Add((box, digit));
-            row.Children.Add(box);
+            _row.Children.Add(box);
         }
 
+        if (_entry is not null)
+        {
+            _entry.MaxLength = Length;
+            OnCodeChanged(Code ?? string.Empty);
+        }
+    }
+
+    public OtpView()
+    {
+        BuildBoxes();
         _entry = new Entry
         {
             Keyboard = Keyboard.Numeric,
@@ -264,7 +285,7 @@ public sealed class OtpView : ContentView
         _entry.Unfocused += (_, _) => Highlight();
         SemanticProperties.SetDescription(_entry, "One-time code");
 
-        var grid = new Grid { Children = { row, _entry } };
+        var grid = new Grid { Children = { _row, _entry } };
         var tap = new TapGestureRecognizer();
         tap.Tapped += (_, _) => _entry.Focus();
         grid.GestureRecognizers.Add(tap);

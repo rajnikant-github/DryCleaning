@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D08 – Hand over to provider  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverHandoverPage"
+                x:DataType="vm:DriverHandoverViewModel"
+                Title="Handover">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Hand over to" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="🏪" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Items" Style="{StaticResource SectionLabel}" />
+                            <Label Grid.Column="1" Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                        </Grid>
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Items}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderItemDetail">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding Notes, StringFormat='📝 {0}'}" Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Photo at drop-off (optional)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="A photo of the bag at the counter is your proof of delivery." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Notes (optional)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Border Style="{StaticResource InputField}">
+                            <Editor Text="{Binding Notes}" Placeholder="e.g. Handed to Thandi at the front counter" AutoSize="TextChanges" MaxLength="300" MinimumHeightRequest="70" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Confirm Handover" Command="{Binding ConfirmCommand}" Style="{StaticResource SuccessButton}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

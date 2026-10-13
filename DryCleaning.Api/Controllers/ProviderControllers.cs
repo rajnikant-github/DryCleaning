@@ -160,9 +160,18 @@ public sealed class DriverController(DriverService drivers) : ControllerBase
     [HttpGet("jobs/available")]
     public Task<PagedResult<DriverJobDto>> Available([FromQuery] PagedRequest request, CancellationToken ct) => drivers.GetAvailableJobsAsync(request, ct);
 
-    /// <summary>D13 – my jobs (filter by status for history).</summary>
+    /// <summary>D02 – my jobs (filter by status: Assigned/InProgress for active, Completed/Cancelled for history).</summary>
     [HttpGet("jobs")]
     public Task<PagedResult<DriverJobDto>> Mine([FromQuery] DriverJobsQuery query, CancellationToken ct) => drivers.GetMyJobsAsync(query, ct);
+
+    /// <summary>D02 – completed job history (newest first).</summary>
+    [HttpGet("jobs/history")]
+    public Task<PagedResult<DriverJobDto>> History([FromQuery] PagedRequest request, CancellationToken ct) =>
+        drivers.GetMyJobsAsync(new DriverJobsQuery { Page = request.Page, PageSize = request.PageSize, Status = Domain.DriverJobStatus.Completed }, ct);
+
+    /// <summary>D13 – earnings for the last 7 days (Week) or 4 weeks (Month).</summary>
+    [HttpGet("earnings")]
+    public Task<DriverEarningsDto> Earnings([FromQuery] EarningsPeriod period, CancellationToken ct) => drivers.GetEarningsAsync(period, ct);
 
     /// <summary>D04 – job details.</summary>
     [HttpGet("jobs/{jobId:guid}")]

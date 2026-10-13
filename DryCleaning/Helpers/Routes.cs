@@ -15,6 +15,10 @@ public static class Routes
     public const string CustomerOrders = "//customer/orders";
     public const string CustomerProfile = "//customer/profile";
 
+    public const string DriverDashboard = "//driver/dashboard";
+    public const string DriverJobs = "//driver/jobs";
+    public const string DriverEarnings = "//driver/earnings";
+
     // Pushed pages (relative)
     public const string Otp = "otp";
     public const string Notifications = "notifications";
@@ -45,6 +49,18 @@ public static class Routes
     public const string CustomerOrderDetail = "customerorderdetail";
     public const string EditProfile = "editprofile";
 
+    // Driver pushed pages
+    public const string DriverJobDetail = "driverjob";
+    public const string DriverNavigate = "drivernavigate";
+    public const string DriverVerifyItems = "driververifyitems";
+    public const string DriverConfirmPickup = "driverconfirmpickup";
+    public const string DriverPickupComplete = "driverpickupcomplete";
+    public const string DriverHandover = "driverhandover";
+    public const string DriverCollect = "drivercollect";
+    public const string DriverDeliver = "driverdeliver";
+    public const string DriverJobCompleted = "driverjobcompleted";
+    public const string DriverEditProfile = "drivereditprofile";
+
     // Query parameter keys
     public const string OrderIdKey = "orderId";
     public const string ProductIdKey = "productId";
@@ -54,11 +70,13 @@ public static class Routes
     public const string IdentifierKey = "identifier";
     public const string ProviderIdKey = "providerId";
     public const string ModeKey = "mode";
+    public const string JobIdKey = "jobId";
 
     /// <summary>Home route for a signed-in role.</summary>
     public static string HomeFor(UserRole role) => role switch
     {
         UserRole.Customer => CustomerHome,
+        UserRole.Driver => DriverDashboard,
         _ => ProviderDashboard
     };
 }
@@ -80,7 +98,7 @@ public static class ProviderActions
 
     public static string? HintFor(OrderStatus status) => status switch
     {
-        OrderStatus.Confirmed => "Finding a marketplace driver for pickup…",
+        OrderStatus.Confirmed => "Pickup job posted · waiting for a driver to accept",
         OrderStatus.PickupAssigned => "Driver assigned · collecting from customer",
         OrderStatus.PickedUp => "Driver is on the way to your store",
         OrderStatus.DeliveryAssigned => "Delivery driver assigned · collecting from you",

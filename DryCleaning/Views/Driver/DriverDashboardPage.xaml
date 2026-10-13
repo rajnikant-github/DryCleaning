@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D01 – Driver dashboard  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverDashboardPage"
+                x:DataType="vm:DriverDashboardViewModel"
+                Title="Dashboard">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Alerts" IconImageSource="ic_bell.png" Command="{Binding OpenNotificationsCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+        <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+                    <!--  Header with availability  -->
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
+                            <Label Text="{Binding DriverName}" Style="{StaticResource HeaderTitle}" />
+                            <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                                    Padding="14,10" Margin="0,10,0,0">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource SuccessBrush}" VerticalOptions="Center">
+                                        <Ellipse.Triggers>
+                                            <DataTrigger TargetType="Ellipse" Binding="{Binding IsDriverOffline}" Value="True">
+                                                <Setter Property="Fill" Value="#94A3B8" />
+                                            </DataTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                        <Label Text="{Binding OnlineText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="15" />
+                                        <Label Text="{Binding OnlineHint}" TextColor="#BFDBFE" FontSize="12" />
+                                    </VerticalStackLayout>
+                                    <Switch Grid.Column="2" IsToggled="{Binding IsOnline}" OnColor="{StaticResource Success}" ThumbColor="{StaticResource White}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Today  -->
+                    <Grid Padding="16,0" ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Border Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="💰  Today's earnings" Style="{StaticResource Caption}" />
+                                <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="✅  Jobs done today" Style="{StaticResource Caption}" />
+                                <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!--  Active job  -->
+                    <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasActiveJob}">
+                        <Label Text="Active job" Style="{StaticResource H3}" />
+                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenActiveJobCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="12">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                                        <Label Text="{Binding ActiveTypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding ActiveTitle}" Style="{StaticResource BodyMedium}" />
+                                        <Label Text="{Binding ActiveStepText}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="120" BackgroundColor="#E0F2FE">
+                    <Grid>
+                        <Label Text="🗺️" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="🚗" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
+                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
+                            <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                        </Border>
+                    </Grid>
+                </Border>
+                                <Label Text="{Binding ActiveDestination, StringFormat='📍  {0}'}" FontSize="14" />
+                                <Button Text="{Binding ActiveActionText}" Command="{Binding ContinueActiveJobCommand}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Find jobs  -->
+                    <Border Style="{StaticResource Card}" Margin="16,0" IsVisible="{Binding IsOnline}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FindJobsCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}">
+                                <Label Text="📋" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Available jobs" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding AvailableText}" Style="{StaticResource Small}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Margin="16,0" Padding="14" IsVisible="{Binding IsDriverOffline}">
+                        <Label Text="You're offline. Switch on availability above to start receiving pickup and delivery jobs." Style="{StaticResource Caption}" />
+                    </Border>
+
+                    <!--  Today's jobs  -->
+                    <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasTodaysJobs}">
+                        <Label Text="Today's jobs" Style="{StaticResource H3}" />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TodaysJobs}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:DriverJobCardItem">
+                                    <controls:DriverJobCardView />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+    </Grid>
+</views:BasePage>

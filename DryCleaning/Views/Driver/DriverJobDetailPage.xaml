@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D03 – Job details  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverJobDetailPage"
+                x:DataType="vm:DriverJobDetailViewModel"
+                Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="14">
+                    <!--  Summary  -->
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                                    <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding TypeText, StringFormat='{0} job'}" Style="{StaticResource H3}" />
+                                    <Label Text="{Binding OrderNumber}" Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                                           FontFamily="AppSemibold" FontSize="18" HorizontalOptions="End" />
+                                    <Label Text="you earn" Style="{StaticResource Small}" HorizontalOptions="End" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding StatusText}" TextColor="{StaticResource InfoDark}" FontFamily="AppSemibold" FontSize="13" VerticalOptions="Center" />
+                                <controls:StatusChip Grid.Column="1" Status="{Binding OrderStatus}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Next step  -->
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="14">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding StepTitle}" TextColor="{StaticResource InfoDark}" FontFamily="AppSemibold" FontSize="14" />
+                            <Label Text="{Binding StepHint}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding IsOnHold}" Padding="14">
+                        <Label Text="⚠  This order is on hold while EDry Cleaners support reviews an issue. Please wait for support to contact you." TextColor="#C2410C" FontSize="13" />
+                    </Border>
+
+                <!--  Route  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Route" Style="{StaticResource SectionLabel}" Margin="0" />
+                            <Label Grid.Column="1" Text="{Binding RouteDistanceText}" Style="{StaticResource Small}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="14,*,Auto" RowDefinitions="Auto,16,Auto" ColumnSpacing="10">
+                            <Ellipse Fill="{StaticResource AccentBrush}" WidthRequest="12" HeightRequest="12" VerticalOptions="Start" Margin="0,4,0,0" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding FromLabel}" Style="{StaticResource Small}" />
+                                <Label Text="{Binding FromName}" Style="{StaticResource BodyMedium}" FontSize="15" />
+                                <Label Text="{Binding FromAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start" IsVisible="{Binding ShowContacts}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallFromCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <BoxView Grid.Row="1" WidthRequest="2" Color="{StaticResource BorderColor}" HorizontalOptions="Center" />
+                            <Ellipse Grid.Row="2" Fill="{StaticResource SuccessBrush}" WidthRequest="12" HeightRequest="12" VerticalOptions="Start" Margin="0,4,0,0" />
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding ToLabel}" Style="{StaticResource Small}" />
+                                <Label Text="{Binding ToName}" Style="{StaticResource BodyMedium}" FontSize="15" />
+                                <Label Text="{Binding ToAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start" IsVisible="{Binding ShowContacts}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallToCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding HasSlot}" Padding="12,8">
+                            <Label Text="{Binding SlotText, StringFormat='🕘  Customer pickup window: {0}'}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Items" Style="{StaticResource SectionLabel}" />
+                            <Label Grid.Column="1" Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                        </Grid>
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Items}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderItemDetail">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding Notes, StringFormat='📝 {0}'}" Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="10">
+                <Button Text="Accept Job" Command="{Binding AcceptCommand}" Style="{StaticResource SuccessButton}" IsVisible="{Binding CanAccept}" />
+                <Button Text="{Binding ContinueText}" Command="{Binding ContinueCommand}" IsVisible="{Binding CanContinue}" />
+                <Button Text="Release Job" Command="{Binding ReleaseCommand}" Style="{StaticResource OutlineButton}"
+                        TextColor="{StaticResource MutedForeground}" IsVisible="{Binding CanRelease}" />
+                <Label Text="{Binding CompletedText, StringFormat='✅  {0}'}" TextColor="{StaticResource SuccessDark}" FontSize="14"
+                       HorizontalTextAlignment="Center" IsVisible="{Binding IsDone}" />
+                <Label Text="This job is no longer available." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" IsVisible="{Binding IsUnavailable}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

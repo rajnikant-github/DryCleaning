@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Driver edit profile (added screen)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverEditProfilePage"
+                x:DataType="vm:DriverEditProfileViewModel"
+                Title="Edit Profile">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Full name" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Name}" Placeholder="Your name" Keyboard="Text" MaxLength="100" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Mobile number" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Phone}" Placeholder="+27 71 123 4567" Keyboard="Telephone" MaxLength="20" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Email (optional)" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Email}" Placeholder="you@example.com" Keyboard="Email" MaxLength="150" />
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Driver's licence number" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding LicenseNumber}" Placeholder="e.g. CA 456-218" Keyboard="Text" MaxLength="50" />
+                    </Border>
+                </VerticalStackLayout>
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasValidationMessage}">
+                    <Label Text="{Binding ValidationMessage}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Save Changes" Command="{Binding SaveCommand}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -123,6 +123,7 @@ public sealed class SessionService : ISessionService
     public Guid? ProfileId { get; private set; }
     public Guid? ProviderId => CurrentUser?.Role == UserRole.Provider ? ProfileId : null;
     public Guid? CustomerId => CurrentUser?.Role == UserRole.Customer ? ProfileId : null;
+    public Guid? DriverId => CurrentUser?.Role == UserRole.Driver ? ProfileId : null;
     public bool IsSignedIn => CurrentUser is not null;
 
     public void SignIn(User user, Guid? profileId)

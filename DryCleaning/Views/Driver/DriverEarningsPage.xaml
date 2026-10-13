@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D13 – Earnings  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverEarningsPage"
+                x:DataType="vm:DriverEarningsViewModel"
+                Title="Earnings">
+    <Grid RowDefinitions="Auto,*">
+        <controls:SegmentBar ItemsSource="{Binding Periods}" />
+
+        <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="14">
+                    <!--  Total  -->
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="20">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding PeriodText}" TextColor="#BFDBFE" FontSize="13" />
+                            <Label Text="{Binding Total, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontSize="34" FontFamily="AppSemibold" />
+                            <Label Text="{Binding SplitText}" TextColor="#E0F2FE" FontSize="13" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Completed" Style="{StaticResource Small}" />
+                                <Label Text="{Binding JobCountText}" Style="{StaticResource H3}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Average per job" Style="{StaticResource Small}" />
+                                <Label Text="{Binding AveragePerJob, Converter={StaticResource Currency}}" Style="{StaticResource H3}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!--  Bar chart  -->
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Earnings" Style="{StaticResource SectionLabel}" Margin="0" />
+                            <Grid HeightRequest="160">
+                                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Bars}" Spacing="0" HorizontalOptions="Fill">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="items:EarningsBarItem">
+                                            <Grid RowDefinitions="*,Auto,Auto" WidthRequest="44" RowSpacing="4">
+                                                <Label Text="{Binding Amount, Converter={StaticResource Currency}}" FontSize="9" TextColor="{StaticResource MutedForeground}"
+                                                       HorizontalOptions="Center" VerticalOptions="End" IsVisible="{Binding HasAmount}" />
+                                                <BoxView Grid.Row="1" HeightRequest="{Binding BarHeight}" WidthRequest="22" CornerRadius="6,6,0,0"
+                                                         Color="{StaticResource Accent}" HorizontalOptions="Center">
+                                                    <BoxView.Triggers>
+                                                        <DataTrigger TargetType="BoxView" Binding="{Binding IsEmpty}" Value="True">
+                                                            <Setter Property="Color" Value="{StaticResource BorderColor}" />
+                                                        </DataTrigger>
+                                                    </BoxView.Triggers>
+                                                </BoxView>
+                                                <Label Grid.Row="2" Text="{Binding Label}" FontSize="10" TextColor="{StaticResource MutedForeground}" HorizontalOptions="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </Grid>
+                            <Label Text="{Binding RateText}" Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Jobs  -->
+                    <Label Text="Completed jobs" Style="{StaticResource H3}" IsVisible="{Binding HasJobs}" />
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Jobs}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="items:DriverJobCardItem">
+                                <controls:DriverJobCardView />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                    <Border Style="{StaticResource Card}" IsVisible="{Binding HasJobs, Converter={StaticResource InvertedBool}}">
+                        <Label Text="No completed jobs in this period yet." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+    </Grid>
+</views:BasePage>

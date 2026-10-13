@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Driver job card (Dashboard, Jobs, Earnings)  -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+             x:Class="DryCleaning.Controls.DriverJobCardView"
+             x:DataType="items:DriverJobCardItem">
+    <Border Style="{StaticResource Card}">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding OpenCommand}" />
+        </Border.GestureRecognizers>
+        <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsPickup}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource AccentSoft}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Style="{StaticResource BodyMedium}" FontSize="15">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding TypeText}" />
+                                <Span Text="  ·  " TextColor="{StaticResource MutedForeground}" />
+                                <Span Text="{Binding OrderNumber}" TextColor="{StaticResource MutedForeground}" FontSize="13" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label Text="{Binding WhenText}" Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Center">
+                    <Label Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                           FontFamily="AppSemibold" FontSize="16" HorizontalOptions="End" />
+                    <Label Text="{Binding DistanceText}" Style="{StaticResource Small}" HorizontalOptions="End" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  Route  -->
+            <Grid ColumnDefinitions="14,*" RowDefinitions="Auto,12,Auto" ColumnSpacing="10">
+                <Ellipse Fill="{StaticResource AccentBrush}" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" HorizontalOptions="Center" />
+                <Label Grid.Column="1" FontSize="14" LineBreakMode="TailTruncation" MaxLines="1">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding FromName}" FontFamily="AppSemibold" />
+                            <Span Text="  ·  " TextColor="{StaticResource MutedForeground}" />
+                            <Span Text="{Binding FromArea}" TextColor="{StaticResource MutedForeground}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <BoxView Grid.Row="1" WidthRequest="2" Color="{StaticResource BorderColor}" HorizontalOptions="Center" />
+                <Ellipse Grid.Row="2" Fill="{StaticResource SuccessBrush}" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" HorizontalOptions="Center" />
+                <Label Grid.Row="2" Grid.Column="1" FontSize="14" LineBreakMode="TailTruncation" MaxLines="1">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding ToName}" FontFamily="AppSemibold" />
+                            <Span Text="  ·  " TextColor="{StaticResource MutedForeground}" />
+                            <Span Text="{Binding ToArea}" TextColor="{StaticResource MutedForeground}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label Text="{Binding ItemsText, StringFormat='🧺  {0}'}" Style="{StaticResource Small}" VerticalOptions="Center" />
+                <Border Grid.Column="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="10,3"
+                        IsVisible="{Binding ShowStatus}">
+                    <Label Text="{Binding StatusText}" TextColor="{StaticResource InfoDark}" FontSize="11" FontFamily="AppSemibold" />
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding IsOnHold}" Padding="10,6">
+                <Label Text="⚠  On hold – dispute under review" TextColor="#C2410C" FontSize="12" FontFamily="AppSemibold" />
+            </Border>
+
+            <Button Text="Accept Job" Command="{Binding AcceptCommand}" Style="{StaticResource SuccessButton}" IsVisible="{Binding ShowAccept}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

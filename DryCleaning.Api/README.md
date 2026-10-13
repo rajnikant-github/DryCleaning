@@ -82,6 +82,9 @@ Created → Confirmed → PickupAssigned → PickedUp → ReceivedByProvider →
 | Request driver (publishes **Delivery** job) | `POST /api/provider/orders/{id}/request-driver` |
 | Driver collects from provider | `POST /api/driver/jobs/{jobId}/start-delivery` |
 | Driver delivers with customer OTP → Completed | `POST /api/driver/jobs/{jobId}/deliver` |
+| Driver earnings (last 7 days / 4 weeks) | `GET /api/driver/earnings?period=Week\|Month` |
+| Driver job history | `GET /api/driver/jobs/history` |
+| Driver pickup / delivery photos | `POST /api/orders/{orderId}/photos` (multipart, `Type=Pickup\|Completion`) |
 
 Every status change is written to `OrderStatusHistory`.
 

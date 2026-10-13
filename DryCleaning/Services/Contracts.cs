@@ -33,6 +33,7 @@ public interface ISessionService
     Guid? ProfileId { get; }
     Guid? ProviderId { get; }
     Guid? CustomerId { get; }
+    Guid? DriverId { get; }
     bool IsSignedIn { get; }
     void SignIn(User user, Guid? profileId);
     void SignOut();
@@ -69,7 +70,8 @@ public interface IProviderOrderService
     Task MarkQualityCheckAsync(Guid orderId);
     Task SendBackToProcessingAsync(Guid orderId, string reason);
     Task MarkReadyForDeliveryAsync(Guid orderId, IReadOnlyList<string> photoPaths);
-    Task<DriverAssignment> RequestDeliveryDriverAsync(Guid orderId);
+    /// <summary>Publishes a delivery job to the driver marketplace (a driver accepts it from the Driver app).</summary>
+    Task RequestDeliveryDriverAsync(Guid orderId);
 
     /// <summary>Records a discrepancy/damage report without stopping the order.</summary>
     Task ReportIssueAsync(Guid orderId, string reason, string description);
@@ -152,6 +154,58 @@ public interface IPlacesService
     Task<IReadOnlyList<PlacePrediction>> AutocompleteAsync(string query);
     Task<Address> GetDetailsAsync(string placeId);
     Task<Address?> GetCurrentLocationAddressAsync();
+}
+
+// ── Driver (shared marketplace) ──────────────────────────────────────────────
+
+public interface IDriverService
+{
+    Task<DriverDashboard> GetDashboardAsync();
+    Task<bool> SetOnlineAsync(bool isOnline);
+
+    Task<IReadOnlyList<DriverJobSummary>> GetJobsAsync(DriverJobFilter filter);
+    Task<IReadOnlyDictionary<DriverJobFilter, int>> GetJobCountsAsync();
+    Task<DriverJobDetail> GetJobAsync(Guid jobId);
+
+    /// <summary>The job a notification about this order refers to (own job first, then a pending one).</summary>
+    Task<Guid?> FindJobForOrderAsync(Guid orderId);
+
+    /// <summary>D03 – take a Pending job (one active job at a time, must be online).</summary>
+    Task AcceptJobAsync(Guid jobId);
+
+    /// <summary>Give an accepted job back to the marketplace before collecting anything.</summary>
+    Task ReleaseJobAsync(Guid jobId);
+
+    /// <summary>D06 – customer's pickup code verified, items collected (order → PickedUp).</summary>
+    Task ConfirmPickupAsync(Guid jobId, DriverPickupRequest request);
+
+    /// <summary>D08 – items handed to the provider (pickup job completed).</summary>
+    Task ConfirmHandoverAsync(Guid jobId, string? notes, IReadOnlyList<string> photoPaths);
+
+    /// <summary>D09 – package collected from the provider (order → OutForDelivery).</summary>
+    Task StartDeliveryAsync(Guid jobId, int packageCount, IReadOnlyList<string> photoPaths);
+
+    /// <summary>D11 – customer's delivery OTP verified (order → Delivered → Completed).</summary>
+    Task ConfirmDeliveryAsync(Guid jobId, string otp, IReadOnlyList<string> photoPaths);
+
+    Task<DriverEarnings> GetEarningsAsync(EarningsPeriod period);
+    Task<DriverProfile> GetProfileAsync();
+    Task UpdateProfileAsync(string name, string? email, string? phone, string licenseNumber);
+}
+
+/// <summary>Holds the D05 item check between the Verify Items and Confirm Pickup screens.</summary>
+public sealed class DriverPickupDraft
+{
+    public Guid JobId { get; set; }
+    public IReadOnlyList<DriverItemCheck> Items { get; set; } = [];
+    public string? Notes { get; set; }
+
+    public void Reset(Guid jobId)
+    {
+        JobId = jobId;
+        Items = [];
+        Notes = null;
+    }
 }
 
 public sealed class CartLine

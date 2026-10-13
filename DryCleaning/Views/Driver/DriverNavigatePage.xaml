@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D04 / D10 – Navigate to customer or provider  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverNavigatePage"
+                x:DataType="vm:DriverNavigateViewModel"
+                Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="240" BackgroundColor="#E0F2FE">
+                    <Grid>
+                        <Label Text="🗺️" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="🚗" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
+                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
+                            <Label Text="{Binding HeadingText}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Distance" Style="{StaticResource Small}" />
+                            <Label Text="{Binding DistanceText}" Style="{StaticResource H3}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Estimated time" Style="{StaticResource Small}" />
+                            <Label Text="{Binding EtaText}" Style="{StaticResource H3}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding DestinationLabel}" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="📍" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                        <Button Text="🧭  Open in Maps" Command="{Binding OpenMapsCommand}" Style="{StaticResource SecondaryButton}" Margin="0,6,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="14">
+                    <Label Text="{Binding StepHint}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                </Border>
+                <Label Text="{Binding OrderNumber, StringFormat='Order {0}'}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Button Text="{Binding ArrivedText}" Command="{Binding ArrivedCommand}" Style="{StaticResource SuccessButton}" />
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -5,6 +5,7 @@
        xmlns:auth="clr-namespace:DryCleaning.Views.Auth"
        xmlns:provider="clr-namespace:DryCleaning.Views.Provider"
        xmlns:customer="clr-namespace:DryCleaning.Views.Customer"
+       xmlns:driver="clr-namespace:DryCleaning.Views.Driver"
        Shell.FlyoutBehavior="Disabled"
        Title="EDry Cleaners">
 
@@ -28,5 +29,11 @@
         <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate customer:CustomerProfilePage}" />
     </TabBar>
 
-    <!--  Driver tab bar will be added in the next phase.  -->
+    <!--  Driver app (shared marketplace drivers)  -->
+    <TabBar Route="driver">
+        <ShellContent Title="Dashboard" Icon="tab_home.png" Route="dashboard" ContentTemplate="{DataTemplate driver:DriverDashboardPage}" />
+        <ShellContent Title="Jobs" Icon="tab_jobs.png" Route="jobs" ContentTemplate="{DataTemplate driver:DriverJobsPage}" />
+        <ShellContent Title="Earnings" Icon="tab_earnings.png" Route="earnings" ContentTemplate="{DataTemplate driver:DriverEarningsPage}" />
+        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate driver:DriverProfilePage}" />
+    </TabBar>
 </Shell>

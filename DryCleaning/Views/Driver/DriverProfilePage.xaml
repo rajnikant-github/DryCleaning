@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D14 – Driver profile  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverProfilePage"
+                x:DataType="vm:DriverProfileViewModel"
+                Title="Profile">
+    <Grid>
+        <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <controls:AvatarView Text="{Binding Initials}" AvatarSize="60" />
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding Name}" Style="{StaticResource HeaderTitle}" FontSize="20" />
+                                    <Label Text="{Binding MemberSinceText}" Style="{StaticResource HeaderCaption}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="2" Text="Edit" Command="{Binding EditProfileCommand}" Style="{StaticResource SmallOutlineButton}"
+                                        TextColor="{StaticResource White}" BorderColor="{StaticResource White}" VerticalOptions="Center" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                                    <VerticalStackLayout>
+                                        <Label Text="Jobs completed" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="{Binding CompletedJobsText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Grid.Column="1" BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                                    <VerticalStackLayout>
+                                        <Label Text="Total earned" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="{Binding TotalEarnings, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="16,0">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="Available for jobs" Style="{StaticResource BodyMedium}" />
+                                <Label Text="Turn off when you're not driving." Style="{StaticResource Small}" />
+                            </VerticalStackLayout>
+                            <Switch Grid.Column="1" IsToggled="{Binding IsOnline}" OnColor="{StaticResource Success}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="16,0">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Driver details" Style="{StaticResource SectionLabel}" Margin="0" />
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Label Text="📱" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Label Text="Mobile" Style="{StaticResource Small}" />
+                                    <Label Text="{Binding Phone}" FontSize="14" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Label Text="📧" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Label Text="Email" Style="{StaticResource Small}" />
+                                    <Label Text="{Binding Email}" FontSize="14" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Label Text="🪪" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Label Text="Driver's licence" Style="{StaticResource Small}" />
+                                    <Label Text="{Binding LicenseNumber}" FontSize="14" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Label Text="📍" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Label Text="Base area" Style="{StaticResource Small}" />
+                                    <Label Text="{Binding BaseArea}" FontSize="14" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="16,0" Padding="16,4">
+                        <VerticalStackLayout>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="💰" FontSize="18" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Earnings" FontSize="15" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="🔔" FontSize="18" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Notifications" FontSize="15" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SafetyCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="🛡️" FontSize="18" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Safety &amp; guidelines" FontSize="15" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding HelpCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="💬" FontSize="18" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Driver support" FontSize="15" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Button Text="Log Out" Command="{Binding LogoutCommand}" Style="{StaticResource OutlineButton}"
+                            TextColor="{StaticResource ErrorDark}" Margin="16,0" />
+                    <Label Text="{Binding AppVersion}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+    </Grid>
+</views:BasePage>

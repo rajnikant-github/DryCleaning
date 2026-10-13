@@ -160,10 +160,15 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
         ShowAcceptReject = status == OrderStatus.Created;
 
         var action = ProviderActions.ForStatus(status);
+        var waitingForDeliveryDriver = d.AwaitingDriverFor == DriverJobType.Delivery;
+        if (waitingForDeliveryDriver)
+            action = null;
         HasPrimaryAction = action is not null;
         PrimaryActionText = action?.Label ?? string.Empty;
 
-        WaitingHint = ProviderActions.HintFor(status) ?? string.Empty;
+        WaitingHint = waitingForDeliveryDriver
+            ? "Delivery job posted · waiting for a driver to accept"
+            : ProviderActions.HintFor(status) ?? string.Empty;
         HasWaitingHint = !HasPrimaryAction && !string.IsNullOrEmpty(WaitingHint);
 
         ShowDemoPickup = Services.Settings.Features.ShowDemoActions &&

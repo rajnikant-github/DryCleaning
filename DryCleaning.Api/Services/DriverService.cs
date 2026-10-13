@@ -27,6 +27,25 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
     {
         var driver = await profile.DriverAsync(ct);
         driver.LicenseNumber = request.LicenseNumber.Trim();
+
+        var user = await db.Users.FirstAsync(u => u.Id == driver.UserId, ct);
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            user.Name = request.Name.Trim();
+        if (request.Email is not null)
+        {
+            var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim().ToLowerInvariant();
+            if (email is not null && await db.Users.AnyAsync(u => u.Id != user.Id && u.Email == email, ct))
+                throw new ConflictException("That email address is already in use.");
+            user.Email = email;
+        }
+        if (!string.IsNullOrWhiteSpace(request.Phone))
+        {
+            var phone = request.Phone.Trim();
+            if (await db.Users.AnyAsync(u => u.Id != user.Id && u.Phone == phone, ct))
+                throw new ConflictException("That phone number is already in use.");
+            user.Phone = phone;
+        }
+
         await db.SaveChangesAsync(ct);
         return await GetProfileAsync(ct);
     }
@@ -71,7 +90,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         if (query.Status is not null)
             jobs = jobs.Where(j => j.Status == query.Status);
 
-        var (items, total) = await jobs.OrderByDescending(j => j.AssignedAt).PageAsync(query, ct);
+        var (items, total) = await jobs.OrderByDescending(j => j.CompletedAt ?? j.AssignedAt).PageAsync(query, ct);
         return new PagedResult<DriverJobDto>(items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(), query.Page, query.PageSize, total);
     }
 
@@ -81,6 +100,38 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var job = await JobQuery().FirstOrDefaultAsync(j => j.Id == jobId && (j.DriverId == driver.Id || j.Status == DriverJobStatus.Pending), ct)
                   ?? throw new NotFoundException("Job not found.");
         return job.ToDto(job.Order, Market.DriverEarningPerJob);
+    }
+
+    // ── D13 Earnings ─────────────────────────────────────────────────────────
+
+    public async Task<DriverEarningsDto> GetEarningsAsync(EarningsPeriod period, CancellationToken ct)
+    {
+        var driver = await profile.DriverAsync(ct);
+        var today = DateTime.UtcNow.Date;
+        var from = period == EarningsPeriod.Week ? today.AddDays(-6) : today.AddDays(-27);
+        var to = today.AddDays(1);
+
+        var jobs = await JobQuery()
+            .Where(j => j.DriverId == driver.Id && j.Status == DriverJobStatus.Completed && j.CompletedAt >= from && j.CompletedAt < to)
+            .OrderByDescending(j => j.CompletedAt)
+            .ToListAsync(ct);
+
+        var rate = Market.DriverEarningPerJob;
+        var bucketDays = period == EarningsPeriod.Week ? 1 : 7;
+        var buckets = period == EarningsPeriod.Week ? 7 : 4;
+        var bars = Enumerable.Range(0, buckets).Select(i =>
+        {
+            var start = from.AddDays(i * bucketDays);
+            var count = jobs.Count(j => j.CompletedAt >= start && j.CompletedAt < start.AddDays(bucketDays));
+            var label = period == EarningsPeriod.Week ? start.ToString("ddd") : start.ToString("d MMM");
+            return new EarningsBarDto(label, start, count * rate, count);
+        }).ToList();
+
+        return new DriverEarningsDto(
+            period, from, today, jobs.Count * rate, jobs.Count,
+            jobs.Count(j => j.JobType == DriverJobType.Pickup), jobs.Count(j => j.JobType == DriverJobType.Delivery),
+            rate, jobs.Count == 0 ? 0 : rate, Market.Currency, bars,
+            jobs.Select(j => j.ToDto(j.Order, rate)).ToList());
     }
 
     // ── D03/D04 Accept ───────────────────────────────────────────────────────

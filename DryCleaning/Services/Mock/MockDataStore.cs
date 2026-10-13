@@ -48,6 +48,11 @@ public sealed class MockDataStore
 
     public User DemoCustomerUser => Users.First(u => u.Id == DemoCustomer.UserId);
 
+    /// <summary>The demo marketplace driver (Bongani Zulu).</summary>
+    public Driver DemoDriver => Drivers[0];
+
+    public User DemoDriverUser => Users.First(u => u.Id == DemoDriver.UserId);
+
     public Provider ProviderById(Guid id) => Providers.First(p => p.Id == id);
 
     public static Task SimulateLatencyAsync() => Task.Delay(350);
@@ -63,6 +68,35 @@ public sealed class MockDataStore
 
     public int NextOrderNumber() =>
         Orders.Select(o => int.TryParse(o.OrderNumber.Replace("EDC-", ""), out var n) ? n : 0).DefaultIfEmpty(10000).Max() + 1;
+
+    // ── Shared write helpers (used by several mock services) ─────────────────
+
+    /// <summary>Publishes a Pending pickup (customer → provider) or delivery (provider → customer) job.</summary>
+    public DriverJob PublishDriverJob(Order order, DriverJobType type, DateTime? at = null)
+    {
+        var providerAddressId = ProviderById(order.ServiceProviderId).AddressId;
+        var job = new DriverJob
+        {
+            OrderId = order.Id,
+            JobType = type,
+            Status = DriverJobStatus.Pending,
+            PickupAddressId = type == DriverJobType.Pickup ? order.PickupAddressId : providerAddressId,
+            DeliveryAddressId = type == DriverJobType.Pickup ? providerAddressId : order.PickupAddressId,
+            CreatedAt = at ?? DateTime.Now,
+            UpdatedAt = at ?? DateTime.Now
+        };
+        DriverJobs.Add(job);
+        return job;
+    }
+
+    public void Notify(Guid userId, Order? order, string title, string message, NotificationType type = NotificationType.Order) =>
+        Notifications.Add(new Notification { UserId = userId, OrderId = order?.Id, Title = title, Message = message, Type = type });
+
+    public void NotifyAvailableDrivers(Order order, string title, string message)
+    {
+        foreach (var driver in Drivers.Where(d => d.IsActive && d.IsAvailable))
+            Notify(driver.UserId, order, title, message);
+    }
 
     // ── Seed ─────────────────────────────────────────────────────────────────
 
@@ -196,6 +230,34 @@ public sealed class MockDataStore
         AddOrder(customers[0], provider, OrderStatus.Cancelled, now.AddDays(-15), null, null,
             (suit, Si(suit, 0), 1));
 
+        // ── Driver marketplace ───────────────────────────────────────────────
+        // Pending jobs any online driver can accept.
+        var pending1 = AddOrder(customers[1], provider, OrderStatus.Confirmed, now.AddMinutes(-40), null, null,
+            (shirt, Si(shirt, 1), 4), (suit, Si(suit, 0), 1));
+        PublishDriverJob(pending1, DriverJobType.Pickup, now.AddMinutes(-35));
+        var pending2 = AddOrder(customers[12], bubbles, OrderStatus.Confirmed, now.AddMinutes(-25), null, null,
+            (bSneakers, Si(bSneakers, 0), 2));
+        PublishDriverJob(pending2, DriverJobType.Pickup, now.AddMinutes(-20));
+        PublishDriverJob(Orders[7], DriverJobType.Delivery, now.AddMinutes(-15)); // ReadyForDelivery, driver requested
+        AddOrder(customers[3], provider, OrderStatus.ReadyForDelivery, now.AddHours(-28), driverAyanda, null,
+            (suit, Si(suit, 1), 1));                                                 // provider can still demo "Request Driver"
+
+        // Bongani's completed jobs over the last month (earnings history). Two of them finished today.
+        AddOrder(customers[6], provider, OrderStatus.Completed, now.AddHours(-23), driverRiaan, driverBongani,
+            (shirt, Si(shirt, 0), 3));
+        var historyCustomers = new[] { customers[1], customers[3], customers[4], customers[6], customers[7], customers[9], customers[11], customers[12] };
+        for (var i = 0; i < 16; i++)
+        {
+            var c = historyCustomers[i % historyCustomers.Length];
+            var p2 = i % 3 == 0 ? bubbles : provider;
+            var (prod, si) = p2 == bubbles ? (bShirt, Si(bShirt, 0)) : (trouser, Si(trouser, 0));
+            var created = now.AddDays(-(1.5 + i * 1.8)).Date.AddHours(9 + i % 6);
+            AddOrder(c, p2, OrderStatus.Completed, created,
+                i % 2 == 0 ? driverBongani : driverAyanda,
+                i % 2 == 0 ? driverRiaan : driverBongani,
+                (prod, si, 1 + i % 4));
+        }
+
         Disputes.Add(new Dispute
         {
             OrderId = disputed.Id,
@@ -211,6 +273,13 @@ public sealed class MockDataStore
         AddNotification(providerUser, Orders[1], "New order received", $"{Orders[1].OrderNumber} from Ayesha Patel is waiting for you to accept.", NotificationType.Order, now.AddMinutes(-18), false);
         AddNotification(providerUser, Orders[3], "Driver on the way", $"Riaan du Plessis is bringing {Orders[3].OrderNumber} to your store.", NotificationType.Order, now.AddMinutes(-20), false);
         AddNotification(providerUser, Orders[10], "Payment received", $"Payment for {Orders[10].OrderNumber} was successful.", NotificationType.Payment, now.AddDays(-3), true);
+        // Notifications for the demo driver
+        var bonganiUser = Users.First(u => u.Id == driverBongani.UserId);
+        AddNotification(bonganiUser, pending1, "New pickup job", $"Collect {pending1.OrderNumber} from Ayesha Patel for Sparkle Dry Cleaners.", NotificationType.Order, now.AddMinutes(-35), false);
+        AddNotification(bonganiUser, Orders[7], "New delivery job", $"Deliver {Orders[7].OrderNumber} from Sparkle Dry Cleaners.", NotificationType.Order, now.AddMinutes(-15), false);
+        AddNotification(bonganiUser, Orders[2], "Job accepted", $"You're collecting {Orders[2].OrderNumber} from Johan van der Merwe.", NotificationType.Order, now.AddMinutes(-45), true);
+        AddNotification(bonganiUser, null, "Weekly payout", "Your earnings for last week have been paid into your bank account.", NotificationType.Payment, now.AddDays(-2), true);
+
         AddNotification(providerUser, disputed, "Dispute under review", $"EDry Cleaners support is reviewing the dispute on {disputed.OrderNumber}.", NotificationType.System, now.AddDays(-5), true);
     }
 
@@ -385,7 +454,7 @@ public sealed class MockDataStore
                 OrderId = order.Id,
                 DriverId = pickupDriver.Id,
                 JobType = DriverJobType.Pickup,
-                Status = pickupDone ? DriverJobStatus.Completed : status == OrderStatus.PickedUp ? DriverJobStatus.InProgress : DriverJobStatus.Accepted,
+                Status = pickupDone ? DriverJobStatus.Completed : status == OrderStatus.PickedUp ? DriverJobStatus.InProgress : DriverJobStatus.Assigned,
                 PickupAddressId = customer.AddressId,
                 DeliveryAddressId = providerAddressId,
                 AssignedAt = createdAt.AddMinutes(10),
@@ -402,7 +471,7 @@ public sealed class MockDataStore
                 OrderId = order.Id,
                 DriverId = deliveryDriver.Id,
                 JobType = DriverJobType.Delivery,
-                Status = deliveryDone ? DriverJobStatus.Completed : status == OrderStatus.OutForDelivery ? DriverJobStatus.InProgress : DriverJobStatus.Accepted,
+                Status = deliveryDone ? DriverJobStatus.Completed : status == OrderStatus.OutForDelivery ? DriverJobStatus.InProgress : DriverJobStatus.Assigned,
                 PickupAddressId = providerAddressId,
                 DeliveryAddressId = customer.AddressId,
                 AssignedAt = createdAt.AddHours(20),
@@ -440,12 +509,12 @@ public sealed class MockDataStore
         });
     }
 
-    private void AddNotification(User user, Order order, string title, string message, NotificationType type, DateTime at, bool isRead)
+    private void AddNotification(User user, Order? order, string title, string message, NotificationType type, DateTime at, bool isRead)
     {
         Notifications.Add(new Notification
         {
             UserId = user.Id,
-            OrderId = order.Id,
+            OrderId = order?.Id,
             Title = title,
             Message = message,
             Type = type,

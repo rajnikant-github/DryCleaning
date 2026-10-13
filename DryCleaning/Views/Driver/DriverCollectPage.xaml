@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D09 – Collect from provider  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverCollectPage"
+                x:DataType="vm:DriverCollectViewModel"
+                Title="Collect Order">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
+                            <Label Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                               FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Collect from" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="🏪" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" VerticalOptions="Start">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Check before you leave" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Checklist}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:ChecklistItem">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4" MinimumHeightRequest="48">
+                                        <CheckBox IsChecked="{Binding IsChecked}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Text}" FontSize="15" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                            <Label Text="Packages / bags" Style="{StaticResource FieldLabel}" VerticalOptions="Center" />
+                            <controls:QuantityStepper Grid.Column="1" Value="{Binding PackageCount}" Minimum="1" Maximum="20" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Package photo (optional)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="Photograph the sealed package before you leave the store." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Problem with the package?" Style="{StaticResource TextButton}" Command="{Binding ReportProblemCommand}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Start Delivery" Command="{Binding StartDeliveryCommand}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

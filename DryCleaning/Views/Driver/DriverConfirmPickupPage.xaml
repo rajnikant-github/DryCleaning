@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D06 – Photo and pickup code  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverConfirmPickupPage"
+                x:DataType="vm:DriverConfirmPickupViewModel"
+                Title="Confirm Pickup">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
+                            <Label Text="{Binding SummaryText}" Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                               FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Photo of the sealed bag" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="Take a clear photo of the bag with the order number visible." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Customer's pickup code" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="{Binding CustomerName, StringFormat='Ask {0} for the 4-digit pickup code shown in their EDry Cleaners app.'}" Style="{StaticResource Caption}" />
+                        <controls:OtpView Code="{Binding Code}" Length="4" />
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasCodeError}" Padding="12,8">
+                            <Label Text="{Binding CodeError}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="#F3E8FF" IsVisible="{Binding HasDemoCode}" Padding="12,8">
+                    <Label Text="{Binding DemoCodeText, StringFormat='🧪  {0}'}" TextColor="#7E22CE" FontSize="12" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Confirm Pickup" Command="{Binding ConfirmCommand}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  D05 – Verify items with the customer  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Driver"
+                x:Class="DryCleaning.Views.Driver.DriverVerifyItemsPage"
+                x:DataType="vm:DriverVerifyItemsViewModel"
+                Title="Verify Items">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="14">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding CustomerName, StringFormat='Count the items with {0}'}" TextColor="{StaticResource InfoDark}" FontFamily="AppSemibold" FontSize="14" />
+                        <Label Text="Check each item against the order and note any stains or damage before you take the bag." TextColor="{StaticResource InfoDark}" FontSize="13" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:DriverItemCheckItem">
+                            <Border Style="{StaticResource Card}">
+                                <VerticalStackLayout Spacing="12">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="26" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding HasCustomerNotes}" Padding="10,6">
+                                        <Label Text="{Binding CustomerNotes, StringFormat='📝  Customer: {0}'}" TextColor="{StaticResource WarningDark}" FontSize="12" />
+                                    </Border>
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                        <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                            <Label Text="Counted" Style="{StaticResource FieldLabel}" />
+                                            <Label Text="{Binding ExpectedText}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                        <controls:QuantityStepper Grid.Column="1" Value="{Binding CountedQuantity}" Minimum="0" Maximum="100" />
+                                    </Grid>
+                                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasDiscrepancy}" Padding="10,6" HorizontalOptions="Start">
+                                        <Label Text="{Binding DiscrepancyText}" TextColor="{StaticResource ErrorDark}" FontSize="12" FontFamily="AppSemibold" />
+                                    </Border>
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                    <Button Text="Good" Command="{Binding SetConditionCommand}" CommandParameter="Good" Style="{StaticResource SmallOutlineButton}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Binding="{Binding IsGood}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource SuccessSoft}" />
+                                                <Setter Property="BorderColor" Value="{StaticResource Success}" />
+                                                <Setter Property="TextColor" Value="{StaticResource SuccessDark}" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                    <Button Grid.Column="1" Text="Stained" Command="{Binding SetConditionCommand}" CommandParameter="Stained" Style="{StaticResource SmallOutlineButton}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Binding="{Binding IsStained}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource WarningSoft}" />
+                                                <Setter Property="BorderColor" Value="{StaticResource Warning}" />
+                                                <Setter Property="TextColor" Value="{StaticResource WarningDark}" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                    <Button Grid.Column="2" Text="Damaged" Command="{Binding SetConditionCommand}" CommandParameter="Damaged" Style="{StaticResource SmallOutlineButton}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Binding="{Binding IsDamaged}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource ErrorSoft}" />
+                                                <Setter Property="BorderColor" Value="{StaticResource Error}" />
+                                                <Setter Property="TextColor" Value="{StaticResource ErrorDark}" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </Grid>
+                                    <Border Style="{StaticResource InputField}" IsVisible="{Binding NeedsNote}">
+                                        <Entry Text="{Binding Note}" Placeholder="Describe the issue (e.g. stain on left sleeve)" MaxLength="200" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Notes (optional)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Border Style="{StaticResource InputField}">
+                            <Editor Text="{Binding Notes}" Placeholder="Anything the provider should know…" AutoSize="TextChanges" MaxLength="300" MinimumHeightRequest="70" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="{Binding CountedText}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                <Button Text="Items Verified · Continue" Command="{Binding ContinueCommand}" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

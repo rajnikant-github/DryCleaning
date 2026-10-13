@@ -1,6 +1,7 @@
 using DryCleaning.Helpers;
 using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
+using DryCleaning.Views.Driver;
 using DryCleaning.Views.Provider;
 
 namespace DryCleaning;
@@ -40,5 +41,17 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(Routes.OrderTracking, typeof(OrderTrackingPage));
         Routing.RegisterRoute(Routes.CustomerOrderDetail, typeof(CustomerOrderDetailPage));
         Routing.RegisterRoute(Routes.EditProfile, typeof(EditProfilePage));
+
+        // Driver pushed pages
+        Routing.RegisterRoute(Routes.DriverJobDetail, typeof(DriverJobDetailPage));
+        Routing.RegisterRoute(Routes.DriverNavigate, typeof(DriverNavigatePage));
+        Routing.RegisterRoute(Routes.DriverVerifyItems, typeof(DriverVerifyItemsPage));
+        Routing.RegisterRoute(Routes.DriverConfirmPickup, typeof(DriverConfirmPickupPage));
+        Routing.RegisterRoute(Routes.DriverPickupComplete, typeof(DriverPickupCompletePage));
+        Routing.RegisterRoute(Routes.DriverHandover, typeof(DriverHandoverPage));
+        Routing.RegisterRoute(Routes.DriverCollect, typeof(DriverCollectPage));
+        Routing.RegisterRoute(Routes.DriverDeliver, typeof(DriverDeliverPage));
+        Routing.RegisterRoute(Routes.DriverJobCompleted, typeof(DriverJobCompletedPage));
+        Routing.RegisterRoute(Routes.DriverEditProfile, typeof(DriverEditProfilePage));
     }
 }

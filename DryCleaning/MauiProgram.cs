@@ -5,9 +5,11 @@ using DryCleaning.Services.Mock;
 using DryCleaning.ViewModels;
 using DryCleaning.ViewModels.Auth;
 using DryCleaning.ViewModels.Customer;
+using DryCleaning.ViewModels.Driver;
 using DryCleaning.ViewModels.Provider;
 using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
+using DryCleaning.Views.Driver;
 using DryCleaning.Views.Provider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,6 +61,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IPaymentService, MockPaymentService>();
         builder.Services.AddSingleton<IPlacesService, MockPlacesService>();
         builder.Services.AddSingleton<ICartService, CartService>();
+        builder.Services.AddSingleton<IDriverService, MockDriverService>();
+        builder.Services.AddSingleton<DriverPickupDraft>();
 
         builder.Services.AddSingleton<AppShell>();
 
@@ -100,7 +104,22 @@ public static class MauiProgram
             .AddPage<CustomerOrdersPage, CustomerOrdersViewModel>()
             .AddPage<CustomerOrderDetailPage, CustomerOrderDetailViewModel>()
             .AddPage<CustomerProfilePage, CustomerProfileViewModel>()
-            .AddPage<EditProfilePage, EditProfileViewModel>();
+            .AddPage<EditProfilePage, EditProfileViewModel>()
+            // Driver
+            .AddPage<DriverDashboardPage, DriverDashboardViewModel>()
+            .AddPage<DriverJobsPage, DriverJobsViewModel>()
+            .AddPage<DriverJobDetailPage, DriverJobDetailViewModel>()
+            .AddPage<DriverNavigatePage, DriverNavigateViewModel>()
+            .AddPage<DriverVerifyItemsPage, DriverVerifyItemsViewModel>()
+            .AddPage<DriverConfirmPickupPage, DriverConfirmPickupViewModel>()
+            .AddPage<DriverPickupCompletePage, DriverPickupCompleteViewModel>()
+            .AddPage<DriverHandoverPage, DriverHandoverViewModel>()
+            .AddPage<DriverCollectPage, DriverCollectViewModel>()
+            .AddPage<DriverDeliverPage, DriverDeliverViewModel>()
+            .AddPage<DriverJobCompletedPage, DriverJobCompletedViewModel>()
+            .AddPage<DriverEarningsPage, DriverEarningsViewModel>()
+            .AddPage<DriverProfilePage, DriverProfileViewModel>()
+            .AddPage<DriverEditProfilePage, DriverEditProfileViewModel>();
 
 #if DEBUG
         builder.Logging.AddDebug();

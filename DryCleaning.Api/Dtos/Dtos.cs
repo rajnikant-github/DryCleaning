@@ -255,7 +255,23 @@ public sealed record DriverDashboardDto(
 
 public sealed record DriverProfileDto(Guid Id, UserDto User, string LicenseNumber, bool IsAvailable, bool IsActive, AddressDto? Address);
 
-public sealed record UpdateDriverProfileRequest(string LicenseNumber);
+/// <summary>Licence number is required; name, email and phone are updated when supplied.</summary>
+public sealed record UpdateDriverProfileRequest(string LicenseNumber, string? Name = null, string? Email = null, string? Phone = null);
+
+public enum EarningsPeriod
+{
+    /// <summary>Last 7 days, one bar per day.</summary>
+    Week,
+    /// <summary>Last 4 weeks, one bar per week.</summary>
+    Month
+}
+
+public sealed record EarningsBarDto(string Label, DateTime Start, decimal Amount, int Jobs);
+
+/// <summary>D13 – earnings are completed jobs × Marketplace:DriverEarningPerJob (no payouts table in V1).</summary>
+public sealed record DriverEarningsDto(
+    EarningsPeriod Period, DateTime From, DateTime To, decimal Total, int JobCount, int PickupCount, int DeliveryCount,
+    decimal RatePerJob, decimal AveragePerJob, string Currency, IReadOnlyList<EarningsBarDto> Bars, IReadOnlyList<DriverJobDto> Jobs);
 
 /// <param name="Code">Pickup code shown to the customer (QR) or delivery OTP.</param>
 public sealed record VerifyCodeRequest(string Code, int? ItemCount, string? Notes);

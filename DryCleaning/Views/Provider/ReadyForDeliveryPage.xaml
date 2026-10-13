@@ -44,8 +44,17 @@
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding IsSearching}" Padding="16">
                     <HorizontalStackLayout Spacing="12">
                         <ActivityIndicator IsRunning="{Binding IsSearching}" Color="{StaticResource InfoDark}" WidthRequest="22" HeightRequest="22" />
-                        <Label Text="Finding the nearest available driver…" TextColor="{StaticResource InfoDark}" FontSize="14" VerticalOptions="Center" />
+                        <Label Text="Posting the delivery job to drivers…" TextColor="{StaticResource InfoDark}" FontSize="14" VerticalOptions="Center" />
                     </HorizontalStackLayout>
+                </Border>
+
+                <!--  Waiting for a marketplace driver to accept  -->
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding IsWaitingForDriver}" Padding="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="🕒  Waiting for a driver" TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="14" />
+                        <Label Text="The delivery job is live on the driver marketplace. You'll be notified as soon as a driver accepts it."
+                               TextColor="{StaticResource WarningDark}" FontSize="13" />
+                    </VerticalStackLayout>
                 </Border>
 
                 <!--  Assigned driver  -->

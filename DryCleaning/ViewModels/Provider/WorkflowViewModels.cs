@@ -298,6 +298,7 @@ public sealed partial class ReadyForDeliveryViewModel(ViewModelServices services
     [ObservableProperty] private string itemCountText = string.Empty;
     [ObservableProperty] private bool canRequestDriver;
     [ObservableProperty] private bool isSearching;
+    [ObservableProperty] private bool isWaitingForDriver;
     [ObservableProperty] private bool hasDriver;
     [ObservableProperty] private string driverName = string.Empty;
     [ObservableProperty] private string driverInfo = string.Empty;
@@ -309,7 +310,8 @@ public sealed partial class ReadyForDeliveryViewModel(ViewModelServices services
         DeliveryAddress = detail.PickupAddress.FormattedAddress;
         ItemCountText = detail.ExpectedItemCount == 1 ? "1 item" : $"{detail.ExpectedItemCount} items";
         CurrentStatus = detail.Order.Status;
-        CanRequestDriver = detail.Order.Status == OrderStatus.ReadyForDelivery;
+        IsWaitingForDriver = detail.AwaitingDriverFor == DriverJobType.Delivery;
+        CanRequestDriver = detail.Order.Status == OrderStatus.ReadyForDelivery && !IsWaitingForDriver;
         SetDriver(detail.DeliveryDriver);
         RequestDriverCommand.NotifyCanExecuteChanged();
     }
@@ -331,10 +333,9 @@ public sealed partial class ReadyForDeliveryViewModel(ViewModelServices services
         {
             IsSearching = true;
             RequestDriverCommand.NotifyCanExecuteChanged();
-            var driver = await OrderService.RequestDeliveryDriverAsync(OrderId);
-            SetDriver(driver);
+            await OrderService.RequestDeliveryDriverAsync(OrderId);
             CanRequestDriver = false;
-            CurrentStatus = OrderStatus.DeliveryAssigned;
+            IsWaitingForDriver = true;
         }
         catch (Exception ex)
         {

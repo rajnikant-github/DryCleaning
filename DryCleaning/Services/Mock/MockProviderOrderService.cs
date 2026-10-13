@@ -109,20 +109,12 @@ public sealed class MockProviderOrderService(MockDataStore store, ISessionServic
             var order = store.OrderById(orderId);
             ChangeStatus(order, OrderStatus.Confirmed, "Accepted by provider");
 
-            // Marketplace auto-assigns any available driver (drivers are not tied to providers).
-            var driver = PickAvailableDriver();
-            var provider = store.Providers.First(p => p.Id == order.ServiceProviderId);
-            store.DriverJobs.Add(new DriverJob
-            {
-                OrderId = order.Id,
-                DriverId = driver.Id,
-                JobType = DriverJobType.Pickup,
-                Status = DriverJobStatus.Assigned,
-                PickupAddressId = order.PickupAddressId,
-                DeliveryAddressId = provider.AddressId,
-                AssignedAt = DateTime.Now
-            });
-            ChangeStatus(order, OrderStatus.PickupAssigned, $"Pickup assigned to {store.UserById(driver.UserId).Name}");
+            // Publish a pickup job (customer → provider) to the shared driver marketplace.
+            store.PublishDriverJob(order, DriverJobType.Pickup);
+            var provider = store.ProviderById(order.ServiceProviderId);
+            store.Notify(store.CustomerById(order.CustomerId).UserId, order, "Order confirmed",
+                $"{provider.BusinessName} accepted {order.OrderNumber}. We're finding a driver for pickup.");
+            store.NotifyAvailableDrivers(order, "New pickup job", $"Collect {order.OrderNumber} for {provider.BusinessName}.");
         }
     }
 
@@ -142,32 +134,25 @@ public sealed class MockProviderOrderService(MockDataStore store, ISessionServic
         lock (store.Gate)
         {
             var order = store.OrderById(orderId);
+            var job = store.DriverJobs.LastOrDefault(j => j.OrderId == order.Id && j.JobType == DriverJobType.Pickup && j.Status != DriverJobStatus.Cancelled)
+                      ?? store.PublishDriverJob(order, DriverJobType.Pickup);
+
             if (order.Status == OrderStatus.Confirmed)
             {
+                // Demo: a marketplace driver (never the demo driver account) accepts the pending job.
                 var driver = PickAvailableDriver();
-                var provider = store.Providers.First(p => p.Id == order.ServiceProviderId);
-                store.DriverJobs.Add(new DriverJob
-                {
-                    OrderId = order.Id,
-                    DriverId = driver.Id,
-                    JobType = DriverJobType.Pickup,
-                    Status = DriverJobStatus.Accepted,
-                    PickupAddressId = order.PickupAddressId,
-                    DeliveryAddressId = provider.AddressId,
-                    AssignedAt = DateTime.Now
-                });
-                ChangeStatus(order, OrderStatus.PickupAssigned, "Pickup driver assigned");
+                job.DriverId = driver.Id;
+                job.Status = DriverJobStatus.Assigned;
+                job.AssignedAt = DateTime.Now;
+                ChangeStatus(order, OrderStatus.PickupAssigned, $"Pickup assigned to {store.UserById(driver.UserId).Name}");
             }
 
-            var job = store.DriverJobs.LastOrDefault(j => j.OrderId == order.Id && j.JobType == DriverJobType.Pickup);
-            if (job is not null)
-                job.Status = DriverJobStatus.InProgress;
-
+            job.Status = DriverJobStatus.InProgress;
             var pickupCode = store.OrderVerifications.FirstOrDefault(v => v.OrderId == order.Id && v.Type == VerificationType.QR && v.VerifiedAt == null);
             if (pickupCode is not null)
             {
                 pickupCode.VerifiedAt = DateTime.Now;
-                pickupCode.VerifiedByUserId = job is null ? null : store.DriverById(job.DriverId).UserId;
+                pickupCode.VerifiedByUserId = job.DriverId is { } driverId ? store.DriverById(driverId).UserId : null;
             }
             ChangeStatus(order, OrderStatus.PickedUp, "Items collected from customer");
         }
@@ -268,31 +253,29 @@ public sealed class MockProviderOrderService(MockDataStore store, ISessionServic
         }
     }
 
-    public async Task<DriverAssignment> RequestDeliveryDriverAsync(Guid orderId)
+    public async Task RequestDeliveryDriverAsync(Guid orderId)
     {
-        await Task.Delay(1200); // simulate marketplace matching
+        await MockDataStore.SimulateLatencyAsync();
         lock (store.Gate)
         {
             var order = store.OrderById(orderId);
-            OrderWorkflow.EnsureCanTransition(order.Status, OrderStatus.DeliveryAssigned);
+            if (order.Status != OrderStatus.ReadyForDelivery)
+                throw new InvalidOperationException("Only orders that are ready for delivery can request a driver.");
+            if (store.DriverJobs.Any(j => j.OrderId == order.Id && j.JobType == DriverJobType.Delivery &&
+                                          j.Status is DriverJobStatus.Pending or DriverJobStatus.Assigned or DriverJobStatus.InProgress))
+                throw new InvalidOperationException("A delivery driver has already been requested for this order.");
 
-            var driver = PickAvailableDriver();
-            var provider = store.Providers.First(p => p.Id == order.ServiceProviderId);
-            var job = new DriverJob
+            // Publish a delivery job (provider → customer) to the shared driver marketplace.
+            store.PublishDriverJob(order, DriverJobType.Delivery);
+            store.OrderStatusHistory.Add(new OrderStatusHistory
             {
                 OrderId = order.Id,
-                DriverId = driver.Id,
-                JobType = DriverJobType.Delivery,
-                Status = DriverJobStatus.Assigned,
-                PickupAddressId = provider.AddressId,
-                DeliveryAddressId = order.PickupAddressId,
-                AssignedAt = DateTime.Now
-            };
-            store.DriverJobs.Add(job);
-
-            var driverUser = store.UserById(driver.UserId);
-            ChangeStatus(order, OrderStatus.DeliveryAssigned, $"Delivery assigned to {driverUser.Name}");
-            return ToAssignment(job)!;
+                Status = order.Status,
+                ChangedByUserId = UserId,
+                Notes = "Delivery driver requested · waiting for a driver to accept"
+            });
+            store.NotifyAvailableDrivers(order, "New delivery job",
+                $"Deliver {order.OrderNumber} from {store.ProviderById(order.ServiceProviderId).BusinessName}.");
         }
     }
 
@@ -363,13 +346,11 @@ public sealed class MockProviderOrderService(MockDataStore store, ISessionServic
 
     private Driver PickAvailableDriver()
     {
-        var available = store.Drivers.Where(d => d.IsActive && d.IsAvailable).ToList();
-        return available[Random.Shared.Next(available.Count)];
+        var available = store.Drivers.Where(d => d.IsActive && d.IsAvailable && d.Id != store.DemoDriver.Id).ToList();
+        return available.Count == 0 ? store.Drivers.First(d => d.Id != store.DemoDriver.Id) : available[Random.Shared.Next(available.Count)];
     }
 
     private OrderSummary ToSummary(Order order) => MockMapping.ToSummary(store, order);
 
     private OrderItemDetail ToItemDetail(OrderItem item) => MockMapping.ToItemDetail(store, item);
-
-    private DriverAssignment? ToAssignment(DriverJob? job) => MockMapping.ToAssignment(store, job);
 }

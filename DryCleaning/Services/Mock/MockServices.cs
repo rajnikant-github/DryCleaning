@@ -56,6 +56,9 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
             case UserRole.Customer:
                 session.SignIn(store.DemoCustomerUser, store.DemoCustomer.Id);
                 return AuthResult.Ok();
+            case UserRole.Driver:
+                session.SignIn(store.DemoDriverUser, store.DemoDriver.Id);
+                return AuthResult.Ok();
             default:
                 return AuthResult.Fail($"The {role} app is not available in this build yet.");
         }

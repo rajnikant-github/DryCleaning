@@ -16,6 +16,15 @@
 		<intent>
 			<action android:name="android.media.action.IMAGE_CAPTURE" />
 		</intent>
+		<!-- Map.OpenAsync (driver navigation) -->
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="geo" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="google.navigation" />
+		</intent>
 		<!-- PhoneDialer (call customer) -->
 		<intent>
 			<action android:name="android.intent.action.DIAL" />

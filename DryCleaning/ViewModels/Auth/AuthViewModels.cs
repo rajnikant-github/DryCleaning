@@ -31,10 +31,9 @@ public sealed partial class RoleSelectionViewModel(ViewModelServices services, I
         if (!Enum.TryParse<UserRole>(role, out var selected))
             return;
 
-        if (selected is not (UserRole.Provider or UserRole.Customer))
+        if (selected is not (UserRole.Provider or UserRole.Customer or UserRole.Driver))
         {
-            await Dialogs.AlertAsync("Coming soon",
-                $"The {selected} app is being built next. Please continue as a Customer or Service Provider for now.");
+            await Dialogs.AlertAsync("Not available", $"The {selected} role uses the EDry Cleaners admin portal.");
             return;
         }
 

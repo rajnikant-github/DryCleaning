@@ -16,7 +16,7 @@ public static class MockMapping
             var product = store.Products.First(p => p.Id == i.ProductId);
             return $"{i.Quantity} {product.Name.ToLowerInvariant()}";
         }));
-        var job = store.DriverJobs.LastOrDefault(j => j.OrderId == order.Id && j.Status != DriverJobStatus.Cancelled);
+        var job = store.DriverJobs.LastOrDefault(j => j.OrderId == order.Id && j.DriverId != null && j.Status != DriverJobStatus.Cancelled);
 
         return new OrderSummary
         {
@@ -33,7 +33,7 @@ public static class MockMapping
             PickupDate = order.PickupDate,
             PickupSlot = order.PickupSlot,
             IsPaid = store.Payments.Any(p => p.OrderId == order.Id && p.Status == PaymentStatus.Success),
-            DriverName = job is null ? null : store.UserById(store.DriverById(job.DriverId).UserId).Name,
+            DriverName = job?.DriverId is { } driverId ? store.UserById(store.DriverById(driverId).UserId).Name : null,
             HasOpenDispute = store.Disputes.Any(d => d.OrderId == order.Id && d.Status is DisputeStatus.Open or DisputeStatus.UnderReview)
         };
     }
@@ -62,10 +62,10 @@ public static class MockMapping
 
     public static DriverAssignment? ToAssignment(MockDataStore store, DriverJob? job)
     {
-        if (job is null)
+        if (job?.DriverId is not { } driverId || job.Status == DriverJobStatus.Cancelled)
             return null;
 
-        var driver = store.DriverById(job.DriverId);
+        var driver = store.DriverById(driverId);
         var user = store.UserById(driver.UserId);
         return new DriverAssignment
         {
@@ -85,7 +85,7 @@ public static class MockMapping
         var customer = store.CustomerById(order.CustomerId);
         var customerUser = store.UserById(customer.UserId);
         var provider = store.ProviderById(order.ServiceProviderId);
-        var jobs = store.DriverJobs.Where(j => j.OrderId == order.Id).ToList();
+        var jobs = store.DriverJobs.Where(j => j.OrderId == order.Id && j.Status != DriverJobStatus.Cancelled).ToList();
         var codes = store.OrderVerifications.Where(v => v.OrderId == order.Id && v.VerifiedAt == null).ToList();
 
         return new OrderDetail
@@ -97,8 +97,9 @@ public static class MockMapping
             Items = store.OrderItems.Where(i => i.OrderId == order.Id).Select(i => ToItemDetail(store, i)).ToList(),
             History = store.OrderStatusHistory.Where(h => h.OrderId == order.Id).OrderBy(h => h.CreatedAt).ToList(),
             Photos = store.OrderPhotos.Where(p => p.OrderId == order.Id).OrderBy(p => p.CreatedAt).ToList(),
-            PickupDriver = ToAssignment(store, jobs.LastOrDefault(j => j.JobType == DriverJobType.Pickup)),
-            DeliveryDriver = ToAssignment(store, jobs.LastOrDefault(j => j.JobType == DriverJobType.Delivery)),
+            PickupDriver = ToAssignment(store, jobs.LastOrDefault(j => j.JobType == DriverJobType.Pickup && j.DriverId != null)),
+            DeliveryDriver = ToAssignment(store, jobs.LastOrDefault(j => j.JobType == DriverJobType.Delivery && j.DriverId != null)),
+            AwaitingDriverFor = jobs.LastOrDefault(j => j.Status == DriverJobStatus.Pending)?.JobType,
             Payment = store.Payments.LastOrDefault(p => p.OrderId == order.Id && p.Status == PaymentStatus.Success)
                       ?? store.Payments.LastOrDefault(p => p.OrderId == order.Id),
             OpenDispute = store.Disputes.LastOrDefault(d => d.OrderId == order.Id && d.Status is DisputeStatus.Open or DisputeStatus.UnderReview),

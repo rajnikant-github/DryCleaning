@@ -51,6 +51,9 @@ public sealed class PricingSettings
     public decimal VatRate { get; set; } = 0.15m;
 
     public decimal DefaultDeliveryFee { get; set; } = 45m;
+
+    /// <summary>What a marketplace driver earns per completed pickup or delivery job.</summary>
+    public decimal DriverEarningPerJob { get; set; } = 35m;
 }
 
 public sealed class FeatureSettings
