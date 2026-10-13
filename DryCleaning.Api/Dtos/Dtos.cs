@@ -86,9 +86,15 @@ public sealed record ReorderRequest(IReadOnlyList<Guid> CategoryIds);
 
 public sealed record SetActiveRequest(bool IsActive);
 
+/// <param name="FastestDays">Shortest EstimatedDays among the provider's active items (in the requested category, if any).</param>
 public sealed record ProviderSummaryDto(
     Guid Id, string BusinessName, string? Description, string? LogoUrl,
-    string? Locality, IReadOnlyList<string> Categories, decimal? StartingPrice);
+    string? Locality, IReadOnlyList<string> Categories, decimal? StartingPrice, int? FastestDays);
+
+/// <summary>C05 – "Popular right now" on the customer home screen.</summary>
+public sealed record PopularServiceItemDto(
+    Guid ServiceItemId, Guid ProductId, Guid ProviderId, string ProviderName, Guid CategoryId, string CategoryName,
+    string ProductName, string ServiceItemName, decimal Price, int EstimatedDays, int OrderedQuantity);
 
 public sealed record ServiceItemDto(
     Guid Id, Guid ProductId, string Name, string? Description, string? ImageUrl,
@@ -153,7 +159,39 @@ public sealed record DriverJobDto(
     Guid Id, Guid OrderId, string OrderNumber, DriverJobType JobType, DriverJobStatus Status,
     Guid? DriverId, string? DriverName, string? DriverPhone,
     string PickupName, AddressDto PickupAddress, string DeliveryName, AddressDto DeliveryAddress,
-    int ItemCount, decimal EstimatedEarnings, DateTime? AssignedAt, DateTime? CompletedAt, DateTime CreatedAt);
+    int ItemCount, decimal EstimatedEarnings, DateTime? AssignedAt, DateTime? CompletedAt, DateTime CreatedAt,
+    OrderStatus OrderStatus, DateTime? PickupDate, string? PickupSlot, bool IsOnHold);
+
+/// <summary>The driver's next step on a job (derived from job type + status).</summary>
+public enum DriverJobStep
+{
+    /// <summary>Pending on the marketplace.</summary>
+    Accept,
+    /// <summary>Pickup · Assigned – go to the customer, verify items, enter the pickup code.</summary>
+    CollectFromCustomer,
+    /// <summary>Pickup · InProgress – take the items to the provider and hand over.</summary>
+    DropAtProvider,
+    /// <summary>Delivery · Assigned – collect the packed order from the provider.</summary>
+    CollectFromProvider,
+    /// <summary>Delivery · InProgress – deliver with the customer's OTP.</summary>
+    DeliverToCustomer,
+    Done,
+    /// <summary>Cancelled, taken by another driver, or the order is on hold.</summary>
+    Unavailable
+}
+
+/// <summary>D03 – a driver job with everything the job screens need.</summary>
+/// <param name="CustomerPhone">Only shared while the job is the caller's own and active.</param>
+/// <param name="ProviderPhone">Only shared while the job is the caller's own and active.</param>
+public sealed record DriverJobDetailDto(
+    DriverJobDto Job,
+    DriverJobStep NextStep,
+    bool IsMine,
+    string CustomerName,
+    string? CustomerPhone,
+    string ProviderName,
+    string? ProviderPhone,
+    IReadOnlyList<OrderItemDto> Items);
 
 public sealed record OrderSummaryDto(
     Guid Id, string OrderNumber, OrderStatus Status, string CustomerName, string ProviderName,
@@ -213,6 +251,10 @@ public enum CustomerOrderFilter
     All
 }
 
+public sealed record CustomerOrderCountsDto(int Active, int Completed, int Cancelled);
+
+public sealed record ProviderOrderCountsDto(int New, int Incoming, int InProcess, int Ready, int Completed, int Cancelled, int Disputed);
+
 public sealed class ProviderOrdersQuery : Common.PagedRequest
 {
     public ProviderOrderFilter Filter { get; set; } = ProviderOrderFilter.All;
@@ -251,7 +293,19 @@ public sealed record InspectionRequest(IReadOnlyList<InspectionItemRequest> Item
 // ═════════════════════════════════════════════════════════════════════════════
 
 public sealed record DriverDashboardDto(
-    bool IsAvailable, int AvailableJobs, DriverJobDto? ActiveJob, int CompletedToday, decimal EarningsToday, string Currency);
+    string DriverName, bool IsAvailable, int AvailableJobs, DriverJobDetailDto? ActiveJob, int CompletedToday, decimal EarningsToday,
+    int UnreadNotifications, IReadOnlyList<DriverJobDto> TodaysJobs, string Currency);
+
+public sealed record DriverJobCountsDto(int Available, int Mine, int Completed);
+
+/// <summary>D05 – what the driver counted at the customer's door for one order line.</summary>
+public sealed record DriverItemCheckRequest(Guid OrderItemId, int CountedQuantity, ItemCondition Condition, string? Note);
+
+/// <summary>D06 – pickup code plus the item check. <c>ItemCount</c> is kept for older clients.</summary>
+public sealed record DriverPickupRequest(string Code, IReadOnlyList<DriverItemCheckRequest>? Items = null, int? ItemCount = null, string? Notes = null);
+
+/// <summary>D09 – collected from the provider.</summary>
+public sealed record StartDeliveryRequest(int? PackageCount = null, string? Notes = null);
 
 public sealed record DriverProfileDto(Guid Id, UserDto User, string LicenseNumber, bool IsAvailable, bool IsActive, AddressDto? Address);
 

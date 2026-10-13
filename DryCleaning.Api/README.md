@@ -73,20 +73,36 @@ Created → Confirmed → PickupAssigned → PickedUp → ReceivedByProvider →
 |---|---|
 | Provider accepts (publishes **Pickup** job) | `POST /api/provider/orders/{id}/accept` |
 | Driver accepts job | `POST /api/driver/jobs/{jobId}/accept` |
-| Driver verifies customer pickup code (QR) | `POST /api/driver/jobs/{jobId}/pickup` |
+| Driver checks items + verifies customer pickup code (QR) | `POST /api/driver/jobs/{jobId}/pickup` (`Code`, optional per-item `Items`, `Notes`) |
 | Driver hands over to provider | `POST /api/driver/jobs/{jobId}/handover` |
 | Provider confirms receipt | `POST /api/provider/orders/{id}/receive` |
 | Inspection → Processing | `POST /api/provider/orders/{id}/inspection` |
 | Quality check | `POST /api/provider/orders/{id}/quality-check` |
 | Ready for delivery | `POST /api/provider/orders/{id}/ready` |
 | Request driver (publishes **Delivery** job) | `POST /api/provider/orders/{id}/request-driver` |
-| Driver collects from provider | `POST /api/driver/jobs/{jobId}/start-delivery` |
+| Driver collects from provider | `POST /api/driver/jobs/{jobId}/start-delivery` (optional `PackageCount`, `Notes`) |
 | Driver delivers with customer OTP → Completed | `POST /api/driver/jobs/{jobId}/deliver` |
 | Driver earnings (last 7 days / 4 weeks) | `GET /api/driver/earnings?period=Week\|Month` |
 | Driver job history | `GET /api/driver/jobs/history` |
 | Driver pickup / delivery photos | `POST /api/orders/{orderId}/photos` (multipart, `Type=Pickup\|Completion`) |
 
 Every status change is written to `OrderStatusHistory`.
+
+Driver job endpoints (`GET /api/driver/jobs/{jobId}`, accept, release, pickup, handover, start-delivery, deliver)
+return a `DriverJobDetailDto`: the job, its `NextStep`, the order's items and – only while the job is the
+driver's own and active – the customer's and provider's phone numbers.
+
+### Screen helpers
+
+| Screen | Endpoint |
+|---|---|
+| Customer home – popular services | `GET /api/catalog/popular?take=6` |
+| Providers list (incl. `FastestDays`) | `GET /api/providers?categoryId=…` |
+| Customer order tab counts | `GET /api/customer/orders/counts` |
+| Provider order tab counts | `GET /api/provider/orders/counts` |
+| Driver dashboard (name, active job, today's jobs, unread) | `GET /api/driver/dashboard` |
+| Driver job tab counts | `GET /api/driver/jobs/counts` |
+| Driver job for a notification | `GET /api/driver/jobs/by-order/{orderId}` |
 
 ## Schema notes
 
@@ -95,6 +111,6 @@ Every status change is written to `OrderStatusHistory`.
 - `DriverJobs.DriverId` is nullable: a job is `Pending` on the marketplace until a driver accepts it.
   `DriverJobs` also has a `RowVersion` concurrency column so two drivers can't take the same job.
 - `AddressId` on Customers/ServiceProviders/Drivers is nullable so users can register before adding an address.
-- `OrderVerifications`: `QR` = customer pickup code, `OTP` = delivery code, `Item` = provider receipt check.
+- `OrderVerifications`: `QR` = customer pickup code, `OTP` = delivery code, `Item` = driver item check at pickup / provider receipt check.
 - Order numbers come from a SQL sequence: `EDC-10001`, `EDC-10002`, …
 - Login OTPs are held in memory (no table in the schema) – plug an SMS provider into `MemoryOtpService`.

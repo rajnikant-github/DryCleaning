@@ -126,7 +126,51 @@ public static class Mapping
             j.DriverId, j.Driver?.User?.Name, j.Driver?.User?.Phone,
             toProvider ? order.Customer.User.Name : order.ServiceProvider.BusinessName, j.PickupAddress.ToDto(),
             toProvider ? order.ServiceProvider.BusinessName : order.Customer.User.Name, j.DeliveryAddress.ToDto(),
-            order.Items.Sum(i => i.Quantity), earnings, j.AssignedAt, j.CompletedAt, j.CreatedAt);
+            order.Items.Sum(i => i.Quantity), earnings, j.AssignedAt, j.CompletedAt, j.CreatedAt,
+            order.Status, order.PickupDate, order.PickupSlot, order.Status == OrderStatus.Disputed);
+    }
+
+    /// <summary>
+    /// D03 job detail. Needs Order → Customer.User, ServiceProvider, Items → Product.Category / ServiceItem.
+    /// Phone numbers are only included while the job is the caller's own and active.
+    /// </summary>
+    public static DriverJobDetailDto ToDetail(this DriverJob j, Guid callerDriverId, decimal earnings)
+    {
+        var order = j.Order;
+        var isMine = j.DriverId == callerDriverId;
+        var step = j.NextStep(isMine);
+        var sharePhones = isMine && j.Status is DriverJobStatus.Assigned or DriverJobStatus.InProgress;
+
+        return new DriverJobDetailDto(
+            j.ToDto(order, earnings),
+            step,
+            isMine,
+            order.Customer.User.Name,
+            sharePhones ? order.Customer.User.Phone : null,
+            order.ServiceProvider.BusinessName,
+            sharePhones ? order.ServiceProvider.Phone : null,
+            order.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList());
+    }
+
+    public static DriverJobStep NextStep(this DriverJob j, bool isMine)
+    {
+        var orderStatus = j.Order.Status;
+        if (j.Status == DriverJobStatus.Cancelled || orderStatus == OrderStatus.Cancelled)
+            return DriverJobStep.Unavailable;
+        if (j.Status == DriverJobStatus.Pending)
+            return orderStatus == OrderStatus.Disputed ? DriverJobStep.Unavailable : DriverJobStep.Accept;
+        if (!isMine)
+            return DriverJobStep.Unavailable;
+
+        return (j.JobType, j.Status) switch
+        {
+            (_, DriverJobStatus.Completed) => DriverJobStep.Done,
+            (DriverJobType.Pickup, DriverJobStatus.Assigned) => DriverJobStep.CollectFromCustomer,
+            (DriverJobType.Pickup, DriverJobStatus.InProgress) => DriverJobStep.DropAtProvider,
+            (DriverJobType.Delivery, DriverJobStatus.Assigned) => DriverJobStep.CollectFromProvider,
+            (DriverJobType.Delivery, DriverJobStatus.InProgress) => DriverJobStep.DeliverToCustomer,
+            _ => DriverJobStep.Unavailable
+        };
     }
 
     /// <param name="includeCustomerCodes">Only the customer may see the pickup code and delivery OTP.</param>

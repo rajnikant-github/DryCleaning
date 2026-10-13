@@ -157,19 +157,70 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
         var (items, total) = await query.OrderBy(p => p.BusinessName).AsSplitQuery().PageAsync(request, ct);
         var dtos = items.Select(p =>
         {
-            var prices = p.Products
+            var activeItems = p.Products
                 .Where(pr => pr.IsActive && (categoryId == null || pr.CategoryId == categoryId))
                 .SelectMany(pr => pr.ServiceItems.Where(s => s.IsActive))
-                .Select(s => s.Price)
                 .ToList();
             return new ProviderSummaryDto(
                 p.Id, p.BusinessName, p.Description, p.LogoUrl, p.Address?.SubLocality ?? p.Address?.Locality,
                 p.Categories.Where(c => c.IsActive && c.Category.IsActive).Select(c => c.Category.Name).ToList(),
-                prices.Count == 0 ? null : prices.Min());
+                activeItems.Count == 0 ? null : activeItems.Min(s => s.Price),
+                activeItems.Count == 0 ? null : activeItems.Min(s => s.EstimatedDays));
         }).ToList();
 
         return new PagedResult<ProviderSummaryDto>(dtos, request.Page, request.PageSize, total);
     }
+
+    /// <summary>
+    /// C05 – most ordered service items in the last 30 days (by quantity), active providers/items only.
+    /// Falls back to the cheapest active items when there's no recent order data.
+    /// </summary>
+    public async Task<IReadOnlyList<PopularServiceItemDto>> GetPopularItemsAsync(int take, CancellationToken ct)
+    {
+        take = Math.Clamp(take, 1, 20);
+        var since = DateTime.UtcNow.AddDays(-30);
+
+        var ranked = await db.OrderItems
+            .Where(i => i.Order.CreatedAt >= since && i.Order.Status != OrderStatus.Cancelled)
+            .GroupBy(i => i.ServiceItemId)
+            .Select(g => new { ServiceItemId = g.Key, Quantity = g.Sum(i => i.Quantity) })
+            .OrderByDescending(g => g.Quantity)
+            .Take(take * 3) // headroom for items that have since been deactivated
+            .ToListAsync(ct);
+
+        var ids = ranked.Select(r => r.ServiceItemId).ToList();
+        var items = await AvailableItems().Where(s => ids.Contains(s.Id)).ToListAsync(ct);
+        var result = ranked
+            .Select(r => (Item: items.FirstOrDefault(s => s.Id == r.ServiceItemId), r.Quantity))
+            .Where(x => x.Item is not null)
+            .Take(take)
+            .Select(x => ToPopular(x.Item!, x.Quantity))
+            .ToList();
+
+        if (result.Count < take)
+        {
+            var have = result.Select(r => r.ServiceItemId).ToHashSet();
+            var fallback = await AvailableItems()
+                .Where(s => !have.Contains(s.Id))
+                .OrderBy(s => s.Price)
+                .Take(take - result.Count)
+                .ToListAsync(ct);
+            result.AddRange(fallback.Select(s => ToPopular(s, 0)));
+        }
+
+        return result;
+    }
+
+    private IQueryable<ServiceItem> AvailableItems() => db.ServiceItems
+        .Include(s => s.Product).ThenInclude(p => p.Category)
+        .Include(s => s.Product).ThenInclude(p => p.ServiceProvider)
+        .Where(s => s.IsActive && s.Product.IsActive && s.Product.Category.IsActive &&
+                    s.Product.ServiceProvider.IsActive && s.Product.ServiceProvider.User.IsActive &&
+                    s.Product.ServiceProvider.Categories.Any(c => c.CategoryId == s.Product.CategoryId && c.IsActive));
+
+    private static PopularServiceItemDto ToPopular(ServiceItem s, int quantity) => new(
+        s.Id, s.ProductId, s.Product.ServiceProviderId, s.Product.ServiceProvider.BusinessName,
+        s.Product.CategoryId, s.Product.Category.Name, s.Product.Name, s.Name, s.Price, s.EstimatedDays, quantity);
 
     public async Task<ProviderCatalogDto> GetProviderCatalogAsync(Guid providerId, CancellationToken ct)
     {

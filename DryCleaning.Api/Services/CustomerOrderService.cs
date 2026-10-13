@@ -59,6 +59,22 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         return new PagedResult<OrderSummaryDto>(items.Select(o => o.ToSummary()).ToList(), query.Page, query.PageSize, total);
     }
 
+    /// <summary>C17 – badge counts for the Active / Completed / Cancelled tabs.</summary>
+    public async Task<CustomerOrderCountsDto> GetCountsAsync(CancellationToken ct)
+    {
+        var customer = await profile.CustomerAsync(ct);
+        var byStatus = await db.Orders
+            .Where(o => o.CustomerId == customer.Id)
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+
+        int Count(params OrderStatus[] statuses) => byStatus.Where(s => statuses.Contains(s.Status)).Sum(s => s.Count);
+        var completed = Count(OrderStatus.Completed, OrderStatus.Delivered);
+        var cancelled = Count(OrderStatus.Cancelled);
+        return new CustomerOrderCountsDto(byStatus.Sum(s => s.Count) - completed - cancelled, completed, cancelled);
+    }
+
     public async Task<OrderDetailDto> GetAsync(Guid orderId, CancellationToken ct)
     {
         var customer = await profile.CustomerAsync(ct);

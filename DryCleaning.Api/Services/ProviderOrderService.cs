@@ -71,6 +71,26 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
         return new PagedResult<OrderSummaryDto>(items.Select(o => o.ToSummary()).ToList(), query.Page, query.PageSize, total);
     }
 
+    /// <summary>P03 – badge counts for every order tab (same rules as <see cref="GetOrdersAsync"/>).</summary>
+    public async Task<ProviderOrderCountsDto> GetOrderCountsAsync(CancellationToken ct)
+    {
+        var provider = await profile.ProviderAsync(ct);
+        var byStatus = await Visible(provider.Id)
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+
+        int Count(params OrderStatus[] statuses) => byStatus.Where(s => statuses.Contains(s.Status)).Sum(s => s.Count);
+        return new ProviderOrderCountsDto(
+            Count(OrderStatus.Created),
+            Count(OrderStatus.Confirmed, OrderStatus.PickupAssigned, OrderStatus.PickedUp),
+            Count(OrderStatus.ReceivedByProvider, OrderStatus.Processing, OrderStatus.QualityCheck),
+            Count(OrderStatus.ReadyForDelivery, OrderStatus.DeliveryAssigned, OrderStatus.OutForDelivery),
+            Count(OrderStatus.Delivered, OrderStatus.Completed),
+            Count(OrderStatus.Cancelled),
+            Count(OrderStatus.Disputed));
+    }
+
     public async Task<OrderDetailDto> GetOrderAsync(Guid orderId, CancellationToken ct)
     {
         var order = await LoadAsync(orderId, ct, detail: true);

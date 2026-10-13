@@ -90,6 +90,10 @@ public sealed class ProviderOrdersController(ProviderOrderService orders) : Cont
     [HttpGet("orders")]
     public Task<PagedResult<OrderSummaryDto>> GetOrders([FromQuery] ProviderOrdersQuery query, CancellationToken ct) => orders.GetOrdersAsync(query, ct);
 
+    /// <summary>Badge counts for every order tab, including Cancelled and Disputed.</summary>
+    [HttpGet("orders/counts")]
+    public Task<ProviderOrderCountsDto> GetOrderCounts(CancellationToken ct) => orders.GetOrderCountsAsync(ct);
+
     /// <summary>P04 – order details.</summary>
     [HttpGet("orders/{id:guid}")]
     public Task<OrderDetailDto> GetOrder(Guid id, CancellationToken ct) => orders.GetOrderAsync(id, ct);
@@ -164,6 +168,14 @@ public sealed class DriverController(DriverService drivers) : ControllerBase
     [HttpGet("jobs")]
     public Task<PagedResult<DriverJobDto>> Mine([FromQuery] DriverJobsQuery query, CancellationToken ct) => drivers.GetMyJobsAsync(query, ct);
 
+    /// <summary>D02 – badge counts for the Available / My Jobs / Completed tabs.</summary>
+    [HttpGet("jobs/counts")]
+    public Task<DriverJobCountsDto> Counts(CancellationToken ct) => drivers.GetJobCountsAsync(ct);
+
+    /// <summary>The job a notification refers to: the caller's own job for the order, else one still on the marketplace.</summary>
+    [HttpGet("jobs/by-order/{orderId:guid}")]
+    public Task<DriverJobDetailDto> ByOrder(Guid orderId, CancellationToken ct) => drivers.GetJobForOrderAsync(orderId, ct);
+
     /// <summary>D02 – completed job history (newest first).</summary>
     [HttpGet("jobs/history")]
     public Task<PagedResult<DriverJobDto>> History([FromQuery] PagedRequest request, CancellationToken ct) =>
@@ -173,30 +185,33 @@ public sealed class DriverController(DriverService drivers) : ControllerBase
     [HttpGet("earnings")]
     public Task<DriverEarningsDto> Earnings([FromQuery] EarningsPeriod period, CancellationToken ct) => drivers.GetEarningsAsync(period, ct);
 
-    /// <summary>D04 – job details.</summary>
+    /// <summary>D03 – job details: route, items, next step; phone numbers once the job is yours.</summary>
     [HttpGet("jobs/{jobId:guid}")]
-    public Task<DriverJobDto> Get(Guid jobId, CancellationToken ct) => drivers.GetJobAsync(jobId, ct);
+    public Task<DriverJobDetailDto> Get(Guid jobId, CancellationToken ct) => drivers.GetJobAsync(jobId, ct);
 
     [HttpPost("jobs/{jobId:guid}/accept")]
-    public Task<DriverJobDto> Accept(Guid jobId, CancellationToken ct) => drivers.AcceptAsync(jobId, ct);
+    public Task<DriverJobDetailDto> Accept(Guid jobId, CancellationToken ct) => drivers.AcceptAsync(jobId, ct);
 
     /// <summary>Give an accepted job back to the marketplace (before collecting items).</summary>
     [HttpPost("jobs/{jobId:guid}/release")]
-    public Task<DriverJobDto> Release(Guid jobId, CancellationToken ct) => drivers.ReleaseAsync(jobId, ct);
+    public Task<DriverJobDetailDto> Release(Guid jobId, CancellationToken ct) => drivers.ReleaseAsync(jobId, ct);
 
-    /// <summary>D06 – verify the customer's pickup code (QR) and collect items.</summary>
+    /// <summary>D05/D06 – item check plus the customer's pickup code; order → PickedUp. Upload photos via /api/orders/{id}/photos (Type=Pickup).</summary>
     [HttpPost("jobs/{jobId:guid}/pickup")]
-    public Task<DriverJobDto> ConfirmPickup(Guid jobId, VerifyCodeRequest request, CancellationToken ct) => drivers.ConfirmPickupAsync(jobId, request, ct);
+    public Task<DriverJobDetailDto> ConfirmPickup(Guid jobId, DriverPickupRequest request, CancellationToken ct) => drivers.ConfirmPickupAsync(jobId, request, ct);
 
-    /// <summary>D08 – hand items over to the provider.</summary>
+    /// <summary>D08 – hand items over to the provider (Code is ignored; Notes optional).</summary>
     [HttpPost("jobs/{jobId:guid}/handover")]
-    public Task<DriverJobDto> ConfirmHandover(Guid jobId, VerifyCodeRequest request, CancellationToken ct) => drivers.ConfirmHandoverAsync(jobId, request, ct);
+    public Task<DriverJobDetailDto> ConfirmHandover(Guid jobId, VerifyCodeRequest request, CancellationToken ct) => drivers.ConfirmHandoverAsync(jobId, request, ct);
 
-    /// <summary>D10 – collected from provider, out for delivery.</summary>
+    /// <summary>D09 – collected from provider (optional package count and notes); order → OutForDelivery.</summary>
     [HttpPost("jobs/{jobId:guid}/start-delivery")]
-    public Task<DriverJobDto> StartDelivery(Guid jobId, CancellationToken ct) => drivers.StartDeliveryAsync(jobId, ct);
+    public Task<DriverJobDetailDto> StartDelivery(
+        Guid jobId,
+        [FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] StartDeliveryRequest? request,
+        CancellationToken ct) => drivers.StartDeliveryAsync(jobId, request, ct);
 
-    /// <summary>D11 – confirm delivery with the customer's OTP (completes the order).</summary>
+    /// <summary>D11 – confirm delivery with the customer's OTP (completes the order). Upload proof via /api/orders/{id}/photos (Type=Completion).</summary>
     [HttpPost("jobs/{jobId:guid}/deliver")]
-    public Task<DriverJobDto> ConfirmDelivery(Guid jobId, VerifyCodeRequest request, CancellationToken ct) => drivers.ConfirmDeliveryAsync(jobId, request, ct);
+    public Task<DriverJobDetailDto> ConfirmDelivery(Guid jobId, VerifyCodeRequest request, CancellationToken ct) => drivers.ConfirmDeliveryAsync(jobId, request, ct);
 }

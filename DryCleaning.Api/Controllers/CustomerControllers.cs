@@ -30,6 +30,10 @@ public sealed class CustomerOrdersController(CustomerOrderService orders, Paymen
     [HttpGet]
     public Task<PagedResult<OrderSummaryDto>> GetMine([FromQuery] CustomerOrdersQuery query, CancellationToken ct) => orders.GetMineAsync(query, ct);
 
+    /// <summary>Badge counts for the Active / Completed / Cancelled tabs.</summary>
+    [HttpGet("counts")]
+    public Task<CustomerOrderCountsDto> Counts(CancellationToken ct) => orders.GetCountsAsync(ct);
+
     /// <summary>Order details incl. timeline, driver info, pickup code and delivery OTP.</summary>
     [HttpGet("{id:guid}")]
     public Task<OrderDetailDto> Get(Guid id, CancellationToken ct) => orders.GetAsync(id, ct);
