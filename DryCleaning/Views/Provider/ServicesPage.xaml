@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P11 – Services / Catalog: Category → Product  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ServicesPage"
+                x:DataType="vm:CatalogViewModel"
+                Title="Services">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ Product" Command="{Binding AddProductCommand}" />
+    </ContentPage.ToolbarItems>
+    <Grid RowDefinitions="Auto,*">
+        <controls:SegmentBar ItemsSource="{Binding Categories}" />
+
+        <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Products}" SelectionMode="None">
+                <CollectionView.Header>
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource SecondaryColor}" Margin="16,12,16,12">
+                        <Label FontSize="13" TextColor="{StaticResource Primary}"
+                               Text="Categories are managed by EDry Cleaners. Add Products and Service Items with your own prices." />
+                    </Border>
+                </CollectionView.Header>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="32,48" Spacing="8">
+                        <Label Text="🧺" FontSize="44" HorizontalOptions="Center" />
+                        <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
+                        <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:ProductCardItem">
+                        <Border Style="{StaticResource Card}" Margin="16,0,16,12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border Style="{StaticResource IconTile}" WidthRequest="52" HeightRequest="52">
+                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
+                                    <Label Text="{Binding Description}" Style="{StaticResource Small}" LineBreakMode="TailTruncation" />
+                                    <Label Style="{StaticResource Small}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" />
+                                                <Span Text="  ·  " />
+                                                <Span Text="{Binding ServiceItemsText}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="2" IsToggled="{Binding IsActive}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <Button Text="+ Add Product" Command="{Binding AddProductCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="16,4,16,24" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+
+        <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="🏷️" EmptyTitle="No categories enabled"
+                                EmptyMessage="Contact EDry Cleaners to enable categories for your business." />
+    </Grid>
+</views:BasePage>

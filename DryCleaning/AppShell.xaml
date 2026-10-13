@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell x:Class="DryCleaning.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:auth="clr-namespace:DryCleaning.Views.Auth"
+       xmlns:provider="clr-namespace:DryCleaning.Views.Provider"
+       xmlns:customer="clr-namespace:DryCleaning.Views.Customer"
+       Shell.FlyoutBehavior="Disabled"
+       Title="EDry Cleaners">
+
+    <!--  Entry flow  -->
+    <ShellContent Route="splash" ContentTemplate="{DataTemplate auth:SplashPage}" />
+    <ShellContent Route="roles" ContentTemplate="{DataTemplate auth:RoleSelectionPage}" />
+    <ShellContent Route="login" ContentTemplate="{DataTemplate auth:LoginPage}" />
+
+    <!--  Service Provider app  -->
+    <TabBar Route="provider">
+        <ShellContent Title="Dashboard" Icon="tab_home.png" Route="dashboard" ContentTemplate="{DataTemplate provider:DashboardPage}" />
+        <ShellContent Title="Orders" Icon="tab_orders.png" Route="orders" ContentTemplate="{DataTemplate provider:OrdersPage}" />
+        <ShellContent Title="Services" Icon="tab_services.png" Route="services" ContentTemplate="{DataTemplate provider:ServicesPage}" />
+        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate provider:ProfilePage}" />
+    </TabBar>
+
+    <!--  Customer app  -->
+    <TabBar Route="customer">
+        <ShellContent Title="Home" Icon="tab_home.png" Route="home" ContentTemplate="{DataTemplate customer:CustomerHomePage}" />
+        <ShellContent Title="Orders" Icon="tab_orders.png" Route="orders" ContentTemplate="{DataTemplate customer:CustomerOrdersPage}" />
+        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate customer:CustomerProfilePage}" />
+    </TabBar>
+
+    <!--  Driver tab bar will be added in the next phase.  -->
+</Shell>

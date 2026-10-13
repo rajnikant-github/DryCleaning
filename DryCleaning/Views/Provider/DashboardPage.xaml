@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P02 – Provider Dashboard  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.DashboardPage"
+                x:DataType="vm:DashboardViewModel"
+                Title="Dashboard">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Alerts" IconImageSource="ic_bell.png" Command="{Binding OpenNotificationsCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+        <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+
+                    <!--  Header (continues the primary nav bar)  -->
+                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding BusinessName}" Style="{StaticResource HeaderCaption}" />
+                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderTitle}" />
+                            <Label Text="{Binding TodayText}" Style="{StaticResource HeaderCaption}" />
+                            <Border IsVisible="{Binding HasUnread}" BackgroundColor="{StaticResource HeaderOverlay}"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,6"
+                                    HorizontalOptions="Start" Margin="0,8,0,0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding UnreadText, StringFormat='🔔  {0}'}" TextColor="{StaticResource White}" FontSize="13" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Summary cards  -->
+                    <Grid Padding="16,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                        <Border Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFilterCommand}" CommandParameter="New" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#EFF6FF">
+                                        <Label Text="🔔" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{Binding NewCount}" FontSize="30" FontFamily="AppSemibold"
+                                           TextColor="#2563EB" HorizontalOptions="End" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="New Orders" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFilterCommand}" CommandParameter="InProcess" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#FFFBEB">
+                                        <Label Text="⚙️" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{Binding InProcessCount}" FontSize="30" FontFamily="AppSemibold"
+                                           TextColor="{StaticResource WarningDark}" HorizontalOptions="End" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="Processing" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFilterCommand}" CommandParameter="Ready" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#ECFDF5">
+                                        <Label Text="✅" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{Binding ReadyCount}" FontSize="30" FontFamily="AppSemibold"
+                                           TextColor="{StaticResource Success}" HorizontalOptions="End" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="Ready for Delivery" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFilterCommand}" CommandParameter="Completed" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#F9FAFB">
+                                        <Label Text="📦" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{Binding CompletedCount}" FontSize="30" FontFamily="AppSemibold"
+                                           TextColor="#4B5563" HorizontalOptions="End" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="Completed" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!--  Incoming driver  -->
+                    <Border Style="{StaticResource Card}" Margin="16,0" IsVisible="{Binding HasIncomingDriver}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenIncomingCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                <Ellipse Fill="{StaticResource AccentBrush}" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Incoming Driver" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                <Border Grid.Column="2" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource AccentSoft}" Padding="8,2">
+                                    <Label Text="Tap to receive" TextColor="{StaticResource InfoDark}" FontSize="11" FontFamily="AppSemibold" />
+                                </Border>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
+                                    <Label Text="🚚" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding IncomingDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                    <Label Text="{Binding IncomingDriverText}" Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Today's orders  -->
+                    <VerticalStackLayout Padding="16,0" Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Today's Orders" Style="{StaticResource H3}" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="View all" Style="{StaticResource TextButton}" Command="{Binding ViewAllOrdersCommand}" />
+                        </Grid>
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TodaysOrders}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:OrderCardItem">
+                                    <controls:OrderCardView />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoTodaysOrders}">
+                            <Label Text="No orders today yet. New orders will appear here." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Recent activity  -->
+                    <VerticalStackLayout Padding="16,0" Spacing="10">
+                        <Label Text="Recent Activity" Style="{StaticResource H3}" />
+                        <Border Style="{StaticResource Card}" Padding="16,6">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecentActivity}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="items:ActivityItem">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,10">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding OpenCommand}" />
+                                            </Grid.GestureRecognizers>
+                                            <Ellipse Fill="{StaticResource PrimaryBrush}" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Text}" FontSize="14" LineBreakMode="TailTruncation" VerticalOptions="Center" />
+                                            <Label Grid.Column="2" Text="{Binding TimeText}" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+    </Grid>
+</views:BasePage>

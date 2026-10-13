@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Add / Edit Product  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ProductEditPage"
+                x:DataType="vm:ProductEditViewModel"
+                Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="18">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Category" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Picker ItemsSource="{Binding CategoryNames}" SelectedIndex="{Binding SelectedCategoryIndex}" Title="Choose a category" />
+                    </Border>
+                    <Label Text="Categories are global and managed by EDry Cleaners." Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Product name" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Name}" Placeholder="e.g. Shirt, Suit, Sneakers" MaxLength="100" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Description" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Editor Text="{Binding Description}" Placeholder="Short description shown to customers" AutoSize="TextChanges" MaxLength="500" MinimumHeightRequest="80" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Available to customers" Style="{StaticResource BodyMedium}" />
+                            <Label Text="Disable to hide this product without deleting it." Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding IsActive}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Save Product" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

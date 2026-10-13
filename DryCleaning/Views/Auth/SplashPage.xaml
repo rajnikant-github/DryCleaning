@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Auth"
+                x:Class="DryCleaning.Views.Auth.SplashPage"
+                x:DataType="vm:SplashViewModel"
+                Shell.NavBarIsVisible="False"
+                BackgroundColor="{StaticResource Primary}">
+    <Grid>
+        <!--  Decorative circles (Figma)  -->
+        <Ellipse WidthRequest="260" HeightRequest="260" Fill="{StaticResource HeaderOverlayBrush}"
+                 HorizontalOptions="End" VerticalOptions="Start" Margin="0,-80,-80,0" />
+        <Ellipse WidthRequest="200" HeightRequest="200" Fill="{StaticResource HeaderOverlayBrush}"
+                 HorizontalOptions="Start" VerticalOptions="End" Margin="-60,0,0,-60" />
+
+        <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
+            <Border WidthRequest="96" HeightRequest="96" BackgroundColor="{StaticResource White}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 28" HorizontalOptions="Center">
+                <Image Source="logo_mark.png" WidthRequest="56" HeightRequest="56" />
+            </Border>
+            <VerticalStackLayout Spacing="4">
+                <Label Text="EDry Cleaners" Style="{StaticResource Display}" TextColor="{StaticResource White}"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Clean Clothes. Healthy Life." Style="{StaticResource HeaderCaption}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+            <ActivityIndicator IsRunning="True" Color="{StaticResource PrimaryLight}" WidthRequest="28" HeightRequest="28" Margin="0,16,0,0" />
+        </VerticalStackLayout>
+    </Grid>
+</views:BasePage>

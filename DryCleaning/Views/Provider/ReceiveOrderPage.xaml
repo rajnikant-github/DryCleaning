@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P05 – Receive Order (driver hands items to provider)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ReceiveOrderPage"
+                x:DataType="vm:ReceiveOrderViewModel"
+                Title="Receive Order">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                        <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
+                        <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" />
+                        <Label Grid.Row="1" Text="{Binding CustomerName}" Style="{StaticResource Body}" />
+                        <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DriverText, StringFormat='🚗  Handed over by {0}'}" Style="{StaticResource Caption}" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding IsReceivable, Converter={StaticResource InvertedBool}}">
+                    <Label Text="{Binding NotReceivableText}" TextColor="{StaticResource WarningDark}" FontSize="13" />
+                </Border>
+
+                <!--  Expected items  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Expected items" Style="{StaticResource SectionLabel}" />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Items}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderItemDetail">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Count  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Item count" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}">
+                                <VerticalStackLayout HorizontalOptions="Center">
+                                    <Label Text="Expected" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                                    <Label Text="{Binding ExpectedCount}" FontSize="26" FontFamily="AppSemibold" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="Actual received" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                                <controls:QuantityStepper Value="{Binding ActualCount}" Minimum="0" Maximum="200" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasDiscrepancy}">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Label Text="{Binding DiscrepancyText, StringFormat='⚠  {0}'}" TextColor="{StaticResource ErrorDark}" FontSize="13" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Reported ✓" TextColor="{StaticResource SuccessDark}" FontSize="13" FontFamily="AppSemibold"
+                                       IsVisible="{Binding DiscrepancyReported}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Verification checklist  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Verification checklist" Style="{StaticResource SectionLabel}" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Checklist}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:ChecklistItem">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4" MinimumHeightRequest="44">
+                                        <CheckBox IsChecked="{Binding IsChecked}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Text}" FontSize="14" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Photos & notes  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Photos" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                        <Label Text="Notes" Style="{StaticResource SectionLabel}" Margin="0,4,0,0" />
+                        <Border Style="{StaticResource InputField}">
+                            <Editor Text="{Binding Notes}" Placeholder="Anything unusual about the bags or items…" AutoSize="TextChanges" MinimumHeightRequest="80" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="10">
+                <Button Text="Confirm Received" Command="{Binding ConfirmReceivedCommand}" />
+                <Button Text="Report discrepancy" Command="{Binding ReportDiscrepancyCommand}" Style="{StaticResource OutlineButton}"
+                        TextColor="{StaticResource ErrorDark}" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P08 – Quality Check  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.QualityCheckPage"
+                x:DataType="vm:QualityCheckViewModel"
+                Title="Quality Check">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
+                            <Label Text="{Binding CustomerName}" Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                        <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" VerticalOptions="Start" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding IsInQualityCheck, Converter={StaticResource InvertedBool}}">
+                    <Label Text="{Binding StatusHint}" TextColor="{StaticResource WarningDark}" FontSize="13" />
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Checklist" Style="{StaticResource SectionLabel}" />
+                            <Label Grid.Column="1" Text="{Binding ProgressText}" Style="{StaticResource Small}" />
+                        </Grid>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Checklist}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:ChecklistItem">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4" MinimumHeightRequest="48">
+                                        <CheckBox IsChecked="{Binding IsChecked}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Text}" FontSize="15" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ToggleCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Cleaning complete photos" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="Photograph the packed order – it's shared with the customer and helps resolve disputes." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Take photo" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="6">
+                <Grid>
+                    <Button Text="Mark Ready for Delivery" Command="{Binding MarkReadyCommand}" Style="{StaticResource SuccessButton}" IsVisible="{Binding IsNotBusy}" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+                </Grid>
+                <Button Text="Needs re-cleaning" Command="{Binding SendBackCommand}" Style="{StaticResource TextButton}"
+                        TextColor="{StaticResource ErrorDark}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

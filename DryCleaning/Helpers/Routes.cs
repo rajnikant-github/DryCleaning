@@ -1,0 +1,90 @@
+using DryCleaning.Models;
+
+namespace DryCleaning.Helpers;
+
+public static class Routes
+{
+    // Shell roots (absolute)
+    public const string Splash = "//splash";
+    public const string RoleSelection = "//roles";
+    public const string Login = "//login";
+    public const string ProviderDashboard = "//provider/dashboard";
+    public const string ProviderOrders = "//provider/orders";
+
+    public const string CustomerHome = "//customer/home";
+    public const string CustomerOrders = "//customer/orders";
+    public const string CustomerProfile = "//customer/profile";
+
+    // Pushed pages (relative)
+    public const string Otp = "otp";
+    public const string Notifications = "notifications";
+    public const string OrderDetail = "orderdetail";
+    public const string ReceiveOrder = "receiveorder";
+    public const string Inspection = "inspection";
+    public const string Processing = "processing";
+    public const string QualityCheck = "qualitycheck";
+    public const string ReadyForDelivery = "readyfordelivery";
+    public const string OrderHistory = "orderhistory";
+    public const string ProductDetail = "productdetail";
+    public const string ProductEdit = "productedit";
+    public const string ServiceItemEdit = "serviceitemedit";
+
+    // Customer pushed pages
+    public const string Categories = "categories";
+    public const string Providers = "providers";
+    public const string Products = "products";
+    public const string ServiceItems = "serviceitems";
+    public const string ItemDetails = "itemdetails";
+    public const string Cart = "cart";
+    public const string PickupAddress = "pickupaddress";
+    public const string PickupTime = "pickuptime";
+    public const string OrderSummary = "ordersummary";
+    public const string Payment = "payment";
+    public const string OrderConfirmed = "orderconfirmed";
+    public const string OrderTracking = "ordertracking";
+    public const string CustomerOrderDetail = "customerorderdetail";
+    public const string EditProfile = "editprofile";
+
+    // Query parameter keys
+    public const string OrderIdKey = "orderId";
+    public const string ProductIdKey = "productId";
+    public const string CategoryIdKey = "categoryId";
+    public const string ServiceItemIdKey = "serviceItemId";
+    public const string FilterKey = "filter";
+    public const string IdentifierKey = "identifier";
+    public const string ProviderIdKey = "providerId";
+    public const string ModeKey = "mode";
+
+    /// <summary>Home route for a signed-in role.</summary>
+    public static string HomeFor(UserRole role) => role switch
+    {
+        UserRole.Customer => CustomerHome,
+        _ => ProviderDashboard
+    };
+}
+
+public sealed record ProviderAction(string Label, string Route);
+
+/// <summary>Maps an order status to the provider's next step screen.</summary>
+public static class ProviderActions
+{
+    public static ProviderAction? ForStatus(OrderStatus status) => status switch
+    {
+        OrderStatus.PickedUp => new("Receive Order", Routes.ReceiveOrder),
+        OrderStatus.ReceivedByProvider => new("Inspect Items", Routes.Inspection),
+        OrderStatus.Processing => new("Mark Quality Check", Routes.Processing),
+        OrderStatus.QualityCheck => new("Complete Quality Check", Routes.QualityCheck),
+        OrderStatus.ReadyForDelivery => new("Request Driver", Routes.ReadyForDelivery),
+        _ => null
+    };
+
+    public static string? HintFor(OrderStatus status) => status switch
+    {
+        OrderStatus.Confirmed => "Finding a marketplace driver for pickup…",
+        OrderStatus.PickupAssigned => "Driver assigned · collecting from customer",
+        OrderStatus.PickedUp => "Driver is on the way to your store",
+        OrderStatus.DeliveryAssigned => "Delivery driver assigned · collecting from you",
+        OrderStatus.OutForDelivery => "Out for delivery to customer",
+        _ => null
+    };
+}

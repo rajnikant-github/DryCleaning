@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C13 – Order summary  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.OrderSummaryPage"
+                x:DataType="vm:OrderSummaryViewModel"
+                Title="Order Summary">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <!--  Provider  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Provider" Style="{StaticResource SectionLabel}" />
+                        <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" />
+                        <Label Text="{Binding EstimatedCompletionText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Pickup  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="📍" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Pickup address" Style="{StaticResource Small}" />
+                                <Label Text="{Binding AddressText}" FontSize="14" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="Edit" Style="{StaticResource TextButton}" Command="{Binding EditAddressCommand}" VerticalOptions="Start" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Text="🕘" FontSize="18" VerticalOptions="Start" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Pickup time" Style="{StaticResource Small}" />
+                                <Label Text="{Binding PickupText}" FontSize="14" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="Edit" Style="{StaticResource TextButton}" Command="{Binding EditTimeCommand}" VerticalOptions="Start" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Items  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Items" Style="{StaticResource SectionLabel}" />
+                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Lines}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="services:CartLine">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label FontSize="14">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding ProductName}" FontFamily="AppSemibold" />
+                                                        <Span Text=" × " />
+                                                        <Span Text="{Binding Quantity}" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label Text="{Binding ServiceItemName}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding Notes, StringFormat='📝 {0}'}" Style="{StaticResource Small}" IsVisible="{Binding Notes, Converter={StaticResource HasValue}}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" FontSize="14" VerticalOptions="Start" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider}" Margin="0,14,0,10" />
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+                            <Label Text="Subtotal" Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1" Text="{Binding SubTotal, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="1" Text="Pickup &amp; delivery" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryFee, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="2" Text="{Binding VatLabel}" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Total, Converter={StaticResource Currency}}"
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="You can cancel free of charge until the driver collects your items." Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="🧺" EmptyTitle="Your cart is empty" EmptyMessage="Add items before placing an order." />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Proceed to Payment" Command="{Binding ProceedToPaymentCommand}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
+                                   HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C06 – Choose category  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.CategoriesPage"
+                x:DataType="vm:CategoriesViewModel"
+                Title="Choose a Service">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="What do you need cleaned?" Style="{StaticResource H2}" />
+                <Label Text="Pick a category to see providers near you." Style="{StaticResource Caption}" />
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Categories}" Margin="0,6,0,0">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:CategoryCardItem">
+                            <Border Style="{StaticResource Card}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="56" HeightRequest="56">
+                                        <Label Text="{Binding Icon}" FontSize="28" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="16" />
+                                        <Label Text="{Binding Description}" Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="🗂️" EmptyTitle="No services yet" EmptyMessage="Categories will appear here once providers are live." />
+
+        <!--  Cart bar  -->
+        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
+            </Border.GestureRecognizers>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="{Binding CartSummaryText, StringFormat='🧺  {0}'}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
+                <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

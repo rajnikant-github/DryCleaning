@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:DryCleaning.Controls"
+             xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+             x:Class="DryCleaning.Controls.OrderCardView"
+             x:DataType="items:OrderCardItem">
+    <Border Style="{StaticResource Card}">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding OpenCommand}" />
+        </Border.GestureRecognizers>
+        <VerticalStackLayout Spacing="10">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" LineBreakMode="TailTruncation" />
+                    <Label Text="{Binding Subtitle}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                    <Label Text="{Binding TimeText}" Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="6">
+                    <Label Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
+                           Style="{StaticResource BodyMedium}"
+                           HorizontalOptions="End" />
+                    <controls:StatusChip Status="{Binding Status}" HorizontalOptions="End" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="{Binding HintText}"
+                   IsVisible="{Binding HasHint}"
+                   Style="{StaticResource Small}"
+                   TextColor="{StaticResource InfoDark}" />
+
+            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" IsVisible="{Binding HasActions}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding ShowAcceptReject}">
+                <Button Text="Accept" Command="{Binding AcceptCommand}" Style="{StaticResource SmallPrimaryButton}" />
+                <Button Grid.Column="1" Text="Reject" Command="{Binding RejectCommand}" Style="{StaticResource SmallOutlineButton}" />
+            </Grid>
+
+            <Button Text="{Binding PrimaryActionText}"
+                    Command="{Binding PrimaryActionCommand}"
+                    IsVisible="{Binding HasPrimaryAction}"
+                    Style="{StaticResource SmallPrimaryButton}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

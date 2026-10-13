@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C08 – Service items  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.ServiceItemsPage"
+                x:DataType="vm:ServiceItemsViewModel"
+                Title="{Binding ProductName}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="72" HeightRequest="72"
+                            StrokeShape="RoundRectangle 36" HorizontalOptions="Center">
+                        <Label Text="{Binding ProductIcon}" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{Binding ProductName}" Style="{StaticResource H2}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ProductDescription}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <Label Text="Choose a service" Style="{StaticResource SectionLabel}" />
+                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Options}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:ServiceItemOption">
+                            <Border Style="{StaticResource Card}" StrokeThickness="2">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                                        <Setter Property="BackgroundColor" Value="#F0F5FF" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Border WidthRequest="22" HeightRequest="22" StrokeShape="RoundRectangle 11" StrokeThickness="2"
+                                            Stroke="{StaticResource BorderBrush}" BackgroundColor="{StaticResource White}" VerticalOptions="Center">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                                                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Text="✓" TextColor="{StaticResource White}" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center"
+                                               IsVisible="{Binding IsSelected}" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
+                                        <Label Text="{Binding Description}" Style="{StaticResource Small}" />
+                                        <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
+                                           FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="🧺" EmptyTitle="Not available" EmptyMessage="No services are available for this item right now." />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Button Text="Continue" Command="{Binding ContinueCommand}" />
+        </Border>
+    </Grid>
+</views:BasePage>

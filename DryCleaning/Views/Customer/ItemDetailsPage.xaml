@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C09 – Item details  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.ItemDetailsPage"
+                x:DataType="vm:ItemDetailsViewModel"
+                Title="{Binding ProductName}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                            <Label Text="{Binding ProductIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding ProductName}" Style="{StaticResource BodyMedium}" />
+                            <Label Text="{Binding ServiceItemName}" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding ProviderName}" Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding UnitPrice, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
+                               FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="2">
+                        <Label Text="Quantity" Style="{StaticResource BodyMedium}" />
+                        <Label Grid.Row="1" Text="{Binding EstimatedText}" Style="{StaticResource Small}" />
+                        <controls:QuantityStepper Grid.Column="1" Grid.RowSpan="2" Value="{Binding Quantity}" Minimum="1" Maximum="50" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Special instructions (optional)" Style="{StaticResource SectionLabel}" />
+                        <Border Style="{StaticResource InputField}">
+                            <Editor Text="{Binding Notes}" Placeholder="e.g. Red wine stain on left sleeve, no starch" AutoSize="TextChanges"
+                                    MaxLength="500" MinimumHeightRequest="80" />
+                        </Border>
+                        <Label Text="Photo (optional)" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                        <Label Text="A photo of stains or damage helps the provider." Style="{StaticResource Small}" />
+                        <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Add photo" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Item total" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" Style="{StaticResource H3}"
+                           TextColor="{StaticResource Primary}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Text="Add &amp; Browse" Command="{Binding AddItemCommand}" Style="{StaticResource OutlineButton}" />
+                    <Button Grid.Column="1" Text="Add &amp; Checkout" Command="{Binding ContinueCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Orders tab – includes P03 New Orders (Accept / Reject)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.OrdersPage"
+                x:DataType="vm:OrdersViewModel"
+                Title="Orders">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="History" Command="{Binding OpenHistoryCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*">
+        <controls:SegmentBar ItemsSource="{Binding Segments}" />
+
+        <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
+                <CollectionView.Header>
+                    <BoxView HeightRequest="12" Color="Transparent" />
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:OrderCardItem">
+                        <controls:OrderCardView Padding="16,0,16,12" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <controls:PageStateView Grid.Row="1"
+                                State="{Binding State}"
+                                RetryCommand="{Binding RetryCommand}"
+                                ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="📋"
+                                EmptyTitle="{Binding EmptyTitle}"
+                                EmptyMessage="Orders will appear here as they progress." />
+    </Grid>
+</views:BasePage>

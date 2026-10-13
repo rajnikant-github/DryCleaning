@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Auth"
+                x:Class="DryCleaning.Views.Auth.OtpPage"
+                x:DataType="vm:OtpViewModel"
+                Title="Verification">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,32" Spacing="20">
+            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="64" HeightRequest="64">
+                <Label Text="📱" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Verify your number" Style="{StaticResource H1}" />
+                <Label Style="{StaticResource Caption}" FontSize="15">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Enter the 6-digit code sent to " />
+                            <Span Text="{Binding Destination}" FontFamily="AppSemibold" TextColor="{StaticResource AppForeground}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </VerticalStackLayout>
+
+            <controls:OtpView x:Name="OtpInput" Code="{Binding Code}" Margin="0,8" />
+
+            <Label Text="{Binding ErrorText}" IsVisible="{Binding HasError}" TextColor="{StaticResource ErrorDark}"
+                   HorizontalTextAlignment="Center" FontSize="14" />
+
+            <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding ShowDemoHint}">
+                <Label Text="{Binding DemoHint}" TextColor="{StaticResource WarningDark}" FontSize="13" HorizontalTextAlignment="Center" />
+            </Border>
+
+            <Button Text="{Binding ResendText}" Style="{StaticResource TextButton}" HorizontalOptions="Center"
+                    Command="{Binding ResendCommand}" IsEnabled="{Binding CanResend}" />
+
+            <Grid>
+                <Button Text="Verify &amp; Continue" Command="{Binding VerifyCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</views:BasePage>

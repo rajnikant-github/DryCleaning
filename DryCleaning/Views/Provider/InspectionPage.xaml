@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P06 – Inspect Items  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.InspectionPage"
+                x:DataType="vm:InspectionViewModel"
+                Title="Inspect Items">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Label Text="{Binding HeaderSubtitle}" Style="{StaticResource Caption}" />
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding CanInspect, Converter={StaticResource InvertedBool}}">
+                    <Label Text="{Binding NotInspectableText}" TextColor="{StaticResource WarningDark}" FontSize="13" />
+                </Border>
+
+                <!--  Totals  -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Style="{StaticResource CardCompact}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="Expected" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                            <Label Text="{Binding ExpectedTotal}" FontSize="24" FontFamily="AppSemibold" HorizontalOptions="Center" />
+                            <Label Text="pieces" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource CardCompact}">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="Received" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                            <Label Text="{Binding ReceivedTotal}" FontSize="24" FontFamily="AppSemibold" HorizontalOptions="Center"
+                                   TextColor="{StaticResource WarningDark}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding TotalsMatch}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource Success}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Text="pieces" Style="{StaticResource Small}" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!--  Per item  -->
+                <VerticalStackLayout Spacing="14" BindableLayout.ItemsSource="{Binding InspectionItems}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:InspectionItemViewModel">
+                            <Border Style="{StaticResource Card}">
+                                <VerticalStackLayout Spacing="14">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="30" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                            <Label Text="{Binding ProductName}" Style="{StaticResource H3}" />
+                                            <Label Text="{Binding ExpectedText}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding CategoryName}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!--  Quantity  -->
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Received quantity" Style="{StaticResource Small}" FontFamily="AppSemibold" />
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                            <controls:QuantityStepper Value="{Binding ReceivedQuantity}" Minimum="0" Maximum="100" />
+                                            <Border Grid.Column="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}"
+                                                    Padding="10,4" HorizontalOptions="Start" VerticalOptions="Center"
+                                                    IsVisible="{Binding HasQuantityDiscrepancy}">
+                                                <Label Text="{Binding QuantityDiscrepancyText}" TextColor="{StaticResource ErrorDark}" FontSize="12" FontFamily="AppSemibold" />
+                                            </Border>
+                                        </Grid>
+                                    </VerticalStackLayout>
+
+                                    <!--  Condition  -->
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Condition" Style="{StaticResource Small}" FontFamily="AppSemibold" />
+                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                            <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Padding="0,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetConditionCommand}" CommandParameter="Good" />
+                                                </Border.GestureRecognizers>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsGood}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Success}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="✓ Good" FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsGood}" Value="True">
+                                                            <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                            <Border Grid.Column="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Padding="0,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetConditionCommand}" CommandParameter="Stained" />
+                                                </Border.GestureRecognizers>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsStained}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Warning}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="⚠ Stained" FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsStained}" Value="True">
+                                                            <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                            <Border Grid.Column="2" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Padding="0,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding SetConditionCommand}" CommandParameter="Damaged" />
+                                                </Border.GestureRecognizers>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsDamaged}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Error}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="✗ Damaged" FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsDamaged}" Value="True">
+                                                            <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </Grid>
+                                    </VerticalStackLayout>
+
+                                    <!--  Note when stained / damaged  -->
+                                    <Border Style="{StaticResource InputField}" IsVisible="{Binding NeedsNote}">
+                                        <Entry Text="{Binding Note}" Placeholder="{Binding NotePlaceholder}" />
+                                    </Border>
+
+                                    <!--  Photos  -->
+                                    <controls:PhotoStrip ItemsSource="{Binding Photos}" AddCommand="{Binding AddPhotoCommand}" AddText="Add photo" />
+
+                                    <!--  Report actions  -->
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding CanReport}">
+                                        <Button Text="Report damage" Command="{Binding ReportDamageCommand}" IsVisible="{Binding IsDamaged}"
+                                                Style="{StaticResource SmallOutlineButton}" TextColor="{StaticResource ErrorDark}" />
+                                        <Button Grid.Column="1" Text="Report quantity" Command="{Binding ReportQuantityCommand}" IsVisible="{Binding HasQuantityDiscrepancy}"
+                                                Style="{StaticResource SmallOutlineButton}" TextColor="{StaticResource ErrorDark}" />
+                                    </Grid>
+                                    <Label Text="✓ Issue reported to support" TextColor="{StaticResource SuccessDark}" FontSize="13"
+                                           FontFamily="AppSemibold" IsVisible="{Binding IssueReported}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Complete Inspection" Command="{Binding CompleteInspectionCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

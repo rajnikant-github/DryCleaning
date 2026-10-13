@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Provider Profile  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ProfilePage"
+                x:DataType="vm:ProfileViewModel"
+                Title="Profile">
+    <Grid>
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16,24" Spacing="14">
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 22" HorizontalOptions="Center">
+                        <Label Text="🧺" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{Binding BusinessName}" Style="{StaticResource H2}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding Description}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Business" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <controls:AvatarView Text="{Binding OwnerInitials}" AvatarSize="40" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding OwnerName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="Owner" Style="{StaticResource Small}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Label Text="{Binding Phone, StringFormat='📞  {0}'}" FontSize="14" />
+                        <Label Text="{Binding Email, StringFormat='✉️  {0}'}" FontSize="14" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  V1: one address per role  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Current Address" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="Edit Address" Style="{StaticResource TextButton}" Command="{Binding EditAddressCommand}" />
+                        </Grid>
+                        <Label Text="{Binding Address, StringFormat='📍  {0}'}" FontSize="14" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Enabled categories" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="{Binding CategoriesText}" FontSize="14" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenServicesCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="🏷️" FontSize="18" />
+                            <Label Grid.Column="1" Text="Services &amp; Pricing" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="🔔" FontSize="18" />
+                            <Label Grid.Column="1" Text="Notifications" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding HelpCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="💬" FontSize="18" />
+                            <Label Grid.Column="1" Text="Help &amp; Support" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Log out" Style="{StaticResource OutlineButton}" TextColor="{StaticResource ErrorDark}" Command="{Binding LogoutCommand}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+    </Grid>
+</views:BasePage>

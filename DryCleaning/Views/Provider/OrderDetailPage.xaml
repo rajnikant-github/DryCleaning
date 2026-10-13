@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P04 – Order Details  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.OrderDetailPage"
+                x:DataType="vm:OrderDetailViewModel"
+                Title="{Binding OrderNumber}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+
+                <!--  Summary  -->
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                        <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
+                        <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" />
+                        <Label Grid.Row="1" Text="{Binding CreatedText}" Style="{StaticResource Caption}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
+                               Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" HorizontalOptions="End" />
+                    </Grid>
+                </Border>
+
+                <!--  Dispute / issue  -->
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding HasDispute}" Padding="14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding DisputeTitle, StringFormat='⚠  {0}'}" TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" />
+                        <Label Text="{Binding DisputeText}" TextColor="#9A3412" FontSize="13" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Customer  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Customer" Style="{StaticResource SectionLabel}" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <controls:AvatarView Text="{Binding CustomerInitials}" AvatarSize="44" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding CustomerName}" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding CustomerPhone}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CallCustomerCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" Margin="0,14" />
+                        <Label Text="Pickup / delivery address" Style="{StaticResource Small}" />
+                        <Label Text="{Binding PickupAddress}" FontSize="14" Margin="0,2,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Items: Category → Product → Service Item  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Items" Style="{StaticResource SectionLabel}" />
+                            <Label Grid.Column="1" Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                        </Grid>
+                        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderItemDetail">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding UnitPrice, Converter={StaticResource Currency}, StringFormat='{0} each'}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="{Binding TotalPrice, Converter={StaticResource Currency}}"
+                                               Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider}" Margin="0,14,0,10" />
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+                            <Label Text="Subtotal" Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1" Text="{Binding SubTotal, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="1" Text="{Binding VatLabel}" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="2" Text="Delivery fee" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding DeliveryFee, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Drivers (shared marketplace drivers)  -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasPickupDriver}">
+                    <VerticalStackLayout>
+                        <Label Text="Pickup driver" Style="{StaticResource SectionLabel}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
+                                <Label Text="🚗" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding PickupDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                <Label Text="{Binding PickupDriverInfo}" Style="{StaticResource Small}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasDeliveryDriver}">
+                    <VerticalStackLayout>
+                        <Label Text="Delivery driver" Style="{StaticResource SectionLabel}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" StrokeShape="RoundRectangle 22">
+                                <Label Text="🚚" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding DeliveryDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                <Label Text="{Binding DeliveryDriverInfo}" Style="{StaticResource Small}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Payment  -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasPayment}">
+                    <VerticalStackLayout>
+                        <Label Text="Payment" Style="{StaticResource SectionLabel}" />
+                        <Label Text="{Binding PaymentText}" FontSize="14" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Photos  -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasPhotos}">
+                    <VerticalStackLayout>
+                        <Label Text="Photos" Style="{StaticResource SectionLabel}" />
+                        <controls:PhotoStrip ItemsSource="{Binding PhotoPaths}" AllowEditing="False" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Timeline  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Order timeline" Style="{StaticResource SectionLabel}" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Timeline}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:TimelineStep">
+                                    <Grid ColumnDefinitions="22,*" ColumnSpacing="12">
+                                        <Grid RowDefinitions="22,*">
+                                            <Border WidthRequest="22" HeightRequest="22" StrokeShape="RoundRectangle 11" StrokeThickness="2"
+                                                    Stroke="{StaticResource BorderBrush}" BackgroundColor="{StaticResource White}">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsDone}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Success}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource SuccessBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsAlert}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Error}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="AppSemibold"
+                                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"
+                                                     Color="{StaticResource BorderColor}" IsVisible="{Binding ShowLine}">
+                                                <BoxView.Triggers>
+                                                    <DataTrigger TargetType="BoxView" Binding="{Binding IsDone}" Value="True">
+                                                        <Setter Property="Color" Value="{StaticResource Success}" />
+                                                    </DataTrigger>
+                                                </BoxView.Triggers>
+                                            </BoxView>
+                                        </Grid>
+                                        <VerticalStackLayout Grid.Column="1" Padding="0,1,0,14" Spacing="1">
+                                            <Label Text="{Binding Title}" FontSize="14" TextColor="{StaticResource MutedForeground}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsDone}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource AppForeground}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                                        <Setter Property="FontFamily" Value="AppSemibold" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsAlert}" Value="True">
+                                                        <Setter Property="TextColor" Value="{StaticResource ErrorDark}" />
+                                                        <Setter Property="FontFamily" Value="AppSemibold" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            <Label Text="{Binding TimeText}" Style="{StaticResource Small}" IsVisible="{Binding HasTime}" />
+                                            <Label Text="{Binding Notes}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" IsVisible="{Binding HasNotes}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <!--  Action bar  -->
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="10">
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding HasWaitingHint}">
+                    <Label Text="{Binding WaitingHint}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding ShowAcceptReject}">
+                    <Button Text="Accept Order" Command="{Binding AcceptCommand}" Style="{StaticResource SuccessButton}" />
+                    <Button Grid.Column="1" Text="Reject Order" Command="{Binding RejectCommand}" Style="{StaticResource OutlineButton}" TextColor="{StaticResource ErrorDark}" />
+                </Grid>
+
+                <Button Text="{Binding PrimaryActionText}" Command="{Binding PrimaryActionCommand}" IsVisible="{Binding HasPrimaryAction}" />
+
+                <Button Text="🧪  Simulate driver pickup (demo)" Command="{Binding SimulateDriverPickupCommand}"
+                        Style="{StaticResource SecondaryButton}" IsVisible="{Binding ShowDemoPickup}" />
+
+                <Button Text="Report Issue" Command="{Binding ReportIssueCommand}" Style="{StaticResource OutlineButton}"
+                        TextColor="{StaticResource MutedForeground}" IsVisible="{Binding CanReportIssue}" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

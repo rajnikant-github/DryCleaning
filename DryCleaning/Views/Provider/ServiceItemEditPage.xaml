@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Add / Edit Service Item: price, estimated days, enable/disable  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ServiceItemEditPage"
+                x:DataType="vm:ServiceItemEditViewModel"
+                Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="18">
+                <Label Text="{Binding ProductName, StringFormat='Product: {0}'}" Style="{StaticResource Caption}" />
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Service item name" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Name}" Placeholder="e.g. Regular Dry Clean" MaxLength="100" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Description" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Description}" Placeholder="e.g. Standard dry clean and press" MaxLength="500" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{Binding CurrencyCode, StringFormat='Price ({0})'}" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <Label Text="{Binding CurrencySymbol}" FontFamily="AppSemibold" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" Text="{Binding PriceText}" Placeholder="0.00" Keyboard="Numeric" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Estimated turnaround" Style="{StaticResource FieldLabel}" />
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <controls:QuantityStepper Value="{Binding EstimatedDays}" Minimum="1" Maximum="30" />
+                        <Label Grid.Column="1" Text="{Binding EstimatedDaysText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Available to customers" Style="{StaticResource BodyMedium}" />
+                            <Label Text="Disabled items stay in your catalog but can't be ordered." Style="{StaticResource Small}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding IsActive}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Save Service Item" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

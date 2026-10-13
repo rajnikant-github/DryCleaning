@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  Design tokens from the Figma Make file (src/index.css + SharedUI).
+      Android status bar colour: Platforms/Android/Resources/values/colors.xml  -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Brand  -->
+    <Color x:Key="Primary">#1B3A6B</Color>
+    <Color x:Key="PrimaryForeground">#FFFFFF</Color>
+    <Color x:Key="PrimaryLight">#BFDBFE</Color>
+    <Color x:Key="Accent">#0EA5E9</Color>
+    <Color x:Key="AccentSoft">#E0F2FE</Color>
+
+    <!--  Surfaces  -->
+    <Color x:Key="AppBackground">#F8F7F2</Color>
+    <Color x:Key="AppForeground">#111827</Color>
+    <Color x:Key="CardColor">#FFFFFF</Color>
+    <Color x:Key="SecondaryColor">#EEF4FF</Color>
+    <Color x:Key="Muted">#F0EDE6</Color>
+    <Color x:Key="MutedForeground">#6B7280</Color>
+    <Color x:Key="BorderColor">#E5E2D8</Color>
+    <Color x:Key="HeaderOverlay">#1AFFFFFF</Color>
+
+    <!--  Semantic  -->
+    <Color x:Key="Success">#059669</Color>
+    <Color x:Key="SuccessDark">#047857</Color>
+    <Color x:Key="SuccessSoft">#D1FAE5</Color>
+    <Color x:Key="Warning">#F59E0B</Color>
+    <Color x:Key="WarningDark">#B45309</Color>
+    <Color x:Key="WarningSoft">#FEF3C7</Color>
+    <Color x:Key="Error">#EF4444</Color>
+    <Color x:Key="ErrorDark">#DC2626</Color>
+    <Color x:Key="ErrorSoft">#FEE2E2</Color>
+    <Color x:Key="Info">#0EA5E9</Color>
+    <Color x:Key="InfoDark">#0369A1</Color>
+    <Color x:Key="InfoSoft">#E0F2FE</Color>
+    <Color x:Key="Purple">#7E22CE</Color>
+    <Color x:Key="PurpleSoft">#F3E8FF</Color>
+
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+
+    <!--  Brushes (Border.Stroke etc. need Brush, not Color)  -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#1B3A6B" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#0EA5E9" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#E5E2D8" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#059669" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="#EF4444" />
+    <SolidColorBrush x:Key="PrimaryLightBrush" Color="#BFDBFE" />
+    <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="HeaderOverlayBrush" Color="#1AFFFFFF" />
+</ResourceDictionary>

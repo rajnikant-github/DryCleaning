@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C10 – Cart  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.CartPage"
+                x:DataType="vm:CartViewModel"
+                Title="Your Cart">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding ProviderName}" Style="{StaticResource H3}" />
+                        <Label Text="{Binding ItemCountText}" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1" Text="+ Add items" Style="{StaticResource TextButton}" Command="{Binding AddMoreCommand}" VerticalOptions="Center" />
+                </Grid>
+
+                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Lines}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:CartLineItem">
+                            <Border Style="{StaticResource Card}">
+                                <VerticalStackLayout Spacing="10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource Muted}">
+                                            <Label Text="{Binding Icon}" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" />
+                                            <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
+                                            <Label Text="{Binding UnitPrice, Converter={StaticResource Currency}, StringFormat='{0} each'}" Style="{StaticResource Small}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="🗑" FontSize="18" VerticalOptions="Start" Padding="6,0,0,6">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding RemoveCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding HasNotes}" Padding="10,6">
+                                        <Label Text="{Binding Notes, StringFormat='📝  {0}'}" FontSize="12" TextColor="{StaticResource WarningDark}" />
+                                    </Border>
+                                    <Label Text="📷  Photo attached" Style="{StaticResource Small}" IsVisible="{Binding HasPhoto}" />
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <controls:QuantityStepper Value="{Binding Quantity}" Minimum="0" Maximum="50" HorizontalOptions="Start" />
+                                        <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" Style="{StaticResource BodyMedium}"
+                                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout>
+                        <Label Text="Price summary" Style="{StaticResource SectionLabel}" />
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+                            <Label Text="Subtotal" Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1" Text="{Binding SubTotal, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="1" Text="Pickup &amp; delivery" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryFee, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="2" Text="{Binding VatLabel}" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Total, Converter={StaticResource Currency}}"
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="🧺" EmptyTitle="Your cart is empty" EmptyMessage="Add items from a provider to schedule a pickup." />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Button Text="Continue to Pickup" Command="{Binding ContinueCommand}" />
+        </Border>
+        <Border Grid.Row="1" IsVisible="{Binding IsEmpty}" StrokeThickness="0" Padding="16,12,16,20">
+            <Button Text="Browse services" Command="{Binding BrowseCommand}" />
+        </Border>
+    </Grid>
+</views:BasePage>

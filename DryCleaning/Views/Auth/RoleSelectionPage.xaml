@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Auth"
+                x:Class="DryCleaning.Views.Auth.RoleSelectionPage"
+                x:DataType="vm:RoleSelectionViewModel"
+                Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Padding="{OnPlatform iOS='24,64,24,24', Default='24,40,24,24'}" Spacing="16">
+            <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                    WidthRequest="48" HeightRequest="48" HorizontalOptions="Start">
+                <Image Source="logo_mark_white.png" WidthRequest="30" HeightRequest="30" />
+            </Border>
+
+            <VerticalStackLayout Spacing="6" Margin="0,8,0,8">
+                <Label Text="Welcome to EDry Cleaners" Style="{StaticResource H1}" />
+                <Label Text="How would you like to use EDry Cleaners?" Style="{StaticResource Caption}" FontSize="15" />
+            </VerticalStackLayout>
+
+            <!--  Customer  -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#EFF6FF" Stroke="#DBEAFE" StrokeThickness="2" Padding="18">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Customer" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
+                        <Label Text="👕" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Customer" Style="{StaticResource BodyMedium}" TextColor="#1D4ED8" />
+                        <Label Text="I want to clean my clothes and shoes" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="#1D4ED8" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Service Provider  -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#FAF5FF" Stroke="#F3E8FF" StrokeThickness="2" Padding="18">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Provider" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
+                        <Label Text="🏪" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Service Provider" Style="{StaticResource BodyMedium}" TextColor="{StaticResource Purple}" />
+                        <Label Text="I provide cleaning services" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource Purple}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Driver  -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#ECFDF5" Stroke="#D1FAE5" StrokeThickness="2" Padding="18">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Driver" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
+                        <Label Text="🚗" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Driver" Style="{StaticResource BodyMedium}" TextColor="{StaticResource SuccessDark}" />
+                        <Label Text="I want to pickup and deliver orders" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource SuccessDark}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <Label Text="By continuing you agree to our Terms and Privacy Policy"
+                   Style="{StaticResource Small}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:BasePage>

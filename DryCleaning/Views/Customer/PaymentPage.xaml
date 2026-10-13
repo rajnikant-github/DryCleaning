@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  C14 – Payment (Paystack)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:models="clr-namespace:DryCleaning.Models"
+                xmlns:services="clr-namespace:DryCleaning.Services"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
+                x:Class="DryCleaning.Views.Customer.PaymentPage"
+                x:DataType="vm:PaymentViewModel"
+                Title="Payment">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="Amount due" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Total, Converter={StaticResource Currency}}" Style="{StaticResource Display}"
+                               TextColor="{StaticResource Primary}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding OrderNumber}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding ProviderName}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Payment method" Style="{StaticResource SectionLabel}" />
+                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" BackgroundColor="#F0F5FF">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Label Text="💳" FontSize="24" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Card, EFT or Instant EFT" Style="{StaticResource BodyMedium}" />
+                                    <Label Text="Secured by Paystack" Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Label Text="{Binding CurrencyCode, StringFormat='Charged in {0}.'}" Style="{StaticResource Small}" />
+                        <Label Text="Card details are entered on Paystack's secure page. EDry Cleaners never sees them." Style="{StaticResource Small}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasError}">
+                    <Label Text="{Binding PaymentError}" TextColor="{StaticResource ErrorDark}" FontSize="13" />
+                </Border>
+
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding IsProcessing}" Margin="0,12">
+                    <ActivityIndicator IsRunning="{Binding IsProcessing}" Color="{StaticResource Primary}" />
+                    <Label Text="Processing payment…" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <VerticalStackLayout Spacing="8">
+                <Button Text="{Binding PayButtonText}" Command="{Binding PayCommand}" />
+                <Label Text="🔒  256-bit encrypted payment" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</views:BasePage>

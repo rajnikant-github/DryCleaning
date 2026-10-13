@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  P11 – Product → Service Items  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.ProductDetailPage"
+                x:DataType="vm:ProductDetailViewModel"
+                Title="{Binding Title}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Edit" Command="{Binding EditProductCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="14">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border Style="{StaticResource IconTile}" WidthRequest="60" HeightRequest="60">
+                            <Label Text="{Binding ProductIcon}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="{Binding ProductName}" Style="{StaticResource H2}" />
+                            <Label Text="{Binding CategoryName}" Style="{StaticResource Small}" />
+                            <Label Text="{Binding ProductDescription}" Style="{StaticResource Caption}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding ProductIsActive, Converter={StaticResource InvertedBool}}">
+                    <Label Text="This product is disabled – customers can't order it." TextColor="{StaticResource WarningDark}" FontSize="13" />
+                </Border>
+
+                <Label Text="Service Items" Style="{StaticResource H3}" />
+
+                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding ServiceItems}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:ServiceItemRow">
+                            <Border Style="{StaticResource Card}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding EditCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="3">
+                                        <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
+                                        <Label Text="{Binding Description}" Style="{StaticResource Small}" />
+                                        <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
+                                            <Label Text="{Binding Price, Converter={StaticResource Currency}}" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" FontSize="15" />
+                                            <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Switch IsToggled="{Binding IsActive}" HorizontalOptions="End" />
+                                        <Label Text="Edit ›" Style="{StaticResource LinkLabel}" FontSize="13" HorizontalOptions="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasServiceItems, Converter={StaticResource InvertedBool}}">
+                    <Label Text="No service items yet. Add one so customers can order this product." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Button Text="+ Add Service Item" Command="{Binding AddServiceItemCommand}" />
+        </Border>
+    </Grid>
+</views:BasePage>
