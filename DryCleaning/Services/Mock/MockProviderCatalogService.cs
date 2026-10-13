@@ -61,6 +61,8 @@ public sealed class MockProviderCatalogService(MockDataStore store, ISessionServ
             var existing = store.Products.FirstOrDefault(p => p.Id == product.Id);
             if (existing is null)
             {
+                if (product.Id == Guid.Empty)
+                    product.Id = Guid.NewGuid();
                 product.ServiceProviderId = ProviderId;
                 product.DisplayOrder = store.Products.Count(p => p.CategoryId == product.CategoryId && p.ServiceProviderId == ProviderId) + 1;
                 product.CreatedAt = product.UpdatedAt = DateTime.Now;
@@ -110,6 +112,8 @@ public sealed class MockProviderCatalogService(MockDataStore store, ISessionServ
             var existing = store.ServiceItems.FirstOrDefault(s => s.Id == serviceItem.Id);
             if (existing is null)
             {
+                if (serviceItem.Id == Guid.Empty)
+                    serviceItem.Id = Guid.NewGuid();
                 serviceItem.DisplayOrder = store.ServiceItems.Count(s => s.ProductId == serviceItem.ProductId) + 1;
                 serviceItem.CreatedAt = serviceItem.UpdatedAt = DateTime.Now;
                 store.ServiceItems.Add(serviceItem);

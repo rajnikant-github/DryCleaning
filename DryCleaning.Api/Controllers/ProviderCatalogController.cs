@@ -39,6 +39,9 @@ public sealed class ProviderCatalogController(ProviderCatalogService catalog) : 
         catalog.CreateServiceItemAsync(productId, request, ct);
 
     /// <summary>Edit name, price and estimated days.</summary>
+    [HttpGet("service-items/{serviceItemId:guid}")]
+    public Task<ServiceItemDto> GetServiceItem(Guid serviceItemId, CancellationToken ct) => catalog.GetServiceItemAsync(serviceItemId, ct);
+
     [HttpPut("service-items/{serviceItemId:guid}")]
     public Task<ServiceItemDto> UpdateServiceItem(Guid serviceItemId, ServiceItemRequest request, CancellationToken ct) =>
         catalog.UpdateServiceItemAsync(serviceItemId, request, ct);

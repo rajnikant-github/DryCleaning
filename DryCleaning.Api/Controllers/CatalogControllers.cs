@@ -26,6 +26,13 @@ public sealed class CatalogController(CategoryService categories, PublicCatalogS
         catalog.GetProvidersAsync(categoryId, request, ct);
 
     /// <summary>C05 – "Popular right now": most ordered service items in the last 30 days.</summary>
+    [HttpGet("providers/{providerId:guid}")]
+    public Task<ProviderSummaryDto> GetProvider(Guid providerId, [FromQuery] Guid? categoryId, CancellationToken ct) =>
+        catalog.GetProviderAsync(providerId, categoryId, ct);
+
+    [HttpGet("catalog/products/{productId:guid}")]
+    public Task<ProductDto> GetProduct(Guid productId, CancellationToken ct) => catalog.GetProductAsync(productId, ct);
+
     [HttpGet("catalog/popular")]
     public Task<IReadOnlyList<PopularServiceItemDto>> GetPopular([FromQuery] int take = 6, CancellationToken ct = default) =>
         catalog.GetPopularItemsAsync(take, ct);

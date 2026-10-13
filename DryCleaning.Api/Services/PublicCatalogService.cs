@@ -24,24 +24,7 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             query = query.Where(p => p.BusinessName.Contains(request.Search));
 
         var (items, total) = await query.OrderBy(p => p.BusinessName).AsSplitQuery().PageAsync(request, ct);
-        var dtos = items.Select(p =>
-        {
-            var activeItems = p.Products
-                .Where(pr => pr.IsActive && (categoryId == null || pr.CategoryId == categoryId))
-                .SelectMany(pr => pr.ServiceItems.Where(s => s.IsActive))
-                .ToList();
-            return new ProviderSummaryDto
-            {
-                Id = p.Id,
-                BusinessName = p.BusinessName,
-                Description = p.Description,
-                LogoUrl = p.LogoUrl,
-                Locality = p.Address?.SubLocality ?? p.Address?.Locality,
-                Categories = p.Categories.Where(c => c.IsActive && c.Category.IsActive).Select(c => c.Category.Name).ToList(),
-                StartingPrice = activeItems.Count == 0 ? null : activeItems.Min(s => s.Price),
-                FastestDays = activeItems.Count == 0 ? null : activeItems.Min(s => s.EstimatedDays)
-            };
-        }).ToList();
+        var dtos = items.Select(p => ToSummary(p, categoryId)).ToList();
 
         return new PagedResult<ProviderSummaryDto>
         {
@@ -49,6 +32,50 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             Page = request.Page,
             PageSize = request.PageSize,
             TotalCount = total
+        };
+    }
+
+    /// <summary>C06 – one provider's card (provider header on the products screen).</summary>
+    public async Task<ProviderSummaryDto> GetProviderAsync(Guid providerId, Guid? categoryId, CancellationToken ct)
+    {
+        var provider = await db.ServiceProviders
+            .Include(p => p.Address)
+            .Include(p => p.Categories).ThenInclude(c => c.Category)
+            .Include(p => p.Products).ThenInclude(p => p.ServiceItems)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(p => p.Id == providerId && p.IsActive && p.User.IsActive, ct)
+            ?? throw new NotFoundException("Service provider not found.");
+        return ToSummary(provider, categoryId);
+    }
+
+    /// <summary>C08 – one product with its active service items (prices).</summary>
+    public async Task<ProductDto> GetProductAsync(Guid productId, CancellationToken ct)
+    {
+        var product = await db.Products
+            .Include(p => p.Category)
+            .Include(p => p.ServiceItems)
+            .FirstOrDefaultAsync(p => p.Id == productId && p.IsActive && p.Category.IsActive &&
+                                      p.ServiceProvider.IsActive && p.ServiceProvider.User.IsActive, ct)
+            ?? throw new NotFoundException("Product not found.");
+        return product.ToDto(activeItemsOnly: true);
+    }
+
+    private static ProviderSummaryDto ToSummary(Provider p, Guid? categoryId)
+    {
+        var activeItems = p.Products
+            .Where(pr => pr.IsActive && (categoryId == null || pr.CategoryId == categoryId))
+            .SelectMany(pr => pr.ServiceItems.Where(s => s.IsActive))
+            .ToList();
+        return new ProviderSummaryDto
+        {
+            Id = p.Id,
+            BusinessName = p.BusinessName,
+            Description = p.Description,
+            LogoUrl = p.LogoUrl,
+            Locality = p.Address?.SubLocality ?? p.Address?.Locality,
+            Categories = p.Categories.Where(c => c.IsActive && c.Category.IsActive).Select(c => c.Category.Name).ToList(),
+            StartingPrice = activeItems.Count == 0 ? null : activeItems.Min(s => s.Price),
+            FastestDays = activeItems.Count == 0 ? null : activeItems.Min(s => s.EstimatedDays)
         };
     }
 

@@ -145,7 +145,7 @@ public sealed class PhotoStrip : ContentView
                 {
                     Children =
                     {
-                        new Image { Source = ImageSource.FromFile(path), Aspect = Aspect.AspectFill }
+                        new Image { Source = Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http") ? ImageSource.FromUri(uri) : ImageSource.FromFile(path), Aspect = Aspect.AspectFill }
                     }
                 }
             };

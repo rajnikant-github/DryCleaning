@@ -40,6 +40,10 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
             : AuthResult.Fail("That code is incorrect. Please try again.");
     }
 
+    public string? OtpHint => DemoOtp;
+
+    public Task<bool> RestoreSessionAsync() => Task.FromResult(session.IsSignedIn);
+
     public Task LogoutAsync()
     {
         session.SignOut();

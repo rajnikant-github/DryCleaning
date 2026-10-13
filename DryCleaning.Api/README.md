@@ -3,6 +3,23 @@
 ASP.NET Core Web API for the EDry Cleaners marketplace (Customer, Service Provider, shared marketplace Driver, Admin).
 SQL Server + EF Core 10, JWT auth, Swagger UI, Paystack payments. Tables follow the V1 schema.
 
+## Contents
+
+- [Run locally](#run-locally)
+  - [Quick start – one command](#quick-start--one-command)
+    - [macOS – `run-api.sh`](#macos--run-apish)
+    - [Windows – `run-api.ps1`](#windows--run-apips1)
+  - [Swagger](#swagger)
+  - [Manual setup (any OS)](#manual-setup-any-os)
+  - [Troubleshooting](#troubleshooting)
+- [Configuration (`appsettings.json`)](#configuration-appsettingsjson)
+- [Sign-in, sessions and passwords](#sign-in-sessions-and-passwords)
+- [Push notifications (Firebase Cloud Messaging)](#push-notifications-firebase-cloud-messaging)
+- [Paystack flow](#paystack-flow)
+- [Order lifecycle](#order-lifecycle)
+  - [Screen helpers](#screen-helpers)
+- [Schema notes](#schema-notes)
+
 ## Run locally
 
 ### Quick start – one command
@@ -242,6 +259,9 @@ driver's own and active – the customer's and provider's phone numbers.
 |---|---|
 | Customer home – popular services | `GET /api/catalog/popular?take=6` |
 | Providers list (incl. `FastestDays`) | `GET /api/providers?categoryId=…` |
+| One provider (products screen header) | `GET /api/providers/{providerId}?categoryId=…` |
+| One product with its prices (customer) | `GET /api/catalog/products/{productId}` |
+| Edit one service item (provider) | `GET /api/provider/service-items/{serviceItemId}` |
 | Customer order tab counts | `GET /api/customer/orders/counts` |
 | Provider order tab counts | `GET /api/provider/orders/counts` |
 | Driver dashboard (name, active job, today's jobs, unread) | `GET /api/driver/dashboard` |

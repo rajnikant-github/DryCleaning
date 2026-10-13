@@ -82,7 +82,7 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
         DisputeText = d.OpenDispute?.Description ?? string.Empty;
 
         PhotoPaths.Clear();
-        foreach (var photo in d.Photos.Where(p => File.Exists(p.Url)))
+        foreach (var photo in d.Photos.Where(p => p.Url.StartsWith("http", StringComparison.OrdinalIgnoreCase) || File.Exists(p.Url)))
             PhotoPaths.Add(photo.Url);
         HasPhotos = PhotoPaths.Count > 0;
 
