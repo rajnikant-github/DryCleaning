@@ -16,7 +16,14 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
     public async Task<OrderQuoteDto> QuoteAsync(CreateOrderRequest request, CancellationToken ct)
     {
         var order = await BuildOrderAsync(request, ct);
-        return new OrderQuoteDto(order.SubTotal, order.Tax, order.DeliveryFee, order.TotalAmount, Market.Currency);
+        return new OrderQuoteDto
+        {
+            SubTotal = order.SubTotal,
+            Tax = order.Tax,
+            DeliveryFee = order.DeliveryFee,
+            TotalAmount = order.TotalAmount,
+            Currency = Market.Currency
+        };
     }
 
     public async Task<OrderDetailDto> CreateAsync(CreateOrderRequest request, CancellationToken ct)
@@ -56,7 +63,13 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
             orders = orders.Where(o => o.OrderNumber.Contains(query.Search));
 
         var (items, total) = await orders.WithSummaryIncludes().OrderByDescending(o => o.CreatedAt).PageAsync(query, ct);
-        return new PagedResult<OrderSummaryDto>(items.Select(o => o.ToSummary()).ToList(), query.Page, query.PageSize, total);
+        return new PagedResult<OrderSummaryDto>
+        {
+            Items = items.Select(o => o.ToSummary()).ToList(),
+            Page = query.Page,
+            PageSize = query.PageSize,
+            TotalCount = total
+        };
     }
 
     /// <summary>C17 – badge counts for the Active / Completed / Cancelled tabs.</summary>
@@ -72,7 +85,12 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         int Count(params OrderStatus[] statuses) => byStatus.Where(s => statuses.Contains(s.Status)).Sum(s => s.Count);
         var completed = Count(OrderStatus.Completed, OrderStatus.Delivered);
         var cancelled = Count(OrderStatus.Cancelled);
-        return new CustomerOrderCountsDto(byStatus.Sum(s => s.Count) - completed - cancelled, completed, cancelled);
+        return new CustomerOrderCountsDto
+        {
+            Active = byStatus.Sum(s => s.Count) - completed - cancelled,
+            Completed = completed,
+            Cancelled = cancelled
+        };
     }
 
     public async Task<OrderDetailDto> GetAsync(Guid orderId, CancellationToken ct)

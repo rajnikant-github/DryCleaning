@@ -80,29 +80,3 @@ public static class Routes
         _ => ProviderDashboard
     };
 }
-
-public sealed record ProviderAction(string Label, string Route);
-
-/// <summary>Maps an order status to the provider's next step screen.</summary>
-public static class ProviderActions
-{
-    public static ProviderAction? ForStatus(OrderStatus status) => status switch
-    {
-        OrderStatus.PickedUp => new("Receive Order", Routes.ReceiveOrder),
-        OrderStatus.ReceivedByProvider => new("Inspect Items", Routes.Inspection),
-        OrderStatus.Processing => new("Mark Quality Check", Routes.Processing),
-        OrderStatus.QualityCheck => new("Complete Quality Check", Routes.QualityCheck),
-        OrderStatus.ReadyForDelivery => new("Request Driver", Routes.ReadyForDelivery),
-        _ => null
-    };
-
-    public static string? HintFor(OrderStatus status) => status switch
-    {
-        OrderStatus.Confirmed => "Pickup job posted · waiting for a driver to accept",
-        OrderStatus.PickupAssigned => "Driver assigned · collecting from customer",
-        OrderStatus.PickedUp => "Driver is on the way to your store",
-        OrderStatus.DeliveryAssigned => "Delivery driver assigned · collecting from you",
-        OrderStatus.OutForDelivery => "Out for delivery to customer",
-        _ => null
-    };
-}

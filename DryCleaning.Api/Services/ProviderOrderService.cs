@@ -31,21 +31,30 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
             .Where(h => h.Order.ServiceProviderId == provider.Id)
             .OrderByDescending(h => h.CreatedAt)
             .Take(10)
-            .Select(h => new ActivityDto(h.OrderId, h.Order.OrderNumber, h.Status, h.Notes, h.CreatedAt))
+            .Select(h => new ActivityDto
+            {
+                OrderId = h.OrderId,
+                OrderNumber = h.Order.OrderNumber,
+                Status = h.Status,
+                Notes = h.Notes,
+                At = h.CreatedAt
+            })
             .ToListAsync(ct);
 
         var unread = await db.Notifications.CountAsync(n => n.UserId == provider.UserId && !n.IsRead, ct);
 
-        return new ProviderDashboardDto(
-            provider.BusinessName,
-            Count(OrderStatus.Created),
-            Count(OrderStatus.Confirmed, OrderStatus.PickupAssigned, OrderStatus.PickedUp),
-            Count(OrderStatus.ReceivedByProvider, OrderStatus.Processing, OrderStatus.QualityCheck),
-            Count(OrderStatus.ReadyForDelivery, OrderStatus.DeliveryAssigned, OrderStatus.OutForDelivery),
-            Count(OrderStatus.Delivered, OrderStatus.Completed),
-            unread,
-            todays.Select(o => o.ToSummary()).ToList(),
-            activity);
+        return new ProviderDashboardDto
+        {
+            BusinessName = provider.BusinessName,
+            NewCount = Count(OrderStatus.Created),
+            IncomingCount = Count(OrderStatus.Confirmed, OrderStatus.PickupAssigned, OrderStatus.PickedUp),
+            InProcessCount = Count(OrderStatus.ReceivedByProvider, OrderStatus.Processing, OrderStatus.QualityCheck),
+            ReadyCount = Count(OrderStatus.ReadyForDelivery, OrderStatus.DeliveryAssigned, OrderStatus.OutForDelivery),
+            CompletedCount = Count(OrderStatus.Delivered, OrderStatus.Completed),
+            UnreadNotifications = unread,
+            TodaysOrders = todays.Select(o => o.ToSummary()).ToList(),
+            RecentActivity = activity
+        };
     }
 
     public async Task<PagedResult<OrderSummaryDto>> GetOrdersAsync(ProviderOrdersQuery query, CancellationToken ct)
@@ -68,7 +77,13 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
             orders = orders.Where(o => o.OrderNumber.Contains(query.Search) || o.Customer.User.Name.Contains(query.Search));
 
         var (items, total) = await orders.WithSummaryIncludes().OrderByDescending(o => o.UpdatedAt).PageAsync(query, ct);
-        return new PagedResult<OrderSummaryDto>(items.Select(o => o.ToSummary()).ToList(), query.Page, query.PageSize, total);
+        return new PagedResult<OrderSummaryDto>
+        {
+            Items = items.Select(o => o.ToSummary()).ToList(),
+            Page = query.Page,
+            PageSize = query.PageSize,
+            TotalCount = total
+        };
     }
 
     /// <summary>P03 – badge counts for every order tab (same rules as <see cref="GetOrdersAsync"/>).</summary>
@@ -81,14 +96,16 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
             .ToListAsync(ct);
 
         int Count(params OrderStatus[] statuses) => byStatus.Where(s => statuses.Contains(s.Status)).Sum(s => s.Count);
-        return new ProviderOrderCountsDto(
-            Count(OrderStatus.Created),
-            Count(OrderStatus.Confirmed, OrderStatus.PickupAssigned, OrderStatus.PickedUp),
-            Count(OrderStatus.ReceivedByProvider, OrderStatus.Processing, OrderStatus.QualityCheck),
-            Count(OrderStatus.ReadyForDelivery, OrderStatus.DeliveryAssigned, OrderStatus.OutForDelivery),
-            Count(OrderStatus.Delivered, OrderStatus.Completed),
-            Count(OrderStatus.Cancelled),
-            Count(OrderStatus.Disputed));
+        return new ProviderOrderCountsDto
+        {
+            New = Count(OrderStatus.Created),
+            Incoming = Count(OrderStatus.Confirmed, OrderStatus.PickupAssigned, OrderStatus.PickedUp),
+            InProcess = Count(OrderStatus.ReceivedByProvider, OrderStatus.Processing, OrderStatus.QualityCheck),
+            Ready = Count(OrderStatus.ReadyForDelivery, OrderStatus.DeliveryAssigned, OrderStatus.OutForDelivery),
+            Completed = Count(OrderStatus.Delivered, OrderStatus.Completed),
+            Cancelled = Count(OrderStatus.Cancelled),
+            Disputed = Count(OrderStatus.Disputed)
+        };
     }
 
     public async Task<OrderDetailDto> GetOrderAsync(Guid orderId, CancellationToken ct)

@@ -57,8 +57,16 @@ public sealed class PaymentService(
         db.Payments.Add(payment);
         await db.SaveChangesAsync(ct);
 
-        return new InitializePaymentResponse(payment.Id, result.Reference, result.AuthorizationUrl, result.AccessCode,
-            order.TotalAmount, currency, paystackOptions.Value.PublicKey);
+        return new InitializePaymentResponse
+        {
+            PaymentId = payment.Id,
+            Reference = result.Reference,
+            AuthorizationUrl = result.AuthorizationUrl,
+            AccessCode = result.AccessCode,
+            Amount = order.TotalAmount,
+            Currency = currency,
+            PublicKey = paystackOptions.Value.PublicKey
+        };
     }
 
     /// <summary>Called by the app after checkout returns.</summary>

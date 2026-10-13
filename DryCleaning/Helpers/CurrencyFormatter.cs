@@ -3,14 +3,6 @@ using DryCleaning.Configuration;
 
 namespace DryCleaning.Helpers;
 
-public interface ICurrencyFormatter
-{
-    string Code { get; }
-    string Symbol { get; }
-    string Format(decimal amount);
-    bool TryParse(string? text, out decimal amount);
-}
-
 /// <summary>Formats money using the currency configured in appsettings.json.</summary>
 public sealed class CurrencyFormatter : ICurrencyFormatter
 {

@@ -20,7 +20,15 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
     {
         var driver = await profile.DriverAsync(ct);
         var user = await db.Users.FirstAsync(u => u.Id == driver.UserId, ct);
-        return new DriverProfileDto(driver.Id, user.ToDto(driver.Id), driver.LicenseNumber, driver.IsAvailable, driver.IsActive, driver.Address?.ToDto());
+        return new DriverProfileDto
+        {
+            Id = driver.Id,
+            User = user.ToDto(driver.Id),
+            LicenseNumber = driver.LicenseNumber,
+            IsAvailable = driver.IsAvailable,
+            IsActive = driver.IsActive,
+            Address = driver.Address?.ToDto()
+        };
     }
 
     public async Task<DriverProfileDto> UpdateProfileAsync(UpdateDriverProfileRequest request, CancellationToken ct)
@@ -69,16 +77,18 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var completedToday = todaysJobs.Count(j => j.Status == DriverJobStatus.Completed && j.CompletedAt >= today);
         var unread = await db.Notifications.CountAsync(n => n.UserId == driver.UserId && !n.IsRead, ct);
 
-        return new DriverDashboardDto(
-            user.Name,
-            driver.IsAvailable,
-            available,
-            active?.ToDetail(driver.Id, Market.DriverEarningPerJob),
-            completedToday,
-            completedToday * Market.DriverEarningPerJob,
-            unread,
-            todaysJobs.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
-            Market.Currency);
+        return new DriverDashboardDto
+        {
+            DriverName = user.Name,
+            IsAvailable = driver.IsAvailable,
+            AvailableJobs = available,
+            ActiveJob = active?.ToDetail(driver.Id, Market.DriverEarningPerJob),
+            CompletedToday = completedToday,
+            EarningsToday = completedToday * Market.DriverEarningPerJob,
+            UnreadNotifications = unread,
+            TodaysJobs = todaysJobs.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Currency = Market.Currency
+        };
     }
 
     public async Task<bool> SetAvailabilityAsync(bool isAvailable, CancellationToken ct)
@@ -97,10 +107,16 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
     {
         var driver = await profile.DriverAsync(ct);
         if (!driver.IsAvailable)
-            return new PagedResult<DriverJobDto>([], request.Page, request.PageSize, 0);
+            return new PagedResult<DriverJobDto> { Items = [], Page = request.Page, PageSize = request.PageSize, TotalCount = 0 };
 
         var (items, total) = await AvailableQuery().OrderBy(j => j.CreatedAt).PageAsync(request, ct);
-        return new PagedResult<DriverJobDto>(items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(), request.Page, request.PageSize, total);
+        return new PagedResult<DriverJobDto>
+        {
+            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = total
+        };
     }
 
     public async Task<PagedResult<DriverJobDto>> GetMyJobsAsync(DriverJobsQuery query, CancellationToken ct)
@@ -111,7 +127,13 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             jobs = jobs.Where(j => j.Status == query.Status);
 
         var (items, total) = await jobs.OrderByDescending(j => j.CompletedAt ?? j.AssignedAt).PageAsync(query, ct);
-        return new PagedResult<DriverJobDto>(items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(), query.Page, query.PageSize, total);
+        return new PagedResult<DriverJobDto>
+        {
+            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Page = query.Page,
+            PageSize = query.PageSize,
+            TotalCount = total
+        };
     }
 
     /// <summary>Badge counts for the Available / My Jobs / Completed tabs (Available is 0 while offline).</summary>
@@ -122,7 +144,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var mine = await db.DriverJobs.CountAsync(j => j.DriverId == driver.Id &&
             (j.Status == DriverJobStatus.Assigned || j.Status == DriverJobStatus.InProgress), ct);
         var completed = await db.DriverJobs.CountAsync(j => j.DriverId == driver.Id && j.Status == DriverJobStatus.Completed, ct);
-        return new DriverJobCountsDto(available, mine, completed);
+        return new DriverJobCountsDto { Available = available, Mine = mine, Completed = completed };
     }
 
     public async Task<DriverJobDetailDto> GetJobAsync(Guid jobId, CancellationToken ct)
@@ -171,14 +193,24 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             var start = from.AddDays(i * bucketDays);
             var count = jobs.Count(j => j.CompletedAt >= start && j.CompletedAt < start.AddDays(bucketDays));
             var label = period == EarningsPeriod.Week ? start.ToString("ddd") : start.ToString("d MMM");
-            return new EarningsBarDto(label, start, count * rate, count);
+            return new EarningsBarDto { Label = label, Start = start, Amount = count * rate, Jobs = count };
         }).ToList();
 
-        return new DriverEarningsDto(
-            period, from, today, jobs.Count * rate, jobs.Count,
-            jobs.Count(j => j.JobType == DriverJobType.Pickup), jobs.Count(j => j.JobType == DriverJobType.Delivery),
-            rate, jobs.Count == 0 ? 0 : rate, Market.Currency, bars,
-            jobs.Select(j => j.ToDto(j.Order, rate)).ToList());
+        return new DriverEarningsDto
+        {
+            Period = period,
+            From = from,
+            To = today,
+            Total = jobs.Count * rate,
+            JobCount = jobs.Count,
+            PickupCount = jobs.Count(j => j.JobType == DriverJobType.Pickup),
+            DeliveryCount = jobs.Count(j => j.JobType == DriverJobType.Delivery),
+            RatePerJob = rate,
+            AveragePerJob = jobs.Count == 0 ? 0 : rate,
+            Currency = Market.Currency,
+            Bars = bars,
+            Jobs = jobs.Select(j => j.ToDto(j.Order, rate)).ToList()
+        };
     }
 
     // ── D03/D04 Accept ───────────────────────────────────────────────────────

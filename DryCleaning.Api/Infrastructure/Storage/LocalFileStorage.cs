@@ -3,12 +3,6 @@ using Microsoft.Extensions.Options;
 
 namespace DryCleaning.Api.Infrastructure.Storage;
 
-public interface IFileStorage
-{
-    /// <summary>Saves the stream and returns a public relative URL (e.g. /uploads/orders/…/x.jpg).</summary>
-    Task<string> SaveAsync(Stream content, string extension, string folder, CancellationToken ct);
-}
-
 /// <summary>
 /// Stores files under wwwroot so they're served as static files. Swap for Azure Blob / S3 in production
 /// by implementing <see cref="IFileStorage"/>.

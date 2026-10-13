@@ -9,12 +9,37 @@ namespace DryCleaning.Api.Services;
 public static class Mapping
 {
     public static UserDto ToDto(this User user, Guid? profileId) =>
-        new(user.Id, user.Role, user.Name, user.Email, user.Phone, profileId, user.IsActive);
+        new()
+        {
+            Id = user.Id,
+            Role = user.Role,
+            Name = user.Name,
+            Email = user.Email,
+            Phone = user.Phone,
+            ProfileId = profileId,
+            IsActive = user.IsActive
+        };
 
-    public static AddressDto ToDto(this Address a) => new(
-        a.Id, a.GooglePlaceId, a.FormattedAddress, a.AddressLine1, a.AddressLine2, a.StreetNumber, a.Route,
-        a.SubLocality, a.Locality, a.AdministrativeAreaLevel1, a.AdministrativeAreaLevel2, a.Country,
-        a.CountryCode, a.PostalCode, a.Latitude, a.Longitude, a.PlusCode);
+    public static AddressDto ToDto(this Address a) => new()
+    {
+        Id = a.Id,
+        GooglePlaceId = a.GooglePlaceId,
+        FormattedAddress = a.FormattedAddress,
+        AddressLine1 = a.AddressLine1,
+        AddressLine2 = a.AddressLine2,
+        StreetNumber = a.StreetNumber,
+        Route = a.Route,
+        SubLocality = a.SubLocality,
+        Locality = a.Locality,
+        AdministrativeAreaLevel1 = a.AdministrativeAreaLevel1,
+        AdministrativeAreaLevel2 = a.AdministrativeAreaLevel2,
+        Country = a.Country,
+        CountryCode = a.CountryCode,
+        PostalCode = a.PostalCode,
+        Latitude = a.Latitude,
+        Longitude = a.Longitude,
+        PlusCode = a.PlusCode
+    };
 
     public static void Apply(this Address a, UpsertAddressRequest r)
     {
@@ -36,10 +61,29 @@ public static class Mapping
         a.PlusCode = r.PlusCode;
     }
 
-    public static CategoryDto ToDto(this Category c) => new(c.Id, c.Name, c.Description, c.ImageUrl, c.DisplayOrder, c.IsActive);
+    public static CategoryDto ToDto(this Category c) => new()
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Description = c.Description,
+        ImageUrl = c.ImageUrl,
+        DisplayOrder = c.DisplayOrder,
+        IsActive = c.IsActive
+    };
 
     public static ServiceItemDto ToDto(this ServiceItem s) =>
-        new(s.Id, s.ProductId, s.Name, s.Description, s.ImageUrl, s.Price, s.EstimatedDays, s.DisplayOrder, s.IsActive);
+        new()
+        {
+            Id = s.Id,
+            ProductId = s.ProductId,
+            Name = s.Name,
+            Description = s.Description,
+            ImageUrl = s.ImageUrl,
+            Price = s.Price,
+            EstimatedDays = s.EstimatedDays,
+            DisplayOrder = s.DisplayOrder,
+            IsActive = s.IsActive
+        };
 
     public static ProductDto ToDto(this Product p, bool activeItemsOnly = false)
     {
@@ -49,21 +93,68 @@ public static class Mapping
             .Select(s => s.ToDto())
             .ToList();
         var active = p.ServiceItems.Where(s => s.IsActive).ToList();
-        return new ProductDto(p.Id, p.CategoryId, p.Category?.Name ?? string.Empty, p.Name, p.Description, p.ImageUrl,
-            p.DisplayOrder, p.IsActive, active.Count == 0 ? null : active.Min(s => s.Price), items);
+        return new ProductDto
+        {
+            Id = p.Id,
+            CategoryId = p.CategoryId,
+            CategoryName = p.Category?.Name ?? string.Empty,
+            Name = p.Name,
+            Description = p.Description,
+            ImageUrl = p.ImageUrl,
+            DisplayOrder = p.DisplayOrder,
+            IsActive = p.IsActive,
+            StartingPrice = active.Count == 0 ? null : active.Min(s => s.Price),
+            ServiceItems = items
+        };
     }
 
     public static NotificationDto ToDto(this Notification n) =>
-        new(n.Id, n.OrderId, n.Title, n.Message, n.Type, n.IsRead, n.CreatedAt);
+        new()
+        {
+            Id = n.Id,
+            OrderId = n.OrderId,
+            Title = n.Title,
+            Message = n.Message,
+            Type = n.Type,
+            IsRead = n.IsRead,
+            CreatedAt = n.CreatedAt
+        };
 
     public static PaymentDto ToDto(this Payment p) =>
-        new(p.Id, p.Amount, p.Status, p.Method, p.TransactionId, p.PaidAt, p.CreatedAt);
+        new()
+        {
+            Id = p.Id,
+            Amount = p.Amount,
+            Status = p.Status,
+            Method = p.Method,
+            TransactionId = p.TransactionId,
+            PaidAt = p.PaidAt,
+            CreatedAt = p.CreatedAt
+        };
 
-    public static OrderPhotoDto ToDto(this OrderPhoto p) => new(p.Id, p.Type, p.Url, p.UploadedBy, p.CreatedAt);
+    public static OrderPhotoDto ToDto(this OrderPhoto p) => new()
+    {
+        Id = p.Id,
+        Type = p.Type,
+        Url = p.Url,
+        UploadedBy = p.UploadedBy,
+        CreatedAt = p.CreatedAt
+    };
 
     public static DisputeDto ToDto(this Dispute d) =>
-        new(d.Id, d.OrderId, d.Order?.OrderNumber ?? string.Empty, d.RaisedByUserId, d.RaisedByUser?.Name ?? string.Empty,
-            d.Reason, d.Description, d.Status, d.Resolution, d.CreatedAt);
+        new()
+        {
+            Id = d.Id,
+            OrderId = d.OrderId,
+            OrderNumber = d.Order?.OrderNumber ?? string.Empty,
+            RaisedByUserId = d.RaisedByUserId,
+            RaisedByName = d.RaisedByUser?.Name ?? string.Empty,
+            Reason = d.Reason,
+            Description = d.Description,
+            Status = d.Status,
+            Resolution = d.Resolution,
+            CreatedAt = d.CreatedAt
+        };
 
     // ── Orders ───────────────────────────────────────────────────────────────
 
@@ -98,36 +189,66 @@ public static class Mapping
     public static bool HasOpenDispute(this Order o) =>
         o.Disputes.Any(d => d.Status is DisputeStatus.Open or DisputeStatus.UnderReview);
 
-    public static OrderSummaryDto ToSummary(this Order o) => new(
-        o.Id,
-        o.OrderNumber,
-        o.Status,
-        o.Customer.User.Name,
-        o.ServiceProvider.BusinessName,
-        o.Items.Sum(i => i.Quantity),
-        string.Join(", ", o.Items.Select(i => $"{i.Quantity} {i.Product.Name.ToLowerInvariant()}")),
-        o.TotalAmount,
-        o.IsPaid(),
-        o.HasOpenDispute(),
-        o.PickupDate,
-        o.PickupSlot,
-        o.CreatedAt,
-        o.UpdatedAt);
+    public static OrderSummaryDto ToSummary(this Order o) => new()
+    {
+        Id = o.Id,
+        OrderNumber = o.OrderNumber,
+        Status = o.Status,
+        CustomerName = o.Customer.User.Name,
+        ProviderName = o.ServiceProvider.BusinessName,
+        ItemCount = o.Items.Sum(i => i.Quantity),
+        ItemsText = string.Join(", ", o.Items.Select(i => $"{i.Quantity} {i.Product.Name.ToLowerInvariant()}")),
+        TotalAmount = o.TotalAmount,
+        IsPaid = o.IsPaid(),
+        HasOpenDispute = o.HasOpenDispute(),
+        PickupDate = o.PickupDate,
+        PickupSlot = o.PickupSlot,
+        CreatedAt = o.CreatedAt,
+        UpdatedAt = o.UpdatedAt
+    };
 
-    public static OrderItemDto ToDto(this OrderItem i) => new(
-        i.Id, i.ProductId, i.ServiceItemId, i.Product.Category?.Name ?? string.Empty, i.Product.Name,
-        i.ServiceItem.Name, i.Quantity, i.UnitPrice, i.TotalPrice, i.Notes, i.ServiceItem.EstimatedDays);
+    public static OrderItemDto ToDto(this OrderItem i) => new()
+    {
+        Id = i.Id,
+        ProductId = i.ProductId,
+        ServiceItemId = i.ServiceItemId,
+        CategoryName = i.Product.Category?.Name ?? string.Empty,
+        ProductName = i.Product.Name,
+        ServiceItemName = i.ServiceItem.Name,
+        Quantity = i.Quantity,
+        UnitPrice = i.UnitPrice,
+        TotalPrice = i.TotalPrice,
+        Notes = i.Notes,
+        EstimatedDays = i.ServiceItem.EstimatedDays
+    };
 
     public static DriverJobDto ToDto(this DriverJob j, Order order, decimal earnings)
     {
         var toProvider = j.JobType == DriverJobType.Pickup;
-        return new DriverJobDto(
-            j.Id, j.OrderId, order.OrderNumber, j.JobType, j.Status,
-            j.DriverId, j.Driver?.User?.Name, j.Driver?.User?.Phone,
-            toProvider ? order.Customer.User.Name : order.ServiceProvider.BusinessName, j.PickupAddress.ToDto(),
-            toProvider ? order.ServiceProvider.BusinessName : order.Customer.User.Name, j.DeliveryAddress.ToDto(),
-            order.Items.Sum(i => i.Quantity), earnings, j.AssignedAt, j.CompletedAt, j.CreatedAt,
-            order.Status, order.PickupDate, order.PickupSlot, order.Status == OrderStatus.Disputed);
+        return new DriverJobDto
+        {
+            Id = j.Id,
+            OrderId = j.OrderId,
+            OrderNumber = order.OrderNumber,
+            JobType = j.JobType,
+            Status = j.Status,
+            DriverId = j.DriverId,
+            DriverName = j.Driver?.User?.Name,
+            DriverPhone = j.Driver?.User?.Phone,
+            PickupName = toProvider ? order.Customer.User.Name : order.ServiceProvider.BusinessName,
+            PickupAddress = j.PickupAddress.ToDto(),
+            DeliveryName = toProvider ? order.ServiceProvider.BusinessName : order.Customer.User.Name,
+            DeliveryAddress = j.DeliveryAddress.ToDto(),
+            ItemCount = order.Items.Sum(i => i.Quantity),
+            EstimatedEarnings = earnings,
+            AssignedAt = j.AssignedAt,
+            CompletedAt = j.CompletedAt,
+            CreatedAt = j.CreatedAt,
+            OrderStatus = order.Status,
+            PickupDate = order.PickupDate,
+            PickupSlot = order.PickupSlot,
+            IsOnHold = order.Status == OrderStatus.Disputed
+        };
     }
 
     /// <summary>
@@ -141,15 +262,17 @@ public static class Mapping
         var step = j.NextStep(isMine);
         var sharePhones = isMine && j.Status is DriverJobStatus.Assigned or DriverJobStatus.InProgress;
 
-        return new DriverJobDetailDto(
-            j.ToDto(order, earnings),
-            step,
-            isMine,
-            order.Customer.User.Name,
-            sharePhones ? order.Customer.User.Phone : null,
-            order.ServiceProvider.BusinessName,
-            sharePhones ? order.ServiceProvider.Phone : null,
-            order.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList());
+        return new DriverJobDetailDto
+        {
+            Job = j.ToDto(order, earnings),
+            NextStep = step,
+            IsMine = isMine,
+            CustomerName = order.Customer.User.Name,
+            CustomerPhone = sharePhones ? order.Customer.User.Phone : null,
+            ProviderName = order.ServiceProvider.BusinessName,
+            ProviderPhone = sharePhones ? order.ServiceProvider.Phone : null,
+            Items = order.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList()
+        };
     }
 
     public static DriverJobStep NextStep(this DriverJob j, bool isMine)
@@ -174,32 +297,40 @@ public static class Mapping
     }
 
     /// <param name="includeCustomerCodes">Only the customer may see the pickup code and delivery OTP.</param>
-    public static OrderDetailDto ToDetail(this Order o, string currency, decimal driverEarning, bool includeCustomerCodes) => new(
-        o.Id,
-        o.OrderNumber,
-        o.Status,
-        new PartyDto(o.Customer.Id, o.Customer.User.Name, o.Customer.User.Phone),
-        new PartyDto(o.ServiceProvider.Id, o.ServiceProvider.BusinessName, o.ServiceProvider.Phone),
-        o.PickupAddress.ToDto(),
-        o.ServiceProvider.Address?.ToDto(),
-        o.PickupDate,
-        o.PickupSlot,
-        o.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList(),
-        o.SubTotal,
-        o.Tax,
-        o.DeliveryFee,
-        o.TotalAmount,
-        currency,
-        o.IsPaid(),
-        o.StatusHistory.OrderBy(h => h.CreatedAt).Select(h => new StatusHistoryDto(h.Status, h.Notes, h.ChangedByUserId, h.CreatedAt)).ToList(),
-        o.Photos.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
-        o.DriverJobs.OrderBy(j => j.CreatedAt).Select(j => j.ToDto(o, driverEarning)).ToList(),
-        o.Payments.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
-        o.Disputes.OrderBy(d => d.CreatedAt).Select(d => d.ToDto()).ToList(),
-        includeCustomerCodes ? o.Verifications.FirstOrDefault(v => v.Type == VerificationType.QR && v.VerifiedAt == null)?.OtpCode : null,
-        includeCustomerCodes ? o.Verifications.FirstOrDefault(v => v.Type == VerificationType.OTP && v.VerifiedAt == null)?.OtpCode : null,
-        o.CreatedAt,
-        o.UpdatedAt);
+    public static OrderDetailDto ToDetail(this Order o, string currency, decimal driverEarning, bool includeCustomerCodes) => new()
+    {
+        Id = o.Id,
+        OrderNumber = o.OrderNumber,
+        Status = o.Status,
+        Customer = new PartyDto { Id = o.Customer.Id, Name = o.Customer.User.Name, Phone = o.Customer.User.Phone },
+        Provider = new PartyDto { Id = o.ServiceProvider.Id, Name = o.ServiceProvider.BusinessName, Phone = o.ServiceProvider.Phone },
+        PickupAddress = o.PickupAddress.ToDto(),
+        ProviderAddress = o.ServiceProvider.Address?.ToDto(),
+        PickupDate = o.PickupDate,
+        PickupSlot = o.PickupSlot,
+        Items = o.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList(),
+        SubTotal = o.SubTotal,
+        Tax = o.Tax,
+        DeliveryFee = o.DeliveryFee,
+        TotalAmount = o.TotalAmount,
+        Currency = currency,
+        IsPaid = o.IsPaid(),
+        History = o.StatusHistory.OrderBy(h => h.CreatedAt).Select(h => new StatusHistoryDto
+        {
+            Status = h.Status,
+            Notes = h.Notes,
+            ChangedByUserId = h.ChangedByUserId,
+            CreatedAt = h.CreatedAt
+        }).ToList(),
+        Photos = o.Photos.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
+        DriverJobs = o.DriverJobs.OrderBy(j => j.CreatedAt).Select(j => j.ToDto(o, driverEarning)).ToList(),
+        Payments = o.Payments.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
+        Disputes = o.Disputes.OrderBy(d => d.CreatedAt).Select(d => d.ToDto()).ToList(),
+        PickupCode = includeCustomerCodes ? o.Verifications.FirstOrDefault(v => v.Type == VerificationType.QR && v.VerifiedAt == null)?.OtpCode : null,
+        DeliveryOtp = includeCustomerCodes ? o.Verifications.FirstOrDefault(v => v.Type == VerificationType.OTP && v.VerifiedAt == null)?.OtpCode : null,
+        CreatedAt = o.CreatedAt,
+        UpdatedAt = o.UpdatedAt
+    };
 
     // ── Notifications ────────────────────────────────────────────────────────
 

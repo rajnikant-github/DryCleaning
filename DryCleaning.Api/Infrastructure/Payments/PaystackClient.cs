@@ -9,19 +9,6 @@ using Microsoft.Extensions.Options;
 
 namespace DryCleaning.Api.Infrastructure.Payments;
 
-public sealed record PaystackInitializeResult(string AuthorizationUrl, string AccessCode, string Reference);
-
-/// <param name="Status">Paystack status: success, failed, abandoned, ongoing, pending, reversed…</param>
-/// <param name="AmountSubunit">Amount in cents.</param>
-public sealed record PaystackVerifyResult(string Status, long AmountSubunit, string Currency, DateTime? PaidAt, string? Channel, string Reference);
-
-public interface IPaystackClient
-{
-    Task<PaystackInitializeResult> InitializeAsync(string email, decimal amount, string currency, string reference, IDictionary<string, string> metadata, CancellationToken ct);
-    Task<PaystackVerifyResult> VerifyAsync(string reference, CancellationToken ct);
-    bool IsValidSignature(string rawBody, string? signature);
-}
-
 /// <summary>
 /// Paystack REST client (https://paystack.com/docs/api/transaction/).
 /// Amounts are sent in the currency subunit (ZAR cents).
@@ -48,7 +35,12 @@ public sealed class PaystackClient(HttpClient http, IOptions<PaystackOptions> op
         Authorize(request);
 
         var response = await SendAsync<InitializeData>(request, ct);
-        return new PaystackInitializeResult(response.AuthorizationUrl, response.AccessCode, response.Reference);
+        return new PaystackInitializeResult
+        {
+            AuthorizationUrl = response.AuthorizationUrl,
+            AccessCode = response.AccessCode,
+            Reference = response.Reference
+        };
     }
 
     public async Task<PaystackVerifyResult> VerifyAsync(string reference, CancellationToken ct)
@@ -57,7 +49,15 @@ public sealed class PaystackClient(HttpClient http, IOptions<PaystackOptions> op
         Authorize(request);
 
         var data = await SendAsync<VerifyData>(request, ct);
-        return new PaystackVerifyResult(data.Status ?? "unknown", data.Amount, data.Currency ?? string.Empty, data.PaidAt, data.Channel, data.Reference ?? reference);
+        return new PaystackVerifyResult
+        {
+            Status = data.Status ?? "unknown",
+            AmountSubunit = data.Amount,
+            Currency = data.Currency ?? string.Empty,
+            PaidAt = data.PaidAt,
+            Channel = data.Channel,
+            Reference = data.Reference ?? reference
+        };
     }
 
     /// <summary>Paystack signs webhooks with HMAC-SHA512 of the raw body using the secret key.</summary>

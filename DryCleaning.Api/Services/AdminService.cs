@@ -30,24 +30,31 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
             .Select(d =>
             {
                 var row = daily.FirstOrDefault(x => x.Date == d);
-                return new DailyCountDto(DateOnly.FromDateTime(d), row?.Orders ?? 0, row?.Revenue ?? 0);
+                return new DailyCountDto
+                {
+                    Date = DateOnly.FromDateTime(d),
+                    Orders = row?.Orders ?? 0,
+                    Revenue = row?.Revenue ?? 0
+                };
             })
             .ToList();
 
         var revenue = await db.Payments.Where(p => p.Status == PaymentStatus.Success).SumAsync(p => (decimal?)p.Amount, ct) ?? 0;
         int Count(params OrderStatus[] statuses) => byStatus.Where(x => statuses.Contains(x.Key)).Sum(x => x.Count);
 
-        return new AdminDashboardDto(
-            await db.Customers.CountAsync(ct),
-            await db.ServiceProviders.CountAsync(ct),
-            await db.Drivers.CountAsync(ct),
-            byStatus.Where(x => x.Key is not (OrderStatus.Completed or OrderStatus.Cancelled or OrderStatus.Delivered)).Sum(x => x.Count),
-            Count(OrderStatus.Completed, OrderStatus.Delivered),
-            revenue,
-            await db.Disputes.CountAsync(d => d.Status == DisputeStatus.Open || d.Status == DisputeStatus.UnderReview, ct),
-            Market.Currency,
-            byStatus.ToDictionary(x => x.Key.ToString(), x => x.Count),
-            last30);
+        return new AdminDashboardDto
+        {
+            TotalCustomers = await db.Customers.CountAsync(ct),
+            TotalProviders = await db.ServiceProviders.CountAsync(ct),
+            TotalDrivers = await db.Drivers.CountAsync(ct),
+            ActiveOrders = byStatus.Where(x => x.Key is not (OrderStatus.Completed or OrderStatus.Cancelled or OrderStatus.Delivered)).Sum(x => x.Count),
+            CompletedOrders = Count(OrderStatus.Completed, OrderStatus.Delivered),
+            Revenue = revenue,
+            OpenDisputes = await db.Disputes.CountAsync(d => d.Status == DisputeStatus.Open || d.Status == DisputeStatus.UnderReview, ct),
+            Currency = Market.Currency,
+            OrdersByStatus = byStatus.ToDictionary(x => x.Key.ToString(), x => x.Count),
+            OrdersLast30Days = last30
+        };
     }
 
     // ── A03 Customers ────────────────────────────────────────────────────────
@@ -61,10 +68,26 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var total = await query.CountAsync(ct);
         var items = await query.OrderByDescending(c => c.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
-            .Select(c => new AdminCustomerDto(c.Id, c.UserId, c.User.Name, c.User.Phone, c.User.Email,
-                c.Address == null ? null : c.Address.FormattedAddress, c.Orders.Count, c.User.IsActive, c.CreatedAt))
+            .Select(c => new AdminCustomerDto
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                Name = c.User.Name,
+                Phone = c.User.Phone,
+                Email = c.User.Email,
+                Address = c.Address == null ? null : c.Address.FormattedAddress,
+                OrderCount = c.Orders.Count,
+                IsActive = c.User.IsActive,
+                CreatedAt = c.CreatedAt
+            })
             .ToListAsync(ct);
-        return new PagedResult<AdminCustomerDto>(items, request.Page, request.PageSize, total);
+        return new PagedResult<AdminCustomerDto>
+        {
+            Items = items,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = total
+        };
     }
 
     // ── A04 Providers ────────────────────────────────────────────────────────
@@ -80,11 +103,25 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var total = await query.CountAsync(ct);
         var items = await query.OrderByDescending(p => p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
-            .Select(p => new AdminProviderDto(p.Id, p.UserId, p.User.Name, p.BusinessName,
-                p.Categories.Where(c => c.IsActive).Select(c => c.Category.Name).ToList(),
-                p.Orders.Count, p.IsActive, p.CreatedAt))
+            .Select(p => new AdminProviderDto
+            {
+                Id = p.Id,
+                UserId = p.UserId,
+                OwnerName = p.User.Name,
+                BusinessName = p.BusinessName,
+                Categories = p.Categories.Where(c => c.IsActive).Select(c => c.Category.Name).ToList(),
+                OrderCount = p.Orders.Count,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt
+            })
             .ToListAsync(ct);
-        return new PagedResult<AdminProviderDto>(items, request.Page, request.PageSize, total);
+        return new PagedResult<AdminProviderDto>
+        {
+            Items = items,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = total
+        };
     }
 
     /// <summary>Approve (true) or deactivate (false) a provider.</summary>
@@ -112,10 +149,22 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
 
         var categories = provider.Categories
             .OrderBy(c => c.Category.DisplayOrder)
-            .Select(c => new CatalogCategoryDto(c.CategoryId, c.Category.Name, c.Category.Description, c.Category.ImageUrl,
-                provider.Products.Where(p => p.CategoryId == c.CategoryId).OrderBy(p => p.DisplayOrder).Select(p => p.ToDto()).ToList()))
+            .Select(c => new CatalogCategoryDto
+            {
+                Id = c.CategoryId,
+                Name = c.Category.Name,
+                Description = c.Category.Description,
+                ImageUrl = c.Category.ImageUrl,
+                Products = provider.Products.Where(p => p.CategoryId == c.CategoryId).OrderBy(p => p.DisplayOrder).Select(p => p.ToDto()).ToList()
+            })
             .ToList();
-        return new ProviderCatalogDto(provider.Id, provider.BusinessName, Market.Currency, categories);
+        return new ProviderCatalogDto
+        {
+            ProviderId = provider.Id,
+            BusinessName = provider.BusinessName,
+            Currency = Market.Currency,
+            Categories = categories
+        };
     }
 
     // ── A05 Drivers (no ServiceProviderId) ───────────────────────────────────
@@ -129,12 +178,26 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var total = await query.CountAsync(ct);
         var items = await query.OrderBy(d => d.User.Name)
             .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
-            .Select(d => new AdminDriverDto(d.Id, d.UserId, d.User.Name, d.User.Phone, d.LicenseNumber, d.IsAvailable,
-                d.Jobs.Count(j => j.Status == DriverJobStatus.Assigned || j.Status == DriverJobStatus.InProgress),
-                d.Jobs.Count(j => j.Status == DriverJobStatus.Completed),
-                d.IsActive && d.User.IsActive))
+            .Select(d => new AdminDriverDto
+            {
+                Id = d.Id,
+                UserId = d.UserId,
+                Name = d.User.Name,
+                Phone = d.User.Phone,
+                LicenseNumber = d.LicenseNumber,
+                IsAvailable = d.IsAvailable,
+                ActiveJobs = d.Jobs.Count(j => j.Status == DriverJobStatus.Assigned || j.Status == DriverJobStatus.InProgress),
+                CompletedJobs = d.Jobs.Count(j => j.Status == DriverJobStatus.Completed),
+                IsActive = d.IsActive && d.User.IsActive
+            })
             .ToListAsync(ct);
-        return new PagedResult<AdminDriverDto>(items, request.Page, request.PageSize, total);
+        return new PagedResult<AdminDriverDto>
+        {
+            Items = items,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = total
+        };
     }
 
     public async Task SetDriverActiveAsync(Guid driverId, bool isActive, CancellationToken ct)
@@ -169,12 +232,20 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var total = await orders.CountAsync(ct);
         var items = await orders.OrderByDescending(o => o.CreatedAt)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
-            .Select(o => new AdminOrderDto(o.Id, o.OrderNumber, o.Customer.User.Name, o.ServiceProvider.BusinessName,
-                o.DriverJobs.Where(j => j.Driver != null && j.Status != DriverJobStatus.Cancelled)
+            .Select(o => new AdminOrderDto
+            {
+                Id = o.Id,
+                OrderNumber = o.OrderNumber,
+                CustomerName = o.Customer.User.Name,
+                ProviderName = o.ServiceProvider.BusinessName,
+                DriverName = o.DriverJobs.Where(j => j.Driver != null && j.Status != DriverJobStatus.Cancelled)
                     .OrderByDescending(j => j.AssignedAt).Select(j => j.Driver!.User.Name).FirstOrDefault(),
-                o.Status, o.TotalAmount, o.CreatedAt))
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                CreatedAt = o.CreatedAt
+            })
             .ToListAsync(ct);
-        return new PagedResult<AdminOrderDto>(items, query.Page, query.PageSize, total);
+        return new PagedResult<AdminOrderDto> { Items = items, Page = query.Page, PageSize = query.PageSize, TotalCount = total };
     }
 
     public async Task<OrderDetailDto> GetOrderAsync(Guid orderId, CancellationToken ct)
@@ -205,7 +276,13 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
             jobs = jobs.Where(j => j.Order.OrderNumber.Contains(query.Search));
 
         var (items, total) = await jobs.OrderByDescending(j => j.CreatedAt).PageAsync(query, ct);
-        return new PagedResult<DriverJobDto>(items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(), query.Page, query.PageSize, total);
+        return new PagedResult<DriverJobDto>
+        {
+            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Page = query.Page,
+            PageSize = query.PageSize,
+            TotalCount = total
+        };
     }
 
     /// <summary>Manually assign or reassign a marketplace driver to a job.</summary>
@@ -264,10 +341,27 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var total = await query.CountAsync(ct);
         var items = await query.OrderByDescending(p => p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
-            .Select(p => new AdminPaymentDto(p.Id, p.OrderId, p.Order.OrderNumber, p.Order.Customer.User.Name, p.Amount,
-                p.Method, p.TransactionId, p.Status, p.PaidAt, p.CreatedAt))
+            .Select(p => new AdminPaymentDto
+            {
+                Id = p.Id,
+                OrderId = p.OrderId,
+                OrderNumber = p.Order.OrderNumber,
+                CustomerName = p.Order.Customer.User.Name,
+                Amount = p.Amount,
+                Method = p.Method,
+                TransactionId = p.TransactionId,
+                Status = p.Status,
+                PaidAt = p.PaidAt,
+                CreatedAt = p.CreatedAt
+            })
             .ToListAsync(ct);
-        return new PagedResult<AdminPaymentDto>(items, request.Page, request.PageSize, total);
+        return new PagedResult<AdminPaymentDto>
+        {
+            Items = items,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = total
+        };
     }
 
     // ── A12 Disputes ─────────────────────────────────────────────────────────
@@ -281,7 +375,13 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
             disputes = disputes.Where(d => d.Order.OrderNumber.Contains(query.Search) || d.Reason.Contains(query.Search));
 
         var (items, total) = await disputes.OrderByDescending(d => d.CreatedAt).PageAsync(query, ct);
-        return new PagedResult<DisputeDto>(items.Select(d => d.ToDto()).ToList(), query.Page, query.PageSize, total);
+        return new PagedResult<DisputeDto>
+        {
+            Items = items.Select(d => d.ToDto()).ToList(),
+            Page = query.Page,
+            PageSize = query.PageSize,
+            TotalCount = total
+        };
     }
 
     public async Task<DisputeDto> ReviewDisputeAsync(Guid disputeId, CancellationToken ct)

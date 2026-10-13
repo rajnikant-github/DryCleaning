@@ -316,16 +316,22 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
             {
                 bars = Enumerable.Range(0, 7)
                     .Select(i => from.AddDays(i))
-                    .Select(day => new EarningsBar(day == today ? "Today" : day.ToString("ddd"),
-                        jobs.Count(j => j.CompletedAt!.Value.Date == day) * Rate))
+                    .Select(day => new EarningsBar
+                    {
+                        Label = day == today ? "Today" : day.ToString("ddd"),
+                        Amount = jobs.Count(j => j.CompletedAt!.Value.Date == day) * Rate
+                    })
                     .ToList();
             }
             else
             {
                 bars = Enumerable.Range(0, 4)
                     .Select(i => from.AddDays(i * 7))
-                    .Select(start => new EarningsBar(start.ToString("d MMM"),
-                        jobs.Count(j => j.CompletedAt!.Value.Date >= start && j.CompletedAt.Value.Date < start.AddDays(7)) * Rate))
+                    .Select(start => new EarningsBar
+                    {
+                        Label = start.ToString("d MMM"),
+                        Amount = jobs.Count(j => j.CompletedAt!.Value.Date >= start && j.CompletedAt.Value.Date < start.AddDays(7)) * Rate
+                    })
                     .ToList();
             }
 

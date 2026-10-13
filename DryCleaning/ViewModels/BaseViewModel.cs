@@ -5,28 +5,6 @@ using DryCleaning.Services;
 
 namespace DryCleaning.ViewModels;
 
-public enum ViewState
-{
-    Loading,
-    Content,
-    Empty,
-    Error,
-    Offline
-}
-
-/// <summary>Common services every ViewModel needs, bundled to keep constructors short.</summary>
-public sealed class ViewModelServices(
-    INavigationService navigation,
-    IDialogService dialogs,
-    IConnectivity connectivity,
-    AppSettings settings)
-{
-    public INavigationService Navigation { get; } = navigation;
-    public IDialogService Dialogs { get; } = dialogs;
-    public IConnectivity Connectivity { get; } = connectivity;
-    public AppSettings Settings { get; } = settings;
-}
-
 public abstract partial class BaseViewModel : ObservableObject
 {
     private bool _hasLoaded;
