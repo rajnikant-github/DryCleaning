@@ -13,13 +13,19 @@
         <ToolbarItem Text="+ Product" Command="{Binding AddProductCommand}" />
     </ContentPage.ToolbarItems>
     <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Spacing="10" Padding="0,0,0,6">
+            <VerticalStackLayout Padding="20,16,20,4" Spacing="5">
+                <Label Text="Your service menu" Style="{StaticResource H2}" />
+                <Label Text="Carefully curated care, with pricing set by you." Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
         <controls:SegmentBar ItemsSource="{Binding Categories}" />
+        </VerticalStackLayout>
 
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Products}" SelectionMode="None">
                 <CollectionView.Header>
-                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource SecondaryColor}" Margin="16,12,16,12">
-                        <Label FontSize="13" TextColor="{StaticResource Primary}"
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource PrimarySoft}" Margin="20,12,20,16">
+                        <Label FontSize="13" TextColor="{StaticResource PrimaryDark}"
                                Text="Categories are managed by EDry Cleaners. Add Products and Service Items with your own prices." />
                     </Border>
                 </CollectionView.Header>
@@ -32,7 +38,7 @@
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="items:ProductCardItem">
-                        <Border Style="{StaticResource Card}" Margin="16,0,16,12">
+                        <Border Style="{StaticResource Card}" Margin="20,0,20,14">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                             </Border.GestureRecognizers>
@@ -46,7 +52,7 @@
                                     <Label Style="{StaticResource Small}">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" />
+                                                <Span Text="{Binding StartingPriceText}" TextColor="{StaticResource PrimaryDark}" FontFamily="AppSemibold" />
                                                 <Span Text="  ·  " />
                                                 <Span Text="{Binding ServiceItemsText}" />
                                             </FormattedString>
@@ -60,7 +66,7 @@
                 </CollectionView.ItemTemplate>
                 <CollectionView.Footer>
                     <Button Text="+ Add Product" Command="{Binding AddProductCommand}"
-                            Style="{StaticResource SecondaryButton}" Margin="16,4,16,24" />
+                            Style="{StaticResource SecondaryButton}" Margin="20,4,20,28" />
                 </CollectionView.Footer>
             </CollectionView>
         </RefreshView>

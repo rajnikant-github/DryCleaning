@@ -12,7 +12,7 @@
                 Title="Edit Profile">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
+            <VerticalStackLayout Padding="20,12,20,28" Spacing="16">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Full name" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
@@ -46,7 +46,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
                 <Button Text="Save Changes" Command="{Binding SaveCommand}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"

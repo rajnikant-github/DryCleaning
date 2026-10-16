@@ -17,14 +17,18 @@
     <Grid>
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+                <VerticalStackLayout Spacing="20" Padding="0,12,0,28">
                     <!--  Header with availability  -->
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
-                            <Label Text="{Binding DriverName}" Style="{StaticResource HeaderTitle}" />
-                            <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
-                                    Padding="14,10" Margin="0,10,0,0">
+                    <Border Style="{StaticResource HeroCard}" Margin="20,0">
+                        <VerticalStackLayout Spacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="DRIVER DASHBOARD" Style="{StaticResource HeroEyebrow}" VerticalOptions="Center" />
+                                <Image Grid.Column="1" Source="logo_mark_white.png" HeightRequest="30" WidthRequest="30" />
+                            </Grid>
+                            <Label Text="{Binding Greeting}" Style="{StaticResource HeroBody}" Margin="0,10,0,0" />
+                            <Label Text="{Binding DriverName}" Style="{StaticResource HeroTitle}" />
+                            <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                                    Padding="14,12" Margin="0,12,0,0">
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                                     <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource SuccessBrush}" VerticalOptions="Center">
                                         <Ellipse.Triggers>
@@ -35,7 +39,7 @@
                                     </Ellipse>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
                                         <Label Text="{Binding OnlineText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="15" />
-                                        <Label Text="{Binding OnlineHint}" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="{Binding OnlineHint}" TextColor="#FFE9E7" FontSize="12" />
                                     </VerticalStackLayout>
                                     <Switch Grid.Column="2" IsToggled="{Binding IsOnline}" OnColor="{StaticResource Success}" ThumbColor="{StaticResource White}" VerticalOptions="Center" />
                                 </Grid>
@@ -44,65 +48,75 @@
                     </Border>
 
                     <!--  Today  -->
-                    <Grid Padding="16,0" ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Grid Padding="20,0" ColumnDefinitions="*,*" ColumnSpacing="12">
                         <Border Style="{StaticResource Card}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
                             </Border.GestureRecognizers>
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="💰  Today's earnings" Style="{StaticResource Caption}" />
-                                <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="TODAY'S EARNINGS" Style="{StaticResource SectionLabel}" FontSize="10" Margin="0" />
+                                <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" Style="{StaticResource StatValue}" TextColor="{StaticResource PrimaryDark}" />
+                                <Label Text="View earnings  ›" Style="{StaticResource Small}" />
                             </VerticalStackLayout>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource Card}">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="✅  Jobs done today" Style="{StaticResource Caption}" />
-                                <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="COMPLETED TODAY" Style="{StaticResource SectionLabel}" FontSize="10" Margin="0" />
+                                <Label Text="{Binding CompletedToday}" Style="{StaticResource StatValue}" />
+                                <Label Text="Jobs delivered with care" Style="{StaticResource Small}" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
 
                     <!--  Active job  -->
-                    <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasActiveJob}">
-                        <Label Text="Active job" Style="{StaticResource H3}" />
-                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2">
+                    <VerticalStackLayout Padding="20,0" Spacing="12" IsVisible="{Binding HasActiveJob}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Your active job" Style="{StaticResource H2}" VerticalOptions="Center" />
+                            <Border Grid.Column="1" Style="{StaticResource Badge}">
+                                <Label Text="IN PROGRESS" FontSize="10" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                        </Grid>
+                        <Border Style="{StaticResource Card}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenActiveJobCommand}" />
                             </Border.GestureRecognizers>
-                            <VerticalStackLayout Spacing="12">
+                            <VerticalStackLayout Spacing="16">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource PrimarySoft}">
                                         <Label Text="{Binding ActiveTypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding ActiveTitle}" Style="{StaticResource BodyMedium}" />
-                                        <Label Text="{Binding ActiveStepText}" TextColor="{StaticResource InfoDark}" FontSize="13" />
+                                        <Label Text="{Binding ActiveStepText}" TextColor="{StaticResource PrimaryDark}" FontSize="13" />
                                     </VerticalStackLayout>
                                 </Grid>
-                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="120" BackgroundColor="#E0F2FE">
-                    <Grid>
-                        <Label Text="🗺️" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" />
-                        <Label Text="🚗" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
-                        <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
-                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
-                            <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
-                        </Border>
-                    </Grid>
-                </Border>
-                                <Label Text="{Binding ActiveDestination, StringFormat='📍  {0}'}" FontSize="14" />
+                                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource SurfaceSubtle}" Padding="16">
+                                    <Grid ColumnDefinitions="16,*" ColumnSpacing="12">
+                                        <VerticalStackLayout Spacing="5" Margin="0,4,0,0">
+                                            <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource PrimaryBrush}" />
+                                            <BoxView WidthRequest="2" HeightRequest="28" Color="{StaticResource BorderColor}" HorizontalOptions="Center" />
+                                            <Ellipse WidthRequest="10" HeightRequest="10" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                            <Label Text="NEXT DESTINATION" Style="{StaticResource SectionLabel}" FontSize="10" Margin="0" />
+                                            <Label Text="{Binding ActiveDestination}" Style="{StaticResource BodyMedium}" />
+                                            <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
                                 <Button Text="{Binding ActiveActionText}" Command="{Binding ContinueActiveJobCommand}" />
                             </VerticalStackLayout>
                         </Border>
                     </VerticalStackLayout>
 
                     <!--  Find jobs  -->
-                    <Border Style="{StaticResource Card}" Margin="16,0" IsVisible="{Binding IsOnline}">
+                    <Border Style="{StaticResource Card}" Margin="20,0" IsVisible="{Binding IsOnline}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding FindJobsCommand}" />
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}">
-                                <Label Text="📋" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource PrimarySoft}">
+                                <Image Source="tab_jobs.png" HeightRequest="22" WidthRequest="22" HorizontalOptions="Center" VerticalOptions="Center" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                 <Label Text="Available jobs" Style="{StaticResource BodyMedium}" />
@@ -111,13 +125,13 @@
                             <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Margin="16,0" Padding="14" IsVisible="{Binding IsDriverOffline}">
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource Muted}" Margin="20,0" Padding="16" IsVisible="{Binding IsDriverOffline}">
                         <Label Text="You're offline. Switch on availability above to start receiving pickup and delivery jobs." Style="{StaticResource Caption}" />
                     </Border>
 
                     <!--  Today's jobs  -->
-                    <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasTodaysJobs}">
-                        <Label Text="Today's jobs" Style="{StaticResource H3}" />
+                    <VerticalStackLayout Padding="20,0" Spacing="12" IsVisible="{Binding HasTodaysJobs}">
+                        <Label Text="Today's activity" Style="{StaticResource H2}" />
                         <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TodaysJobs}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="items:DriverJobCardItem">

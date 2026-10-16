@@ -13,7 +13,7 @@
                 Title="{Binding CategoryName}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <controls:AvatarView Text="{Binding ProviderInitials}" AvatarSize="48" />
@@ -41,7 +41,7 @@
                                         <Label Text="{Binding OptionsText}" Style="{StaticResource Small}" />
                                     </VerticalStackLayout>
                                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
-                                        <Label Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" FontSize="14" HorizontalOptions="End" />
+                                        <Label Text="{Binding StartingPriceText}" TextColor="{StaticResource PrimaryDark}" FontFamily="AppSemibold" FontSize="14" HorizontalOptions="End" />
                                         <Label Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" HorizontalOptions="End" />
                                     </VerticalStackLayout>
                                 </Grid>
@@ -56,7 +56,7 @@
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
+                StrokeShape="RoundRectangle 18" Margin="20,8,20,16" Padding="18,16">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>

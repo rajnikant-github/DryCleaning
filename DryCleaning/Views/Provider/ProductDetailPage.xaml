@@ -15,16 +15,16 @@
 
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
-                <Border Style="{StaticResource Card}">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                        <Border Style="{StaticResource IconTile}" WidthRequest="60" HeightRequest="60">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource HeaderOverlay}" WidthRequest="60" HeightRequest="60">
                             <Label Text="{Binding ProductIcon}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="{Binding ProductName}" Style="{StaticResource H2}" />
-                            <Label Text="{Binding CategoryName}" Style="{StaticResource Small}" />
-                            <Label Text="{Binding ProductDescription}" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding ProductName}" Style="{StaticResource HeroTitle}" FontSize="24" />
+                            <Label Text="{Binding CategoryName}" Style="{StaticResource HeroEyebrow}" />
+                            <Label Text="{Binding ProductDescription}" Style="{StaticResource HeroBody}" />
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
@@ -33,7 +33,7 @@
                     <Label Text="This product is disabled – customers can't order it." TextColor="{StaticResource WarningDark}" FontSize="13" />
                 </Border>
 
-                <Label Text="Service Items" Style="{StaticResource H3}" />
+                <Label Text="Services &amp; pricing" Style="{StaticResource H3}" />
 
                 <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding ServiceItems}">
                     <BindableLayout.ItemTemplate>
@@ -47,7 +47,7 @@
                                         <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
                                         <Label Text="{Binding Description}" Style="{StaticResource Small}" />
                                         <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
-                                            <Label Text="{Binding Price, Converter={StaticResource Currency}}" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" FontSize="15" />
+                                            <Label Text="{Binding Price, Converter={StaticResource Currency}}" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" FontSize="15" />
                                             <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" VerticalOptions="Center" />
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
@@ -70,7 +70,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Button Text="+ Add Service Item" Command="{Binding AddServiceItemCommand}" />
         </Border>
     </Grid>

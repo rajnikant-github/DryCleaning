@@ -13,28 +13,25 @@
                 Title="Payment">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
-                <Border Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                        <Label Text="Amount due" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
-                        <Label Text="{Binding Total, Converter={StaticResource Currency}}" Style="{StaticResource Display}"
-                               TextColor="{StaticResource Primary}" HorizontalTextAlignment="Center" />
-                        <Label Text="{Binding OrderNumber}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
-                        <Label Text="{Binding ProviderName}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}" Padding="20,18">
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="Amount due" Style="{StaticResource HeroEyebrow}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Total, Converter={StaticResource Currency}}" Style="{StaticResource HeroTitle}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
 
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Payment method" Style="{StaticResource SectionLabel}" />
-                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" BackgroundColor="#F0F5FF">
+                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" BackgroundColor="{StaticResource PrimarySoft}">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Label Text="💳" FontSize="24" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="Card, EFT or Instant EFT" Style="{StaticResource BodyMedium}" />
                                     <Label Text="Secured by Paystack" Style="{StaticResource Small}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="✓" TextColor="{StaticResource PrimaryDark}" FontSize="18" VerticalOptions="Center" />
                             </Grid>
                         </Border>
                         <Label Text="{Binding CurrencyCode, StringFormat='Charged in {0}.'}" Style="{StaticResource Small}" />
@@ -56,7 +53,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <VerticalStackLayout Spacing="8">
                 <Button Text="{Binding PayButtonText}" Command="{Binding PayCommand}" />
                 <Label Text="🔒  256-bit encrypted payment" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />

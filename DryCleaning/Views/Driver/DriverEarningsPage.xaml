@@ -15,13 +15,13 @@
 
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Padding="16" Spacing="14">
+                <VerticalStackLayout Padding="20,12,20,28" Spacing="16">
                     <!--  Total  -->
                     <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="20">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding PeriodText}" TextColor="#BFDBFE" FontSize="13" />
+                            <Label Text="{Binding PeriodText}" TextColor="#FFE9E7" FontSize="13" />
                             <Label Text="{Binding Total, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontSize="34" FontFamily="AppSemibold" />
-                            <Label Text="{Binding SplitText}" TextColor="#E0F2FE" FontSize="13" />
+                            <Label Text="{Binding SplitText}" TextColor="#FFF4F3" FontSize="13" />
                         </VerticalStackLayout>
                     </Border>
 

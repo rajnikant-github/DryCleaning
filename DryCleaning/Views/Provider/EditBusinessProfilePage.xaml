@@ -10,7 +10,13 @@
                 Title="Business Profile">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <VerticalStackLayout Spacing="6" Margin="0,0,0,4">
+                    <Label Text="YOUR BUSINESS" FontSize="11" CharacterSpacing="1.4" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" />
+                    <Label Text="A great first impression" Style="{StaticResource H2}" />
+                    <Label Text="Keep your business details looking their best." Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
                 <!--  Logo  -->
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                     <Border WidthRequest="96" HeightRequest="96" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
@@ -58,7 +64,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
                 <Button Text="Save Changes" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />

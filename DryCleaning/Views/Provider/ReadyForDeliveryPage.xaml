@@ -10,17 +10,23 @@
                 Title="Ready for Delivery">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="24,32,24,16" Spacing="18">
-                <Border WidthRequest="96" HeightRequest="96" StrokeThickness="0" StrokeShape="RoundRectangle 48"
-                        BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center">
-                    <Label Text="✅" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="SERVICE MILESTONE" Style="{StaticResource HeroEyebrow}" />
+                                <Label Text="Fresh &amp; ready" Style="{StaticResource HeroTitle}" />
+                            </VerticalStackLayout>
+                            <Border WidthRequest="48" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 24"
+                                    BackgroundColor="{StaticResource HeaderOverlay}" VerticalOptions="Center">
+                                <Label Text="✓" FontSize="26" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                        <Label Text="Cleaned, checked and packed. Request a driver to take this order home."
+                               Style="{StaticResource HeroBody}" />
+                    </VerticalStackLayout>
                 </Border>
-
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Ready for Delivery" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
-                    <Label Text="Cleaned, checked and packed. Request a marketplace driver to deliver it to the customer."
-                           Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
 
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="12">
@@ -78,7 +84,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <VerticalStackLayout Spacing="10">
                 <Button Text="🚚  Request Driver" Command="{Binding RequestDriverCommand}" IsVisible="{Binding CanRequestDriver}" />
                 <Button Text="Back to Orders" Command="{Binding BackToOrdersCommand}" Style="{StaticResource OutlineButton}" />

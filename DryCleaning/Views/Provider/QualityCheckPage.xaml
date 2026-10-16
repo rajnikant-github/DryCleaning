@@ -11,7 +11,13 @@
                 Title="Quality Check">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <VerticalStackLayout Spacing="6" Margin="0,0,0,4">
+                    <Label Text="FINAL CARE CHECK" FontSize="11" CharacterSpacing="1.4" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" />
+                    <Label Text="Fresh, finished, checked" Style="{StaticResource H2}" />
+                    <Label Text="Review the details before this order heads home." Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout Spacing="2">
@@ -62,10 +68,10 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <VerticalStackLayout Spacing="6">
                 <Grid>
-                    <Button Text="Mark Ready for Delivery" Command="{Binding MarkReadyCommand}" Style="{StaticResource SuccessButton}" IsVisible="{Binding IsNotBusy}" />
+                    <Button Text="Mark Ready for Delivery" Command="{Binding MarkReadyCommand}" Style="{StaticResource PrimaryButton}" IsVisible="{Binding IsNotBusy}" />
                     <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
                 </Grid>
                 <Button Text="Needs re-cleaning" Command="{Binding SendBackCommand}" Style="{StaticResource TextButton}"

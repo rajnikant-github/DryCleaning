@@ -13,14 +13,18 @@
                 Title="Your Cart">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
-                <Grid ColumnDefinitions="*,Auto">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="{Binding ProviderName}" Style="{StaticResource H3}" />
-                        <Label Text="{Binding ItemCountText}" Style="{StaticResource Caption}" />
-                    </VerticalStackLayout>
-                    <Button Grid.Column="1" Text="+ Add items" Style="{StaticResource TextButton}" Command="{Binding AddMoreCommand}" VerticalOptions="Center" />
-                </Grid>
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}" Padding="20,18">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Cart" Style="{StaticResource HeroEyebrow}" />
+                            <Label Text="{Binding ProviderName}" Style="{StaticResource HeroTitle}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Padding="10,6" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{StaticResource White}" Opacity="0.18">
+                            <Label Text="{Binding ItemCountText}" Style="{StaticResource HeroBody}" />
+                        </Border>
+                    </Grid>
+                </Border>
 
                 <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Lines}">
                     <BindableLayout.ItemTemplate>
@@ -49,7 +53,7 @@
                                     <Grid ColumnDefinitions="*,Auto">
                                         <controls:QuantityStepper Value="{Binding Quantity}" Minimum="0" Maximum="50" HorizontalOptions="Start" />
                                         <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" Style="{StaticResource BodyMedium}"
-                                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                               TextColor="{StaticResource PrimaryDark}" VerticalOptions="Center" />
                                     </Grid>
                                 </VerticalStackLayout>
                             </Border>
@@ -69,7 +73,7 @@
                             <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
                             <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
                             <Label Grid.Row="3" Grid.Column="1" Text="{Binding Total, Converter={StaticResource Currency}}"
-                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource PrimaryDark}" Margin="0,4,0,0" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
@@ -80,7 +84,7 @@
                                 EmptyIcon="🧺" EmptyTitle="Your cart is empty" EmptyMessage="Add items from a provider to schedule a pickup." />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <Button Text="Continue to Pickup" Command="{Binding ContinueCommand}" />
         </Border>
         <Border Grid.Row="1" IsVisible="{Binding IsEmpty}" StrokeThickness="0" Padding="16,12,16,20">

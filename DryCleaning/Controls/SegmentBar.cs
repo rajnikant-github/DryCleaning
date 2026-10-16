@@ -67,9 +67,9 @@ public sealed class SegmentBar : ContentView
             var label = new Label { FontSize = 14, FontFamily = "AppSemibold", VerticalOptions = LayoutOptions.Center };
             var chip = new Border
             {
-                StrokeShape = new RoundRectangle { CornerRadius = 18 },
+                StrokeShape = new RoundRectangle { CornerRadius = 14 },
                 StrokeThickness = 1,
-                Padding = new Thickness(16, 8),
+                Padding = new Thickness(16, 10),
                 Content = label,
                 BindingContext = item
             };
@@ -99,9 +99,9 @@ public sealed class SegmentBar : ContentView
     private static void Apply(Border chip, Label label, ViewModels.Items.SegmentItem item)
     {
         label.Text = item.HasCount ? $"{item.Title}  {item.Count}" : item.Title;
-        label.TextColor = item.IsSelected ? Colors.White : Theme.MutedForeground;
-        chip.BackgroundColor = item.IsSelected ? Theme.Primary : Theme.Card;
-        chip.Stroke = new SolidColorBrush(item.IsSelected ? Theme.Primary : Theme.Border);
+        label.TextColor = item.IsSelected ? Theme.PrimaryDark : Theme.MutedForeground;
+        chip.BackgroundColor = item.IsSelected ? Theme.PrimarySoft : Theme.Card;
+        chip.Stroke = new SolidColorBrush(item.IsSelected ? Theme.PrimarySoft : Theme.Border);
         SemanticProperties.SetDescription(chip, item.IsSelected ? $"{item.Title}, selected" : item.Title);
     }
 }

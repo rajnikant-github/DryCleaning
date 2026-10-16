@@ -21,7 +21,7 @@ public sealed class OtpView : ContentView
         propertyChanged: (bindable, _, _) => ((OtpView)bindable).BuildBoxes());
 
     private readonly Entry _entry;
-    private readonly HorizontalStackLayout _row = new() { Spacing = 8, HorizontalOptions = LayoutOptions.Center };
+    private readonly HorizontalStackLayout _row = new() { Spacing = 6, HorizontalOptions = LayoutOptions.Center };
     private readonly List<(Border Box, Label Digit)> _boxes = [];
 
     public int Length
@@ -45,11 +45,11 @@ public sealed class OtpView : ContentView
             };
             var box = new Border
             {
-                WidthRequest = 46,
-                HeightRequest = 54,
+                WidthRequest = 42,
+                HeightRequest = 56,
                 StrokeThickness = 2,
                 Stroke = new SolidColorBrush(Theme.Border),
-                StrokeShape = new RoundRectangle { CornerRadius = 12 },
+                StrokeShape = new RoundRectangle { CornerRadius = 14 },
                 BackgroundColor = Theme.Card,
                 Content = digit
             };
@@ -74,7 +74,7 @@ public sealed class OtpView : ContentView
             Opacity = 0.02,
             TextColor = Colors.Transparent,
             BackgroundColor = Colors.Transparent,
-            HeightRequest = 54
+            HeightRequest = 56
         };
         _entry.TextChanged += (_, e) =>
         {
@@ -125,7 +125,8 @@ public sealed class OtpView : ContentView
         {
             var active = _entry.IsFocused && i == current;
             var filled = i < (Code?.Length ?? 0);
-            _boxes[i].Box.Stroke = new SolidColorBrush(active || filled ? Theme.Primary : Theme.Border);
+            _boxes[i].Box.Stroke = new SolidColorBrush(active ? Theme.Primary : Theme.Border);
+            _boxes[i].Box.BackgroundColor = filled ? Theme.PrimarySoft : Theme.Card;
         }
     }
 }

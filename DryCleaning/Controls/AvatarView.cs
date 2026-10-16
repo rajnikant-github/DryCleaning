@@ -27,12 +27,12 @@ public sealed class AvatarView : ContentView
     {
         _label = new Label
         {
-            TextColor = Colors.White,
+            TextColor = Theme.PrimaryDark,
             FontFamily = "AppSemibold",
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         };
-        _border = new Border { StrokeThickness = 0, BackgroundColor = Theme.Primary, Content = _label };
+        _border = new Border { StrokeThickness = 0, BackgroundColor = Theme.PrimarySoft, Content = _label };
         Content = _border;
         HorizontalOptions = LayoutOptions.Start;
         VerticalOptions = LayoutOptions.Center;

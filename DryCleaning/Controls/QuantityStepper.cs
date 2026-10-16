@@ -67,12 +67,12 @@ public sealed class QuantityStepper : ContentView
     {
         var border = new Border
         {
-            WidthRequest = 40,
-            HeightRequest = 40,
-            StrokeShape = new RoundRectangle { CornerRadius = 20 },
+            WidthRequest = 44,
+            HeightRequest = 44,
+            StrokeShape = new RoundRectangle { CornerRadius = 14 },
             StrokeThickness = filled ? 0 : 1,
             Stroke = new SolidColorBrush(Theme.Border),
-            BackgroundColor = filled ? Theme.Primary : Theme.Card,
+            BackgroundColor = filled ? Theme.PrimaryDark : Theme.PrimarySoft,
             Content = new Label
             {
                 Text = text,

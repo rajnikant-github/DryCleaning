@@ -26,15 +26,15 @@
                                         TextColor="{StaticResource White}" BorderColor="{StaticResource White}" VerticalOptions="Center" />
                             </Grid>
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                                <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                                <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,10">
                                     <VerticalStackLayout>
-                                        <Label Text="Jobs completed" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="Jobs completed" TextColor="#FFE9E7" FontSize="12" />
                                         <Label Text="{Binding CompletedJobsText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
                                     </VerticalStackLayout>
                                 </Border>
-                                <Border Grid.Column="1" BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
+                                <Border Grid.Column="1" BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,10">
                                     <VerticalStackLayout>
-                                        <Label Text="Total earned" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="Total earned" TextColor="#FFE9E7" FontSize="12" />
                                         <Label Text="{Binding TotalEarnings, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
                                     </VerticalStackLayout>
                                 </Border>
@@ -56,28 +56,28 @@
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Driver details" Style="{StaticResource SectionLabel}" Margin="0" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📱" />
+                                <Label Text="📱" FontSize="16" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Mobile" Style="{StaticResource Small}" />
                                     <Label Text="{Binding Phone}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📧" />
+                                <Label Text="📧" FontSize="16" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Email" Style="{StaticResource Small}" />
                                     <Label Text="{Binding Email}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="🪪" />
+                                <Label Text="🪪" FontSize="16" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Driver's licence" Style="{StaticResource Small}" />
                                     <Label Text="{Binding LicenseNumber}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📍" />
+                                <Label Text="📍" FontSize="16" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Base area" Style="{StaticResource Small}" />
                                     <Label Text="{Binding BaseArea}" FontSize="14" />
@@ -88,50 +88,50 @@
 
                     <Border Style="{StaticResource Card}" Margin="16,0" Padding="16,4">
                         <VerticalStackLayout>
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="💰" FontSize="18" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="Earnings" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
-                        </Grid>
-                        <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="🔔" FontSize="18" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="Notifications" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
-                        </Grid>
-                        <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="🔑" FontSize="18" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="Change Password" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
-                        </Grid>
-                        <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SafetyCommand}" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="🛡️" FontSize="18" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="Safety &amp; guidelines" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
-                        </Grid>
-                        <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding HelpCommand}" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="💬" FontSize="18" VerticalOptions="Center" />
-                            <Label Grid.Column="1" Text="Driver support" FontSize="15" VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
-                        </Grid>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Text="💰" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Earnings" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Text="🔔" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Notifications" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Text="🔑" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Change Password" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SafetyCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Text="🛡️" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Safety &amp; guidelines" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="0,12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding HelpCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Text="💬" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="Driver support" FontSize="15" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                            </Grid>
                         </VerticalStackLayout>
                     </Border>
 

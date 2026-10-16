@@ -7,65 +7,79 @@
                 x:DataType="vm:RoleSelectionViewModel"
                 Shell.NavBarIsVisible="False">
     <ScrollView>
-        <VerticalStackLayout Padding="{OnPlatform iOS='24,64,24,24', Default='24,40,24,24'}" Spacing="16">
-            <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
-                    WidthRequest="48" HeightRequest="48" HorizontalOptions="Start">
-                <Image Source="logo_mark_white.png" WidthRequest="30" HeightRequest="30" />
+        <VerticalStackLayout Padding="{OnPlatform iOS='20,56,20,24', Default='20,24,20,24'}" Spacing="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="0,0,0,8">
+                <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                        WidthRequest="48" HeightRequest="48">
+                    <Image Source="logo_mark_white.png" WidthRequest="30" HeightRequest="30" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Text="EDry Cleaners" Style="{StaticResource H3}" />
+                    <Label Text="A little care. A fresh start." Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Style="{StaticResource HeroCard}" Padding="24,28">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="EVERYDAY, MADE FRESH" Style="{StaticResource HeroEyebrow}" />
+                    <Label Text="Good clothes.&#10;Great care." Style="{StaticResource HeroTitle}" FontSize="32" />
+                    <Label Text="From your doorstep to a fresh wardrobe.&#10;We'll take care of the laundry." Style="{StaticResource HeroBody}" />
+                </VerticalStackLayout>
             </Border>
 
-            <VerticalStackLayout Spacing="6" Margin="0,8,0,8">
-                <Label Text="Welcome to EDry Cleaners" Style="{StaticResource H1}" />
-                <Label Text="How would you like to use EDry Cleaners?" Style="{StaticResource Caption}" FontSize="15" />
+            <VerticalStackLayout Spacing="5" Margin="0,8,0,0">
+                <Label Text="Make yourself at home" Style="{StaticResource H2}" />
+                <Label Text="Choose how you'd like to get started." Style="{StaticResource Caption}" />
             </VerticalStackLayout>
 
             <!--  Customer  -->
-            <Border Style="{StaticResource Card}" BackgroundColor="#EFF6FF" Stroke="#DBEAFE" StrokeThickness="2" Padding="18">
+            <Border Style="{StaticResource Card}" BackgroundColor="{StaticResource PrimarySoft}" Stroke="{StaticResource PrimaryLightBrush}" StrokeThickness="1" Padding="18">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Customer" />
                 </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
-                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="👕" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="12">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="48" HeightRequest="48">
+                        <Image Source="ic_shirt.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="Customer" Style="{StaticResource BodyMedium}" TextColor="#1D4ED8" />
-                        <Label Text="I want to clean my clothes and shoes" Style="{StaticResource Caption}" />
+                        <Label Text="Customer" Style="{StaticResource BodyMedium}" TextColor="{StaticResource PrimaryDark}" />
+                        <Label Text="Book a pickup. Enjoy a fresh wardrobe." Style="{StaticResource Caption}" />
                     </VerticalStackLayout>
-                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="#1D4ED8" VerticalOptions="Center" />
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource PrimaryDark}" VerticalOptions="Center" />
                 </Grid>
             </Border>
 
             <!--  Service Provider  -->
-            <Border Style="{StaticResource Card}" BackgroundColor="#FAF5FF" Stroke="#F3E8FF" StrokeThickness="2" Padding="18">
+            <Border Style="{StaticResource Card}" Padding="18">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Provider" />
                 </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
-                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="🏪" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="12">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="48" HeightRequest="48">
+                        <Image Source="ic_store.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="Service Provider" Style="{StaticResource BodyMedium}" TextColor="{StaticResource Purple}" />
-                        <Label Text="I provide cleaning services" Style="{StaticResource Caption}" />
+                        <Label Text="Service Provider" Style="{StaticResource BodyMedium}" TextColor="{StaticResource AppForeground}" />
+                        <Label Text="Manage your services and orders." Style="{StaticResource Caption}" />
                     </VerticalStackLayout>
-                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource Purple}" VerticalOptions="Center" />
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource AppForeground}" VerticalOptions="Center" />
                 </Grid>
             </Border>
 
             <!--  Driver  -->
-            <Border Style="{StaticResource Card}" BackgroundColor="#ECFDF5" Stroke="#D1FAE5" StrokeThickness="2" Padding="18">
+            <Border Style="{StaticResource Card}" Padding="18">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectRoleCommand}" CommandParameter="Driver" />
                 </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
-                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="🚗" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="12">
+                    <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="48" HeightRequest="48">
+                        <Image Source="ic_truck.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="Driver" Style="{StaticResource BodyMedium}" TextColor="{StaticResource SuccessDark}" />
-                        <Label Text="I want to pickup and deliver orders" Style="{StaticResource Caption}" />
+                        <Label Text="Driver" Style="{StaticResource BodyMedium}" TextColor="{StaticResource AppForeground}" />
+                        <Label Text="Collect, deliver and earn on the go." Style="{StaticResource Caption}" />
                     </VerticalStackLayout>
-                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource SuccessDark}" VerticalOptions="Center" />
+                    <Label Grid.Column="2" Text="›" FontSize="28" TextColor="{StaticResource AppForeground}" VerticalOptions="Center" />
                 </Grid>
             </Border>
 

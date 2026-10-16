@@ -17,29 +17,32 @@
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
                 <CollectionView.Header>
-                    <BoxView HeightRequest="12" Color="Transparent" />
+                    <VerticalStackLayout Padding="20,16,20,20" Spacing="5">
+                        <Label Text="Stay in the loop" Style="{StaticResource H2}" />
+                        <Label Text="The latest updates from your care studio." Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="items:NotificationItem">
-                        <Border Style="{StaticResource Card}" Margin="16,0,16,10">
+                        <Border Style="{StaticResource Card}" Margin="20,0,20,12">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                             </Border.GestureRecognizers>
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsUnread}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}" />
                                 </DataTrigger>
                             </Border.Triggers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}">
                                     <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <VerticalStackLayout Grid.Column="1" Spacing="5">
                                     <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                     <Label Text="{Binding Message}" Style="{StaticResource Caption}" />
                                     <Label Text="{Binding TimeText}" Style="{StaticResource Small}" />
                                 </VerticalStackLayout>
-                                <Ellipse Grid.Column="2" Fill="{StaticResource AccentBrush}" WidthRequest="10" HeightRequest="10"
+                                <Ellipse Grid.Column="2" Fill="{StaticResource PrimaryBrush}" WidthRequest="10" HeightRequest="10"
                                          VerticalOptions="Start" Margin="0,4,0,0" IsVisible="{Binding IsUnread}" />
                             </Grid>
                         </Border>

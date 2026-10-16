@@ -10,7 +10,13 @@
                 Title="{Binding Title}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="18">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="20">
+                <VerticalStackLayout Spacing="6" Margin="0,0,0,4">
+                    <Label Text="SERVICE CATALOG" FontSize="11" CharacterSpacing="1.4" FontFamily="AppSemibold" TextColor="{StaticResource PrimaryDark}" />
+                    <Label Text="Make your menu shine" Style="{StaticResource H2}" />
+                    <Label Text="Add clear product details so customers can choose with confidence." Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Category" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
@@ -48,7 +54,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
                 <Button Text="Save Product" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />

@@ -14,7 +14,20 @@
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,*">
-        <controls:SegmentBar ItemsSource="{Binding Segments}" />
+        <VerticalStackLayout Spacing="10" Padding="0,0,0,6">
+            <Border Style="{StaticResource HeroCard}" Margin="20,16,20,0" Padding="20,18">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Order workbench" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="Every order, from arrival to ready for delivery." Style="{StaticResource HeroBody}" />
+                    </VerticalStackLayout>
+                    <Border Grid.Column="1" Padding="10,6" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{StaticResource White}" Opacity="0.18">
+                        <Label Text="Live" Style="{StaticResource HeroBody}" />
+                    </Border>
+                </Grid>
+            </Border>
+            <controls:SegmentBar ItemsSource="{Binding Segments}" />
+        </VerticalStackLayout>
 
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
@@ -23,7 +36,7 @@
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="items:OrderCardItem">
-                        <controls:OrderCardView Padding="16,0,16,12" />
+                        <controls:OrderCardView Padding="20,0,20,14" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

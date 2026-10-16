@@ -12,11 +12,17 @@
                 x:DataType="vm:PickupTimeViewModel"
                 Title="Pickup Time">
     <Grid RowDefinitions="Auto,*,Auto">
-        <controls:SegmentBar ItemsSource="{Binding Dates}" />
+        <Border Style="{StaticResource HeroCard}" Margin="20,16,20,0" Padding="20,18">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Pickup time" Style="{StaticResource HeroEyebrow}" />
+                <Label Text="{Binding SelectedDate, StringFormat='{0:dddd, d MMMM}'}" Style="{StaticResource HeroTitle}" />
+            </VerticalStackLayout>
+        </Border>
+
+        <controls:SegmentBar Grid.Row="0" Margin="20,12,20,0" ItemsSource="{Binding Dates}" />
 
         <ScrollView Grid.Row="1" IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
-                <Label Text="{Binding SelectedDate, StringFormat='{0:dddd, d MMMM}'}" Style="{StaticResource H3}" />
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
                 <Label Text="Choose a 2-hour window. A driver will collect your items during this time." Style="{StaticResource Caption}" />
 
                 <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Slots}">
@@ -26,7 +32,7 @@
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
                                         <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
-                                        <Setter Property="BackgroundColor" Value="#F0F5FF" />
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}" />
                                     </DataTrigger>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsUnavailable}" Value="True">
                                         <Setter Property="Opacity" Value="0.45" />
@@ -39,7 +45,7 @@
                                     <Label Text="🕘" FontSize="18" VerticalOptions="Center" />
                                     <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource BodyMedium}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Text="Unavailable" Style="{StaticResource Small}" IsVisible="{Binding IsUnavailable}" VerticalOptions="Center" />
-                                    <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Primary}" FontSize="18" FontFamily="AppSemibold"
+                                    <Label Grid.Column="2" Text="✓" TextColor="{StaticResource PrimaryDark}" FontSize="18" FontFamily="AppSemibold"
                                            IsVisible="{Binding IsSelected}" VerticalOptions="Center" />
                                 </Grid>
                             </Border>
@@ -56,7 +62,7 @@
         <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="2" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <Button Text="{Binding ContinueText}" Command="{Binding ContinueCommand}" />
         </Border>
     </Grid>

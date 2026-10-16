@@ -10,11 +10,11 @@
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
-        <Setter Property="Shell.ForegroundColor" Value="{StaticResource White}" />
-        <Setter Property="Shell.TitleColor" Value="{StaticResource White}" />
-        <Setter Property="Shell.DisabledColor" Value="{StaticResource PrimaryLight}" />
-        <Setter Property="Shell.UnselectedColor" Value="{StaticResource PrimaryLight}" />
+        <Setter Property="Shell.BackgroundColor" Value="{StaticResource CardColor}" />
+        <Setter Property="Shell.ForegroundColor" Value="{StaticResource AppForeground}" />
+        <Setter Property="Shell.TitleColor" Value="{StaticResource AppForeground}" />
+        <Setter Property="Shell.DisabledColor" Value="{StaticResource MutedForeground}" />
+        <Setter Property="Shell.UnselectedColor" Value="{StaticResource MutedForeground}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
         <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource White}" />
         <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Primary}" />
@@ -72,8 +72,6 @@
     <Style x:Key="SectionLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="AppSemibold" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="CharacterSpacing" Value="0.6" />
-        <Setter Property="TextTransform" Value="Uppercase" />
         <Setter Property="TextColor" Value="{StaticResource MutedForeground}" />
         <Setter Property="Margin" Value="0,0,0,8" />
     </Style>
@@ -100,27 +98,14 @@
 
     <!--  ── Buttons ─────────────────────────────────────────────  -->
     <Style x:Key="BaseButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryDark}" />
         <Setter Property="TextColor" Value="{StaticResource White}" />
         <Setter Property="FontFamily" Value="AppSemibold" />
         <Setter Property="FontSize" Value="15" />
-        <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="HeightRequest" Value="52" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HeightRequest" Value="54" />
         <Setter Property="Padding" Value="16,0" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="Disabled">
-                        <VisualState.Setters>
-                            <Setter Property="Opacity" Value="0.45" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="PointerOver" />
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
     </Style>
 
     <Style TargetType="Button" BasedOn="{StaticResource BaseButton}" />
@@ -129,7 +114,7 @@
 
     <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
         <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
-        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+        <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
         <Setter Property="BorderColor" Value="{StaticResource PrimaryLight}" />
         <Setter Property="BorderWidth" Value="1" />
     </Style>
@@ -160,13 +145,13 @@
     <Style x:Key="SmallPrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
         <Setter Property="HeightRequest" Value="40" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="12" />
     </Style>
 
     <Style x:Key="SmallOutlineButton" TargetType="Button" BasedOn="{StaticResource OutlineButton}">
         <Setter Property="HeightRequest" Value="40" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="TextColor" Value="{StaticResource MutedForeground}" />
     </Style>
 
@@ -175,7 +160,7 @@
         <Setter Property="BackgroundColor" Value="{StaticResource CardColor}" />
         <Setter Property="Stroke" Value="{StaticResource BorderBrush}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
         <Setter Property="Padding" Value="16" />
     </Style>
 
@@ -186,14 +171,14 @@
     <Style x:Key="IconTile" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
         <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
         <Setter Property="WidthRequest" Value="44" />
         <Setter Property="HeightRequest" Value="44" />
     </Style>
 
     <Style x:Key="SoftPanel" TargetType="Border">
         <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
         <Setter Property="Padding" Value="12,10" />
     </Style>
 
@@ -201,7 +186,7 @@
         <Setter Property="BackgroundColor" Value="{StaticResource CardColor}" />
         <Setter Property="Stroke" Value="{StaticResource BorderBrush}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
         <Setter Property="Padding" Value="12,2" />
         <Setter Property="MinimumHeightRequest" Value="52" />
     </Style>
@@ -209,6 +194,34 @@
     <Style x:Key="Divider" TargetType="BoxView">
         <Setter Property="HeightRequest" Value="1" />
         <Setter Property="Color" Value="{StaticResource BorderColor}" />
+    </Style>
+
+    <!-- Shared feature cards and compact metadata. -->
+    <Style x:Key="HeroCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="Padding" Value="22" />
+    </Style>
+    <Style x:Key="Badge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+    <Style x:Key="HeroEyebrow" TargetType="Label" BasedOn="{StaticResource SectionLabel}">
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+    <Style x:Key="HeroTitle" TargetType="Label" BasedOn="{StaticResource H1}">
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+    </Style>
+    <Style x:Key="HeroBody" TargetType="Label" BasedOn="{StaticResource Caption}">
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+    </Style>
+    <Style x:Key="StatValue" TargetType="Label" BasedOn="{StaticResource H1}">
+        <Setter Property="FontSize" Value="24" />
     </Style>
 
     <!--  ── Inputs ──────────────────────────────────────────────  -->
@@ -243,7 +256,7 @@
     </Style>
 
     <Style TargetType="Switch">
-        <Setter Property="OnColor" Value="{StaticResource Success}" />
+        <Setter Property="OnColor" Value="{StaticResource Primary}" />
         <Setter Property="ThumbColor" Value="{StaticResource White}" />
     </Style>
 
