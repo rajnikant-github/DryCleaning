@@ -10,11 +10,16 @@
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
                 x:Class="DryCleaning.Views.Customer.PickupAddressPage"
                 x:DataType="vm:PickupAddressViewModel"
-                Title="{Binding PageTitle}">
+                Title="Pickup Address">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
-                <Label Text="{Binding HeadlineText}" Style="{StaticResource H2}" />
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}" Padding="20,18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Collect from" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="Where should we collect?" Style="{StaticResource HeroTitle}" />
+                    </VerticalStackLayout>
+                </Border>
 
                 <!--  Autocomplete search  -->
                 <Border Style="{StaticResource InputField}">
@@ -44,12 +49,11 @@
                     </VerticalStackLayout>
                 </Border>
                 <Label Text="No matching addresses. Try a street name or suburb." Style="{StaticResource Small}" IsVisible="{Binding ShowNoResults}" />
-                <Label Text="{Binding SearchError}" Style="{StaticResource Small}" TextColor="{StaticResource ErrorDark}" IsVisible="{Binding HasSearchError}" />
 
                 <Button Text="📍  Use my current location" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" />
 
                 <!--  Map placeholder  -->
-                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="150" BackgroundColor="#E0F2FE" IsVisible="{Binding HasSelection}">
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="150" BackgroundColor="{StaticResource SurfaceSubtle}" IsVisible="{Binding HasSelection}">
                     <Grid>
                         <Label Text="🗺️" FontSize="56" Opacity="0.35" HorizontalOptions="Center" VerticalOptions="Center" />
                         <Label Text="📍" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -92,7 +96,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <Grid>
                 <Button Text="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
