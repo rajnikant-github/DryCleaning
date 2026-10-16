@@ -19,7 +19,7 @@ public static class ProviderActions
     {
         OrderStatus.Confirmed => "Pickup job posted · waiting for a driver to accept",
         OrderStatus.PickupAssigned => "Driver assigned · collecting from customer",
-        OrderStatus.PickedUp => "Driver is on the way to your store",
+        OrderStatus.PickedUp => "Picked up from customer · confirm when it arrives",
         OrderStatus.DeliveryAssigned => "Delivery driver assigned · collecting from you",
         OrderStatus.OutForDelivery => "Out for delivery to customer",
         _ => null
