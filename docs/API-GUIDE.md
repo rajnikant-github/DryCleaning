@@ -25,6 +25,7 @@ which endpoint does what, and which database tables each step reads and writes.
    - [4.8 Notifications and push](#48-notifications-and-push)
    - [4.9 Provider onboarding and catalog](#49-provider-onboarding-and-catalog)
    - [4.10 Photos](#410-photos)
+   - [4.11 Real-time updates (SignalR)](#411-real-time-updates-signalr)
 5. [Endpoint reference](#5-endpoint-reference) (107 endpoints)
    - [5.1 Auth](#51-auth) · [5.2 Me (address, devices, notifications)](#52-me-address-devices-notifications) ·
      [5.3 Public catalog](#53-public-catalog) · [5.4 Customer](#54-customer) · [5.5 Provider](#55-provider) ·
@@ -387,6 +388,37 @@ Catalog shape: **Category** (global) → **Product** (per provider, e.g. "Suit")
 
 JPG, PNG, HEIC or WEBP; max 5 MB (`Storage:MaxUploadBytes`). Files are served from `/uploads/...`;
 `url` in responses is relative to the API base URL.
+
+### 4.11 Real-time updates (SignalR)
+
+Signed-in apps keep one WebSocket open to the hub at **`/hubs/realtime`** so changes show up without polling
+(provider creates a job → drivers see it; driver accepts → provider and customer see it).
+
+**Connect** with the same JWT as the REST API. WebSockets can't send headers, so pass it as `?access_token=<jwt>`
+(the SignalR client's `AccessTokenProvider` does this). Anonymous connections are rejected. The connection closes when
+the token expires; reconnect with a fresh token.
+
+The hub is **server → client only**. Events are small "something changed" signals – the app then re-reads the data with
+the normal REST endpoints (so pickup codes and OTPs never travel over the hub). After any reconnect, refresh the current
+screen, because events sent while offline are not replayed.
+
+| Client method | Payload | Sent to | Typical app reaction |
+|---|---|---|---|
+| `OrderUpdated` | `{ orderId, orderNumber, status }` | The order's customer, provider and driver(s) | Reload that order / the order lists and counts |
+| `DriverJobChanged` | `{ jobId, orderId, jobType, status }` | All **online** drivers, plus the job's current and previous driver | Reload available jobs / my jobs; if the open job became `Assigned` to someone else, show "no longer available" |
+| `NotificationReceived` | `{ notificationId, userId, title, message, type, orderId?, createdAt }` | The notification's user | Bump the badge, prepend to the bell list |
+
+Enums are sent as strings, like the REST API.
+
+**What triggers events:** nothing is called from the business code. After each successful save the API looks at what changed:
+an order's `Status`, a payment's `Status` (a paid order appears in the provider's **New** tab), a driver job added or its
+`Status`/`DriverId` changed (accept, release, reassign), and every new `Notification` row. So every workflow in 4.3
+produces events automatically.
+
+**Push vs SignalR:** SignalR only reaches apps that are open and connected. Firebase push (4.8) still covers apps in the
+background, so both stay on.
+
+**Limits:** one API server only. Running several servers needs a SignalR backplane (Redis or Azure SignalR).
 
 ---
 

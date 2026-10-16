@@ -1,5 +1,6 @@
 using DryCleaning.Api.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DryCleaning.Api.Data;
@@ -47,6 +48,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // SQL Server rejects multiple cascade paths – never cascade deletes; soft-disable via IsActive instead.
         foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+
+        // Ids are assigned in code (EntityBase). Without this EF assumes Guid keys come from the database, treats a new
+        // row found in a tracked collection (e.g. Order.StatusHistory) as already existing, and issues an UPDATE.
+        foreach (var entity in modelBuilder.Model.GetEntityTypes().Where(e => typeof(EntityBase).IsAssignableFrom(e.ClrType)))
+            entity.FindProperty(nameof(EntityBase.Id))?.ValueGenerated = ValueGenerated.Never;
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

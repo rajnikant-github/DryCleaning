@@ -152,6 +152,17 @@ public sealed class ApiClient
     /// <summary>Exchanges the stored refresh token for a new session. Throws <see cref="SessionExpiredException"/> when it is no longer valid.</summary>
     public Task<AuthResponse> RefreshSessionAsync(CancellationToken ct = default) => RefreshAsync(staleAccessToken: null, ct);
 
+    /// <summary>A valid access token (refreshed first when it is about to expire), or null when signed out. Used by the real-time connection.</summary>
+    public async Task<string?> GetAccessTokenAsync(CancellationToken ct = default)
+    {
+        var auth = await _tokens.GetAsync();
+        if (auth is null)
+            return null;
+        if (AsUtc(auth.ExpiresAt) <= DateTime.UtcNow.Add(RefreshMargin))
+            auth = await RefreshAsync(auth.AccessToken, ct);
+        return auth.AccessToken;
+    }
+
     private async Task AttachTokenAsync(HttpRequestMessage request, bool forceRefresh, CancellationToken ct)
     {
         var auth = await _tokens.GetAsync() ?? throw new SessionExpiredException();

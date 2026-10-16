@@ -10,6 +10,7 @@ public class BasePage : ContentPage
         base.OnAppearing();
         if (BindingContext is BaseViewModel viewModel)
         {
+            viewModel.AttachRealtime();
             try
             {
                 await viewModel.OnAppearingAsync();
@@ -19,5 +20,11 @@ public class BasePage : ContentPage
                 System.Diagnostics.Debug.WriteLine($"[{GetType().Name}] OnAppearing failed: {ex}");
             }
         }
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        (BindingContext as BaseViewModel)?.DetachRealtime();
     }
 }

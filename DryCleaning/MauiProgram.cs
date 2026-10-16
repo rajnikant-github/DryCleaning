@@ -147,6 +147,7 @@ public static class MauiProgram
         services.AddSingleton<ICustomerProfileService, MockCustomerProfileService>();
         services.AddSingleton<IPaymentService, MockPaymentService>();
         services.AddSingleton<IDriverService, MockDriverService>();
+        services.AddSingleton<IRealtimeService, MockRealtimeService>();
     }
 
     private static void AddApiServices(IServiceCollection services, AppSettings settings)
@@ -166,6 +167,7 @@ public static class MauiProgram
         services.AddSingleton<ICustomerProfileService, ApiCustomerProfileService>();
         services.AddSingleton<IPaymentService, ApiPaymentService>();
         services.AddSingleton<IDriverService, ApiDriverService>();
+        services.AddSingleton<IRealtimeService, ApiRealtimeService>();
     }
 
     private static IServiceCollection AddPage<TPage, TViewModel>(this IServiceCollection services)

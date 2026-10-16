@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
@@ -11,6 +12,9 @@ namespace DryCleaning.ViewModels.Provider;
 /// <summary>Shared logic for segmented order lists (Orders tab and Order History).</summary>
 public abstract partial class OrderListViewModelBase : BaseViewModel
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.OrderUpdated;
+
     protected readonly IProviderOrderService OrderService;
 
     protected OrderListViewModelBase(ViewModelServices services, IProviderOrderService orderService, params (ProviderOrderFilter Filter, string Title)[] segments)

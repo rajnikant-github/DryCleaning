@@ -1,12 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using DryCleaning.Configuration;
 using DryCleaning.Services;
+using DryCleaning.Services.Api;
+using DryCleaning.Services.Realtime;
 
 namespace DryCleaning.ViewModels;
 
 public abstract partial class BaseViewModel : ObservableObject
 {
+    private static readonly TimeSpan RealtimeDebounce = TimeSpan.FromMilliseconds(500);
+
+    private readonly SemaphoreSlim _realtimeGate = new(1, 1);
+    private CancellationTokenSource? _realtimeDelay;
+    private bool _realtimeAttached;
     private bool _hasLoaded;
 
     protected BaseViewModel(ViewModelServices services)
@@ -48,6 +56,84 @@ public abstract partial class BaseViewModel : ObservableObject
 
     /// <summary>Called by <see cref="Views.BasePage"/> every time the page appears.</summary>
     public virtual Task OnAppearingAsync() => LoadAsync(showSkeleton: !_hasLoaded);
+
+    /// <summary>
+    /// Return true when this screen should quietly reload for a live update from the API.
+    /// Screens opt in by overriding; forms and multi-step flows must not (a reload would overwrite what the user typed).
+    /// </summary>
+    protected virtual bool ReactsTo(RealtimeChangedMessage message) => false;
+
+    /// <summary>Called by <see cref="Views.BasePage"/> when the page appears: start listening for live updates.</summary>
+    public void AttachRealtime()
+    {
+        if (_realtimeAttached)
+            return;
+        _realtimeAttached = true;
+        WeakReferenceMessenger.Default.Register<BaseViewModel, RealtimeChangedMessage>(this, static (viewModel, message) => viewModel.OnRealtimeChange(message));
+    }
+
+    /// <summary>Called by <see cref="Views.BasePage"/> when the page disappears: stop listening.</summary>
+    public void DetachRealtime()
+    {
+        if (!_realtimeAttached)
+            return;
+        _realtimeAttached = false;
+        WeakReferenceMessenger.Default.Unregister<RealtimeChangedMessage>(this);
+        _realtimeDelay?.Cancel();
+    }
+
+    private void OnRealtimeChange(RealtimeChangedMessage message)
+    {
+        if (!ReactsTo(message))
+            return;
+
+        // Several events often arrive together (order + job + notification) – reload once.
+        _realtimeDelay?.Cancel();
+        var delay = _realtimeDelay = new CancellationTokenSource();
+        _ = ReloadQuietlyAsync(delay.Token);
+    }
+
+    private async Task ReloadQuietlyAsync(CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(RealtimeDebounce, ct);
+            await _realtimeGate.WaitAsync(ct);
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    // Not loaded yet, or the user is in the middle of an action: the normal load / the action's own reload covers it.
+                    if (!_hasLoaded || IsBusy || Services.Connectivity.NetworkAccess != NetworkAccess.Internet)
+                        return;
+                    try
+                    {
+                        var hasContent = await LoadDataAsync();
+                        State = hasContent ? ViewState.Content : ViewState.Empty;
+                    }
+                    catch (ApiException ex) when (ex.IsNotFound)
+                    {
+                        // The thing on screen is gone (e.g. another driver took the job): don't leave stale buttons behind.
+                        ErrorMessage = ex.Message;
+                        State = ViewState.Error;
+                    }
+                });
+            }
+            finally
+            {
+                _realtimeGate.Release();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer update replaced this one, or the page disappeared.
+        }
+        catch (Exception ex)
+        {
+            // Quiet by design: keep showing what is on screen instead of flipping to an error.
+            System.Diagnostics.Debug.WriteLine($"[{GetType().Name}] Live reload failed: {ex.Message}");
+        }
+    }
 
     /// <summary>Load the page data. Return false when there is nothing to show (empty state).</summary>
     protected virtual Task<bool> LoadDataAsync() => Task.FromResult(true);

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
@@ -10,6 +11,9 @@ namespace DryCleaning.ViewModels.Provider;
 public sealed partial class NotificationsViewModel(ViewModelServices services, INotificationService notifications, ISessionService session, IDriverService drivers)
     : BaseViewModel(services)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.NotificationReceived;
+
     public ObservableCollection<NotificationItem> Items { get; } = [];
 
     protected override async Task<bool> LoadDataAsync()

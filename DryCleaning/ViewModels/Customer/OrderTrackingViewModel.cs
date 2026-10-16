@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Customer;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Customer;
 public sealed partial class OrderTrackingViewModel(ViewModelServices services, ICustomerOrderService orders)
     : CustomerOrderViewModelBase(services, orders)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || (message.Kind == RealtimeChangeKind.OrderUpdated && message.OrderId == OrderId);
+
     public ObservableCollection<TimelineStep> Timeline { get; } = [];
 
     [ObservableProperty] private string statusMessage = string.Empty;

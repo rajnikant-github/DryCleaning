@@ -6,6 +6,7 @@ using DryCleaning.Api.Infrastructure.Auth;
 using DryCleaning.Api.Infrastructure.Errors;
 using DryCleaning.Api.Infrastructure.Payments;
 using DryCleaning.Api.Infrastructure.Push;
+using DryCleaning.Api.Infrastructure.Realtime;
 using DryCleaning.Api.Infrastructure.Storage;
 using DryCleaning.Api.Infrastructure.Swagger;
 using DryCleaning.Api.Services;
@@ -28,13 +29,18 @@ builder.Services.Configure<StorageOptions>(config.GetSection(StorageOptions.Sect
 // ── Push notifications (Firebase Cloud Messaging; log-only when not configured) ──
 builder.Services.AddPushNotifications(config);
 
+// ── Real-time updates (SignalR hub at /hubs/realtime) ─────────────────────────
+builder.Services.AddRealtime();
+
 // ── Database (SQL Server) ────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseSqlServer(
             config.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing."),
             sql => sql.EnableRetryOnFailure())
-        .AddInterceptors(sp.GetRequiredService<NotificationPushInterceptor>())); // every saved notification is also pushed
+        .AddInterceptors(
+            sp.GetRequiredService<NotificationPushInterceptor>(), // every saved notification is also pushed
+            sp.GetRequiredService<RealtimeEventInterceptor>())); // order/job/notification changes go to connected apps
 
 // ── Authentication (JWT) & authorization (roles) ─────────────────────────────
 var jwt = config.GetSection(JwtOptions.Section).Get<JwtOptions>() ?? new JwtOptions();
@@ -59,6 +65,7 @@ builder.Services
             NameClaimType = JwtRegisteredClaimNames.Name,
             RoleClaimType = ClaimTypes.Role
         };
+        options.Events = RealtimeSetup.AcceptQueryStringToken();
     });
 builder.Services.AddAuthorization();
 
@@ -151,6 +158,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapRealtime();
 app.MapHealthChecks("/health");
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 

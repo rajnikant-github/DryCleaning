@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Provider;
 public sealed partial class DashboardViewModel(ViewModelServices services, IProviderOrderService orders)
     : BaseViewModel(services)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.OrderUpdated || message.Kind == RealtimeChangeKind.NotificationReceived;
+
     [ObservableProperty] private string greeting = string.Empty;
     [ObservableProperty] private string businessName = string.Empty;
     [ObservableProperty] private string todayText = string.Empty;

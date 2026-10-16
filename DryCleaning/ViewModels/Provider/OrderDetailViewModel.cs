@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Provider;
 public sealed partial class OrderDetailViewModel(ViewModelServices services, IProviderOrderService orderService)
     : OrderPageViewModelBase(services, orderService)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || (message.Kind == RealtimeChangeKind.OrderUpdated && message.OrderId == OrderId);
+
     public ObservableCollection<TimelineStep> Timeline { get; } = [];
     public ObservableCollection<string> PhotoPaths { get; } = [];
 

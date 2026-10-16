@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Driver;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Driver;
 public sealed partial class DriverDashboardViewModel(ViewModelServices services, IDriverService drivers)
     : BaseViewModel(services)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.JobChanged;
+
     private bool _suppressOnline;
     private Guid? _activeJobId;
 

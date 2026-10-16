@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Customer;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Customer;
 public sealed partial class CustomerHomeViewModel(ViewModelServices services, ICustomerOrderService orders, ICartService cart)
     : CartAwareViewModel(services, cart)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.OrderUpdated;
+
     public ObservableCollection<CategoryCardItem> Categories { get; } = [];
     public ObservableCollection<OrderCardItem> RecentOrders { get; } = [];
     public ObservableCollection<PopularItemCard> PopularItems { get; } = [];

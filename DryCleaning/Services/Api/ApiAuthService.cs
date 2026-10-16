@@ -11,13 +11,15 @@ public sealed class ApiAuthService : IAuthService
     private readonly TokenStore _tokens;
     private readonly ISessionService _session;
     private readonly INavigationService _navigation;
+    private readonly IRealtimeService _realtime;
 
-    public ApiAuthService(ApiClient api, TokenStore tokens, ISessionService session, INavigationService navigation)
+    public ApiAuthService(ApiClient api, TokenStore tokens, ISessionService session, INavigationService navigation, IRealtimeService realtime)
     {
         _api = api;
         _tokens = tokens;
         _session = session;
         _navigation = navigation;
+        _realtime = realtime;
         _api.SessionExpired += OnSessionExpired;
         _api.SessionRefreshed += (_, auth) => SignIn(auth);
     }
@@ -160,6 +162,7 @@ public sealed class ApiAuthService : IAuthService
         if (!string.IsNullOrEmpty(auth?.RefreshToken))
             await RevokeAsync(auth.RefreshToken);
 
+        await _realtime.StopAsync();
         _tokens.Clear();
         _session.SignOut();
     }
@@ -210,7 +213,11 @@ public sealed class ApiAuthService : IAuthService
         return AuthResult.Ok();
     }
 
-    private void SignIn(AuthResponse auth) => _session.SignIn(ApiMapping.ToUser(auth.User), auth.User.ProfileId);
+    private void SignIn(AuthResponse auth)
+    {
+        _session.SignIn(ApiMapping.ToUser(auth.User), auth.User.ProfileId);
+        _ = _realtime.StartAsync(); // no-op when already connected
+    }
 
     private async Task RevokeAsync(string refreshToken)
     {
@@ -231,6 +238,7 @@ public sealed class ApiAuthService : IAuthService
             return;
 
         _session.SignOut();
+        _ = _realtime.StopAsync();
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             try

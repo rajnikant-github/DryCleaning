@@ -28,7 +28,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Address", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddressLine1")
@@ -110,7 +109,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -149,7 +147,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Customer", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AddressId")
@@ -177,7 +174,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.DeviceToken", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -215,7 +211,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Dispute", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -260,7 +255,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Driver", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AddressId")
@@ -299,7 +293,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.DriverJob", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("AssignedAt")
@@ -359,7 +352,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Notification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -404,7 +396,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -472,7 +463,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -519,7 +509,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderPhoto", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -556,7 +545,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderStatusHistory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ChangedByUserId")
@@ -592,7 +580,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderVerification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -631,7 +618,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Payment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
@@ -678,7 +664,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoryId")
@@ -724,7 +709,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.Provider", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AddressId")
@@ -776,7 +760,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -816,7 +799,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.ServiceItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -864,7 +846,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.ServiceProviderCategory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoryId")
@@ -895,7 +876,6 @@ namespace DryCleaning.Api.Data.Migrations
             modelBuilder.Entity("DryCleaning.Api.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")

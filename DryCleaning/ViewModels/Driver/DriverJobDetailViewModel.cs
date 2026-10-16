@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Driver;
@@ -12,6 +13,9 @@ namespace DryCleaning.ViewModels.Driver;
 public sealed partial class DriverJobDetailViewModel(ViewModelServices services, IDriverService drivers)
     : DriverJobViewModelBase(services, drivers)
 {
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.Reconnected || (message.Kind == RealtimeChangeKind.JobChanged && message.JobId == JobId);
+
     public ObservableCollection<OrderItemDetail> Items { get; } = [];
 
     [ObservableProperty] private OrderStatus orderStatus;
