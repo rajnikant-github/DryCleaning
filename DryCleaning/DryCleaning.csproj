@@ -3,7 +3,6 @@
     <PropertyGroup>
         <!-- V1 targets Android and iOS only -->
         <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
-        <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios</TargetFrameworks>
 
         <OutputType>Exe</OutputType>
         <RootNamespace>DryCleaning</RootNamespace>
