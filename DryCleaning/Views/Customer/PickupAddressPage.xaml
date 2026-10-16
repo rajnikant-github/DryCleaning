@@ -44,6 +44,7 @@
                     </VerticalStackLayout>
                 </Border>
                 <Label Text="No matching addresses. Try a street name or suburb." Style="{StaticResource Small}" IsVisible="{Binding ShowNoResults}" />
+                <Label Text="{Binding SearchError}" Style="{StaticResource Small}" TextColor="{StaticResource ErrorDark}" IsVisible="{Binding HasSearchError}" />
 
                 <Button Text="📍  Use my current location" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" />
 

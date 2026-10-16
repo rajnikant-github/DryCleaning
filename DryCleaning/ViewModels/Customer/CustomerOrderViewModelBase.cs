@@ -49,6 +49,9 @@ public abstract partial class CustomerOrderViewModelBase(ViewModelServices servi
 
     protected static string EstimateCompletion(OrderDetail detail)
     {
+        // Once the order is finished (or called off) an estimate is just noise.
+        if (detail.Order.Status is OrderStatus.Delivered or OrderStatus.Completed or OrderStatus.Cancelled)
+            return string.Empty;
         if (detail.Order.PickupDate is not { } pickup)
             return string.Empty;
         var days = detail.Items.Count == 0 ? 2 : detail.Items.Max(i => i.EstimatedDays);

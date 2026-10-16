@@ -348,7 +348,7 @@ public static class ApiMapping
         if (items.Count > 0)
         {
             // The job list only has a count; the detail can say what's in the bag.
-            summary = CopyWithItemsText(summary, string.Join(", ", items.Select(i => $"{i.Quantity} {i.ProductName.ToLowerInvariant()}")));
+            summary = CopyWithItemsText(summary, string.Join(", ", items.Select(i => $"{i.Quantity} × {i.ProductName.ToLowerInvariant()}")));
         }
 
         return new DriverJobDetail

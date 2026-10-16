@@ -23,7 +23,7 @@
                                 <Label Text="{Binding MemberSinceText}" Style="{StaticResource HeaderCaption}" />
                             </VerticalStackLayout>
                             <Button Grid.Column="2" Text="Edit" Command="{Binding EditProfileCommand}" Style="{StaticResource SmallOutlineButton}"
-                                    TextColor="{StaticResource White}" BorderColor="{StaticResource White}" VerticalOptions="Center" />
+                                    BackgroundColor="Transparent" TextColor="{StaticResource White}" BorderColor="{StaticResource White}" VerticalOptions="Center" />
                         </Grid>
                     </Border>
 

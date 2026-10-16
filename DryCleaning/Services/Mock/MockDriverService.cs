@@ -411,7 +411,7 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
             ToAddress = to.FormattedAddress,
             ToArea = to.SubLocality ?? to.Locality ?? string.Empty,
             ItemCount = items.Sum(i => i.Quantity),
-            ItemsText = string.Join(", ", items.Select(i => $"{i.Quantity} {store.Products.First(p => p.Id == i.ProductId).Name.ToLowerInvariant()}")),
+            ItemsText = string.Join(", ", items.Select(i => $"{i.Quantity} × {store.Products.First(p => p.Id == i.ProductId).Name.ToLowerInvariant()}")),
             Earnings = Rate,
             DistanceKm = Geo.DistanceKm(from, to),
             PickupDate = order.PickupDate,

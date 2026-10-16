@@ -14,7 +14,7 @@ public static class MockMapping
         var itemsText = string.Join(", ", items.Select(i =>
         {
             var product = store.Products.First(p => p.Id == i.ProductId);
-            return $"{i.Quantity} {product.Name.ToLowerInvariant()}";
+            return $"{i.Quantity} × {product.Name.ToLowerInvariant()}";
         }));
         var job = store.DriverJobs.LastOrDefault(j => j.OrderId == order.Id && j.DriverId != null && j.Status != DriverJobStatus.Cancelled);
 

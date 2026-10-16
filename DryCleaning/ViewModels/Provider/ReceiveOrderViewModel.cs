@@ -60,7 +60,9 @@ public sealed partial class ReceiveOrderViewModel : OrderPageViewModelBase
 
         DriverText = detail.PickupDriver is null
             ? "Driver details unavailable"
-            : $"{detail.PickupDriver.DriverName} · {detail.PickupDriver.LicenseNumber}";
+            : string.IsNullOrWhiteSpace(detail.PickupDriver.LicenseNumber)
+                ? detail.PickupDriver.DriverName
+                : $"{detail.PickupDriver.DriverName} · {detail.PickupDriver.LicenseNumber}";
 
         IsReceivable = detail.Order.Status == OrderStatus.PickedUp;
         NotReceivableText = IsReceivable ? string.Empty

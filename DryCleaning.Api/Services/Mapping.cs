@@ -198,7 +198,7 @@ public static class Mapping
         CustomerName = o.Customer.User.Name,
         ProviderName = o.ServiceProvider.BusinessName,
         ItemCount = o.Items.Sum(i => i.Quantity),
-        ItemsText = string.Join(", ", o.Items.Select(i => $"{i.Quantity} {i.Product.Name.ToLowerInvariant()}")),
+        ItemsText = string.Join(", ", o.Items.Select(i => $"{i.Quantity} × {i.Product.Name.ToLowerInvariant()}")),
         TotalAmount = o.TotalAmount,
         IsPaid = o.IsPaid(),
         HasOpenDispute = o.HasOpenDispute(),

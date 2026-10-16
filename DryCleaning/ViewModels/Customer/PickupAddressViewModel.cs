@@ -29,6 +29,8 @@ public sealed partial class PickupAddressViewModel(
     [ObservableProperty] private bool isSearching;
     [ObservableProperty] private bool hasPredictions;
     [ObservableProperty] private bool showNoResults;
+    [ObservableProperty] private string searchError = string.Empty;
+    [ObservableProperty] private bool hasSearchError;
     [ObservableProperty] private string addressLine2 = string.Empty;
     [ObservableProperty] private bool showDetails;
 
@@ -91,6 +93,7 @@ public sealed partial class PickupAddressViewModel(
             if (token.IsCancellationRequested)
                 return;
 
+            HasSearchError = false;
             Predictions.Clear();
             foreach (var prediction in results)
                 Predictions.Add(new PredictionItem(prediction, SelectPredictionAsync));
@@ -100,6 +103,18 @@ public sealed partial class PickupAddressViewModel(
         catch (TaskCanceledException)
         {
             // newer keystroke
+        }
+        catch (Exception ex)
+        {
+            // Shown under the search box (not a pop-up) because this runs while the user types.
+            if (!token.IsCancellationRequested)
+            {
+                Predictions.Clear();
+                HasPredictions = false;
+                ShowNoResults = false;
+                SearchError = ex.Message;
+                HasSearchError = true;
+            }
         }
         finally
         {
