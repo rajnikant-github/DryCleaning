@@ -10,10 +10,16 @@ namespace DryCleaning.ViewModels.Customer;
 
 /// <summary>C11 – Pickup address via Google Places search (one address per role in V1).</summary>
 public sealed partial class PickupAddressViewModel(
-    ViewModelServices services, IPlacesService places, ICustomerProfileService profiles, ICartService cart)
+    ViewModelServices services, IPlacesService places, ICustomerProfileService profiles, ICartService cart,
+    IProviderProfileService providerProfiles)
     : BaseViewModel(services), IQueryAttributable
 {
+    /// <summary>Mode value used when a service provider edits the business address from their Profile.</summary>
+    public const string ProviderMode = "provider";
+
     private string _mode = "checkout";
+
+    private bool IsProviderMode => _mode == ProviderMode;
     private CancellationTokenSource? _searchCts;
 
     public ObservableCollection<PredictionItem> Predictions { get; } = [];
@@ -35,19 +41,33 @@ public sealed partial class PickupAddressViewModel(
     public bool HasSelection => Selected is not null;
     public string FormattedAddress => Selected?.FormattedAddress ?? string.Empty;
     public string ConfirmText => _mode == "checkout" ? "Confirm Address" : "Save Address";
+    public string PageTitle => IsProviderMode ? "Business Address" : "Pickup Address";
+    public string HeadlineText => IsProviderMode ? "Where is your business?" : "Where should we collect?";
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue(Routes.ModeKey, out var mode) && mode is string m)
             _mode = m;
         OnPropertyChanged(nameof(ConfirmText));
+        OnPropertyChanged(nameof(PageTitle));
+        OnPropertyChanged(nameof(HeadlineText));
     }
 
     protected override async Task<bool> LoadDataAsync()
     {
         if (Selected is null)
         {
-            var current = cart.PickupAddress ?? (await profiles.GetProfileAsync()).Address;
+            Address? current;
+            if (IsProviderMode)
+            {
+                var business = (await providerProfiles.GetProfileAsync()).Address;
+                current = string.IsNullOrWhiteSpace(business.FormattedAddress) ? null : business;
+            }
+            else
+            {
+                current = cart.PickupAddress ?? (await profiles.GetProfileAsync()).Address;
+            }
+
             if (current is not null)
                 SetSelected(current);
         }
@@ -162,6 +182,13 @@ public sealed partial class PickupAddressViewModel(
     {
         var address = Selected!;
         address.AddressLine2 = string.IsNullOrWhiteSpace(AddressLine2) ? null : AddressLine2.Trim();
+        if (IsProviderMode)
+        {
+            await providerProfiles.SaveAddressAsync(address);
+            await Navigation.GoBackAsync();
+            return;
+        }
+
         var saved = await profiles.SaveAddressAsync(address);
         cart.PickupAddress = saved;
 

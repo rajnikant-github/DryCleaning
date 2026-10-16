@@ -56,8 +56,8 @@ public static class MauiProgram
         else
             AddApiServices(builder.Services, settings);
 
-        // Address search: Google Places when GoogleMaps.ApiKey is set, otherwise sample Cape Town addresses.
-        if (settings.GoogleMaps.IsConfigured)
+        // Address search: Google Places when GoogleMaps.ApiKey is set (and UseSampleAddresses isn't), otherwise sample Cape Town addresses.
+        if (settings.GoogleMaps.UseGoogle)
             builder.Services.AddSingleton<IPlacesService, GooglePlacesService>();
         else
             builder.Services.AddSingleton<IPlacesService, MockPlacesService>();

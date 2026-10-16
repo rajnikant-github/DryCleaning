@@ -42,6 +42,29 @@ public sealed class MockProviderProfileService(MockDataStore store, ISessionServ
         }
     }
 
+    public async Task<Address> SaveAddressAsync(Address address)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        lock (store.Gate)
+        {
+            // V1: one address per role – a new row keeps past orders' addresses unchanged.
+            var saved = new Address
+            {
+                GooglePlaceId = address.GooglePlaceId, FormattedAddress = address.FormattedAddress,
+                AddressLine1 = address.AddressLine1, AddressLine2 = address.AddressLine2, StreetNumber = address.StreetNumber,
+                Route = address.Route, SubLocality = address.SubLocality, Locality = address.Locality,
+                AdministrativeAreaLevel1 = address.AdministrativeAreaLevel1, AdministrativeAreaLevel2 = address.AdministrativeAreaLevel2,
+                Country = address.Country, CountryCode = address.CountryCode, PostalCode = address.PostalCode,
+                Latitude = address.Latitude, Longitude = address.Longitude, PlusCode = address.PlusCode
+            };
+            store.Addresses.Add(saved);
+            var provider = CurrentProvider;
+            provider.AddressId = saved.Id;
+            provider.UpdatedAt = DateTime.Now;
+            return saved;
+        }
+    }
+
     public async Task<string> UploadLogoAsync(string localPath)
     {
         await MockDataStore.SimulateLatencyAsync();

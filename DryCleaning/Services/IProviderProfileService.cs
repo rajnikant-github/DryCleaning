@@ -9,6 +9,9 @@ public interface IProviderProfileService
     /// <summary>Saves business name, description, phone and email.</summary>
     Task UpdateProfileAsync(ProviderProfileUpdate update);
 
+    /// <summary>Saves the business address (from the address picker) and returns it as stored.</summary>
+    Task<Address> SaveAddressAsync(Address address);
+
     /// <summary>Uploads a new logo from a local photo and returns its URL.</summary>
     Task<string> UploadLogoAsync(string localPath);
 

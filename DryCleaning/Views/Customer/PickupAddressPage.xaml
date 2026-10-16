@@ -10,11 +10,11 @@
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
                 x:Class="DryCleaning.Views.Customer.PickupAddressPage"
                 x:DataType="vm:PickupAddressViewModel"
-                Title="Pickup Address">
+                Title="{Binding PageTitle}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
             <VerticalStackLayout Padding="16" Spacing="12">
-                <Label Text="Where should we collect?" Style="{StaticResource H2}" />
+                <Label Text="{Binding HeadlineText}" Style="{StaticResource H2}" />
 
                 <!--  Autocomplete search  -->
                 <Border Style="{StaticResource InputField}">

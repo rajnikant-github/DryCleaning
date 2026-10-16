@@ -1,8 +1,9 @@
 namespace DryCleaning.Configuration;
 
 /// <summary>
-/// Google Places (address search) and Geocoding (current location). Leave ApiKey empty to use the
-/// sample Cape Town addresses. The key needs "Places API (New)" and "Geocoding API" enabled.
+/// Google Places (address search) and Geocoding (current location). Leave ApiKey empty, or set
+/// UseSampleAddresses, to use the sample Cape Town addresses. The key needs "Places API (New)" and
+/// "Geocoding API" enabled.
 /// </summary>
 public sealed class GoogleMapsSettings
 {
@@ -13,5 +14,11 @@ public sealed class GoogleMapsSettings
 
     public string LanguageCode { get; set; } = "en";
 
+    /// <summary>Use the sample addresses even though a key is set (e.g. while the key's Google project isn't ready).</summary>
+    public bool UseSampleAddresses { get; set; }
+
     public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
+
+    /// <summary>True when address search should call Google.</summary>
+    public bool UseGoogle => IsConfigured && !UseSampleAddresses;
 }

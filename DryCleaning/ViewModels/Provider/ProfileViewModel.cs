@@ -57,7 +57,7 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
 
     [RelayCommand]
     private Task EditAddressAsync() =>
-        Dialogs.AlertAsync("Business address", "Address search with Google Places will be enabled when the live API is connected.");
+        Navigation.GoToAsync(Routes.PickupAddress, Param(Routes.ModeKey, Customer.PickupAddressViewModel.ProviderMode));
 
     [RelayCommand]
     private Task HelpAsync() =>

@@ -42,6 +42,10 @@ public sealed class ApiProviderProfileService(ApiClient api) : IProviderProfileS
             },
             ApiJsonContext.Default.UpdateProviderProfileRequest);
 
+    public async Task<Address> SaveAddressAsync(Address address) =>
+        ApiMapping.ToAddress(await api.SendAsync(HttpMethod.Put, "api/me/address", ApiMapping.ToUpsert(address),
+            ApiJsonContext.Default.UpsertAddressRequest, ApiJsonContext.Default.AddressDto));
+
     public async Task<string> UploadLogoAsync(string localPath)
     {
         var dto = await api.UploadFileAsync("api/provider/profile/logo", localPath, ApiJsonContext.Default.ProviderProfileDto);
