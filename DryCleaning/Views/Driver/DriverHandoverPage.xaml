@@ -12,7 +12,7 @@
                 Title="Handover">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
+            <VerticalStackLayout Padding="20,12,20,28" Spacing="16">
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Hand over to" Style="{StaticResource SectionLabel}" Margin="0" />
@@ -77,9 +77,9 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
-                <Button Text="Confirm Handover" Command="{Binding ConfirmCommand}" Style="{StaticResource SuccessButton}" />
+                <Button Text="Confirm Handover" Command="{Binding ConfirmCommand}" Style="{StaticResource PrimaryButton}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
                                    HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
             </Grid>

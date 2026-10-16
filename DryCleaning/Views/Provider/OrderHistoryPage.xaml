@@ -10,7 +10,13 @@
                 x:DataType="vm:OrderHistoryViewModel"
                 Title="Order History">
     <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Spacing="10" Padding="0,0,0,6">
+            <VerticalStackLayout Padding="20,16,20,4" Spacing="5">
+                <Label Text="Your order history" Style="{StaticResource H2}" />
+                <Label Text="A clear record of completed orders and resolutions." Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
         <controls:SegmentBar ItemsSource="{Binding Segments}" />
+        </VerticalStackLayout>
 
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Orders}" SelectionMode="None">
@@ -19,7 +25,7 @@
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="items:OrderCardItem">
-                        <controls:OrderCardView Padding="16,0,16,12" />
+                        <controls:OrderCardView Padding="20,0,20,14" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

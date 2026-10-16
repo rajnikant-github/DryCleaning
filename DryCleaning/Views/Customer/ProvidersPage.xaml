@@ -13,7 +13,7 @@
                 Title="{Binding CategoryName}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
                 <Label Text="Choose a provider" Style="{StaticResource H2}" />
                 <Label Text="Each order is handled by one provider. Prices and turnaround differ per provider." Style="{StaticResource Caption}" />
                 <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Providers}" Margin="0,6,0,0">
@@ -34,8 +34,8 @@
                                     </Grid>
                                     <Label Text="{Binding Description}" Style="{StaticResource Caption}" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label Text="{Binding TurnaroundText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" />
-                                        <Label Grid.Column="1" Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" FontSize="14" />
+                                        <Label Text="{Binding TurnaroundText}" Style="{StaticResource Small}" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding StartingPriceText}" TextColor="{StaticResource PrimaryDark}" FontFamily="AppSemibold" FontSize="14" />
                                     </Grid>
                                     <Label Text="{Binding CategoriesText}" Style="{StaticResource Small}" />
                                 </VerticalStackLayout>
@@ -50,7 +50,7 @@
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
+                StrokeShape="RoundRectangle 18" Margin="20,8,20,16" Padding="18,16">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>

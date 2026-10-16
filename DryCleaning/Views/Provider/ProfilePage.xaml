@@ -10,23 +10,30 @@
                 Title="Profile">
     <Grid>
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16,24" Spacing="14">
-                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 22" HorizontalOptions="Center">
-                        <Grid>
-                            <Label Text="🧺" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center" />
-                            <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="YOUR BUSINESS PROFILE" Style="{StaticResource HeroEyebrow}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                            <Border WidthRequest="68" HeightRequest="68" BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 22" VerticalOptions="Start">
+                                <Grid>
+                                    <Label Text="🧺" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
+                                </Grid>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding BusinessName}" Style="{StaticResource HeroTitle}" FontSize="23" />
+                                <Label Text="{Binding Description}" Style="{StaticResource HeroBody}" />
+                            </VerticalStackLayout>
                         </Grid>
-                    </Border>
-                    <Label Text="{Binding BusinessName}" Style="{StaticResource H2}" HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding Description}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Business" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                            <Label Text="Business details" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
                             <Button Grid.Column="1" Text="Edit" Style="{StaticResource TextButton}" Command="{Binding EditBusinessProfileCommand}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
@@ -46,7 +53,7 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Current Address" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                            <Label Text="Studio address" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
                             <Button Grid.Column="1" Text="Edit Address" Style="{StaticResource TextButton}" Command="{Binding EditAddressCommand}" />
                         </Grid>
                         <Label Text="{Binding Address, StringFormat='📍  {0}'}" FontSize="14" />
@@ -65,7 +72,7 @@
 
                 <Border Style="{StaticResource Card}" Padding="0">
                     <VerticalStackLayout>
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,18">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenServicesCommand}" />
                             </Grid.GestureRecognizers>
@@ -74,7 +81,7 @@
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,18">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                             </Grid.GestureRecognizers>
@@ -83,7 +90,7 @@
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,18">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
                             </Grid.GestureRecognizers>
@@ -92,7 +99,7 @@
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,18">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>

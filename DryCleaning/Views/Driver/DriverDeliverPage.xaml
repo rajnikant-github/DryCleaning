@@ -12,17 +12,17 @@
                 Title="Deliver">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
-                <Border Style="{StaticResource Card}">
+            <VerticalStackLayout Padding="20,12,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}" Padding="20,18">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
+                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" Opacity="0.18">
                             <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
-                            <Label Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
+                            <Label Text="{Binding OrderNumber}" Style="{StaticResource HeroEyebrow}" />
+                            <Label Text="{Binding ItemCountText}" Style="{StaticResource HeroBody}" />
                         </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource SuccessDark}"
+                        <Label Grid.Column="2" Text="{Binding Earnings, Converter={StaticResource Currency}}" TextColor="{StaticResource White}"
                                FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
                     </Grid>
                 </Border>
@@ -77,9 +77,9 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
-                <Button Text="Confirm Delivery" Command="{Binding ConfirmCommand}" Style="{StaticResource SuccessButton}" />
+                <Button Text="Confirm Delivery" Command="{Binding ConfirmCommand}" Style="{StaticResource PrimaryButton}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"
                                    HorizontalOptions="End" Margin="0,0,16,0" WidthRequest="20" HeightRequest="20" />
             </Grid>

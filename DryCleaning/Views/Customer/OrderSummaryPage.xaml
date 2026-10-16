@@ -13,13 +13,20 @@
                 Title="Order Summary">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}" Padding="20,18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Review" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="Order summary" Style="{StaticResource HeroTitle}" />
+                    </VerticalStackLayout>
+                </Border>
+
                 <!--  Provider  -->
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="2">
                         <Label Text="Provider" Style="{StaticResource SectionLabel}" />
                         <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" />
-                        <Label Text="{Binding EstimatedCompletionText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" />
+                        <Label Text="{Binding EstimatedCompletionText}" Style="{StaticResource Small}" TextColor="{StaticResource MutedForeground}" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -82,7 +89,7 @@
                             <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
                             <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
                             <Label Grid.Row="3" Grid.Column="1" Text="{Binding Total, Converter={StaticResource Currency}}"
-                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource PrimaryDark}" Margin="0,4,0,0" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
@@ -95,7 +102,7 @@
                                 EmptyIcon="🧺" EmptyTitle="Your cart is empty" EmptyMessage="Add items before placing an order." />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <Grid>
                 <Button Text="Proceed to Payment" Command="{Binding ProceedToPaymentCommand}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource White}"

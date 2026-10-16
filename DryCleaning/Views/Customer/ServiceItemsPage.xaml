@@ -13,7 +13,7 @@
                 Title="{Binding ProductName}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
                 <VerticalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="72" HeightRequest="72"
                             StrokeShape="RoundRectangle 36" HorizontalOptions="Center">
@@ -31,7 +31,7 @@
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
                                         <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
-                                        <Setter Property="BackgroundColor" Value="#F0F5FF" />
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}" />
                                     </DataTrigger>
                                 </Border.Triggers>
                                 <Border.GestureRecognizers>
@@ -52,9 +52,9 @@
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
                                         <Label Text="{Binding Description}" Style="{StaticResource Small}" />
-                                        <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" />
+                                        <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" TextColor="{StaticResource MutedForeground}" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
+                                    <Label Grid.Column="2" Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource PrimaryDark}"
                                            FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
                                 </Grid>
                             </Border>
@@ -67,7 +67,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="🧺" EmptyTitle="Not available" EmptyMessage="No services are available for this item right now." />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
             <Button Text="Continue" Command="{Binding ContinueCommand}" />
         </Border>
     </Grid>

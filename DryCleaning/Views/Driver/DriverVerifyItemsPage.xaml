@@ -12,11 +12,11 @@
                 Title="Verify Items">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
-                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="14">
+            <VerticalStackLayout Padding="20,12,20,28" Spacing="16">
+                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource PrimarySoft}" Padding="14">
                     <VerticalStackLayout Spacing="2">
-                        <Label Text="{Binding CustomerName, StringFormat='Count the items with {0}'}" TextColor="{StaticResource InfoDark}" FontFamily="AppSemibold" FontSize="14" />
-                        <Label Text="Check each item against the order and note any stains or damage before you take the bag." TextColor="{StaticResource InfoDark}" FontSize="13" />
+                        <Label Text="{Binding CustomerName, StringFormat='Count the items with {0}'}" TextColor="{StaticResource PrimaryDark}" FontFamily="AppSemibold" FontSize="14" />
+                        <Label Text="Check each item against the order and note any stains or damage before you take the bag." TextColor="{StaticResource PrimaryDark}" FontSize="13" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -97,7 +97,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <VerticalStackLayout Spacing="8">
                 <Label Text="{Binding CountedText}" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                 <Button Text="Items Verified · Continue" Command="{Binding ContinueCommand}" />

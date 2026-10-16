@@ -8,22 +8,28 @@
                 Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout>
-            <!--  Header band  -->
-            <Grid BackgroundColor="{StaticResource Primary}" HeightRequest="{OnPlatform iOS=220, Default=196}">
-                <Ellipse WidthRequest="190" HeightRequest="190" Fill="{StaticResource HeaderOverlayBrush}"
-                         HorizontalOptions="End" VerticalOptions="Start" Margin="0,-40,-40,0" />
-                <VerticalStackLayout VerticalOptions="End" Padding="24,0,24,24" Spacing="4">
-                    <Label Text="{Binding RoleTitle}" Style="{StaticResource HeaderCaption}" />
-                    <Label Text="Welcome back" Style="{StaticResource H1}" TextColor="{StaticResource White}" />
-                </VerticalStackLayout>
-            </Grid>
+            <VerticalStackLayout Padding="{OnPlatform iOS='24,56,24,0', Default='24,24,24,0'}" Spacing="24">
+                <HorizontalStackLayout Spacing="10">
+                    <Border WidthRequest="38" HeightRequest="38" BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                        <Image Source="logo_mark.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="EDry Cleaners" Style="{StaticResource H3}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Border Style="{StaticResource HeroCard}" Padding="24">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding RoleTitle}" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="Welcome back." Style="{StaticResource HeroTitle}" FontSize="30" />
+                        <Label Text="A fresh day starts here. Sign in to continue." Style="{StaticResource HeroBody}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
 
-            <VerticalStackLayout Padding="24,28" Spacing="18">
+            <VerticalStackLayout Padding="24,24" Spacing="18">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Mobile number or email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label Text="📞" VerticalOptions="Center" />
+                            <Image Source="ic_phone.png" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" />
                             <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="+27 82 555 0142"
                                    Keyboard="Email" ReturnType="Next" />
                         </Grid>
@@ -34,7 +40,7 @@
                     <Label Text="Password" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Label Text="🔒" VerticalOptions="Center" />
+                            <Image Source="ic_lock.png" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" />
                             <Entry Grid.Column="1" Text="{Binding Password}" Placeholder="Enter your password"
                                    IsPassword="{Binding IsPasswordHidden}" ReturnType="Go"
                                    ReturnCommand="{Binding LoginCommand}" />
@@ -54,7 +60,7 @@
                         Command="{Binding ForgotPasswordCommand}" />
 
                 <Grid>
-                    <Button Text="Login" Command="{Binding LoginCommand}" IsVisible="{Binding IsNotBusy}" />
+                    <Button Text="Sign in" Command="{Binding LoginCommand}" IsVisible="{Binding IsNotBusy}" />
                     <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
                 </Grid>
 
@@ -64,16 +70,16 @@
                     <BoxView Grid.Column="2" Style="{StaticResource Divider}" VerticalOptions="Center" />
                 </Grid>
 
-                <Button Text="📱  Continue with OTP" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" />
+                <Button Text="Continue with a one-time code" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" />
 
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8,0,0">
-                    <Label Text="New to EDry Cleaners?" Style="{StaticResource Caption}" VerticalOptions="Center" />
-                    <Label Text="Create account" Style="{StaticResource LinkLabel}" VerticalOptions="Center">
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,8,0,0">
+                    <Label Text="New to EDry Cleaners?" HorizontalOptions="Center" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Text="Create account" HorizontalOptions="Center" Style="{StaticResource LinkLabel}" VerticalOptions="Center">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CreateAccountCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
-                </HorizontalStackLayout>
+                </VerticalStackLayout>
 
                 <Button Text="Change role" Style="{StaticResource TextButton}" TextColor="{StaticResource MutedForeground}"
                         HorizontalOptions="Center" Command="{Binding ChangeRoleCommand}" />

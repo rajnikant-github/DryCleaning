@@ -7,8 +7,8 @@
                 x:DataType="vm:SplashViewModel"
                 Shell.NavBarIsVisible="False"
                 BackgroundColor="{StaticResource Primary}">
-    <Grid>
-        <!--  Decorative circles (Figma)  -->
+    <Grid Background="{StaticResource HeroGradient}">
+        <!--  Soft brand shapes  -->
         <Ellipse WidthRequest="260" HeightRequest="260" Fill="{StaticResource HeaderOverlayBrush}"
                  HorizontalOptions="End" VerticalOptions="Start" Margin="0,-80,-80,0" />
         <Ellipse WidthRequest="200" HeightRequest="200" Fill="{StaticResource HeaderOverlayBrush}"
@@ -22,7 +22,7 @@
             <VerticalStackLayout Spacing="4">
                 <Label Text="EDry Cleaners" Style="{StaticResource Display}" TextColor="{StaticResource White}"
                        HorizontalTextAlignment="Center" />
-                <Label Text="Clean Clothes. Healthy Life." Style="{StaticResource HeaderCaption}"
+                <Label Text="A little care. A fresh start." Style="{StaticResource HeaderCaption}"
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
             <ActivityIndicator IsRunning="True" Color="{StaticResource PrimaryLight}" WidthRequest="28" HeightRequest="28" Margin="0,16,0,0" />

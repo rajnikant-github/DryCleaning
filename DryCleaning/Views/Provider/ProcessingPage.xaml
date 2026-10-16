@@ -11,22 +11,23 @@
                 Title="Order Processing">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
-                <Border Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Border Style="{StaticResource HeroCard}">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="IN-FACILITY WORKBENCH" Style="{StaticResource HeroEyebrow}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="2">
-                                <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
-                                <Label Text="{Binding CustomerName}" Style="{StaticResource Caption}" />
+                                <Label Text="{Binding OrderNumber}" Style="{StaticResource HeroTitle}" />
+                                <Label Text="{Binding CustomerName}" Style="{StaticResource HeroBody}" />
                             </VerticalStackLayout>
                             <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" VerticalOptions="Start" />
                         </Grid>
-                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}">
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource HeaderOverlay}">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                                 <Label Text="⚙️" FontSize="20" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                    <Label Text="{Binding StartedText, StringFormat='Processing since {0}'}" TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="13" />
-                                    <Label Text="{Binding StatusHint}" TextColor="{StaticResource WarningDark}" FontSize="13" />
+                                    <Label Text="{Binding StartedText, StringFormat='Processing since {0}'}" TextColor="White" FontFamily="AppSemibold" FontSize="13" />
+                                    <Label Text="{Binding StatusHint}" TextColor="White" FontSize="13" />
                                 </VerticalStackLayout>
                             </Grid>
                         </Border>
@@ -42,7 +43,7 @@
 
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout>
-                        <Label Text="Items to clean" Style="{StaticResource SectionLabel}" />
+                        <Label Text="Garment care manifest" Style="{StaticResource SectionLabel}" />
                         <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
@@ -65,7 +66,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
                 <Button Text="Mark Quality Check" Command="{Binding MarkQualityCheckCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />

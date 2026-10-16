@@ -25,8 +25,8 @@ public sealed class StatusChip : ContentView
         _border = new Border
         {
             StrokeThickness = 0,
-            StrokeShape = new RoundRectangle { CornerRadius = 10 },
-            Padding = new Thickness(10, 3),
+            StrokeShape = new RoundRectangle { CornerRadius = 12 },
+            Padding = new Thickness(10, 5),
             Content = _label
         };
         Content = _border;

@@ -11,11 +11,14 @@
                 Title="Sign up">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="20,20,20,24" Spacing="16">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="{Binding Heading}" Style="{StaticResource H1}" />
-                    <Label Text="{Binding Subheading}" Style="{StaticResource Caption}" FontSize="15" />
-                </VerticalStackLayout>
+            <VerticalStackLayout Padding="20,20,20,24" Spacing="18">
+                <Border Style="{StaticResource HeroCard}" Padding="22,20">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="A FRESH START" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="{Binding Heading}" Style="{StaticResource HeroTitle}" FontSize="28" />
+                        <Label Text="{Binding Subheading}" Style="{StaticResource HeroBody}" />
+                    </VerticalStackLayout>
+                </Border>
 
                 <!--  Business (Service Provider only)  -->
                 <VerticalStackLayout Spacing="16" IsVisible="{Binding IsProvider}">
@@ -124,7 +127,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,20">
             <Grid>
                 <Button Text="Create account" Command="{Binding CreateAccountCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />

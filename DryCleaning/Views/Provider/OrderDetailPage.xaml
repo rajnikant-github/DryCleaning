@@ -12,17 +12,26 @@
                 Title="{Binding OrderNumber}">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="14">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
 
                 <!--  Summary  -->
-                <Border Style="{StaticResource Card}">
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="6">
-                        <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
-                        <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" />
-                        <Label Grid.Row="1" Text="{Binding CreatedText}" Style="{StaticResource Caption}" />
-                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
-                               Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" HorizontalOptions="End" />
-                    </Grid>
+                <Border Style="{StaticResource HeroCard}">
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <Label Text="ORDER OVERVIEW" Style="{StaticResource HeroEyebrow}" VerticalOptions="Center" />
+                            <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" />
+                        </Grid>
+                        <Label Text="{Binding OrderNumber}" Style="{StaticResource HeroTitle}" />
+                        <BoxView HeightRequest="1" Color="{StaticResource HeaderOverlay}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="3" VerticalOptions="Center">
+                                <Label Text="Placed on" Style="{StaticResource HeroBody}" FontSize="11" />
+                                <Label Text="{Binding CreatedText}" Style="{StaticResource HeroBody}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
+                                   TextColor="White" FontSize="24" FontFamily="AppSemibold" VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
                 </Border>
 
                 <!--  Dispute / issue  -->
@@ -60,7 +69,7 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout>
                         <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Items" Style="{StaticResource SectionLabel}" />
+                            <Label Text="Itemized care package" Style="{StaticResource SectionLabel}" />
                             <Label Grid.Column="1" Text="{Binding ItemCountText}" Style="{StaticResource Small}" />
                         </Grid>
                         <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
@@ -89,7 +98,7 @@
                             <Label Grid.Row="2" Grid.Column="1" Text="{Binding DeliveryFee, Converter={StaticResource Currency}}" FontSize="14" />
                             <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
                             <Label Grid.Row="3" Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
-                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource PrimaryDark}" Margin="0,4,0,0" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
@@ -144,7 +153,7 @@
                 <!--  Timeline  -->
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout>
-                        <Label Text="Order timeline" Style="{StaticResource SectionLabel}" />
+                        <Label Text="Order progress" Style="{StaticResource SectionLabel}" />
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Timeline}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="items:TimelineStep">
@@ -210,27 +219,11 @@
 
         <!--  Action bar  -->
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
-            <VerticalStackLayout Spacing="10">
-                <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding HasWaitingHint}">
-                    <Label Text="{Binding WaitingHint}" TextColor="{StaticResource InfoDark}" FontSize="13" />
-                </Border>
-
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding ShowAcceptReject}">
-                    <Button Text="Accept Order" Command="{Binding AcceptCommand}" Style="{StaticResource SuccessButton}" />
-                    <Button Grid.Column="1" Text="Reject Order" Command="{Binding RejectCommand}" Style="{StaticResource OutlineButton}" TextColor="{StaticResource ErrorDark}" />
-                </Grid>
-
-                <Button Text="{Binding PrimaryActionText}" Command="{Binding PrimaryActionCommand}" IsVisible="{Binding HasPrimaryAction}" />
-
-                <Button Text="🧪  Simulate driver pickup (demo)" Command="{Binding SimulateDriverPickupCommand}"
-                        Style="{StaticResource SecondaryButton}" IsVisible="{Binding ShowDemoPickup}" />
-
-                <Button Text="Report Issue" Command="{Binding ReportIssueCommand}" Style="{StaticResource OutlineButton}"
-                        TextColor="{StaticResource MutedForeground}" IsVisible="{Binding CanReportIssue}" />
-
-                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24" />
-            </VerticalStackLayout>
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,22">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Text="Accept" Command="{Binding AcceptCommand}" IsVisible="{Binding CanAccept}" />
+                <Button Grid.Column="1" Text="Reject" Command="{Binding RejectCommand}" Style="{StaticResource OutlineButton}" IsVisible="{Binding CanAccept}" />
+            </Grid>
         </Border>
     </Grid>
 </views:BasePage>

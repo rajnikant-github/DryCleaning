@@ -20,11 +20,13 @@ internal static class Theme
         return Color.FromArgb(fallback);
     }
 
-    public static Color Primary => Resource("Primary", "#1B3A6B");
-    public static Color Border => Resource("BorderColor", "#E5E2D8");
-    public static Color Muted => Resource("Muted", "#F0EDE6");
-    public static Color MutedForeground => Resource("MutedForeground", "#6B7280");
-    public static Color Foreground => Resource("AppForeground", "#111827");
+    public static Color Primary => Resource("Primary", "#FF5E5E");
+    public static Color PrimaryDark => Resource("PrimaryDark", "#C93643");
+    public static Color PrimarySoft => Resource("PrimarySoft", "#FFF0EF");
+    public static Color Border => Resource("BorderColor", "#E9EBF1");
+    public static Color Muted => Resource("Muted", "#EFF0F5");
+    public static Color MutedForeground => Resource("MutedForeground", "#707887");
+    public static Color Foreground => Resource("AppForeground", "#202B3D");
     public static Color Card => Resource("CardColor", "#FFFFFF");
-    public static Color Accent => Resource("Accent", "#0EA5E9");
+    public static Color Accent => Resource("Accent", "#C93643");
 }

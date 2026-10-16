@@ -13,7 +13,7 @@
                 Title="Choose a Service">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
                 <Label Text="What do you need cleaned?" Style="{StaticResource H2}" />
                 <Label Text="Pick a category to see providers near you." Style="{StaticResource Caption}" />
                 <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Categories}" Margin="0,6,0,0">
@@ -44,7 +44,7 @@
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
-                StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
+                StrokeShape="RoundRectangle 18" Margin="20,8,20,16" Padding="18,16">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>

@@ -8,9 +8,17 @@
                 x:DataType="vm:OtpViewModel"
                 Title="Verification">
     <ScrollView>
-        <VerticalStackLayout Padding="24,32" Spacing="20">
-            <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="64" HeightRequest="64">
-                <Label Text="📱" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+        <VerticalStackLayout Padding="24,24" Spacing="20">
+            <Border Style="{StaticResource HeroCard}" Padding="20">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Border WidthRequest="58" HeightRequest="58" BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 18">
+                        <Image Source="ic_phone.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                        <Label Text="Verify your number" Style="{StaticResource HeroEyebrow}" />
+                        <Label Text="One-time code" Style="{StaticResource HeroTitle}" FontSize="24" />
+                    </VerticalStackLayout>
+                </Grid>
             </Border>
 
             <VerticalStackLayout Spacing="6">

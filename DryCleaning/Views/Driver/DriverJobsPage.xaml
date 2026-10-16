@@ -10,10 +10,16 @@
                 x:Class="DryCleaning.Views.Driver.DriverJobsPage"
                 x:DataType="vm:DriverJobsViewModel"
                 Title="Jobs">
-    <Grid RowDefinitions="Auto,Auto,*">
-        <controls:SegmentBar ItemsSource="{Binding Segments}" />
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <Border Style="{StaticResource HeroCard}" Margin="20,16,20,0" Padding="20,18">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Your next delivery awaits" Style="{StaticResource HeroEyebrow}" />
+                <Label Text="Find a job, follow your route, and keep things moving." Style="{StaticResource HeroBody}" />
+            </VerticalStackLayout>
+        </Border>
+        <controls:SegmentBar Grid.Row="1" ItemsSource="{Binding Segments}" />
 
-        <Border Grid.Row="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" Margin="16,12,16,0" Padding="14,10"
+        <Border Grid.Row="2" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" Margin="20,12,20,0" Padding="14,10"
                 IsVisible="{Binding ShowOfflineBanner}">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                 <Label Text="You're offline – go online to see and accept jobs." TextColor="{StaticResource WarningDark}" FontSize="13" VerticalOptions="Center" />
@@ -21,20 +27,20 @@
             </Grid>
         </Border>
 
-        <RefreshView Grid.Row="2" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <RefreshView Grid.Row="3" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Jobs}" SelectionMode="None">
                 <CollectionView.Header>
                     <BoxView HeightRequest="12" Color="Transparent" />
                 </CollectionView.Header>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="items:DriverJobCardItem">
-                        <controls:DriverJobCardView Padding="16,0,16,12" />
+                        <controls:DriverJobCardView Padding="20,0,20,14" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
 
-        <controls:PageStateView Grid.Row="2"
+        <controls:PageStateView Grid.Row="3"
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"

@@ -11,7 +11,8 @@
                 Title="Categories">
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
-            <VerticalStackLayout Padding="16" Spacing="12">
+            <VerticalStackLayout Padding="20,16,20,28" Spacing="16">
+                <Label Text="Your specialties" Style="{StaticResource H2}" />
                 <Label Text="Switch on the categories you offer. Customers only see your products in categories that are on."
                        Style="{StaticResource Caption}" FontSize="14" />
                 <Border Style="{StaticResource Card}" Padding="0">
@@ -19,8 +20,10 @@
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="items:CategoryToggleItem">
                                 <VerticalStackLayout>
-                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,12">
-                                        <Label Text="{Binding Icon}" FontSize="20" VerticalOptions="Center" />
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,18">
+                                        <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource PrimarySoft}">
+                                            <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Border>
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                             <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="15" />
                                             <Label Text="{Binding Description}" Style="{StaticResource Small}" IsVisible="{Binding HasDescription}" />
@@ -39,7 +42,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
-                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 24,24,0,0" Padding="20,16,20,24">
             <Grid>
                 <Button Text="Save Categories" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
