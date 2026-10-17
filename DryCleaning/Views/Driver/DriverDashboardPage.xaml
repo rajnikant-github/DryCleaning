@@ -35,7 +35,7 @@
                                     </Ellipse>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
                                         <Label Text="{Binding OnlineText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="15" />
-                                        <Label Text="{Binding OnlineHint}" TextColor="#FFD9D2" FontSize="12" />
+                                        <Label Text="{Binding OnlineHint}" TextColor="#BFDBFE" FontSize="12" />
                                     </VerticalStackLayout>
                                     <Switch Grid.Column="2" IsToggled="{Binding IsOnline}" OnColor="{StaticResource Success}" ThumbColor="{StaticResource White}" VerticalOptions="Center" />
                                 </Grid>

@@ -32,7 +32,7 @@
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                                     <Label Text="📍" FontSize="14" VerticalOptions="Center" />
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
-                                        <Label Text="Pickup address" TextColor="#FFD9D2" FontSize="11" />
+                                        <Label Text="Pickup address" TextColor="#BFDBFE" FontSize="11" />
                                         <Label Text="{Binding AddressText}" TextColor="{StaticResource White}" FontSize="13"
                                                LineBreakMode="TailTruncation" MaxLines="1" />
                                     </VerticalStackLayout>

@@ -93,7 +93,7 @@
         <Setter Property="TextColor" Value="{StaticResource White}" />
     </Style>
     <Style x:Key="HeaderCaption" TargetType="Label">
-        <Setter Property="FontFamily" Value="AppSemibold" />
+        <Setter Property="FontFamily" Value="AppRegular" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="TextColor" Value="{StaticResource PrimaryLight}" />
     </Style>
@@ -165,7 +165,6 @@
 
     <Style x:Key="SmallOutlineButton" TargetType="Button" BasedOn="{StaticResource OutlineButton}">
         <Setter Property="HeightRequest" Value="40" />
-        <Setter Property="FontFamily" Value="AppSemibold" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="CornerRadius" Value="10" />
         <Setter Property="TextColor" Value="{StaticResource MutedForeground}" />
