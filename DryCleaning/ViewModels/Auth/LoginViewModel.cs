@@ -39,18 +39,6 @@ public sealed partial class LoginViewModel(ViewModelServices services, IAuthServ
     {
         State = ViewState.Content;
         OnPropertyChanged(nameof(RoleTitle));
-#if DEBUG
-        // Debug builds: demo account for the selected role (seeded by the API, password Demo@12345).
-        (Identifier, Password) = session.SelectedRole switch
-        {
-            UserRole.Customer => ("sipho@example.co.za", "Demo@12345"),
-            UserRole.Provider => ("thandi@sparkledrycleaners.co.za", "Demo@12345"),
-            UserRole.Driver => ("bongani@drivers.edrycleaners.co.za", "Demo@12345"),
-            _ => (string.Empty, string.Empty)
-        };
-#else
-        // Release builds: the user types their own credentials.
-#endif
         return Task.CompletedTask;
     }
 
