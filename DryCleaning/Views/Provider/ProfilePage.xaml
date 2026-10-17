@@ -15,7 +15,7 @@
                     <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 22" HorizontalOptions="Center">
                         <Grid>
-                            <Label Text="🧺" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="&#xf291;" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                             <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
                         </Grid>
                     </Border>
@@ -41,8 +41,8 @@
                             </VerticalStackLayout>
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
-                        <Label Text="{Binding Phone, StringFormat='📞  {0}'}" FontSize="14" />
-                        <Label Text="{Binding Email, StringFormat='✉️  {0}'}" FontSize="14" />
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf095;" FontFamily="FA" /><Span Text="{Binding Phone, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf0e0;" FontFamily="FA" /><Span Text="{Binding Email, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                     </VerticalStackLayout>
                 </Border>
 
@@ -53,7 +53,7 @@
                             <Label Text="Current Address" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
                             <Button Grid.Column="1" Text="Edit Address" Style="{StaticResource TextButton}" Command="{Binding EditAddressCommand}" />
                         </Grid>
-                        <Label Text="{Binding Address, StringFormat='📍  {0}'}" FontSize="14" />
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding Address, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                     </VerticalStackLayout>
                 </Border>
 
@@ -73,7 +73,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenServicesCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="🏷️" FontSize="18" />
+                            <Label Text="&#xf02b;" FontSize="18"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Services &amp; Pricing" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -82,7 +82,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="🔔" FontSize="18" />
+                            <Label Text="&#xf0f3;" FontSize="18"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Notifications" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -91,7 +91,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="🔑" FontSize="18" />
+                            <Label Text="&#xf084;" FontSize="18"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Change Password" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -100,7 +100,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="💬" FontSize="18" />
+                            <Label Text="&#xf4ad;" FontSize="18"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Help &amp; Support" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>

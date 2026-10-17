@@ -16,7 +16,7 @@
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                         <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
@@ -47,7 +47,7 @@
                 </Border>
 
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="#F3E8FF" IsVisible="{Binding HasDemoCode}" Padding="12,8">
-                    <Label Text="{Binding DemoCodeText, StringFormat='🧪  {0}'}" TextColor="#7E22CE" FontSize="12" />
+                    <Label TextColor="#7E22CE" FontSize="12" ><Label.FormattedText><FormattedString><Span Text="&#xf0c3;" FontFamily="FA" /><Span Text="{Binding DemoCodeText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 </Border>
             </VerticalStackLayout>
         </ScrollView>

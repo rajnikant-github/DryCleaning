@@ -23,7 +23,7 @@
                         </Grid>
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                <Label Text="⚙️" FontSize="20" VerticalOptions="Center" />
+                                <Label Text="&#xf013;" FontSize="20" VerticalOptions="Center"  FontFamily="FA"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding StartedText, StringFormat='Processing since {0}'}" TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="13" />
                                     <Label Text="{Binding StatusHint}" TextColor="{StaticResource WarningDark}" FontSize="13" />
@@ -47,7 +47,7 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center" />
+                                        <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                             <Label Text="{Binding ProductName}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />

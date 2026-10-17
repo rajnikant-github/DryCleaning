@@ -23,7 +23,7 @@
                     <Label Text="Mobile number or email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label Text="📞" VerticalOptions="Center" />
+                            <Label Text="&#xf095;" VerticalOptions="Center"  FontFamily="FA"/>
                             <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="+27 82 555 0142"
                                    Keyboard="Email" ReturnType="Next" />
                         </Grid>
@@ -34,7 +34,7 @@
                     <Label Text="Password" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Label Text="🔒" VerticalOptions="Center" />
+                            <Label Text="&#xf023;" VerticalOptions="Center"  FontFamily="FA"/>
                             <Entry Grid.Column="1" Text="{Binding Password}" Placeholder="Enter your password"
                                    IsPassword="{Binding IsPasswordHidden}" ReturnType="Go"
                                    ReturnCommand="{Binding LoginCommand}" />
@@ -64,7 +64,9 @@
                     <BoxView Grid.Column="2" Style="{StaticResource Divider}" VerticalOptions="Center" />
                 </Grid>
 
-                <Button Text="📱  Continue with OTP" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" />
+                <Button Text="Continue with OTP" ContentLayout="Left,8" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" >
+                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3cf;" Size="16" Color="{StaticResource AppForeground}" /></Button.ImageSource>
+                </Button>
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8,0,0">
                     <Label Text="New to EDry Cleaners?" Style="{StaticResource Caption}" VerticalOptions="Center" />

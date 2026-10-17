@@ -36,7 +36,7 @@ public sealed partial class ProductsViewModel(ViewModelServices services, ICusto
         var category = await catalog.GetCategoryAsync(_categoryId);
         ProviderName = provider.BusinessName;
         ProviderInitials = StringHelpers.Initials(provider.BusinessName);
-        ProviderInfo = string.IsNullOrEmpty(provider.Locality) ? provider.Description ?? string.Empty : $"📍 {provider.Locality} · {provider.Description}";
+        ProviderInfo = string.IsNullOrEmpty(provider.Locality) ? provider.Description ?? string.Empty : $"{provider.Locality} · {provider.Description}";
         CategoryName = category.Name;
         Title = category.Name;
 

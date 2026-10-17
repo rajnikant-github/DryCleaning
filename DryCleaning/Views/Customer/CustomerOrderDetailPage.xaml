@@ -32,7 +32,7 @@
                     <!--  Dispute  -->
                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding HasDispute}" Padding="14">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding DisputeTitle, StringFormat='⚠  {0}'}" TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" />
+                            <Label TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="{Binding DisputeTitle, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                             <Label Text="{Binding DisputeText}" TextColor="#9A3412" FontSize="13" />
                         </VerticalStackLayout>
                     </Border>
@@ -57,7 +57,7 @@
                     <Border Style="{StaticResource Card}">
                         <VerticalStackLayout Spacing="12">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                <Label Text="🏪" FontSize="18" VerticalOptions="Center" />
+                                <Label Text="&#xf54e;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Provider" Style="{StaticResource Small}" />
                                     <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" FontSize="14" />
@@ -66,19 +66,19 @@
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding CallProviderCommand}" />
                                     </Border.GestureRecognizers>
-                                    <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
                                 </Border>
                             </Grid>
                             <BoxView Style="{StaticResource Divider}" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📍" FontSize="18" />
+                                <Label Text="&#xf3c5;" FontSize="18"  FontFamily="FA"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup &amp; delivery address" Style="{StaticResource Small}" />
                                     <Label Text="{Binding AddressText}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="🕘" FontSize="18" />
+                                <Label Text="&#xf017;" FontSize="18"  FontFamily="FA"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup time" Style="{StaticResource Small}" />
                                     <Label Text="{Binding PickupText}" FontSize="14" />
@@ -98,11 +98,11 @@
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:OrderItemDetail">
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                            <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center" />
+                                            <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
                                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                                 <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                                 <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
-                                                <Label Text="{Binding Notes, StringFormat='📝 {0}'}" Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" />
+                                                <Label Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" ><Label.FormattedText><FormattedString><Span Text="&#xf249;" FontFamily="FA" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
                                             </VerticalStackLayout>
                                             <Label Grid.Column="2" Text="{Binding TotalPrice, Converter={StaticResource Currency}}"
                                                    Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
@@ -157,7 +157,7 @@
                                                         <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="AppSemibold"
+                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="FA"
                                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"

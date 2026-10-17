@@ -25,7 +25,7 @@
                 </CollectionView.Header>
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="32,48" Spacing="8">
-                        <Label Text="🧺" FontSize="44" HorizontalOptions="Center" />
+                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                         <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
                         <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
@@ -38,7 +38,7 @@
                             </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                 <Border Style="{StaticResource IconTile}" WidthRequest="52" HeightRequest="52">
-                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
@@ -66,7 +66,7 @@
         </RefreshView>
 
         <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="🏷️" EmptyTitle="No categories enabled"
+                                EmptyIcon="&#xf02b;" EmptyTitle="No categories enabled"
                                 EmptyMessage="Contact EDry Cleaners to enable categories for your business." />
     </Grid>
 </views:BasePage>

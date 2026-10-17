@@ -16,24 +16,68 @@
 
     <!--  Service Provider app  -->
     <TabBar Route="provider">
-        <ShellContent Title="Dashboard" Icon="tab_home.png" Route="dashboard" ContentTemplate="{DataTemplate provider:DashboardPage}" />
-        <ShellContent Title="Orders" Icon="tab_orders.png" Route="orders" ContentTemplate="{DataTemplate provider:OrdersPage}" />
-        <ShellContent Title="Services" Icon="tab_services.png" Route="services" ContentTemplate="{DataTemplate provider:ServicesPage}" />
-        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate provider:ProfilePage}" />
+        <ShellContent Title="Dashboard" Route="dashboard" ContentTemplate="{DataTemplate provider:DashboardPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf015;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Orders" Route="orders" ContentTemplate="{DataTemplate provider:OrdersPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf466;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Services" Route="services" ContentTemplate="{DataTemplate provider:ServicesPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf02b;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate provider:ProfilePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf007;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 
     <!--  Customer app  -->
     <TabBar Route="customer">
-        <ShellContent Title="Home" Icon="tab_home.png" Route="home" ContentTemplate="{DataTemplate customer:CustomerHomePage}" />
-        <ShellContent Title="Orders" Icon="tab_orders.png" Route="orders" ContentTemplate="{DataTemplate customer:CustomerOrdersPage}" />
-        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate customer:CustomerProfilePage}" />
+        <ShellContent Title="Home" Route="home" ContentTemplate="{DataTemplate customer:CustomerHomePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf015;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Orders" Route="orders" ContentTemplate="{DataTemplate customer:CustomerOrdersPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf466;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate customer:CustomerProfilePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf007;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 
     <!--  Driver app (shared marketplace drivers)  -->
     <TabBar Route="driver">
-        <ShellContent Title="Dashboard" Icon="tab_home.png" Route="dashboard" ContentTemplate="{DataTemplate driver:DriverDashboardPage}" />
-        <ShellContent Title="Jobs" Icon="tab_jobs.png" Route="jobs" ContentTemplate="{DataTemplate driver:DriverJobsPage}" />
-        <ShellContent Title="Earnings" Icon="tab_earnings.png" Route="earnings" ContentTemplate="{DataTemplate driver:DriverEarningsPage}" />
-        <ShellContent Title="Profile" Icon="tab_profile.png" Route="profile" ContentTemplate="{DataTemplate driver:DriverProfilePage}" />
+        <ShellContent Title="Dashboard" Route="dashboard" ContentTemplate="{DataTemplate driver:DriverDashboardPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf015;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Jobs" Route="jobs" ContentTemplate="{DataTemplate driver:DriverJobsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf0d1;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Earnings" Route="earnings" ContentTemplate="{DataTemplate driver:DriverEarningsPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf81d;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
+        <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate driver:DriverProfilePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="FA" Glyph="&#xf007;" Size="22" Color="#6B7280" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 </Shell>

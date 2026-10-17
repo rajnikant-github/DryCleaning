@@ -16,7 +16,7 @@
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                         <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="{Binding OrderNumber}" Style="{StaticResource BodyMedium}" />
@@ -31,7 +31,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Deliver to" Style="{StaticResource SectionLabel}" Margin="0" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Text="🏠" FontSize="18" VerticalOptions="Start" />
+                            <Label Text="&#xf015;" FontSize="18" VerticalOptions="Start"  FontFamily="FA"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
                                 <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
@@ -40,7 +40,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                     </VerticalStackLayout>
@@ -67,7 +67,7 @@
                 </Border>
 
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="#F3E8FF" IsVisible="{Binding HasDemoCode}" Padding="12,8">
-                    <Label Text="{Binding DemoCodeText, StringFormat='🧪  {0}'}" TextColor="#7E22CE" FontSize="12" />
+                    <Label TextColor="#7E22CE" FontSize="12" ><Label.FormattedText><FormattedString><Span Text="&#xf0c3;" FontFamily="FA" /><Span Text="{Binding DemoCodeText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 </Border>
 
                 <Button Text="Customer not available?" Style="{StaticResource TextButton}" Command="{Binding CustomerUnavailableCommand}" HorizontalOptions="Center" />

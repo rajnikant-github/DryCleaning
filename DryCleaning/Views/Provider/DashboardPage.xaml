@@ -10,7 +10,11 @@
                 x:DataType="vm:DashboardViewModel"
                 Title="Dashboard">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Alerts" IconImageSource="ic_bell.png" Command="{Binding OpenNotificationsCommand}" />
+        <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FA" Glyph="&#xf0f3;" Size="20" Color="{StaticResource White}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -31,7 +35,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="{Binding UnreadText, StringFormat='🔔  {0}'}" TextColor="{StaticResource White}" FontSize="13" />
+                                <Label TextColor="{StaticResource White}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf0f3;" FontFamily="FA" /><Span Text="{Binding UnreadText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                             </Border>
                         </VerticalStackLayout>
                     </Border>
@@ -45,7 +49,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#EFF6FF">
-                                        <Label Text="🔔" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Label Text="&#xf0f3;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="#2563EB"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding NewCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="#2563EB" HorizontalOptions="End" VerticalOptions="Center" />
@@ -61,7 +65,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#FFFBEB">
-                                        <Label Text="⚙️" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Label Text="&#xf013;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource WarningDark}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding InProcessCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="{StaticResource WarningDark}" HorizontalOptions="End" VerticalOptions="Center" />
@@ -77,7 +81,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#ECFDF5">
-                                        <Label Text="✅" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Label Text="&#xf058;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding ReadyCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="{StaticResource Success}" HorizontalOptions="End" VerticalOptions="Center" />
@@ -93,7 +97,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#F9FAFB">
-                                        <Label Text="📦" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Label Text="&#xf466;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding CompletedCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="#4B5563" HorizontalOptions="End" VerticalOptions="Center" />
@@ -118,7 +122,7 @@
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
-                                    <Label Text="🚚" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Label Text="&#xf0d1;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                     <Label Text="{Binding IncomingDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />

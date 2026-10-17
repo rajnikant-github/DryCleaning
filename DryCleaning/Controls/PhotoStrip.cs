@@ -90,7 +90,7 @@ public sealed class PhotoStrip : ContentView
                 VerticalOptions = LayoutOptions.Center,
                 Children =
                 {
-                    new Label { Text = "📷", FontSize = 24, HorizontalOptions = LayoutOptions.Center },
+                    new Label { Text = FontAwesome.Camera, FontFamily = FontAwesome.Family, FontSize = 22, TextColor = Theme.MutedForeground, HorizontalOptions = LayoutOptions.Center },
                     new Label { Text = AddText, FontSize = 12, TextColor = Theme.MutedForeground, HorizontalOptions = LayoutOptions.Center }
                 }
             }

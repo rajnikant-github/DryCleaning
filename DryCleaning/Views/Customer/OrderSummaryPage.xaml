@@ -27,7 +27,7 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="12">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Text="📍" FontSize="18" VerticalOptions="Start" />
+                            <Label Text="&#xf3c5;" FontSize="18" VerticalOptions="Start"  FontFamily="FA"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="Pickup address" Style="{StaticResource Small}" />
                                 <Label Text="{Binding AddressText}" FontSize="14" />
@@ -36,7 +36,7 @@
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Text="🕘" FontSize="18" VerticalOptions="Start" />
+                            <Label Text="&#xf017;" FontSize="18" VerticalOptions="Start"  FontFamily="FA"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="Pickup time" Style="{StaticResource Small}" />
                                 <Label Text="{Binding PickupText}" FontSize="14" />
@@ -65,7 +65,7 @@
                                                 </Label.FormattedText>
                                             </Label>
                                             <Label Text="{Binding ServiceItemName}" Style="{StaticResource Small}" />
-                                            <Label Text="{Binding Notes, StringFormat='📝 {0}'}" Style="{StaticResource Small}" IsVisible="{Binding Notes, Converter={StaticResource HasValue}}" />
+                                            <Label Style="{StaticResource Small}" IsVisible="{Binding Notes, Converter={StaticResource HasValue}}" ><Label.FormattedText><FormattedString><Span Text="&#xf249;" FontFamily="FA" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         </VerticalStackLayout>
                                         <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" FontSize="14" VerticalOptions="Start" />
                                     </Grid>
@@ -92,7 +92,7 @@
         </ScrollView>
 
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="🧺" EmptyTitle="Your cart is empty" EmptyMessage="Add items before placing an order." />
+                                EmptyIcon="&#xf291;" EmptyTitle="Your cart is empty" EmptyMessage="Add items before placing an order." />
 
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
                 Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">

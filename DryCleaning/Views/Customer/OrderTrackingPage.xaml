@@ -38,8 +38,8 @@
                     <!--  Map placeholder (live driver location when Google Maps is configured)  -->
                     <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="170" BackgroundColor="#E0F2FE" IsVisible="{Binding ShowMap}">
                         <Grid>
-                            <Label Text="🗺️" FontSize="64" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" />
-                            <Label Text="🚗" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="&#xf279;" FontSize="64" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                            <Label Text="&#xf1b9;" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                             <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
                                     HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
                                 <Label Text="{Binding MapCaption}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
@@ -59,7 +59,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallDriverCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -84,7 +84,7 @@
                     <Border Style="{StaticResource Card}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                                <Label Text="🏪" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="&#xf54e;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" />
@@ -94,7 +94,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallProviderCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="📞" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -123,7 +123,7 @@
                                                         <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="AppSemibold"
+                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="FA"
                                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"

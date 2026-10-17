@@ -26,14 +26,14 @@
                             <Border Style="{StaticResource Card}">
                                 <VerticalStackLayout Spacing="12">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="26" VerticalOptions="Center" />
+                                        <Label Text="{Binding Icon}" FontSize="26" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                             <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
                                         </VerticalStackLayout>
                                     </Grid>
                                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding HasCustomerNotes}" Padding="10,6">
-                                        <Label Text="{Binding CustomerNotes, StringFormat='📝  Customer: {0}'}" TextColor="{StaticResource WarningDark}" FontSize="12" />
+                                        <Label TextColor="{StaticResource WarningDark}" FontSize="12" ><Label.FormattedText><FormattedString><Span Text="&#xf249;" FontFamily="FA" /><Span Text="{Binding CustomerNotes, StringFormat='  Customer: {0}'}" /></FormattedString></Label.FormattedText></Label>
                                     </Border>
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                                         <VerticalStackLayout VerticalOptions="Center" Spacing="2">

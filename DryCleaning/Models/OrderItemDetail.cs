@@ -11,7 +11,7 @@ public sealed class OrderItemDetail
     public int Quantity { get; init; }
     public decimal UnitPrice { get; init; }
     public decimal TotalPrice { get; init; }
-    public string Icon { get; init; } = "🧺";
+    public string Icon { get; init; } = Helpers.FontAwesome.BasketShopping;
     public string? Notes { get; init; }
     public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
     public int EstimatedDays { get; init; }

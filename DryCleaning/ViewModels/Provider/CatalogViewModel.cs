@@ -31,7 +31,7 @@ public sealed partial class CatalogViewModel(ViewModelServices services, IProvid
         Categories.Clear();
         foreach (var category in categories)
         {
-            Categories.Add(new SegmentItem(category.Id.ToString(), $"{CatalogIcons.ForCategory(category.Name)} {category.Name}", OnCategorySelected)
+            Categories.Add(new SegmentItem(category.Id.ToString(), category.Name, OnCategorySelected)
             {
                 IsSelected = category.Id == _selectedCategoryId
             });

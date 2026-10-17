@@ -17,7 +17,7 @@ public sealed partial class ProvidersViewModel(ViewModelServices services, ICust
     public ObservableCollection<ProviderCardItem> Providers { get; } = [];
 
     [ObservableProperty] private string categoryName = string.Empty;
-    [ObservableProperty] private string categoryIcon = "👔";
+    [ObservableProperty] private string categoryIcon = FontAwesome.Shirt;
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {

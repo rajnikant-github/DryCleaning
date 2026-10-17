@@ -40,7 +40,7 @@ public sealed partial class DriverEarningsViewModel(ViewModelServices services, 
         PeriodText = earnings.PeriodText;
         JobCountText = earnings.JobCount == 1 ? "1 job" : $"{earnings.JobCount} jobs";
         AveragePerJob = earnings.AveragePerJob;
-        SplitText = $"📦 {earnings.PickupCount} pickups   🚚 {earnings.DeliveryCount} deliveries";
+        SplitText = $"{earnings.PickupCount} pickups · {earnings.DeliveryCount} deliveries";
         RateText = $"You earn {CurrencyFormatter.Current.Format(earnings.RatePerJob)} per completed pickup or delivery.";
 
         var max = earnings.Bars.Count == 0 ? 0 : earnings.Bars.Max(b => b.Amount);

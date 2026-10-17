@@ -17,7 +17,7 @@
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                         <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                            <Label Text="{Binding ProductIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="{Binding ProductIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="{Binding ProductName}" Style="{StaticResource BodyMedium}" />

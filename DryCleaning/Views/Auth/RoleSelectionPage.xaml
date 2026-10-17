@@ -25,7 +25,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="👕" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="&#xf553;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Customer" Style="{StaticResource BodyMedium}" TextColor="#1D4ED8" />
@@ -42,7 +42,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="🏪" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="&#xf54e;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Service Provider" Style="{StaticResource BodyMedium}" TextColor="{StaticResource Purple}" />
@@ -59,7 +59,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="🚗" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="&#xf1b9;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Driver" Style="{StaticResource BodyMedium}" TextColor="{StaticResource SuccessDark}" />

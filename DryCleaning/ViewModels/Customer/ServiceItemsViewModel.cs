@@ -18,7 +18,7 @@ public sealed partial class ServiceItemsViewModel(ViewModelServices services, IC
     public ObservableCollection<ServiceItemOption> Options { get; } = [];
 
     [ObservableProperty] private string productName = string.Empty;
-    [ObservableProperty] private string productIcon = "🧺";
+    [ObservableProperty] private string productIcon = FontAwesome.BasketShopping;
     [ObservableProperty] private string productDescription = string.Empty;
 
     [ObservableProperty]

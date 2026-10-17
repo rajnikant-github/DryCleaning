@@ -29,12 +29,12 @@
                         <Label Text="Payment method" Style="{StaticResource SectionLabel}" />
                         <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" BackgroundColor="#F0F5FF">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                <Label Text="💳" FontSize="24" VerticalOptions="Center" />
+                                <Label Text="&#xf09d;" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="Card, EFT or Instant EFT" Style="{StaticResource BodyMedium}" />
                                     <Label Text="Secured by Paystack" Style="{StaticResource Small}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="&#xf00c;" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             </Grid>
                         </Border>
                         <Label Text="{Binding CurrencyCode, StringFormat='Charged in {0}.'}" Style="{StaticResource Small}" />
@@ -59,7 +59,7 @@
                 Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
             <VerticalStackLayout Spacing="8">
                 <Button Text="{Binding PayButtonText}" Command="{Binding PayCommand}" />
-                <Label Text="🔒  256-bit encrypted payment" Style="{StaticResource Small}" HorizontalTextAlignment="Center" />
+                <Label Style="{StaticResource Small}" HorizontalTextAlignment="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf023;" FontFamily="FA" /><Span Text="  256-bit encrypted payment" /></FormattedString></Label.FormattedText></Label>
             </VerticalStackLayout>
         </Border>
     </Grid>

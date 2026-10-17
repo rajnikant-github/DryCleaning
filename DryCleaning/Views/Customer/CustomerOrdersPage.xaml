@@ -31,7 +31,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="📦"
+                                EmptyIcon="&#xf466;"
                                 EmptyTitle="{Binding EmptyText}"
                                 EmptyMessage="Schedule a pickup and your orders will show up here." />
 

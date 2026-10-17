@@ -36,10 +36,10 @@
                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                    <Label Text="🕘" FontSize="18" VerticalOptions="Center" />
+                                    <Label Text="&#xf017;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                                     <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource BodyMedium}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Text="Unavailable" Style="{StaticResource Small}" IsVisible="{Binding IsUnavailable}" VerticalOptions="Center" />
-                                    <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Primary}" FontSize="18" FontFamily="AppSemibold"
+                                    <Label Grid.Column="2" Text="&#xf00c;" TextColor="{StaticResource Primary}" FontSize="18" FontFamily="FA"
                                            IsVisible="{Binding IsSelected}" VerticalOptions="Center" />
                                 </Grid>
                             </Border>

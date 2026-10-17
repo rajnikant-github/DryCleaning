@@ -31,7 +31,7 @@ public sealed class OrderCardItem
         HasPrimaryAction = !ShowAcceptReject && primaryAction is not null && action is not null;
         PrimaryActionText = action?.Label ?? string.Empty;
         HintText = hint ?? (summary.HasOpenDispute && summary.Status != OrderStatus.Disputed
-            ? "⚠ Issue reported"
+            ? "Issue reported"
             : ProviderActions.HintFor(summary.Status) ?? string.Empty);
     }
 

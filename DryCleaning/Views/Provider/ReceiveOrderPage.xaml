@@ -19,7 +19,7 @@
                         <Label Text="{Binding OrderNumber}" Style="{StaticResource H2}" />
                         <controls:StatusChip Grid.Column="1" Status="{Binding Status}" HorizontalOptions="End" />
                         <Label Grid.Row="1" Text="{Binding CustomerName}" Style="{StaticResource Body}" />
-                        <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DriverText, StringFormat='🚗  Handed over by {0}'}" Style="{StaticResource Caption}" />
+                        <Label Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf1b9;" FontFamily="FA" /><Span Text="{Binding DriverText, StringFormat='  Handed over by {0}'}" /></FormattedString></Label.FormattedText></Label>
                     </Grid>
                 </Border>
 
@@ -35,7 +35,7 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center" />
+                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center"  FontFamily="FA" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1">
                                             <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
@@ -65,9 +65,9 @@
                         </Grid>
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasDiscrepancy}">
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                <Label Text="{Binding DiscrepancyText, StringFormat='⚠  {0}'}" TextColor="{StaticResource ErrorDark}" FontSize="13" VerticalOptions="Center" />
-                                <Label Grid.Column="1" Text="Reported ✓" TextColor="{StaticResource SuccessDark}" FontSize="13" FontFamily="AppSemibold"
-                                       IsVisible="{Binding DiscrepancyReported}" VerticalOptions="Center" />
+                                <Label TextColor="{StaticResource ErrorDark}" FontSize="13" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="{Binding DiscrepancyText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                <Label Grid.Column="1" TextColor="{StaticResource SuccessDark}" FontSize="13" FontFamily="AppSemibold"
+                                       IsVisible="{Binding DiscrepancyReported}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="Reported " /><Span Text="&#xf00c;" FontFamily="FA" /></FormattedString></Label.FormattedText></Label>
                             </Grid>
                         </Border>
                     </VerticalStackLayout>

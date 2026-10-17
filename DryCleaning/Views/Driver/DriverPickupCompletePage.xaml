@@ -18,7 +18,7 @@
             <VerticalStackLayout Padding="20" Spacing="16">
                 <Border WidthRequest="96" HeightRequest="96" StrokeShape="RoundRectangle 48" StrokeThickness="0"
                         BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center" Margin="0,24,0,0">
-                    <Label Text="📦" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Label Text="&#xf466;" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                 </Border>
                 <Label Text="Items collected!" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
                 <Label Text="{Binding CustomerName, StringFormat='Pickup code verified. {0} has been notified that their items are on the way.'}"

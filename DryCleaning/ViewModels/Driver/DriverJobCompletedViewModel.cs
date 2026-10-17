@@ -35,7 +35,7 @@ public sealed partial class DriverJobCompletedViewModel(ViewModelServices servic
         Message = d.Job.IsPickup
             ? $"{d.ProviderName} will confirm receipt and start cleaning."
             : $"{d.CustomerName} has their order. Thanks for delivering with EDry Cleaners!";
-        RouteText = $"{d.Job.FromName} → {d.Job.ToName}";
+        RouteText = $"{d.Job.FromName} to {d.Job.ToName}";
         CompletedText = d.Job.CompletedAt is { } at ? at.ToString("d MMM yyyy, HH:mm") : string.Empty;
     }
 

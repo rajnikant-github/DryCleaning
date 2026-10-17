@@ -19,7 +19,7 @@
                 <!--  Autocomplete search  -->
                 <Border Style="{StaticResource InputField}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                        <Label Text="🔍" VerticalOptions="Center" />
+                        <Label Text="&#xf002;" VerticalOptions="Center"  FontFamily="FA"/>
                         <Entry Grid.Column="1" Text="{Binding SearchText}" Placeholder="Search street, suburb or building" ClearButtonVisibility="WhileEditing" />
                         <ActivityIndicator Grid.Column="2" IsRunning="{Binding IsSearching}" IsVisible="{Binding IsSearching}" WidthRequest="20" HeightRequest="20" />
                     </Grid>
@@ -33,7 +33,7 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Label Text="📍" VerticalOptions="Center" />
+                                    <Label Text="&#xf3c5;" VerticalOptions="Center"  FontFamily="FA"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="1">
                                         <Label Text="{Binding MainText}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                         <Label Text="{Binding SecondaryText}" Style="{StaticResource Small}" />
@@ -46,13 +46,15 @@
                 <Label Text="No matching addresses. Try a street name or suburb." Style="{StaticResource Small}" IsVisible="{Binding ShowNoResults}" />
                 <Label Text="{Binding SearchError}" Style="{StaticResource Small}" TextColor="{StaticResource ErrorDark}" IsVisible="{Binding HasSearchError}" />
 
-                <Button Text="📍  Use my current location" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" />
+                <Button Text="Use my current location" ContentLayout="Left,8" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" >
+                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3c5;" Size="16" Color="{StaticResource Primary}" /></Button.ImageSource>
+                </Button>
 
                 <!--  Map placeholder  -->
                 <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="150" BackgroundColor="#E0F2FE" IsVisible="{Binding HasSelection}">
                     <Grid>
-                        <Label Text="🗺️" FontSize="56" Opacity="0.35" HorizontalOptions="Center" VerticalOptions="Center" />
-                        <Label Text="📍" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Text="&#xf279;" FontSize="56" Opacity="0.35" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf3c5;" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                         <Label Text="Map preview appears once a Google Maps key is configured" Style="{StaticResource Small}"
                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,8" />
                     </Grid>

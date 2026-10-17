@@ -29,7 +29,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="🗂️"
+                                EmptyIcon="&#xf07c;"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="Finished orders are kept here for your records." />
     </Grid>

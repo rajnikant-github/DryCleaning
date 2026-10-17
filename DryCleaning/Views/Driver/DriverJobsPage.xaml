@@ -38,7 +38,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="🚚"
+                                EmptyIcon="&#xf0d1;"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="{Binding EmptyMessage}" />
     </Grid>

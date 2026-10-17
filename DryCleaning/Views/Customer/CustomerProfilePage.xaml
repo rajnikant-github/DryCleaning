@@ -35,11 +35,11 @@
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Contact" Style="{StaticResource SectionLabel}" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📧" />
+                                <Label Text="&#xf0e0;"  FontFamily="FA"/>
                                 <Label Grid.Column="1" Text="{Binding Email}" FontSize="14" />
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="📱" />
+                                <Label Text="&#xf3cf;"  FontFamily="FA"/>
                                 <Label Grid.Column="1" Text="{Binding Phone}" FontSize="14" />
                             </Grid>
                         </VerticalStackLayout>
@@ -61,7 +61,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenOrdersCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="📦" FontSize="18" VerticalOptions="Center" />
+                            <Label Text="&#xf466;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="My Orders" FontSize="15" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -70,7 +70,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="🔔" FontSize="18" VerticalOptions="Center" />
+                            <Label Text="&#xf0f3;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Notifications" FontSize="15" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -79,7 +79,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="🔑" FontSize="18" VerticalOptions="Center" />
+                            <Label Text="&#xf084;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Change Password" FontSize="15" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -88,7 +88,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="💬" FontSize="18" VerticalOptions="Center" />
+                            <Label Text="&#xf4ad;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Help &amp; Support" FontSize="15" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -97,7 +97,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding TermsCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="📄" FontSize="18" VerticalOptions="Center" />
+                            <Label Text="&#xf15c;" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
                             <Label Grid.Column="1" Text="Terms &amp; Privacy" FontSize="15" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>

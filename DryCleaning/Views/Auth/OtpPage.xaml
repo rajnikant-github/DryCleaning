@@ -10,7 +10,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="24,32" Spacing="20">
             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="64" HeightRequest="64">
-                <Label Text="📱" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label Text="&#xf3cf;" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
             </Border>
 
             <VerticalStackLayout Spacing="6">

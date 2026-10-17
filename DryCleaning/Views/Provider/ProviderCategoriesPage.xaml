@@ -20,7 +20,7 @@
                             <DataTemplate x:DataType="items:CategoryToggleItem">
                                 <VerticalStackLayout>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,12">
-                                        <Label Text="{Binding Icon}" FontSize="20" VerticalOptions="Center" />
+                                        <Label Text="{Binding Icon}" FontSize="20" VerticalOptions="Center"  FontFamily="FA" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                             <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="15" />
                                             <Label Text="{Binding Description}" Style="{StaticResource Small}" IsVisible="{Binding HasDescription}" />

@@ -28,13 +28,13 @@
                                         <controls:AvatarView Text="{Binding Initials}" AvatarSize="48" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                             <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="16" />
-                                            <Label Text="{Binding LocalityText}" Style="{StaticResource Small}" />
+                                            <Label Style="{StaticResource Small}" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding LocalityText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         </VerticalStackLayout>
                                         <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                                     </Grid>
                                     <Label Text="{Binding Description}" Style="{StaticResource Caption}" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label Text="{Binding TurnaroundText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" />
+                                        <Label Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf2f2;" FontFamily="FA" /><Span Text="{Binding TurnaroundText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         <Label Grid.Column="1" Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" FontSize="14" />
                                     </Grid>
                                     <Label Text="{Binding CategoriesText}" Style="{StaticResource Small}" />
@@ -46,7 +46,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="🏪" EmptyTitle="No providers yet" EmptyMessage="No provider offers this service in your area yet." />
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf54e;" EmptyTitle="No providers yet" EmptyMessage="No provider offers this service in your area yet." />
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
@@ -55,7 +55,7 @@
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="{Binding CartSummaryText, StringFormat='🧺  {0}'}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
+                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
             </Grid>
         </Border>

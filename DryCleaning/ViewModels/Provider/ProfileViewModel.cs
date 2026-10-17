@@ -38,7 +38,7 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
         Email = profile.Provider.Email;
         Address = profile.Address.FormattedAddress;
         LogoSource = ImageSources.FromPathOrUrl(profile.Provider.LogoUrl);
-        CategoriesText = string.Join("  ·  ", profile.Categories.Select(c => $"{CatalogIcons.ForCategory(c.Name)} {c.Name}"));
+        CategoriesText = string.Join("  ·  ", profile.Categories.Select(c => c.Name));
         return true;
     }
 

@@ -33,7 +33,7 @@
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource Muted}">
-                                        <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                         <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
@@ -52,7 +52,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="🧺" EmptyTitle="No items" EmptyMessage="This provider has no items in this category yet." />
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf291;" EmptyTitle="No items" EmptyMessage="This provider has no items in this category yet." />
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
@@ -61,7 +61,7 @@
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="{Binding CartSummaryText, StringFormat='🧺  {0}'}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
+                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
             </Grid>
         </Border>

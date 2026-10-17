@@ -10,7 +10,11 @@
                 x:DataType="vm:CustomerHomeViewModel"
                 Title="EDry Cleaners">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Alerts" IconImageSource="ic_bell.png" Command="{Binding OpenNotificationsCommand}" />
+        <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FA" Glyph="&#xf0f3;" Size="20" Color="{StaticResource White}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*,Auto">
@@ -30,7 +34,7 @@
                                     <TapGestureRecognizer Command="{Binding ChangeAddressCommand}" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                                    <Label Text="📍" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="&#xf3c5;" FontSize="14" VerticalOptions="Center"  FontFamily="FA"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
                                         <Label Text="Pickup address" TextColor="#BFDBFE" FontSize="11" />
                                         <Label Text="{Binding AddressText}" TextColor="{StaticResource White}" FontSize="13"
@@ -58,7 +62,7 @@
                                     <Label Text="Start an order ›" TextColor="{StaticResource Primary}" FontSize="13" FontFamily="AppSemibold" />
                                 </Border>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="🧺" FontSize="44" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="&#xf291;" FontSize="44" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource White}"/>
                         </Grid>
                     </Border>
 
@@ -81,7 +85,7 @@
                                             </Border.GestureRecognizers>
                                             <VerticalStackLayout Spacing="8">
                                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                                                    <Label Text="{Binding Icon}" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                    <Label Text="{Binding Icon}" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
                                                 </Border>
                                                 <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="15" />
                                                 <Label Text="{Binding Description}" Style="{StaticResource Small}" MaxLines="2" LineBreakMode="TailTruncation" />
@@ -104,7 +108,7 @@
                                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                                             </Border.GestureRecognizers>
                                             <VerticalStackLayout Spacing="4">
-                                                <Label Text="{Binding Icon}" FontSize="28" />
+                                                <Label Text="{Binding Icon}" FontSize="28"  FontFamily="FA" TextColor="{StaticResource Primary}" />
                                                 <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" MaxLines="2" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" MaxLines="1" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
@@ -144,7 +148,7 @@
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="{Binding CartSummaryText, StringFormat='🧺  {0}'}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
+                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
             </Grid>
         </Border>

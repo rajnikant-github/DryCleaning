@@ -31,6 +31,7 @@ public static class MauiProgram
                 // and changing only the file names below – styles use the aliases.
                 fonts.AddFont("OpenSans-Regular.ttf", "AppRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "AppSemibold");
+                fonts.AddFont("FontAwesome-Solid.ttf", "FA");
             });
 
         ConfigureHandlers();

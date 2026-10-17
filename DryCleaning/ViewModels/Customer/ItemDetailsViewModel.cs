@@ -24,7 +24,7 @@ public sealed partial class ItemDetailsViewModel(
     public ObservableCollection<string> Photos { get; } = [];
 
     [ObservableProperty] private string productName = string.Empty;
-    [ObservableProperty] private string productIcon = "🧺";
+    [ObservableProperty] private string productIcon = FontAwesome.BasketShopping;
     [ObservableProperty] private string serviceItemName = string.Empty;
     [ObservableProperty] private string categoryName = string.Empty;
     [ObservableProperty] private string providerName = string.Empty;

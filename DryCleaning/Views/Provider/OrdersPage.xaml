@@ -33,7 +33,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="📋"
+                                EmptyIcon="&#xf46d;"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="Orders will appear here as they progress." />
     </Grid>

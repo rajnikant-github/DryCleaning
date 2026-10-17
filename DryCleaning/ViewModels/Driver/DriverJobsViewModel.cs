@@ -82,7 +82,7 @@ public sealed partial class DriverJobsViewModel(ViewModelServices services, IDri
 
     private Task AcceptAsync(DriverJobSummary job) => RunBusyAsync(async () =>
     {
-        var route = job.IsPickup ? $"{job.FromName} ({job.FromArea}) → {job.ToName}" : $"{job.FromName} → {job.ToName} ({job.ToArea})";
+        var route = job.IsPickup ? $"{job.FromName} ({job.FromArea}) to {job.ToName}" : $"{job.FromName} to {job.ToName} ({job.ToArea})";
         if (!await Dialogs.ConfirmAsync($"Accept {job.TypeText.ToLowerInvariant()} job?",
                 $"{job.OrderNumber}\n{route}\nYou'll earn {CurrencyFormatter.Current.Format(job.Earnings)}.", "Accept", "Cancel"))
             return;

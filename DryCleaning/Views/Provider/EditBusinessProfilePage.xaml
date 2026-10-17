@@ -16,7 +16,7 @@
                     <Border WidthRequest="96" HeightRequest="96" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 24" HorizontalOptions="Center">
                         <Grid>
-                            <Label Text="🧺" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
                             <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
                         </Grid>
                     </Border>
