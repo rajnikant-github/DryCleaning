@@ -2,6 +2,7 @@
 <!--  C15 – Order confirmed  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -19,7 +20,7 @@
             <VerticalStackLayout Padding="20" Spacing="16">
                 <Border WidthRequest="96" HeightRequest="96" StrokeShape="RoundRectangle 48" StrokeThickness="0"
                         BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center" Margin="0,24,0,0">
-                    <Label Text="&#xf00c;" FontSize="48" TextColor="{StaticResource Success}" FontFamily="FA"
+                    <controls:AppIcon Icon="{x:Static icons:AppIcons.Check}" FontSize="48" TextColor="{StaticResource Success}"
                            HorizontalOptions="Center" VerticalOptions="Center" />
                 </Border>
                 <Label Text="Order placed!" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
@@ -43,7 +44,7 @@
                 </Border>
 
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}">
-                    <Label TextColor="{StaticResource InfoDark}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding AddressText, StringFormat=' Pickup from {0}'}" /></FormattedString></Label.FormattedText></Label>
+                    <Label TextColor="{StaticResource InfoDark}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.LocationDot}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding AddressText, StringFormat=' Pickup from {0}'}" /></FormattedString></Label.FormattedText></Label>
                 </Border>
             </VerticalStackLayout>
         </ScrollView>

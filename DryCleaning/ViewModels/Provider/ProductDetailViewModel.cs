@@ -18,7 +18,7 @@ public sealed partial class ProductDetailViewModel(ViewModelServices services, I
 
     [ObservableProperty] private string productName = string.Empty;
     [ObservableProperty] private string productDescription = string.Empty;
-    [ObservableProperty] private string productIcon = FontAwesome.BasketShopping;
+    [ObservableProperty] private string productIcon = AppIcons.BasketShopping;
     [ObservableProperty] private string categoryName = string.Empty;
     [ObservableProperty] private bool productIsActive;
     [ObservableProperty] private bool hasServiceItems;

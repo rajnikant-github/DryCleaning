@@ -2,6 +2,7 @@
 <!--  C07 – Products  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -33,7 +34,7 @@
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource Muted}">
-                                        <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource MutedForeground}" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                         <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
@@ -52,7 +53,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf291;" EmptyTitle="No items" EmptyMessage="This provider has no items in this category yet." />
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="{x:Static icons:AppIcons.BasketShopping}" EmptyTitle="No items" EmptyMessage="This provider has no items in this category yet." />
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
@@ -61,7 +62,7 @@
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>
             <Grid ColumnDefinitions="*,Auto">
-                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.BasketShopping}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
             </Grid>
         </Border>

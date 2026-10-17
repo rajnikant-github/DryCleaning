@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Auth"
                 x:Class="DryCleaning.Views.Auth.LoginPage"
@@ -23,7 +25,7 @@
                     <Label Text="Mobile number or email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label Text="&#xf095;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" VerticalOptions="Center" WidthRequest="24" HorizontalTextAlignment="Center"/>
                             <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="+27 82 555 0142"
                                    Keyboard="Email" ReturnType="Next" />
                         </Grid>
@@ -34,7 +36,7 @@
                     <Label Text="Password" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Label Text="&#xf023;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Lock}" VerticalOptions="Center" WidthRequest="24" HorizontalTextAlignment="Center"/>
                             <Entry Grid.Column="1" Text="{Binding Password}" Placeholder="Enter your password"
                                    IsPassword="{Binding IsPasswordHidden}" ReturnType="Go"
                                    ReturnCommand="{Binding LoginCommand}" />
@@ -65,7 +67,7 @@
                 </Grid>
 
                 <Button Text="Continue with OTP" ContentLayout="Left,8" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3cf;" Size="16" Color="{StaticResource AppForeground}" /></Button.ImageSource>
+                    <Button.ImageSource><FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.MobileScreen}" Size="16" Color="{StaticResource AppForeground}" /></Button.ImageSource>
                 </Button>
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8,0,0">

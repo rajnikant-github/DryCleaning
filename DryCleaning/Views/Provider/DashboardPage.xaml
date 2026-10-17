@@ -2,6 +2,7 @@
 <!--  P02 – Provider Dashboard  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -12,7 +13,7 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="FA" Glyph="&#xf0f3;" Size="20" Color="{StaticResource White}" />
+                <FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.Bell}" Size="20" Color="{StaticResource White}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
@@ -35,7 +36,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label TextColor="{StaticResource White}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf0f3;" FontFamily="FA" /><Span Text="{Binding UnreadText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                <Label TextColor="{StaticResource White}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Bell}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding UnreadText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                             </Border>
                         </VerticalStackLayout>
                     </Border>
@@ -48,11 +49,11 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
-                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#EFF6FF">
-                                        <Label Text="&#xf0f3;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="#2563EB"/>
+                                    <Border Style="{StaticResource IconTile}" BackgroundColor="#FFF1EE">
+                                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Bell}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#D13F2A"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding NewCount}" FontSize="30" FontFamily="AppSemibold"
-                                           TextColor="#2563EB" HorizontalOptions="End" VerticalOptions="Center" />
+                                           TextColor="#D13F2A" HorizontalOptions="End" VerticalOptions="Center" />
                                 </Grid>
                                 <Label Text="New Orders" Style="{StaticResource Caption}" />
                             </VerticalStackLayout>
@@ -65,7 +66,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#FFFBEB">
-                                        <Label Text="&#xf013;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource WarningDark}"/>
+                                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Gear}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource WarningDark}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding InProcessCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="{StaticResource WarningDark}" HorizontalOptions="End" VerticalOptions="Center" />
@@ -81,7 +82,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#ECFDF5">
-                                        <Label Text="&#xf058;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                        <controls:AppIcon Icon="{x:Static icons:AppIcons.CircleCheck}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding ReadyCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="{StaticResource Success}" HorizontalOptions="End" VerticalOptions="Center" />
@@ -97,7 +98,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="#F9FAFB">
-                                        <Label Text="&#xf466;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
+                                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Box}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource MutedForeground}"/>
                                     </Border>
                                     <Label Grid.Column="1" Text="{Binding CompletedCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="#4B5563" HorizontalOptions="End" VerticalOptions="Center" />
@@ -122,7 +123,7 @@
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
-                                    <Label Text="&#xf0d1;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
+                                    <controls:AppIcon Icon="{x:Static icons:AppIcons.Truck}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource InfoDark}"/>
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                     <Label Text="{Binding IncomingDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />

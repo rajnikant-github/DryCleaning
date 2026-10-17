@@ -2,6 +2,7 @@
 <!--  Provider: categories I offer  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -20,7 +21,7 @@
                             <DataTemplate x:DataType="items:CategoryToggleItem">
                                 <VerticalStackLayout>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,12">
-                                        <Label Text="{Binding Icon}" FontSize="20" VerticalOptions="Center"  FontFamily="FA" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="20" VerticalOptions="Center" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                             <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="15" />
                                             <Label Text="{Binding Description}" Style="{StaticResource Small}" IsVisible="{Binding HasDescription}" />

@@ -2,6 +2,7 @@
 <!--  Notifications (shared)  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -32,7 +33,7 @@
                             </Border.Triggers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}">
-                                    <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                    <controls:AppIcon Icon="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
@@ -49,6 +50,6 @@
         </RefreshView>
 
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="&#xf0f3;" EmptyTitle="You're all caught up" EmptyMessage="New order and payment alerts will appear here." />
+                                EmptyIcon="{x:Static icons:AppIcons.Bell}" EmptyTitle="You're all caught up" EmptyMessage="New order and payment alerts will appear here." />
     </Grid>
 </views:BasePage>

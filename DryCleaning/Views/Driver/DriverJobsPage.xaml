@@ -2,6 +2,7 @@
 <!--  D02 – Jobs (Available / My Jobs / Completed)  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -38,7 +39,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="&#xf0d1;"
+                                EmptyIcon="{x:Static icons:AppIcons.Truck}"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="{Binding EmptyMessage}" />
     </Grid>

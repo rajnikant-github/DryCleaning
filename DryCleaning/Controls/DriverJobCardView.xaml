@@ -2,6 +2,8 @@
 <!--  Driver job card (Dashboard, Jobs, Earnings)  -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
              xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
              x:Class="DryCleaning.Controls.DriverJobCardView"
              x:DataType="items:DriverJobCardItem">
@@ -17,7 +19,7 @@
                             <Setter Property="BackgroundColor" Value="{StaticResource AccentSoft}" />
                         </DataTrigger>
                     </Border.Triggers>
-                    <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}" />
+                    <controls:AppIcon Icon="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}" />
                 </Border>
                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                     <Label Style="{StaticResource BodyMedium}" FontSize="15">
@@ -64,7 +66,7 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <Label Style="{StaticResource Small}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding ItemsText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                <Label Style="{StaticResource Small}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.BasketShopping}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding ItemsText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Border Grid.Column="1" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" Padding="10,3"
                         IsVisible="{Binding ShowStatus}">
                     <Label Text="{Binding StatusText}" TextColor="{StaticResource InfoDark}" FontSize="11" FontFamily="AppSemibold" />
@@ -72,7 +74,7 @@
             </Grid>
 
             <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding IsOnHold}" Padding="10,6">
-                <Label TextColor="#C2410C" FontSize="12" FontFamily="AppSemibold" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="  On hold – dispute under review" /></FormattedString></Label.FormattedText></Label>
+                <Label TextColor="#C2410C" FontSize="12" FontFamily="AppSemibold" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.TriangleExclamation}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="  On hold – dispute under review" /></FormattedString></Label.FormattedText></Label>
             </Border>
 
             <Button Text="Accept Job" Command="{Binding AcceptCommand}" Style="{StaticResource SuccessButton}" IsVisible="{Binding ShowAccept}" />

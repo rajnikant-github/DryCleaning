@@ -2,6 +2,7 @@
 <!--  Providers for a category (added screen)  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -28,13 +29,13 @@
                                         <controls:AvatarView Text="{Binding Initials}" AvatarSize="48" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                             <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" FontSize="16" />
-                                            <Label Style="{StaticResource Small}" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding LocalityText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                            <Label Style="{StaticResource Small}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.LocationDot}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding LocalityText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         </VerticalStackLayout>
                                         <Label Grid.Column="2" Text="›" FontSize="24" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                                     </Grid>
                                     <Label Text="{Binding Description}" Style="{StaticResource Caption}" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf2f2;" FontFamily="FA" /><Span Text="{Binding TurnaroundText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                        <Label Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Stopwatch}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding TurnaroundText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         <Label Grid.Column="1" Text="{Binding StartingPriceText}" TextColor="{DynamicResource Primary}" FontFamily="AppSemibold" FontSize="14" />
                                     </Grid>
                                     <Label Text="{Binding CategoriesText}" Style="{StaticResource Small}" />
@@ -46,7 +47,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf54e;" EmptyTitle="No providers yet" EmptyMessage="No provider offers this service in your area yet." />
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="{x:Static icons:AppIcons.Store}" EmptyTitle="No providers yet" EmptyMessage="No provider offers this service in your area yet." />
 
         <!--  Cart bar  -->
         <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
@@ -55,7 +56,7 @@
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />
             </Border.GestureRecognizers>
             <Grid ColumnDefinitions="*,Auto">
-                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf291;" FontFamily="FA" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                <Label TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.BasketShopping}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding CartSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Grid.Column="1" Text="View cart ›" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="14" />
             </Grid>
         </Border>

@@ -2,6 +2,7 @@
 <!--  C12 – Pickup date and time slot  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -26,7 +27,7 @@
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
                                         <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
-                                        <Setter Property="BackgroundColor" Value="#F0F5FF" />
+                                        <Setter Property="BackgroundColor" Value="#FFF1EE" />
                                     </DataTrigger>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsUnavailable}" Value="True">
                                         <Setter Property="Opacity" Value="0.45" />
@@ -36,10 +37,10 @@
                                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                    <Label Text="&#xf017;" FontSize="18" VerticalOptions="Center"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
+                                    <controls:AppIcon Icon="{x:Static icons:AppIcons.Clock}" FontSize="18" VerticalOptions="Center" WidthRequest="25" HorizontalTextAlignment="Center"/>
                                     <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource BodyMedium}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Text="Unavailable" Style="{StaticResource Small}" IsVisible="{Binding IsUnavailable}" VerticalOptions="Center" />
-                                    <Label Grid.Column="2" Text="&#xf00c;" TextColor="{DynamicResource Primary}" FontSize="18" FontFamily="FA"
+                                    <controls:AppIcon Grid.Column="2" Icon="{x:Static icons:AppIcons.Check}" TextColor="{DynamicResource Primary}" FontSize="18"
                                            IsVisible="{Binding IsSelected}" VerticalOptions="Center" />
                                 </Grid>
                             </Border>

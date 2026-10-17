@@ -2,6 +2,7 @@
 <!--  Orders tab – includes P03 New Orders (Accept / Reject)  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -33,7 +34,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="&#xf46d;"
+                                EmptyIcon="{x:Static icons:AppIcons.ClipboardList}"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="Orders will appear here as they progress." />
     </Grid>

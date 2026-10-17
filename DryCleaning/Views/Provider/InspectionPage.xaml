@@ -2,6 +2,7 @@
 <!--  P06 – Inspect Items  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -50,7 +51,7 @@
                             <Border Style="{StaticResource Card}">
                                 <VerticalStackLayout Spacing="14">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="30" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="30" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
                                             <Label Text="{Binding ProductName}" Style="{StaticResource H3}" />
                                             <Label Text="{Binding ExpectedText}" Style="{StaticResource Small}" />
@@ -84,7 +85,7 @@
                                                         <Setter Property="BackgroundColor" Value="{StaticResource Success}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="&#xf00c;" FontFamily="FA" /><Span Text=" Good" /></FormattedString></Label.FormattedText>
+                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Check}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text=" Good" /></FormattedString></Label.FormattedText>
                                                     <Label.Triggers>
                                                         <DataTrigger TargetType="Label" Binding="{Binding IsGood}" Value="True">
                                                             <Setter Property="TextColor" Value="{StaticResource White}" />
@@ -101,7 +102,7 @@
                                                         <Setter Property="BackgroundColor" Value="{StaticResource Warning}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text=" Stained" /></FormattedString></Label.FormattedText>
+                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.TriangleExclamation}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text=" Stained" /></FormattedString></Label.FormattedText>
                                                     <Label.Triggers>
                                                         <DataTrigger TargetType="Label" Binding="{Binding IsStained}" Value="True">
                                                             <Setter Property="TextColor" Value="{StaticResource White}" />
@@ -118,7 +119,7 @@
                                                         <Setter Property="BackgroundColor" Value="{StaticResource Error}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="&#xf00d;" FontFamily="FA" /><Span Text=" Damaged" /></FormattedString></Label.FormattedText>
+                                                <Label FontSize="13" FontFamily="AppSemibold" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}"><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.XMark}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text=" Damaged" /></FormattedString></Label.FormattedText>
                                                     <Label.Triggers>
                                                         <DataTrigger TargetType="Label" Binding="{Binding IsDamaged}" Value="True">
                                                             <Setter Property="TextColor" Value="{StaticResource White}" />
@@ -145,7 +146,7 @@
                                                 Style="{StaticResource SmallOutlineButton}" TextColor="{StaticResource ErrorDark}" />
                                     </Grid>
                                     <Label TextColor="{StaticResource SuccessDark}" FontSize="13"
-                                           FontFamily="AppSemibold" IsVisible="{Binding IssueReported}" ><Label.FormattedText><FormattedString><Span Text="&#xf00c;" FontFamily="FA" /><Span Text=" Issue reported to support" /></FormattedString></Label.FormattedText></Label>
+                                           FontFamily="AppSemibold" IsVisible="{Binding IssueReported}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Check}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text=" Issue reported to support" /></FormattedString></Label.FormattedText></Label>
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>

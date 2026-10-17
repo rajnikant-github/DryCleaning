@@ -5,7 +5,7 @@ namespace DryCleaning.Helpers;
 /// <c>&lt;Label Text="{x:Static helpers:FontAwesome.Phone}" FontFamily="FA" /&gt;</c>, or in XAML text as a character
 /// reference such as <c>&amp;#xf095;</c>. Font: Resources/Fonts/FontAwesome-Solid.ttf (licence: ThirdParty/FontAwesome-LICENSE.txt).
 /// </summary>
-public static class FontAwesome
+public static class AppIcons
 {
     /// <summary>The font alias registered in MauiProgram.</summary>
     public const string Family = "FA";

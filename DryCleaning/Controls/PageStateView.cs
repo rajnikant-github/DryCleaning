@@ -23,7 +23,7 @@ public sealed class PageStateView : ContentView
         BindableProperty.Create(nameof(RetryCommand), typeof(ICommand), typeof(PageStateView));
 
     public static readonly BindableProperty EmptyIconProperty = BindableProperty.Create(
-        nameof(EmptyIcon), typeof(string), typeof(PageStateView), FontAwesome.ClipboardList, propertyChanged: (b, _, _) => ((PageStateView)b).Update());
+        nameof(EmptyIcon), typeof(string), typeof(PageStateView), AppIcons.ClipboardList, propertyChanged: (b, _, _) => ((PageStateView)b).Update());
 
     public static readonly BindableProperty EmptyTitleProperty = BindableProperty.Create(
         nameof(EmptyTitle), typeof(string), typeof(PageStateView), "Nothing here yet", propertyChanged: (b, _, _) => ((PageStateView)b).Update());
@@ -66,10 +66,10 @@ public sealed class PageStateView : ContentView
                 Content = BuildMessage(EmptyIcon, EmptyTitle, EmptyMessage, showRetry: false);
                 break;
             case ViewState.Error:
-                Content = BuildMessage(FontAwesome.TriangleExclamation, "Something went wrong", ErrorMessage, showRetry: true);
+                Content = BuildMessage(AppIcons.TriangleExclamation, "Something went wrong", ErrorMessage, showRetry: true);
                 break;
             case ViewState.Offline:
-                Content = BuildMessage(FontAwesome.Wifi, "No internet connection", "Check your connection and try again.", showRetry: true);
+                Content = BuildMessage(AppIcons.Wifi, "No internet connection", "Check your connection and try again.", showRetry: true);
                 break;
             default:
                 Content = null;
@@ -87,7 +87,7 @@ public sealed class PageStateView : ContentView
             VerticalOptions = LayoutOptions.Center,
             Children =
             {
-                new Label { Text = icon, FontFamily = FontAwesome.Family, FontSize = 44, TextColor = Theme.MutedForeground, HorizontalOptions = LayoutOptions.Center },
+                new Label { Text = icon, FontFamily = AppIcons.Family, FontSize = 44, TextColor = Theme.MutedForeground, HorizontalOptions = LayoutOptions.Center },
                 new Label { Text = title, FontSize = 18, FontFamily = "AppSemibold", HorizontalTextAlignment = TextAlignment.Center },
                 new Label { Text = message, FontSize = 14, TextColor = Theme.MutedForeground, HorizontalTextAlignment = TextAlignment.Center, IsVisible = !string.IsNullOrWhiteSpace(message) }
             }

@@ -2,6 +2,7 @@
 <!--  P07 – Order Processing  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -23,7 +24,7 @@
                         </Grid>
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                <Label Text="&#xf013;" FontSize="20" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource WarningDark}" WidthRequest="28" HorizontalTextAlignment="Center"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Gear}" FontSize="20" VerticalOptions="Center" TextColor="{StaticResource WarningDark}" WidthRequest="28" HorizontalTextAlignment="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding StartedText, StringFormat='Processing since {0}'}" TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="13" />
                                     <Label Text="{Binding StatusHint}" TextColor="{StaticResource WarningDark}" FontSize="13" />
@@ -47,7 +48,7 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="24" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                             <Label Text="{Binding ProductName}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />

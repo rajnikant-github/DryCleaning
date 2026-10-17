@@ -2,6 +2,7 @@
 <!--  C18 – Order detail  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -32,7 +33,7 @@
                     <!--  Dispute  -->
                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding HasDispute}" Padding="14">
                         <VerticalStackLayout Spacing="4">
-                            <Label TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="{Binding DisputeTitle, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                            <Label TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.TriangleExclamation}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding DisputeTitle, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                             <Label Text="{Binding DisputeText}" TextColor="#9A3412" FontSize="13" />
                         </VerticalStackLayout>
                     </Border>
@@ -57,7 +58,7 @@
                     <Border Style="{StaticResource Card}">
                         <VerticalStackLayout Spacing="12">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                <Label Text="&#xf54e;" FontSize="18" VerticalOptions="Center"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Store}" FontSize="18" VerticalOptions="Center" WidthRequest="25" HorizontalTextAlignment="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Provider" Style="{StaticResource Small}" />
                                     <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" FontSize="14" />
@@ -66,19 +67,19 @@
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding CallProviderCommand}" />
                                     </Border.GestureRecognizers>
-                                    <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
+                                    <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource MutedForeground}"/>
                                 </Border>
                             </Grid>
                             <BoxView Style="{StaticResource Divider}" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf3c5;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.LocationDot}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup &amp; delivery address" Style="{StaticResource Small}" />
                                     <Label Text="{Binding AddressText}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf017;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Clock}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup time" Style="{StaticResource Small}" />
                                     <Label Text="{Binding PickupText}" FontSize="14" />
@@ -98,11 +99,11 @@
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:OrderItemDetail">
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                            <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                            <controls:AppIcon Icon="{Binding Icon}" FontSize="24" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                                 <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                                 <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
-                                                <Label Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" ><Label.FormattedText><FormattedString><Span Text="&#xf249;" FontFamily="FA" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                                <Label Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.NoteSticky}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
                                             </VerticalStackLayout>
                                             <Label Grid.Column="2" Text="{Binding TotalPrice, Converter={StaticResource Currency}}"
                                                    Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
@@ -157,7 +158,7 @@
                                                         <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="FA"
+                                                <controls:AppIcon Icon="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11"
                                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"

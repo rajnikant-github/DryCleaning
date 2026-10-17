@@ -2,6 +2,7 @@
 <!--  Sign up (Customer / Service Provider / Driver – role from the Role screen)  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -43,7 +44,7 @@
                                                 <TapGestureRecognizer Command="{Binding ToggleCommand}" />
                                             </Grid.GestureRecognizers>
                                             <CheckBox IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
-                                            <Label Grid.Column="1" Text="{Binding Icon}" FontSize="18" VerticalOptions="Center"  FontFamily="FA" />
+                                            <controls:AppIcon Grid.Column="1" Icon="{Binding Icon}" FontSize="18" VerticalOptions="Center" />
                                             <Label Grid.Column="2" Text="{Binding Name}" FontSize="15" VerticalOptions="Center" />
                                         </Grid>
                                     </DataTemplate>

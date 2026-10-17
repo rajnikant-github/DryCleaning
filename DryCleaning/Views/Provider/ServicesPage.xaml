@@ -2,6 +2,7 @@
 <!--  P11 – Services / Catalog: Category → Product  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -25,7 +26,7 @@
                 </CollectionView.Header>
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="32,48" Spacing="8">
-                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
+                        <controls:AppIcon Icon="{x:Static icons:AppIcons.BasketShopping}" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                         <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
                         <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
@@ -38,7 +39,7 @@
                             </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                 <Border Style="{StaticResource IconTile}" WidthRequest="52" HeightRequest="52">
-                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                    <controls:AppIcon Icon="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
@@ -66,7 +67,7 @@
         </RefreshView>
 
         <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="&#xf02b;" EmptyTitle="No categories enabled"
+                                EmptyIcon="{x:Static icons:AppIcons.Tag}" EmptyTitle="No categories enabled"
                                 EmptyMessage="Contact EDry Cleaners to enable categories for your business." />
     </Grid>
 </views:BasePage>

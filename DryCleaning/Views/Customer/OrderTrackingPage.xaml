@@ -2,6 +2,7 @@
 <!--  C16 – Order tracking  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -36,10 +37,10 @@
                     </Border>
 
                     <!--  Map placeholder (live driver location when Google Maps is configured)  -->
-                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="170" BackgroundColor="#E0F2FE" IsVisible="{Binding ShowMap}">
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="170" BackgroundColor="#FFF1EE" IsVisible="{Binding ShowMap}">
                         <Grid>
-                            <Label Text="&#xf279;" FontSize="64" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
-                            <Label Text="&#xf1b9;" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Map}" FontSize="64" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Car}" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                             <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
                                     HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
                                 <Label Text="{Binding MapCaption}" FontSize="12" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
@@ -59,7 +60,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallDriverCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -84,7 +85,7 @@
                     <Border Style="{StaticResource Card}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                                <Label Text="&#xf54e;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Store}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource InfoDark}"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label Text="{Binding ProviderName}" Style="{StaticResource BodyMedium}" />
@@ -94,7 +95,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallProviderCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource MutedForeground}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource MutedForeground}"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -123,7 +124,7 @@
                                                         <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="FA"
+                                                <controls:AppIcon Icon="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11"
                                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"

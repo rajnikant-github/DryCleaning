@@ -2,6 +2,7 @@
 <!--  D03 – Job details  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -19,7 +20,7 @@
                         <VerticalStackLayout Spacing="10">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                                    <Label Text="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
+                                    <controls:AppIcon Icon="{Binding TypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource InfoDark}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding TypeText, StringFormat='{0} job'}" Style="{StaticResource H3}" />
@@ -47,7 +48,7 @@
                     </Border>
 
                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding IsOnHold}" Padding="14">
-                        <Label TextColor="#C2410C" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="  This order is on hold while EDry Cleaners support reviews an issue. Please wait for support to contact you." /></FormattedString></Label.FormattedText></Label>
+                        <Label TextColor="#C2410C" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.TriangleExclamation}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="  This order is on hold while EDry Cleaners support reviews an issue. Please wait for support to contact you." /></FormattedString></Label.FormattedText></Label>
                     </Border>
 
                 <!--  Route  -->
@@ -68,7 +69,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallFromCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                             <BoxView Grid.Row="1" WidthRequest="2" Color="{StaticResource BorderColor}" HorizontalOptions="Center" />
                             <Ellipse Grid.Row="2" Fill="{StaticResource SuccessBrush}" WidthRequest="12" HeightRequest="12" VerticalOptions="Start" Margin="0,4,0,0" />
@@ -81,11 +82,11 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallToCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding HasSlot}" Padding="12,8">
-                            <Label TextColor="{StaticResource InfoDark}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf017;" FontFamily="FA" /><Span Text="{Binding SlotText, StringFormat='  Customer pickup window: {0}'}" /></FormattedString></Label.FormattedText></Label>
+                            <Label TextColor="{StaticResource InfoDark}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Clock}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding SlotText, StringFormat='  Customer pickup window: {0}'}" /></FormattedString></Label.FormattedText></Label>
                         </Border>
                     </VerticalStackLayout>
                 </Border>
@@ -100,11 +101,11 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="22" VerticalOptions="Center"  FontFamily="FA" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="22" VerticalOptions="Center" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                             <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
-                                            <Label Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" ><Label.FormattedText><FormattedString><Span Text="&#xf249;" FontFamily="FA" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                            <Label Style="{StaticResource Small}" IsVisible="{Binding HasNotes}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.NoteSticky}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding Notes, StringFormat=' {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         </VerticalStackLayout>
                                     </Grid>
                                 </DataTemplate>
@@ -126,7 +127,7 @@
                 <Button Text="Release Job" Command="{Binding ReleaseCommand}" Style="{StaticResource OutlineButton}"
                         TextColor="{StaticResource MutedForeground}" IsVisible="{Binding CanRelease}" />
                 <Label TextColor="{StaticResource SuccessDark}" FontSize="14"
-                       HorizontalTextAlignment="Center" IsVisible="{Binding IsDone}" ><Label.FormattedText><FormattedString><Span Text="&#xf058;" FontFamily="FA" /><Span Text="{Binding CompletedText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                       HorizontalTextAlignment="Center" IsVisible="{Binding IsDone}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.CircleCheck}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding CompletedText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                 <Label Text="This job is no longer available." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" IsVisible="{Binding IsUnavailable}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24" />
             </VerticalStackLayout>

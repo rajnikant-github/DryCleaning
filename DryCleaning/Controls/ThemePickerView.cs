@@ -64,8 +64,8 @@ public sealed class ThemePickerView : ContentView
                 Content = selected
                     ? new Label
                     {
-                        Text = FontAwesome.Check,
-                        FontFamily = FontAwesome.Family,
+                        Text = AppIcons.Check,
+                        FontFamily = AppIcons.Family,
                         FontSize = 18,
                         TextColor = Colors.White,
                         HorizontalOptions = LayoutOptions.Center,

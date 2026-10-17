@@ -2,6 +2,7 @@
 <!--  Provider Profile  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
@@ -15,7 +16,7 @@
                     <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 22" HorizontalOptions="Center">
                         <Grid>
-                            <Label Text="&#xf291;" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.BasketShopping}" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                             <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
                         </Grid>
                     </Border>
@@ -41,8 +42,8 @@
                             </VerticalStackLayout>
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />
-                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf095;" FontFamily="FA" /><Span Text="{Binding Phone, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
-                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf0e0;" FontFamily="FA" /><Span Text="{Binding Email, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Phone}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding Phone, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Envelope}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding Email, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                     </VerticalStackLayout>
                 </Border>
 
@@ -53,7 +54,7 @@
                             <Label Text="Current Address" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
                             <Button Grid.Column="1" Text="Edit Address" Style="{StaticResource TextButton}" Command="{Binding EditAddressCommand}" />
                         </Grid>
-                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding Address, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.LocationDot}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding Address, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                     </VerticalStackLayout>
                 </Border>
 
@@ -73,7 +74,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenServicesCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf02b;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Tag}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Services &amp; Pricing" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -82,7 +83,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf0f3;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Bell}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Notifications" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -91,7 +92,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf084;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.Key}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Change Password" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -100,7 +101,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf4ad;" FontSize="18"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.CommentDots}" FontSize="18" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Help &amp; Support" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>

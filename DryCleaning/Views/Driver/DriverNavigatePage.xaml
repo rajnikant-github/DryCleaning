@@ -2,6 +2,7 @@
 <!--  D04 / D10 – Navigate to customer or provider  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -13,10 +14,10 @@
     <Grid RowDefinitions="*,Auto">
         <ScrollView IsVisible="{Binding IsContent}">
             <VerticalStackLayout Padding="16" Spacing="14">
-                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="240" BackgroundColor="#E0F2FE">
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="240" BackgroundColor="#FFF1EE">
                     <Grid>
-                        <Label Text="&#xf279;" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
-                        <Label Text="&#xf1b9;" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Map}" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
+                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Car}" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                         <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
                                 HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
                             <Label Text="{Binding HeadingText}" FontSize="12" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
@@ -43,7 +44,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="{Binding DestinationLabel}" Style="{StaticResource SectionLabel}" Margin="0" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Text="&#xf3c5;" FontSize="18" VerticalOptions="Start"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
+                            <controls:AppIcon Icon="{x:Static icons:AppIcons.LocationDot}" FontSize="18" VerticalOptions="Start" WidthRequest="25" HorizontalTextAlignment="Center"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
                                 <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />
@@ -52,11 +53,11 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallDestinationCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                         <Button Text="Open in Maps" ContentLayout="Left,8" Command="{Binding OpenMapsCommand}" Style="{StaticResource SecondaryButton}" Margin="0,6,0,0" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf14e;" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
+                    <Button.ImageSource><FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.Compass}" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
                 </Button>
                     </VerticalStackLayout>
                 </Border>

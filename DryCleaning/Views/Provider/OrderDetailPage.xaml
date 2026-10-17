@@ -2,6 +2,7 @@
 <!--  P04 – Order Details  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -28,7 +29,7 @@
                 <!--  Dispute / issue  -->
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding HasDispute}" Padding="14">
                     <VerticalStackLayout Spacing="4">
-                        <Label TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="{Binding DisputeTitle, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label TextColor="#C2410C" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.TriangleExclamation}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding DisputeTitle, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                         <Label Text="{Binding DisputeText}" TextColor="#9A3412" FontSize="13" />
                     </VerticalStackLayout>
                 </Border>
@@ -47,7 +48,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding CallCustomerCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="&#xf095;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Phone}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" Margin="0,14" />
@@ -67,7 +68,7 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:OrderItemDetail">
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                                        <controls:AppIcon Icon="{Binding Icon}" FontSize="24" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                             <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
@@ -100,7 +101,7 @@
                         <Label Text="Pickup driver" Style="{StaticResource SectionLabel}" />
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
-                                <Label Text="&#xf1b9;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Car}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource InfoDark}"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label Text="{Binding PickupDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
@@ -115,7 +116,7 @@
                         <Label Text="Delivery driver" Style="{StaticResource SectionLabel}" />
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}" StrokeShape="RoundRectangle 22">
-                                <Label Text="&#xf0d1;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.Truck}" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label Text="{Binding DeliveryDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
@@ -166,7 +167,7 @@
                                                         <Setter Property="Stroke" Value="{StaticResource ErrorBrush}" />
                                                     </DataTrigger>
                                                 </Border.Triggers>
-                                                <Label Text="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11" FontFamily="FA"
+                                                <controls:AppIcon Icon="{Binding Marker}" TextColor="{StaticResource White}" FontSize="11"
                                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <BoxView Grid.Row="1" WidthRequest="2" HorizontalOptions="Center" MinimumHeightRequest="18"
@@ -225,7 +226,7 @@
 
                 <Button Text="Simulate driver pickup (demo)" ContentLayout="Left,8" Command="{Binding SimulateDriverPickupCommand}"
                         Style="{StaticResource SecondaryButton}" IsVisible="{Binding ShowDemoPickup}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf0c3;" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
+                    <Button.ImageSource><FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.Flask}" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
                 </Button>
 
                 <Button Text="Report Issue" Command="{Binding ReportIssueCommand}" Style="{StaticResource OutlineButton}"

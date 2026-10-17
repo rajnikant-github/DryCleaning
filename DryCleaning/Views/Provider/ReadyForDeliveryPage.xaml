@@ -2,6 +2,7 @@
 <!--  P09 – Ready for Delivery / Request Driver  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
@@ -13,7 +14,7 @@
             <VerticalStackLayout Padding="24,32,24,16" Spacing="18">
                 <Border WidthRequest="96" HeightRequest="96" StrokeThickness="0" StrokeShape="RoundRectangle 48"
                         BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center">
-                    <Label Text="&#xf058;" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                    <controls:AppIcon Icon="{x:Static icons:AppIcons.CircleCheck}" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                 </Border>
 
                 <VerticalStackLayout Spacing="6">
@@ -51,7 +52,7 @@
                 <!--  Waiting for a marketplace driver to accept  -->
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding IsWaitingForDriver}" Padding="16">
                     <VerticalStackLayout Spacing="4">
-                        <Label TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf017;" FontFamily="FA" /><Span Text="  Waiting for a driver" /></FormattedString></Label.FormattedText></Label>
+                        <Label TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.Clock}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="  Waiting for a driver" /></FormattedString></Label.FormattedText></Label>
                         <Label Text="The delivery job is live on the driver marketplace. You'll be notified as soon as a driver accepts it."
                                TextColor="{StaticResource WarningDark}" FontSize="13" />
                     </VerticalStackLayout>
@@ -81,7 +82,7 @@
                 Stroke="{StaticResource BorderBrush}" StrokeShape="Rectangle" Padding="16,12,16,20">
             <VerticalStackLayout Spacing="10">
                 <Button Text="Request Driver" ContentLayout="Left,8" Command="{Binding RequestDriverCommand}" IsVisible="{Binding CanRequestDriver}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf0d1;" Size="16" Color="{StaticResource White}" /></Button.ImageSource>
+                    <Button.ImageSource><FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.Truck}" Size="16" Color="{StaticResource White}" /></Button.ImageSource>
                 </Button>
                 <Button Text="Back to Orders" Command="{Binding BackToOrdersCommand}" Style="{StaticResource OutlineButton}" />
             </VerticalStackLayout>

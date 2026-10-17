@@ -2,6 +2,7 @@
 <!--  D01 – Driver dashboard  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:models="clr-namespace:DryCleaning.Models"
@@ -13,7 +14,7 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="FA" Glyph="&#xf0f3;" Size="20" Color="{StaticResource White}" />
+                <FontImageSource FontFamily="{x:Static icons:AppIcons.Family}" Glyph="{x:Static icons:AppIcons.Bell}" Size="20" Color="{StaticResource White}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
@@ -33,7 +34,7 @@
                                     <Ellipse WidthRequest="10" HeightRequest="10" Fill="{StaticResource SuccessBrush}" VerticalOptions="Center">
                                         <Ellipse.Triggers>
                                             <DataTrigger TargetType="Ellipse" Binding="{Binding IsDriverOffline}" Value="True">
-                                                <Setter Property="Fill" Value="#94A3B8" />
+                                                <Setter Property="Fill" Value="#9CA3AF" />
                                             </DataTrigger>
                                         </Ellipse.Triggers>
                                     </Ellipse>
@@ -54,13 +55,13 @@
                                 <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="4">
-                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf81d;" FontFamily="FA" /><Span Text="  Today's earnings" /></FormattedString></Label.FormattedText></Label>
+                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.SackDollar}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="  Today's earnings" /></FormattedString></Label.FormattedText></Label>
                                 <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
                             </VerticalStackLayout>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="4">
-                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf058;" FontFamily="FA" /><Span Text="  Jobs done today" /></FormattedString></Label.FormattedText></Label>
+                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.CircleCheck}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="  Jobs done today" /></FormattedString></Label.FormattedText></Label>
                                 <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
                             </VerticalStackLayout>
                         </Border>
@@ -76,24 +77,24 @@
                             <VerticalStackLayout Spacing="12">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}">
-                                        <Label Text="{Binding ActiveTypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}" />
+                                        <controls:AppIcon Icon="{Binding ActiveTypeIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource InfoDark}" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{Binding ActiveTitle}" Style="{StaticResource BodyMedium}" />
                                         <Label Text="{Binding ActiveStepText}" TextColor="{StaticResource InfoDark}" FontSize="13" />
                                     </VerticalStackLayout>
                                 </Grid>
-                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="120" BackgroundColor="#E0F2FE">
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="120" BackgroundColor="#FFF1EE">
                     <Grid>
-                        <Label Text="&#xf279;" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
-                        <Label Text="&#xf1b9;" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Map}" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
+                        <controls:AppIcon Icon="{x:Static icons:AppIcons.Car}" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                         <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
                                 HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
                             <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
                         </Border>
                     </Grid>
                 </Border>
-                                <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="&#xf3c5;" FontFamily="FA" /><Span Text="{Binding ActiveDestination, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                                <Label FontSize="14" ><Label.FormattedText><FormattedString><Span Text="{x:Static icons:AppIcons.LocationDot}" FontFamily="{x:Static icons:AppIcons.Family}" /><Span Text="{Binding ActiveDestination, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                 <Button Text="{Binding ActiveActionText}" Command="{Binding ContinueActiveJobCommand}" />
                             </VerticalStackLayout>
                         </Border>
@@ -106,7 +107,7 @@
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource SuccessSoft}">
-                                <Label Text="&#xf46d;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource SuccessDark}"/>
+                                <controls:AppIcon Icon="{x:Static icons:AppIcons.ClipboardList}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{StaticResource SuccessDark}"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                 <Label Text="Available jobs" Style="{StaticResource BodyMedium}" />

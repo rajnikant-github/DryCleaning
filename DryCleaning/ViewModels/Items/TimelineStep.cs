@@ -18,5 +18,5 @@ public sealed class TimelineStep
     public bool HasTime => !string.IsNullOrEmpty(TimeText);
     public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
     public bool ShowLine => !IsLast;
-    public string Marker => IsAlert ? Helpers.FontAwesome.Exclamation : IsDone ? Helpers.FontAwesome.Check : string.Empty;
+    public string Marker => IsAlert ? Helpers.AppIcons.Exclamation : IsDone ? Helpers.AppIcons.Check : string.Empty;
 }

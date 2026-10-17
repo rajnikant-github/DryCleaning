@@ -2,6 +2,7 @@
 <!--  P10 – Completed / Cancelled / Disputed orders  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -29,7 +30,7 @@
                                 State="{Binding State}"
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}"
-                                EmptyIcon="&#xf07c;"
+                                EmptyIcon="{x:Static icons:AppIcons.FolderOpen}"
                                 EmptyTitle="{Binding EmptyTitle}"
                                 EmptyMessage="Finished orders are kept here for your records." />
     </Grid>

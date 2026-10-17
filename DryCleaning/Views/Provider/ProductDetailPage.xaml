@@ -2,6 +2,7 @@
 <!--  P11 – Product → Service Items  -->
 <views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:icons="clr-namespace:DryCleaning.Helpers"
                 xmlns:views="clr-namespace:DryCleaning.Views"
                 xmlns:controls="clr-namespace:DryCleaning.Controls"
                 xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
@@ -19,7 +20,7 @@
                 <Border Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                         <Border Style="{StaticResource IconTile}" WidthRequest="60" HeightRequest="60">
-                            <Label Text="{Binding ProductIcon}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
+                            <controls:AppIcon Icon="{Binding ProductIcon}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="{Binding ProductName}" Style="{StaticResource H2}" />

@@ -28,6 +28,6 @@ public sealed class DriverJobSummary
     public bool IsOnHold { get; init; }
 
     public bool IsPickup => JobType == DriverJobType.Pickup;
-    public string TypeIcon => IsPickup ? Helpers.FontAwesome.Box : Helpers.FontAwesome.Truck;
+    public string TypeIcon => IsPickup ? Helpers.AppIcons.Box : Helpers.AppIcons.Truck;
     public string TypeText => IsPickup ? "Pickup" : "Delivery";
 }
