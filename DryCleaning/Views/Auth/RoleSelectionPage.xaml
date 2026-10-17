@@ -9,13 +9,13 @@
     <ScrollView>
         <VerticalStackLayout Padding="{OnPlatform iOS='24,64,24,24', Default='24,40,24,24'}" Spacing="16">
             <Border BackgroundColor="{StaticResource White}" Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="RoundRectangle 14"
-                    WidthRequest="56" HeightRequest="56" HorizontalOptions="Start">
+                    WidthRequest="56" HeightRequest="56" HorizontalOptions="Center">
                 <Image Source="logo_app.png" WidthRequest="40" HeightRequest="40" />
             </Border>
 
             <VerticalStackLayout Spacing="6" Margin="0,8,0,8">
-                <Label Text="Welcome to EDry Cleaners" Style="{StaticResource H1}" />
-                <Label Text="How would you like to use EDry Cleaners?" Style="{StaticResource Caption}" FontSize="15" />
+                <Label Text="Welcome to EDry Cleaners" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
+                <Label Text="How would you like to use EDry Cleaners?" Style="{StaticResource Caption}" FontSize="15" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <!--  Customer  -->
