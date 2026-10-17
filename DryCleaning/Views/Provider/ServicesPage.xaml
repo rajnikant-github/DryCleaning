@@ -16,23 +16,24 @@
         <controls:SegmentBar ItemsSource="{Binding Categories}" />
 
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-            <CollectionView ItemsSource="{Binding Products}" SelectionMode="None">
-                <CollectionView.Header>
-                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{DynamicResource SecondaryColor}" Margin="16,12,16,12">
+            <!--  A plain stack instead of CollectionView: on iOS a CollectionView header/footer is mis-measured after a refresh  -->
+            <ScrollView>
+                <VerticalStackLayout Padding="16,12,16,24" Spacing="12">
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{DynamicResource SecondaryColor}">
                         <Label FontSize="13" TextColor="{DynamicResource Primary}"
                                Text="Categories are managed by EDry Cleaners. Add Products and Service Items with your own prices." />
                     </Border>
-                </CollectionView.Header>
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="32,48" Spacing="8">
+                    <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Products}">
+                        <BindableLayout.EmptyView>
+                            <VerticalStackLayout Padding="32,48" Spacing="8">
                         <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                         <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
                         <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="items:ProductCardItem">
-                        <Border Style="{StaticResource Card}" Margin="16,0,16,12">
+                        </BindableLayout.EmptyView>
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="items:ProductCardItem">
+                        <Border Style="{StaticResource Card}" Margin="0">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                             </Border.GestureRecognizers>
@@ -57,12 +58,11 @@
                             </Grid>
                         </Border>
                     </DataTemplate>
-                </CollectionView.ItemTemplate>
-                <CollectionView.Footer>
-                    <Button Text="+ Add Product" Command="{Binding AddProductCommand}"
-                            Style="{StaticResource SecondaryButton}" Margin="16,4,16,24" />
-                </CollectionView.Footer>
-            </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                    <Button Text="+ Add Product" Command="{Binding AddProductCommand}" Style="{StaticResource SecondaryButton}" />
+                </VerticalStackLayout>
+            </ScrollView>
         </RefreshView>
 
         <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
