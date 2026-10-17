@@ -71,14 +71,14 @@
                             </Grid>
                             <BoxView Style="{StaticResource Divider}" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf3c5;" FontSize="18"  FontFamily="FA"/>
+                                <Label Text="&#xf3c5;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup &amp; delivery address" Style="{StaticResource Small}" />
                                     <Label Text="{Binding AddressText}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf017;" FontSize="18"  FontFamily="FA"/>
+                                <Label Text="&#xf017;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="Pickup time" Style="{StaticResource Small}" />
                                     <Label Text="{Binding PickupText}" FontSize="14" />

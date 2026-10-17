@@ -35,11 +35,11 @@
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Contact" Style="{StaticResource SectionLabel}" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf0e0;"  FontFamily="FA"/>
+                                <Label Text="&#xf0e0;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Text="{Binding Email}" FontSize="14" />
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf3cf;"  FontFamily="FA"/>
+                                <Label Text="&#xf3cf;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Text="{Binding Phone}" FontSize="14" />
                             </Grid>
                         </VerticalStackLayout>

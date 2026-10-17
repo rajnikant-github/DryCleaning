@@ -60,28 +60,28 @@
                         <VerticalStackLayout Spacing="12">
                             <Label Text="Driver details" Style="{StaticResource SectionLabel}" Margin="0" />
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf3cf;"  FontFamily="FA"/>
+                                <Label Text="&#xf3cf;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Mobile" Style="{StaticResource Small}" />
                                     <Label Text="{Binding Phone}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf0e0;"  FontFamily="FA"/>
+                                <Label Text="&#xf0e0;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Email" Style="{StaticResource Small}" />
                                     <Label Text="{Binding Email}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf2c2;"  FontFamily="FA"/>
+                                <Label Text="&#xf2c2;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Driver's licence" Style="{StaticResource Small}" />
                                     <Label Text="{Binding LicenseNumber}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Label Text="&#xf3c5;"  FontFamily="FA"/>
+                                <Label Text="&#xf3c5;"  FontFamily="FA" VerticalOptions="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="0">
                                     <Label Text="Base area" Style="{StaticResource Small}" />
                                     <Label Text="{Binding BaseArea}" FontSize="14" />

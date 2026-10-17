@@ -25,7 +25,7 @@
                 </CollectionView.Header>
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="32,48" Spacing="8">
-                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" VerticalOptions="Center" TextColor="{StaticResource Primary}"/>
                         <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
                         <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
                     </VerticalStackLayout>

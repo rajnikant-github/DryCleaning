@@ -73,7 +73,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenServicesCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf02b;" FontSize="18"  FontFamily="FA"/>
+                            <Label Text="&#xf02b;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Services &amp; Pricing" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -82,7 +82,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf0f3;" FontSize="18"  FontFamily="FA"/>
+                            <Label Text="&#xf0f3;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Notifications" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -91,7 +91,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf084;" FontSize="18"  FontFamily="FA"/>
+                            <Label Text="&#xf084;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Change Password" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
@@ -100,7 +100,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HelpCommand}" />
                             </Grid.GestureRecognizers>
-                            <Label Text="&#xf4ad;" FontSize="18"  FontFamily="FA"/>
+                            <Label Text="&#xf4ad;" FontSize="18"  FontFamily="FA" VerticalOptions="Center"/>
                             <Label Grid.Column="1" Text="Help &amp; Support" Style="{StaticResource BodyMedium}" FontSize="14" VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
                         </Grid>
