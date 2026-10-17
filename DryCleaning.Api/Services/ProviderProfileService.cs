@@ -29,7 +29,7 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
             Description = provider.Description,
             Phone = provider.Phone,
             Email = provider.Email,
-            LogoUrl = provider.LogoUrl,
+            LogoUrl = FileUrls.Resolve(provider.LogoUrl),
             IsActive = provider.IsActive,
             Owner = owner.ToDto(provider.Id),
             Address = provider.Address?.ToDto(),
@@ -44,7 +44,9 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
         provider.Description = request.Description;
         provider.Phone = request.Phone;
         provider.Email = request.Email;
-        provider.LogoUrl = request.LogoUrl;
+        // The app echoes back the URL it was given; keep the stored path unless the logo really changed.
+        if (request.LogoUrl != FileUrls.Resolve(provider.LogoUrl))
+            provider.LogoUrl = request.LogoUrl;
         await db.SaveChangesAsync(ct);
         return await GetAsync(ct);
     }
@@ -63,7 +65,7 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
 
         var provider = await profile.ProviderAsync(ct);
         await using var stream = file.OpenReadStream();
-        provider.LogoUrl = await storage.SaveAsync(stream, extension, $"providers/{provider.Id:N}", ct);
+        provider.LogoUrl = await storage.SaveAsync(stream, extension, $"providers/{provider.Id:N}", FileVisibility.Public, ct);
         await db.SaveChangesAsync(ct);
         return await GetAsync(ct);
     }

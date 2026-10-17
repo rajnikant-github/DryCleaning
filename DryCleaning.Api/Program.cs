@@ -76,7 +76,11 @@ builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IOtpService, MemoryOtpService>();
-builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+// Photos and logos: wwwroot for development / single server, Azure Blob Storage when hosted in Azure.
+if (config.GetSection(StorageOptions.Section).Get<StorageOptions>()?.UseAzureBlob == true)
+    builder.Services.AddSingleton<IFileStorage, AzureBlobFileStorage>();
+else
+    builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 builder.Services.AddHttpClient<IPaystackClient, PaystackClient>((sp, client) =>
 {
     var baseUrl = config.GetSection(PaystackOptions.Section).Get<PaystackOptions>()?.BaseUrl ?? "https://api.paystack.co/";
@@ -124,6 +128,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
 builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
+FileUrls.Use(app.Services.GetRequiredService<IFileStorage>());
 
 // ── Database initialisation & demo data ──────────────────────────────────────
 if (config.GetValue("Database:InitializeOnStartup", true))

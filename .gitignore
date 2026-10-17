@@ -436,3 +436,7 @@ DryCleaning/appsettings.env.json
 # (DryCleaning/environments/<name>.secrets.json); set-app-env copies the chosen one into the build.
 DryCleaning/environments/*.secrets.json
 DryCleaning/appsettings.secrets.json
+
+# Photos and logos uploaded to a local/dev API (production uses Azure Blob Storage). Keep the folder, ignore the files.
+DryCleaning.Api/wwwroot/uploads/*
+!DryCleaning.Api/wwwroot/uploads/.gitkeep

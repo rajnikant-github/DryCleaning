@@ -1,3 +1,4 @@
+using DryCleaning.Api.Infrastructure.Storage;
 using DryCleaning.Api.Common;
 using DryCleaning.Api.Data;
 using DryCleaning.Api.Domain;
@@ -71,7 +72,7 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             Id = p.Id,
             BusinessName = p.BusinessName,
             Description = p.Description,
-            LogoUrl = p.LogoUrl,
+            LogoUrl = FileUrls.Resolve(p.LogoUrl),
             Locality = p.Address?.SubLocality ?? p.Address?.Locality,
             Categories = p.Categories.Where(c => c.IsActive && c.Category.IsActive).Select(c => c.Category.Name).ToList(),
             StartingPrice = activeItems.Count == 0 ? null : activeItems.Min(s => s.Price),

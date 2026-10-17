@@ -1,3 +1,4 @@
+using DryCleaning.Api.Infrastructure.Storage;
 using DryCleaning.Api.Data;
 using DryCleaning.Api.Domain;
 using DryCleaning.Api.Dtos;
@@ -137,7 +138,7 @@ public static class Mapping
     {
         Id = p.Id,
         Type = p.Type,
-        Url = p.Url,
+        Url = FileUrls.Resolve(p.Url) ?? p.Url,
         UploadedBy = p.UploadedBy,
         CreatedAt = p.CreatedAt
     };

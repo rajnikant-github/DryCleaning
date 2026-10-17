@@ -27,7 +27,7 @@ public sealed class OrderPhotoService(AppDbContext db, ICurrentUser currentUser,
         var (order, uploadedBy) = await AuthorizeAsync(orderId, ct);
 
         await using var stream = file.OpenReadStream();
-        var url = await storage.SaveAsync(stream, extension, $"orders/{order.Id:N}", ct);
+        var url = await storage.SaveAsync(stream, extension, $"orders/{order.Id:N}", FileVisibility.Private, ct);
 
         var photo = new OrderPhoto { OrderId = order.Id, Type = type, Url = url, UploadedBy = uploadedBy };
         db.OrderPhotos.Add(photo);
