@@ -18,15 +18,17 @@ public sealed class SegmentBar : ContentView
 
     private readonly HorizontalStackLayout _stack = new() { Spacing = 8, Padding = new Thickness(16, 12) };
     private readonly List<ViewModels.Items.SegmentItem> _subscribed = [];
+    private readonly ScrollView _scroll;
 
     public SegmentBar()
     {
         BackgroundColor = Theme.Card;
+        _scroll = new ScrollView { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Content = _stack };
         Content = new VerticalStackLayout
         {
             Children =
             {
-                new ScrollView { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Content = _stack },
+                _scroll,
                 new BoxView { HeightRequest = 1, Color = Theme.Border }
             }
         };
@@ -82,6 +84,14 @@ public sealed class SegmentBar : ContentView
             _subscribed.Add(item);
             _stack.Children.Add(chip);
         }
+
+        // Tabs added after the first layout (e.g. categories loaded from the API) otherwise keep a height of 0 on iOS.
+        Dispatcher.Dispatch(() =>
+        {
+            _stack.InvalidateMeasure();
+            _scroll.InvalidateMeasure();
+            InvalidateMeasure();
+        });
     }
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -23,7 +23,7 @@
                         </Grid>
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                <Label Text="&#xf013;" FontSize="20" VerticalOptions="Center"  FontFamily="FA" WidthRequest="28" HorizontalTextAlignment="Center"/>
+                                <Label Text="&#xf013;" FontSize="20" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource WarningDark}" WidthRequest="28" HorizontalTextAlignment="Center"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding StartedText, StringFormat='Processing since {0}'}" TextColor="{StaticResource WarningDark}" FontFamily="AppSemibold" FontSize="13" />
                                     <Label Text="{Binding StatusHint}" TextColor="{StaticResource WarningDark}" FontSize="13" />
