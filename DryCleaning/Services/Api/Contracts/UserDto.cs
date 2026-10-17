@@ -12,4 +12,5 @@ public sealed class UserDto
     public string? Phone { get; set; }
     public Guid? ProfileId { get; set; }
     public bool IsActive { get; set; }
+    public string? PhotoUrl { get; set; }
 }

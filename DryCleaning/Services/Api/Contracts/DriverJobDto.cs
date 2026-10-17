@@ -13,6 +13,7 @@ public sealed class DriverJobDto
     public Guid? DriverId { get; set; }
     public string? DriverName { get; set; }
     public string? DriverPhone { get; set; }
+    public string? DriverPhotoUrl { get; set; }
     public string PickupName { get; set; } = string.Empty;
     public AddressDto PickupAddress { get; set; } = new();
     public string DeliveryName { get; set; } = string.Empty;

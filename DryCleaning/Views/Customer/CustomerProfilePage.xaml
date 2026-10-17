@@ -17,7 +17,11 @@
                 <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
                     <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-                            <controls:AvatarView Text="{Binding Initials}" AvatarSize="60" />
+                            <controls:AvatarView Text="{Binding Initials}" Photo="{Binding PhotoSource}" AvatarSize="60">
+                                    <controls:AvatarView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ChangePhotoCommand}" />
+                                    </controls:AvatarView.GestureRecognizers>
+                                </controls:AvatarView>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label Text="{Binding Name}" Style="{StaticResource HeaderTitle}" FontSize="20" />
                                 <Label Text="{Binding MemberSinceText}" Style="{StaticResource HeaderCaption}" />

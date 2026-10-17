@@ -7,7 +7,7 @@ using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
 
-public sealed partial class ProfileViewModel(ViewModelServices services, IProviderProfileService profiles, IAuthService auth)
+public sealed partial class ProfileViewModel(ViewModelServices services, IProviderProfileService profiles, IAuthService auth, ProfilePhotoChanger photoChanger)
     : BaseViewModel(services)
 {
     [ObservableProperty] private string businessName = string.Empty;
@@ -18,6 +18,7 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     [ObservableProperty] private string address = string.Empty;
     [ObservableProperty] private string categoriesText = string.Empty;
     [ObservableProperty] private string ownerInitials = string.Empty;
+    [ObservableProperty] private ImageSource? photoSource;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasLogo))]
@@ -32,6 +33,7 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
         Description = profile.Provider.Description;
         OwnerName = profile.Owner.Name;
         OwnerInitials = StringHelpers.Initials(profile.Owner.Name);
+        PhotoSource = ImageSources.FromPathOrUrl(profile.Owner.PhotoUrl);
         Phone = profile.Provider.Phone;
         Email = profile.Provider.Email;
         Address = profile.Address.FormattedAddress;
@@ -39,6 +41,14 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
         CategoriesText = string.Join("  ·  ", profile.Categories.Select(c => $"{CatalogIcons.ForCategory(c.Name)} {c.Name}"));
         return true;
     }
+
+    [RelayCommand]
+    private Task ChangePhotoAsync() => RunBusyAsync(async () =>
+    {
+        var result = await photoChanger.RunAsync(PhotoSource is not null);
+        if (result.Changed)
+            PhotoSource = ImageSources.FromPathOrUrl(result.Url);
+    });
 
     [RelayCommand]
     private Task OpenNotificationsAsync() => Navigation.GoToAsync(Routes.Notifications);

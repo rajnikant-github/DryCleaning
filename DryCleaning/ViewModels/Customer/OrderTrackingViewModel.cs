@@ -25,6 +25,7 @@ public sealed partial class OrderTrackingViewModel(ViewModelServices services, I
     [ObservableProperty] private bool hasDriver;
     [ObservableProperty] private string driverName = string.Empty;
     [ObservableProperty] private string driverInitials = string.Empty;
+    [ObservableProperty] private ImageSource? driverPhoto;
     [ObservableProperty] private string driverInfo = string.Empty;
     [ObservableProperty] private string driverPhone = string.Empty;
 
@@ -51,6 +52,7 @@ public sealed partial class OrderTrackingViewModel(ViewModelServices services, I
         HasDriver = driver is not null;
         DriverName = driver?.DriverName ?? string.Empty;
         DriverInitials = StringHelpers.Initials(driver?.DriverName);
+        DriverPhoto = ImageSources.FromPathOrUrl(driver?.DriverPhotoUrl);
         DriverPhone = driver?.DriverPhone ?? string.Empty;
         DriverInfo = driver is null ? string.Empty
             : driver.JobType == DriverJobType.Pickup ? "Collecting your items" : "Delivering your order";

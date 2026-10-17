@@ -47,6 +47,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
         builder.Services.AddSingleton<IDialogService, DialogService>();
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
+        builder.Services.AddSingleton<ProfilePhotoChanger>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<ViewModelServices>();
 
@@ -148,6 +149,7 @@ public static class MauiProgram
         services.AddSingleton<IPaymentService, MockPaymentService>();
         services.AddSingleton<IDriverService, MockDriverService>();
         services.AddSingleton<IRealtimeService, MockRealtimeService>();
+        services.AddSingleton<IUserPhotoService, MockUserPhotoService>();
     }
 
     private static void AddApiServices(IServiceCollection services, AppSettings settings)
@@ -168,6 +170,7 @@ public static class MauiProgram
         services.AddSingleton<IPaymentService, ApiPaymentService>();
         services.AddSingleton<IDriverService, ApiDriverService>();
         services.AddSingleton<IRealtimeService, ApiRealtimeService>();
+        services.AddSingleton<IUserPhotoService, ApiUserPhotoService>();
     }
 
     private static IServiceCollection AddPage<TPage, TViewModel>(this IServiceCollection services)

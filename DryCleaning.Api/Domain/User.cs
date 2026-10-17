@@ -9,6 +9,9 @@ public class User : EntityBase
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 
+    /// <summary>Profile photo: a stored path (see IFileStorage), not a URL. Null = initials avatar.</summary>
+    public string? PhotoUrl { get; set; }
+
     public Customer? Customer { get; set; }
     public Provider? ServiceProvider { get; set; }
     public Driver? Driver { get; set; }

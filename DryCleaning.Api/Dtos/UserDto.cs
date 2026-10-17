@@ -11,4 +11,5 @@ public sealed class UserDto
     public required string? Phone { get; init; }
     public required Guid? ProfileId { get; init; }
     public required bool IsActive { get; init; }
+    public required string? PhotoUrl { get; init; }
 }

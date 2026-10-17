@@ -8,4 +8,7 @@ public sealed class User : EntityBase
     public string Phone { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
+
+    /// <summary>Profile photo: a web address (API) or a file path on the phone (demo data). Null = initials.</summary>
+    public string? PhotoUrl { get; set; }
 }

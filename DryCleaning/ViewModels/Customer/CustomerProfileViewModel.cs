@@ -8,11 +8,12 @@ namespace DryCleaning.ViewModels.Customer;
 
 /// <summary>C19 – Customer profile.</summary>
 public sealed partial class CustomerProfileViewModel(
-    ViewModelServices services, ICustomerProfileService profiles, IAuthService auth, ICartService cart)
+    ViewModelServices services, ICustomerProfileService profiles, IAuthService auth, ICartService cart, ProfilePhotoChanger photoChanger)
     : BaseViewModel(services)
 {
     [ObservableProperty] private string name = string.Empty;
     [ObservableProperty] private string initials = string.Empty;
+    [ObservableProperty] private ImageSource? photoSource;
     [ObservableProperty] private string email = string.Empty;
     [ObservableProperty] private string phone = string.Empty;
     [ObservableProperty] private string addressText = string.Empty;
@@ -27,6 +28,7 @@ public sealed partial class CustomerProfileViewModel(
         var profile = await profiles.GetProfileAsync();
         Name = profile.User.Name;
         Initials = StringHelpers.Initials(profile.User.Name);
+        PhotoSource = ImageSources.FromPathOrUrl(profile.User.PhotoUrl);
         Email = string.IsNullOrWhiteSpace(profile.User.Email) ? "No email added" : profile.User.Email;
         Phone = string.IsNullOrWhiteSpace(profile.User.Phone) ? "No phone added" : profile.User.Phone;
         HasAddress = profile.Address is not null;
@@ -35,6 +37,14 @@ public sealed partial class CustomerProfileViewModel(
         MemberSinceText = $"Member since {profile.User.CreatedAt:MMM yyyy}";
         return true;
     }
+
+    [RelayCommand]
+    private Task ChangePhotoAsync() => RunBusyAsync(async () =>
+    {
+        var result = await photoChanger.RunAsync(PhotoSource is not null);
+        if (result.Changed)
+            PhotoSource = ImageSources.FromPathOrUrl(result.Url);
+    });
 
     [RelayCommand]
     private Task EditProfileAsync() => Navigation.GoToAsync(Routes.EditProfile);

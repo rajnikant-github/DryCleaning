@@ -102,6 +102,7 @@ builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<OrderPhotoService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<UserPhotoService>();
 builder.Services.AddScoped<AdminService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

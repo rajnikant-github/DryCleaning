@@ -12,6 +12,7 @@ public sealed class DriverJobDto
     public required Guid? DriverId { get; init; }
     public required string? DriverName { get; init; }
     public required string? DriverPhone { get; init; }
+    public required string? DriverPhotoUrl { get; init; }
     public required string PickupName { get; init; }
     public required AddressDto PickupAddress { get; init; }
     public required string DeliveryName { get; init; }

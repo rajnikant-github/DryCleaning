@@ -15,6 +15,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         b.Property(x => x.Email).HasMaxLength(100);
         b.Property(x => x.Phone).HasMaxLength(20);
         b.Property(x => x.PasswordHash).HasMaxLength(255).IsRequired();
+        b.Property(x => x.PhotoUrl).HasMaxLength(500);
         b.HasIndex(x => x.Email).IsUnique().HasFilter("[Email] IS NOT NULL");
         b.HasIndex(x => x.Phone).IsUnique().HasFilter("[Phone] IS NOT NULL");
     }

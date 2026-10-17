@@ -7,6 +7,15 @@ namespace DryCleaning.Services.Api;
 /// <summary>Converts API contracts into the app's read models (the same models the mock services return).</summary>
 public static class ApiMapping
 {
+    /// <summary>The API's base address, set once by <see cref="ApiClient"/>, so mapped photo links can be made absolute.</summary>
+    public static Uri? BaseAddress { get; set; }
+
+    /// <summary>"/uploads/x.jpg" from the API becomes a full address; links that are already absolute (Azure) are kept.</summary>
+    public static string? Absolute(string? url) =>
+        string.IsNullOrWhiteSpace(url) || Uri.IsWellFormedUriString(url, UriKind.Absolute) || BaseAddress is null
+            ? url
+            : new Uri(BaseAddress, url.TrimStart('/')).ToString();
+
     // ── Dates ────────────────────────────────────────────────────────────────
 
     /// <summary>The API stores UTC; values without an offset are UTC too. Shown in the phone's time zone.</summary>
@@ -31,7 +40,8 @@ public static class ApiMapping
         Name = dto.Name,
         Email = dto.Email ?? string.Empty,
         Phone = dto.Phone ?? string.Empty,
-        IsActive = dto.IsActive
+        IsActive = dto.IsActive,
+        PhotoUrl = Absolute(dto.PhotoUrl)
     };
 
     public static Address ToAddress(AddressDto dto) => new()
@@ -281,6 +291,7 @@ public static class ApiMapping
                 Status = job.Status,
                 DriverName = job.DriverName ?? "Driver",
                 DriverPhone = job.DriverPhone ?? string.Empty,
+                DriverPhotoUrl = Absolute(job.DriverPhotoUrl),
                 LicenseNumber = string.Empty,
                 AssignedAt = Local(job.AssignedAt),
                 CompletedAt = Local(job.CompletedAt)

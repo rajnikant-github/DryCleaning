@@ -20,6 +20,11 @@ public sealed class AvatarView : ContentView
         nameof(AvatarSize), typeof(double), typeof(AvatarView), 44d,
         propertyChanged: (bindable, _, _) => ((AvatarView)bindable).ApplySize());
 
+    public static readonly BindableProperty PhotoProperty = BindableProperty.Create(
+        nameof(Photo), typeof(ImageSource), typeof(AvatarView), null,
+        propertyChanged: (bindable, _, value) => ((AvatarView)bindable).ShowImage(value as ImageSource));
+
+    private readonly Image _photoView;
     private readonly Label _label;
     private readonly Border _border;
 
@@ -32,7 +37,8 @@ public sealed class AvatarView : ContentView
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         };
-        _border = new Border { StrokeThickness = 0, BackgroundColor = Theme.Primary, Content = _label };
+        _photoView = new Image { Aspect = Aspect.AspectFill, IsVisible = false };
+        _border = new Border { StrokeThickness = 0, BackgroundColor = Theme.Primary, Content = new Grid { Children = { _label, _photoView } } };
         Content = _border;
         HorizontalOptions = LayoutOptions.Start;
         VerticalOptions = LayoutOptions.Center;
@@ -45,10 +51,24 @@ public sealed class AvatarView : ContentView
         set => SetValue(TextProperty, value);
     }
 
+    /// <summary>A photo to show instead of the initials; null shows the initials.</summary>
+    public ImageSource? Photo
+    {
+        get => (ImageSource?)GetValue(PhotoProperty);
+        set => SetValue(PhotoProperty, value);
+    }
+
     public double AvatarSize
     {
         get => (double)GetValue(AvatarSizeProperty);
         set => SetValue(AvatarSizeProperty, value);
+    }
+
+    private void ShowImage(ImageSource? source)
+    {
+        _photoView.Source = source;
+        _photoView.IsVisible = source is not null;
+        _label.IsVisible = source is null;
     }
 
     private void ApplySize()

@@ -34,6 +34,7 @@ public sealed class ApiClient
             Timeout = TimeSpan.FromSeconds(Math.Max(5, settings.Api.TimeoutSeconds))
         };
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        ApiMapping.BaseAddress = _http.BaseAddress;
     }
 
     /// <summary>Raised when the refresh token is rejected – the user must sign in again.</summary>
@@ -86,6 +87,12 @@ public sealed class ApiClient
     {
         using var response = await SendAsync(() => new HttpRequestMessage(HttpMethod.Post, path), authorize: true, ct);
         return await ReadAsync(response, resultType, ct);
+    }
+
+    /// <summary>DELETE without a body, ignoring the result.</summary>
+    public async Task DeleteAsync(string path, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(() => new HttpRequestMessage(HttpMethod.Delete, path), authorize: true, ct);
     }
 
     /// <summary>POST without a body, ignoring the result.</summary>

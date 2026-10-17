@@ -26,7 +26,7 @@ which endpoint does what, and which database tables each step reads and writes.
    - [4.9 Provider onboarding and catalog](#49-provider-onboarding-and-catalog)
    - [4.10 Photos](#410-photos)
    - [4.11 Real-time updates (SignalR)](#411-real-time-updates-signalr)
-5. [Endpoint reference](#5-endpoint-reference) (107 endpoints)
+5. [Endpoint reference](#5-endpoint-reference) (109 endpoints)
    - [5.1 Auth](#51-auth) · [5.2 Me (address, devices, notifications)](#52-me-address-devices-notifications) ·
      [5.3 Public catalog](#53-public-catalog) · [5.4 Customer](#54-customer) · [5.5 Provider](#55-provider) ·
      [5.6 Driver](#56-driver) · [5.7 Order photos](#57-order-photos) · [5.8 Payments webhook](#58-payments-webhook) ·
@@ -465,6 +465,8 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `PUT` | `/api/me/address` | Customer, Provider, Driver | Body: `UpsertAddressRequest` | `AddressDto` | Create or replace my address from a Google Places selection. Customers need one before ordering; providers before accepting orders. |
 | `POST` | `/api/me/devices` | Signed in | Body: `RegisterDeviceRequest` | `204` | Register this phone's push token (`token`, `platform`). Call after sign-in, on app start and when the token changes. |
 | `DELETE` | `/api/me/devices` | Signed in | Query: `token` | `204` | Stop pushes to this phone (`?token=`). Call on logout. |
+| `POST` | `/api/me/photo` | Customer, Provider, Driver | Multipart: `File` | `UserDto` | Set or replace my profile photo (JPG, PNG, HEIC or WEBP, max 5 MB). Stored in the public-read area; `photoUrl` in the response. |
+| `DELETE` | `/api/me/photo` | Customer, Provider, Driver | — | `UserDto` | Remove my profile photo (back to the initials avatar). |
 | `GET` | `/api/notifications` | Signed in | Query: `page`, `pageSize`, `search`, `unreadOnly` | `PagedResult<NotificationDto>` | My in-app notifications, newest first (paged; `unreadOnly=true` to filter). |
 | `GET` | `/api/notifications/unread-count` | Signed in | — | `int` | Number of unread notifications (for the bell badge). |
 | `POST` | `/api/notifications/{id}/read` | Signed in | — | `204` | Mark one notification as read. |
@@ -1187,6 +1189,7 @@ Returned by every sign-in endpoint. Store `accessToken` and `refreshToken` secur
 | `driverId` | `Guid?` |
 | `driverName` | `string?` |
 | `driverPhone` | `string?` |
+| `driverPhotoUrl` | `string?` |
 | `pickupName` | `string` |
 | `pickupAddress` | `AddressDto` |
 | `deliveryName` | `string` |
@@ -1513,6 +1516,7 @@ Wrapper for every paged list.
 | `phone` | `string?` |
 | `profileId` | `Guid?` |
 | `isActive` | `bool` |
+| `photoUrl` | `string?` |
 
 
 ---

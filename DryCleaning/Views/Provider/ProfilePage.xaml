@@ -30,7 +30,11 @@
                             <Button Grid.Column="1" Text="Edit" Style="{StaticResource TextButton}" Command="{Binding EditBusinessProfileCommand}" />
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <controls:AvatarView Text="{Binding OwnerInitials}" AvatarSize="40" />
+                            <controls:AvatarView Text="{Binding OwnerInitials}" Photo="{Binding PhotoSource}" AvatarSize="40">
+                                    <controls:AvatarView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ChangePhotoCommand}" />
+                                    </controls:AvatarView.GestureRecognizers>
+                                </controls:AvatarView>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                 <Label Text="{Binding OwnerName}" Style="{StaticResource BodyMedium}" />
                                 <Label Text="Owner" Style="{StaticResource Small}" />

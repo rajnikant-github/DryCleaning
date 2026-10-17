@@ -18,7 +18,8 @@ public static class Mapping
             Email = user.Email,
             Phone = user.Phone,
             ProfileId = profileId,
-            IsActive = user.IsActive
+            IsActive = user.IsActive,
+            PhotoUrl = FileUrls.Resolve(user.PhotoUrl)
         };
 
     public static AddressDto ToDto(this Address a) => new()
@@ -237,6 +238,7 @@ public static class Mapping
             DriverId = j.DriverId,
             DriverName = j.Driver?.User?.Name,
             DriverPhone = j.Driver?.User?.Phone,
+            DriverPhotoUrl = FileUrls.Resolve(j.Driver?.User?.PhotoUrl),
             PickupName = toProvider ? order.Customer.User.Name : order.ServiceProvider.BusinessName,
             PickupAddress = j.PickupAddress.ToDto(),
             DeliveryName = toProvider ? order.ServiceProvider.BusinessName : order.Customer.User.Name,
