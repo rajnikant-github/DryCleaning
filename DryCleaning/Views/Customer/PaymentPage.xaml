@@ -29,12 +29,12 @@
                         <Label Text="Payment method" Style="{StaticResource SectionLabel}" />
                         <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2" BackgroundColor="#F0F5FF">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                <Label Text="&#xf09d;" FontSize="24" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                                <Label Text="&#xf09d;" FontSize="24" VerticalOptions="Center"  FontFamily="FA" WidthRequest="34" HorizontalTextAlignment="Center" TextColor="{StaticResource Primary}"/>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="Card, EFT or Instant EFT" Style="{StaticResource BodyMedium}" />
                                     <Label Text="Secured by Paystack" Style="{StaticResource Small}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="&#xf00c;" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center"  FontFamily="FA"/>
+                                <Label Grid.Column="2" Text="&#xf00c;" TextColor="{StaticResource Primary}" FontSize="18" VerticalOptions="Center"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
                             </Grid>
                         </Border>
                         <Label Text="{Binding CurrencyCode, StringFormat='Charged in {0}.'}" Style="{StaticResource Small}" />

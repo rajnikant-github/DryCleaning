@@ -36,7 +36,7 @@
                                             <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" />
                                             <Label Text="{Binding UnitPrice, Converter={StaticResource Currency}, StringFormat='{0} each'}" Style="{StaticResource Small}" />
                                         </VerticalStackLayout>
-                                        <Label Grid.Column="2" Text="&#xf2ed;" FontSize="18" VerticalOptions="Start" Padding="6,0,0,6" FontFamily="FA">
+                                        <Label Grid.Column="2" Text="&#xf2ed;" FontSize="18" VerticalOptions="Start" Padding="6,0,0,6" FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding RemoveCommand}" />
                                             </Label.GestureRecognizers>

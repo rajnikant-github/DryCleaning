@@ -34,7 +34,7 @@
                                     <TapGestureRecognizer Command="{Binding ChangeAddressCommand}" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                                    <Label Text="&#xf3c5;" FontSize="14" VerticalOptions="Center"  FontFamily="FA"/>
+                                    <Label Text="&#xf3c5;" FontSize="14" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
                                         <Label Text="Pickup address" TextColor="#BFDBFE" FontSize="11" />
                                         <Label Text="{Binding AddressText}" TextColor="{StaticResource White}" FontSize="13"
@@ -62,7 +62,7 @@
                                     <Label Text="Start an order ›" TextColor="{StaticResource Primary}" FontSize="13" FontFamily="AppSemibold" />
                                 </Border>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="&#xf291;" FontSize="44" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource White}"/>
+                            <Label Grid.Column="1" Text="&#xf291;" FontSize="44" VerticalOptions="Center"  FontFamily="FA" WidthRequest="62" HorizontalTextAlignment="Center" TextColor="{StaticResource White}"/>
                         </Grid>
                     </Border>
 

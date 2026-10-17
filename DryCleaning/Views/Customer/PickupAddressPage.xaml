@@ -19,7 +19,7 @@
                 <!--  Autocomplete search  -->
                 <Border Style="{StaticResource InputField}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                        <Label Text="&#xf002;" VerticalOptions="Center"  FontFamily="FA"/>
+                        <Label Text="&#xf002;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                         <Entry Grid.Column="1" Text="{Binding SearchText}" Placeholder="Search street, suburb or building" ClearButtonVisibility="WhileEditing" />
                         <ActivityIndicator Grid.Column="2" IsRunning="{Binding IsSearching}" IsVisible="{Binding IsSearching}" WidthRequest="20" HeightRequest="20" />
                     </Grid>
@@ -33,7 +33,7 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Label Text="&#xf3c5;" VerticalOptions="Center"  FontFamily="FA"/>
+                                    <Label Text="&#xf3c5;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="1">
                                         <Label Text="{Binding MainText}" Style="{StaticResource BodyMedium}" FontSize="14" />
                                         <Label Text="{Binding SecondaryText}" Style="{StaticResource Small}" />

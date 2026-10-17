@@ -17,7 +17,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Hand over to" Style="{StaticResource SectionLabel}" Margin="0" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Text="&#xf54e;" FontSize="18" VerticalOptions="Start"  FontFamily="FA"/>
+                            <Label Text="&#xf54e;" FontSize="18" VerticalOptions="Start"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="{Binding DestinationName}" Style="{StaticResource BodyMedium}" />
                                 <Label Text="{Binding DestinationAddress}" Style="{StaticResource Caption}" />

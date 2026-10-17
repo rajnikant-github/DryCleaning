@@ -23,7 +23,7 @@
                     <Label Text="Mobile number or email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label Text="&#xf095;" VerticalOptions="Center"  FontFamily="FA"/>
+                            <Label Text="&#xf095;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                             <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="+27 82 555 0142"
                                    Keyboard="Email" ReturnType="Next" />
                         </Grid>
@@ -34,7 +34,7 @@
                     <Label Text="Password" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Label Text="&#xf023;" VerticalOptions="Center"  FontFamily="FA"/>
+                            <Label Text="&#xf023;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                             <Entry Grid.Column="1" Text="{Binding Password}" Placeholder="Enter your password"
                                    IsPassword="{Binding IsPasswordHidden}" ReturnType="Go"
                                    ReturnCommand="{Binding LoginCommand}" />
