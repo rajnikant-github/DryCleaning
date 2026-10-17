@@ -19,7 +19,7 @@
                     <!--  Total  -->
                     <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="20">
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding PeriodText}" TextColor="#BFDBFE" FontSize="13" />
+                            <Label Text="{Binding PeriodText}" TextColor="#FFD9D2" FontSize="13" />
                             <Label Text="{Binding Total, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontSize="34" FontFamily="AppSemibold" />
                             <Label Text="{Binding SplitText}" TextColor="#E0F2FE" FontSize="13" />
                         </VerticalStackLayout>

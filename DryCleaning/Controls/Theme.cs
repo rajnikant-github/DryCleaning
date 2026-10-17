@@ -20,7 +20,7 @@ internal static class Theme
         return Color.FromArgb(fallback);
     }
 
-    public static Color Primary => Resource("Primary", "#1B3A6B");
+    public static Color Primary => Resource("Primary", "#FF725E");
     public static Color Border => Resource("BorderColor", "#E5E2D8");
     public static Color Muted => Resource("Muted", "#F0EDE6");
     public static Color MutedForeground => Resource("MutedForeground", "#6B7280");
