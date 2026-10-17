@@ -27,12 +27,12 @@
                             </Border.GestureRecognizers>
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsUnread}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryColor}" />
                                 </DataTrigger>
                             </Border.Triggers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}">
-                                    <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
+                                    <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" />

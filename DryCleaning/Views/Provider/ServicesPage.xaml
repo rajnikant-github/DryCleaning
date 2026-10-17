@@ -18,14 +18,14 @@
         <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Products}" SelectionMode="None">
                 <CollectionView.Header>
-                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource SecondaryColor}" Margin="16,12,16,12">
-                        <Label FontSize="13" TextColor="{StaticResource Primary}"
+                    <Border Style="{StaticResource SoftPanel}" BackgroundColor="{DynamicResource SecondaryColor}" Margin="16,12,16,12">
+                        <Label FontSize="13" TextColor="{DynamicResource Primary}"
                                Text="Categories are managed by EDry Cleaners. Add Products and Service Items with your own prices." />
                     </Border>
                 </CollectionView.Header>
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="32,48" Spacing="8">
-                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" VerticalOptions="Center" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf291;" FontSize="44" HorizontalOptions="Center"  FontFamily="FA" VerticalOptions="Center" TextColor="{DynamicResource Primary}"/>
                         <Label Text="No products yet" Style="{StaticResource H3}" HorizontalOptions="Center" />
                         <Label Text="Add your first product in this category." Style="{StaticResource Caption}" HorizontalOptions="Center" />
                     </VerticalStackLayout>
@@ -38,7 +38,7 @@
                             </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                 <Border Style="{StaticResource IconTile}" WidthRequest="52" HeightRequest="52">
-                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
+                                    <Label Text="{Binding Icon}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding Name}" Style="{StaticResource BodyMedium}" />
@@ -46,7 +46,7 @@
                                     <Label Style="{StaticResource Small}">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" />
+                                                <Span Text="{Binding StartingPriceText}" TextColor="{DynamicResource Primary}" FontFamily="AppSemibold" />
                                                 <Span Text="  ·  " />
                                                 <Span Text="{Binding ServiceItemsText}" />
                                             </FormattedString>

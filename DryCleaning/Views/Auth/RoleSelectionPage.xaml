@@ -8,7 +8,7 @@
                 Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout Padding="{OnPlatform iOS='24,64,24,24', Default='24,40,24,24'}" Spacing="16">
-            <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+            <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
                     WidthRequest="48" HeightRequest="48" HorizontalOptions="Start">
                 <Image Source="logo_mark_white.png" WidthRequest="30" HeightRequest="30" />
             </Border>
@@ -25,7 +25,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="&#xf553;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf553;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Customer" Style="{StaticResource BodyMedium}" TextColor="#1D4ED8" />
@@ -42,7 +42,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="&#xf54e;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf54e;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Service Provider" Style="{StaticResource BodyMedium}" TextColor="{StaticResource Purple}" />
@@ -59,7 +59,7 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="16">
                     <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource White}" WidthRequest="56" HeightRequest="56">
-                        <Label Text="&#xf1b9;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf1b9;" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                         <Label Text="Driver" Style="{StaticResource BodyMedium}" TextColor="{StaticResource SuccessDark}" />

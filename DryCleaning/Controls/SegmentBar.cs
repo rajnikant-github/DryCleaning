@@ -1,3 +1,5 @@
+using DryCleaning.Services.Theming;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
@@ -22,6 +24,7 @@ public sealed class SegmentBar : ContentView
 
     public SegmentBar()
     {
+        WeakReferenceMessenger.Default.Register<SegmentBar, ThemeChangedMessage>(this, (view, _) => view.RefreshChips());
         BackgroundColor = Theme.Card;
         _scroll = new ScrollView { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Content = _stack };
         Content = new VerticalStackLayout
@@ -92,6 +95,14 @@ public sealed class SegmentBar : ContentView
             _scroll.InvalidateMeasure();
             InvalidateMeasure();
         });
+    }
+
+    /// <summary>The app colour changed: repaint the chips that were coloured in code.</summary>
+    private void RefreshChips()
+    {
+        foreach (var child in _stack.Children)
+            if (child is Border { BindingContext: ViewModels.Items.SegmentItem item, Content: Label label } chip)
+                Apply(chip, label, item);
     }
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

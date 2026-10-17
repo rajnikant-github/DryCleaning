@@ -1,3 +1,5 @@
+using DryCleaning.Services.Theming;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Input;
@@ -66,6 +68,7 @@ public sealed class OtpView : ContentView
 
     public OtpView()
     {
+        WeakReferenceMessenger.Default.Register<OtpView, ThemeChangedMessage>(this, (view, _) => view.Highlight());
         BuildBoxes();
         _entry = new Entry
         {

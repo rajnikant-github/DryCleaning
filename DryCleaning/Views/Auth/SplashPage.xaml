@@ -6,7 +6,7 @@
                 x:Class="DryCleaning.Views.Auth.SplashPage"
                 x:DataType="vm:SplashViewModel"
                 Shell.NavBarIsVisible="False"
-                BackgroundColor="{StaticResource Primary}">
+                BackgroundColor="{DynamicResource Primary}">
     <Grid>
         <!--  Decorative circles (Figma)  -->
         <Ellipse WidthRequest="260" HeightRequest="260" Fill="{StaticResource HeaderOverlayBrush}"
@@ -25,7 +25,7 @@
                 <Label Text="Clean Clothes. Healthy Life." Style="{StaticResource HeaderCaption}"
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
-            <ActivityIndicator IsRunning="True" Color="{StaticResource PrimaryLight}" WidthRequest="28" HeightRequest="28" Margin="0,16,0,0" />
+            <ActivityIndicator IsRunning="True" Color="{DynamicResource PrimaryLight}" WidthRequest="28" HeightRequest="28" Margin="0,16,0,0" />
         </VerticalStackLayout>
     </Grid>
 </views:BasePage>

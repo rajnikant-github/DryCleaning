@@ -23,7 +23,7 @@
                 <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
 
                     <!--  Header (continues the primary nav bar)  -->
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
                         <VerticalStackLayout Spacing="4">
                             <Label Text="{Binding BusinessName}" Style="{StaticResource HeaderCaption}" />
@@ -161,7 +161,7 @@
                                             <Grid.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                                             </Grid.GestureRecognizers>
-                                            <Ellipse Fill="{StaticResource PrimaryBrush}" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
+                                            <Ellipse Fill="{DynamicResource PrimaryBrush}" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
                                             <Label Grid.Column="1" Text="{Binding Text}" FontSize="14" LineBreakMode="TailTruncation" VerticalOptions="Center" />
                                             <Label Grid.Column="2" Text="{Binding TimeText}" Style="{StaticResource Small}" VerticalOptions="Center" />
                                         </Grid>

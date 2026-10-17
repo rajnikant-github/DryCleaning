@@ -23,7 +23,7 @@
                 <VerticalStackLayout Spacing="18" Padding="0,0,0,24">
 
                     <!--  Header  -->
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
                         <VerticalStackLayout Spacing="4">
                             <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
@@ -36,7 +36,7 @@
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                                     <Label Text="&#xf3c5;" FontSize="14" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
-                                        <Label Text="Pickup address" TextColor="#BFDBFE" FontSize="11" />
+                                        <Label Text="Pickup address" TextColor="{DynamicResource PrimaryLight}" FontSize="11" />
                                         <Label Text="{Binding AddressText}" TextColor="{StaticResource White}" FontSize="13"
                                                LineBreakMode="TailTruncation" MaxLines="1" />
                                     </VerticalStackLayout>
@@ -59,7 +59,7 @@
                                 <Label Text="We collect, clean and deliver back to your door." TextColor="#E0F2FE" FontSize="13" />
                                 <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10"
                                         Padding="14,6" HorizontalOptions="Start" Margin="0,8,0,0">
-                                    <Label Text="Start an order ›" TextColor="{StaticResource Primary}" FontSize="13" FontFamily="AppSemibold" />
+                                    <Label Text="Start an order ›" TextColor="{DynamicResource Primary}" FontSize="13" FontFamily="AppSemibold" />
                                 </Border>
                             </VerticalStackLayout>
                             <Label Grid.Column="1" Text="&#xf291;" FontSize="44" VerticalOptions="Center"  FontFamily="FA" WidthRequest="62" HorizontalTextAlignment="Center" TextColor="{StaticResource White}"/>
@@ -108,10 +108,10 @@
                                                 <TapGestureRecognizer Command="{Binding OpenCommand}" />
                                             </Border.GestureRecognizers>
                                             <VerticalStackLayout Spacing="4">
-                                                <Label Text="{Binding Icon}" FontSize="28"  FontFamily="FA" VerticalOptions="Center" TextColor="{StaticResource Primary}" />
+                                                <Label Text="{Binding Icon}" FontSize="28"  FontFamily="FA" VerticalOptions="Center" TextColor="{DynamicResource Primary}" />
                                                 <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" FontSize="14" MaxLines="2" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding Subtitle}" Style="{StaticResource Small}" MaxLines="1" LineBreakMode="TailTruncation" />
-                                                <Label Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
+                                                <Label Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{DynamicResource Primary}"
                                                        FontFamily="AppSemibold" FontSize="15" Margin="0,4,0,0" />
                                             </VerticalStackLayout>
                                         </Border>
@@ -142,7 +142,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <!--  Cart bar  -->
-        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                 StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />

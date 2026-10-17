@@ -72,7 +72,7 @@ public sealed class QuantityStepper : ContentView
             StrokeShape = new RoundRectangle { CornerRadius = 20 },
             StrokeThickness = filled ? 0 : 1,
             Stroke = new SolidColorBrush(Theme.Border),
-            BackgroundColor = filled ? Theme.Primary : Theme.Card,
+            BackgroundColor = Theme.Card,
             Content = new Label
             {
                 Text = text,
@@ -83,6 +83,9 @@ public sealed class QuantityStepper : ContentView
                 VerticalOptions = LayoutOptions.Center
             }
         };
+        if (filled)
+            border.SetDynamicResource(VisualElement.BackgroundColorProperty, "Primary");
+
         var tap = new TapGestureRecognizer();
         tap.Tapped += (_, _) => onTap();
         border.GestureRecognizers.Add(tap);

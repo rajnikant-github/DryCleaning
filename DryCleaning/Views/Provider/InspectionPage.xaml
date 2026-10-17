@@ -50,7 +50,7 @@
                             <Border Style="{StaticResource Card}">
                                 <VerticalStackLayout Spacing="14">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                        <Label Text="{Binding Icon}" FontSize="30" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}" />
+                                        <Label Text="{Binding Icon}" FontSize="30" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
                                             <Label Text="{Binding ProductName}" Style="{StaticResource H3}" />
                                             <Label Text="{Binding ExpectedText}" Style="{StaticResource Small}" />

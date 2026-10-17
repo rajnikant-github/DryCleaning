@@ -47,14 +47,14 @@
                 <Label Text="{Binding SearchError}" Style="{StaticResource Small}" TextColor="{StaticResource ErrorDark}" IsVisible="{Binding HasSearchError}" />
 
                 <Button Text="Use my current location" ContentLayout="Left,8" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3c5;" Size="16" Color="{StaticResource Primary}" /></Button.ImageSource>
+                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3c5;" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
                 </Button>
 
                 <!--  Map placeholder  -->
                 <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="150" BackgroundColor="#E0F2FE" IsVisible="{Binding HasSelection}">
                     <Grid>
-                        <Label Text="&#xf279;" FontSize="56" Opacity="0.35" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
-                        <Label Text="&#xf3c5;" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf279;" FontSize="56" Opacity="0.35" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                        <Label Text="&#xf3c5;" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                         <Label Text="Map preview appears once a Google Maps key is configured" Style="{StaticResource Small}"
                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,8" />
                     </Grid>

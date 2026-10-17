@@ -13,7 +13,7 @@
             <VerticalStackLayout Padding="24,32,24,16" Spacing="18">
                 <Border WidthRequest="96" HeightRequest="96" StrokeThickness="0" StrokeShape="RoundRectangle 48"
                         BackgroundColor="{StaticResource SuccessSoft}" HorizontalOptions="Center">
-                    <Label Text="&#xf058;" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                    <Label Text="&#xf058;" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                 </Border>
 
                 <VerticalStackLayout Spacing="6">

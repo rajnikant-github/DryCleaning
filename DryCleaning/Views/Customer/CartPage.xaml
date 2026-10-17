@@ -49,7 +49,7 @@
                                     <Grid ColumnDefinitions="*,Auto">
                                         <controls:QuantityStepper Value="{Binding Quantity}" Minimum="0" Maximum="50" HorizontalOptions="Start" />
                                         <Label Grid.Column="1" Text="{Binding LineTotal, Converter={StaticResource Currency}}" Style="{StaticResource BodyMedium}"
-                                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                               TextColor="{DynamicResource Primary}" VerticalOptions="Center" />
                                     </Grid>
                                 </VerticalStackLayout>
                             </Border>
@@ -69,7 +69,7 @@
                             <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
                             <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
                             <Label Grid.Row="3" Grid.Column="1" Text="{Binding Total, Converter={StaticResource Currency}}"
-                                   Style="{StaticResource BodyMedium}" TextColor="{StaticResource Primary}" Margin="0,4,0,0" />
+                                   Style="{StaticResource BodyMedium}" TextColor="{DynamicResource Primary}" Margin="0,4,0,0" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>

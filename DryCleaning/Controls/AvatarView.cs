@@ -38,7 +38,8 @@ public sealed class AvatarView : ContentView
             VerticalOptions = LayoutOptions.Center
         };
         _photoView = new Image { Aspect = Aspect.AspectFill, IsVisible = false };
-        _border = new Border { StrokeThickness = 0, BackgroundColor = Theme.Primary, Content = new Grid { Children = { _label, _photoView } } };
+        _border = new Border { StrokeThickness = 0, Content = new Grid { Children = { _label, _photoView } } };
+        _border.SetDynamicResource(VisualElement.BackgroundColorProperty, "Primary");
         Content = _border;
         HorizontalOptions = LayoutOptions.Start;
         VerticalOptions = LayoutOptions.Center;

@@ -43,7 +43,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf07c;" EmptyTitle="No services yet" EmptyMessage="Categories will appear here once providers are live." />
 
         <!--  Cart bar  -->
-        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                 StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />

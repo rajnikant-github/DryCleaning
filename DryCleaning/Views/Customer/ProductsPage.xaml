@@ -41,7 +41,7 @@
                                         <Label Text="{Binding OptionsText}" Style="{StaticResource Small}" />
                                     </VerticalStackLayout>
                                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
-                                        <Label Text="{Binding StartingPriceText}" TextColor="{StaticResource Primary}" FontFamily="AppSemibold" FontSize="14" HorizontalOptions="End" />
+                                        <Label Text="{Binding StartingPriceText}" TextColor="{DynamicResource Primary}" FontFamily="AppSemibold" FontSize="14" HorizontalOptions="End" />
                                         <Label Text="›" FontSize="22" TextColor="{StaticResource MutedForeground}" HorizontalOptions="End" />
                                     </VerticalStackLayout>
                                 </Grid>
@@ -55,7 +55,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" EmptyIcon="&#xf291;" EmptyTitle="No items" EmptyMessage="This provider has no items in this category yet." />
 
         <!--  Cart bar  -->
-        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                 StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />

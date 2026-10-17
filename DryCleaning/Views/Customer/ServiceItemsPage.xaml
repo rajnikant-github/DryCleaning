@@ -30,7 +30,7 @@
                             <Border Style="{StaticResource Card}" StrokeThickness="2">
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                                        <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
                                         <Setter Property="BackgroundColor" Value="#F0F5FF" />
                                     </DataTrigger>
                                 </Border.Triggers>
@@ -42,8 +42,8 @@
                                             Stroke="{StaticResource BorderBrush}" BackgroundColor="{StaticResource White}" VerticalOptions="Center">
                                         <Border.Triggers>
                                             <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
-                                                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
                                             </DataTrigger>
                                         </Border.Triggers>
                                         <Label Text="&#xf00c;" TextColor="{StaticResource White}" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center"
@@ -54,7 +54,7 @@
                                         <Label Text="{Binding Description}" Style="{StaticResource Small}" />
                                         <Label Text="{Binding EstimatedText}" Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{StaticResource Primary}"
+                                    <Label Grid.Column="2" Text="{Binding Price, Converter={StaticResource Currency}}" TextColor="{DynamicResource Primary}"
                                            FontFamily="AppSemibold" FontSize="16" VerticalOptions="Center" />
                                 </Grid>
                             </Border>

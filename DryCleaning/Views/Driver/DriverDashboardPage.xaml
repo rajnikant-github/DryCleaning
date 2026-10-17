@@ -23,7 +23,7 @@
             <ScrollView>
                 <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
                     <!--  Header with availability  -->
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
+                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
                         <VerticalStackLayout Spacing="4">
                             <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
                             <Label Text="{Binding DriverName}" Style="{StaticResource HeaderTitle}" />
@@ -39,7 +39,7 @@
                                     </Ellipse>
                                     <VerticalStackLayout Grid.Column="1" Spacing="0">
                                         <Label Text="{Binding OnlineText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="15" />
-                                        <Label Text="{Binding OnlineHint}" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="{Binding OnlineHint}" TextColor="{DynamicResource PrimaryLight}" FontSize="12" />
                                     </VerticalStackLayout>
                                     <Switch Grid.Column="2" IsToggled="{Binding IsOnline}" OnColor="{StaticResource Success}" ThumbColor="{StaticResource White}" VerticalOptions="Center" />
                                 </Grid>
@@ -61,7 +61,7 @@
                         <Border Grid.Column="1" Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="4">
                                 <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf058;" FontFamily="FA" /><Span Text="  Jobs done today" /></FormattedString></Label.FormattedText></Label>
-                                <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                                <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -69,7 +69,7 @@
                     <!--  Active job  -->
                     <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasActiveJob}">
                         <Label Text="Active job" Style="{StaticResource H3}" />
-                        <Border Style="{StaticResource Card}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2">
+                        <Border Style="{StaticResource Card}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenActiveJobCommand}" />
                             </Border.GestureRecognizers>
@@ -85,11 +85,11 @@
                                 </Grid>
                                 <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="120" BackgroundColor="#E0F2FE">
                     <Grid>
-                        <Label Text="&#xf279;" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
-                        <Label Text="&#xf1b9;" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                        <Label Text="&#xf279;" FontSize="72" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
+                        <Label Text="&#xf1b9;" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                         <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4"
                                 HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,10">
-                            <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding ActiveDistanceText}" FontSize="12" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
                         </Border>
                     </Grid>
                 </Border>

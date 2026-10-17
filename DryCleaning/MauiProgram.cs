@@ -50,6 +50,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
         builder.Services.AddSingleton<ProfilePhotoChanger>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
+        builder.Services.AddSingleton<IThemeService, ThemeService>();
         builder.Services.AddSingleton<ViewModelServices>();
 
         // Domain services – Features.UseMockData in appsettings.json switches between demo data and the real API.

@@ -12,10 +12,10 @@
         <ScrollView IsVisible="{Binding IsContent}">
             <VerticalStackLayout Padding="16,24" Spacing="14">
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{StaticResource Primary}" StrokeThickness="0"
+                    <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 22" HorizontalOptions="Center">
                         <Grid>
-                            <Label Text="&#xf291;" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource Primary}"/>
+                            <Label Text="&#xf291;" FontSize="38" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{DynamicResource Primary}"/>
                             <Image Source="{Binding LogoSource}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
                         </Grid>
                     </Border>
@@ -106,6 +106,8 @@
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
+
+                <controls:ThemePickerView />
 
                 <Button Text="Log out" Style="{StaticResource OutlineButton}" TextColor="{StaticResource ErrorDark}" Command="{Binding LogoutCommand}" />
             </VerticalStackLayout>

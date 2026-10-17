@@ -25,7 +25,7 @@
                             <Border Style="{StaticResource Card}" StrokeThickness="2" Padding="16,14">
                                 <Border.Triggers>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                                        <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
                                         <Setter Property="BackgroundColor" Value="#F0F5FF" />
                                     </DataTrigger>
                                     <DataTrigger TargetType="Border" Binding="{Binding IsUnavailable}" Value="True">
@@ -39,7 +39,7 @@
                                     <Label Text="&#xf017;" FontSize="18" VerticalOptions="Center"  FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center"/>
                                     <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource BodyMedium}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Text="Unavailable" Style="{StaticResource Small}" IsVisible="{Binding IsUnavailable}" VerticalOptions="Center" />
-                                    <Label Grid.Column="2" Text="&#xf00c;" TextColor="{StaticResource Primary}" FontSize="18" FontFamily="FA"
+                                    <Label Grid.Column="2" Text="&#xf00c;" TextColor="{DynamicResource Primary}" FontSize="18" FontFamily="FA"
                                            IsVisible="{Binding IsSelected}" VerticalOptions="Center" />
                                 </Grid>
                             </Border>

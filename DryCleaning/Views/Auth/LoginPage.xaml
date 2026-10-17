@@ -9,7 +9,7 @@
     <ScrollView>
         <VerticalStackLayout>
             <!--  Header band  -->
-            <Grid BackgroundColor="{StaticResource Primary}" HeightRequest="{OnPlatform iOS=220, Default=196}">
+            <Grid BackgroundColor="{DynamicResource Primary}" HeightRequest="{OnPlatform iOS=220, Default=196}">
                 <Ellipse WidthRequest="190" HeightRequest="190" Fill="{StaticResource HeaderOverlayBrush}"
                          HorizontalOptions="End" VerticalOptions="Start" Margin="0,-40,-40,0" />
                 <VerticalStackLayout VerticalOptions="End" Padding="24,0,24,24" Spacing="4">

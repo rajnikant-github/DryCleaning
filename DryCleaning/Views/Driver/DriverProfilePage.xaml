@@ -14,7 +14,7 @@
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
                 <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
-                    <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
+                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
                         <VerticalStackLayout Spacing="14">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                                 <controls:AvatarView Text="{Binding Initials}" Photo="{Binding PhotoSource}" AvatarSize="60">
@@ -32,13 +32,13 @@
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                                 <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
                                     <VerticalStackLayout>
-                                        <Label Text="Jobs completed" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="Jobs completed" TextColor="{DynamicResource PrimaryLight}" FontSize="12" />
                                         <Label Text="{Binding CompletedJobsText}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
                                     </VerticalStackLayout>
                                 </Border>
                                 <Border Grid.Column="1" BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,8">
                                     <VerticalStackLayout>
-                                        <Label Text="Total earned" TextColor="#BFDBFE" FontSize="12" />
+                                        <Label Text="Total earned" TextColor="{DynamicResource PrimaryLight}" FontSize="12" />
                                         <Label Text="{Binding TotalEarnings, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontFamily="AppSemibold" FontSize="16" />
                                     </VerticalStackLayout>
                                 </Border>
@@ -138,6 +138,8 @@
                         </Grid>
                         </VerticalStackLayout>
                     </Border>
+
+                    <controls:ThemePickerView Margin="16,0" />
 
                     <Button Text="Log Out" Command="{Binding LogoutCommand}" Style="{StaticResource OutlineButton}"
                             TextColor="{StaticResource ErrorDark}" Margin="16,0" />
