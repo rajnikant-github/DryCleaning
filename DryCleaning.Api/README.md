@@ -158,7 +158,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
 | `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
 | `Push` | `Enabled`, `FirebaseCredentialsPath` (Firebase service-account JSON). Empty path → pushes are only logged |
-| `Storage` | Upload folder under `wwwroot` and max photo size |
+| `Storage` | `Local` (wwwroot) or `AzureBlob` provider, containers, signed-link lifetime, max photo size |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
 
 Secrets (don't commit real keys):

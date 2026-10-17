@@ -152,7 +152,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | `Otp__ExposeCodeInResponse` | `false`. No SMS/email provider is connected yet, so on a server sign in with **password**. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
 | `Push__FirebaseCredentialsPath` | Path to the Firebase service-account JSON (optional – without it pushes are only logged). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
-| Uploads | Order photos are saved under `wwwroot/uploads` – use persistent disk (not a container's temporary file system). |
+| Uploads | **Azure:** set `Storage__Provider=AzureBlob` and `Storage__AzureBlob__AccountUrl=https://<account>.blob.core.windows.net`, and give the App Service's managed identity the **Storage Blob Data Contributor** role on that account. Order photos are then private (signed 15-minute links); logos are public. **Other hosting:** the default `Local` provider saves under `wwwroot/uploads` – use persistent disk, not a container's temporary file system. |
 
 ### 3. Smoke test after each deploy
 
@@ -176,7 +176,8 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Login works in Swagger but the app says "This is a … account" | You picked a different role on the role screen than the account has. |
 | OTP never arrives | Expected for now – use password login, or `Otp__ExposeCodeInResponse=true` on a test server. |
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
-| Photos missing after a restart/redeploy | `wwwroot/uploads` isn't on persistent storage. |
+| Photos missing after a restart/redeploy | Using `Local` storage without persistent disk – switch to `Storage__Provider=AzureBlob`. |
+| Photos not loading after a while (Azure) | Signed links expire after 15 minutes; reload the order to get new ones. |
 | "Address search isn't working" | Check `DryCleaning/environments/<name>.secrets.json` has your key and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
 
 ## Switching environments

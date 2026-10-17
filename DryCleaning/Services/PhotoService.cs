@@ -1,4 +1,6 @@
 using DryCleaning.Models;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Platform;
 
 namespace DryCleaning.Services;
 
@@ -6,6 +8,11 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
 {
     private const string TakePhoto = "Take photo";
     private const string ChooseFromGallery = "Choose from gallery";
+
+    // Phone photos are often 5–10 MB; the API rejects anything over 5 MB and uploads are slow on mobile data.
+    private const float MaxLongestSide = 1600f;
+    private const float JpegQuality = 0.8f;
+    private const long SkipResizeBelowBytes = 500 * 1024;
 
     public async Task<string?> AddPhotoAsync()
     {
@@ -47,7 +54,9 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
             await using var source = await result.OpenReadAsync();
             await using var destination = File.Create(target);
             await source.CopyToAsync(destination);
-            return target;
+            destination.Close();
+
+            return await Task.Run(() => Shrink(target));
         }
         catch (FeatureNotSupportedException)
         {
@@ -58,6 +67,37 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
         {
             await dialogs.AlertAsync("Permission needed", "Please allow photo access in Settings.");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Scales the photo down to <see cref="MaxLongestSide"/> pixels and saves it as JPEG. Falls back to the original
+    /// file if the format can't be decoded, so a photo is never lost because of resizing.
+    /// </summary>
+    private static string Shrink(string path)
+    {
+        try
+        {
+            var extension = Path.GetExtension(path).ToLowerInvariant();
+            if (new FileInfo(path).Length < SkipResizeBelowBytes && extension is ".jpg" or ".jpeg")
+                return path;
+
+            using var input = File.OpenRead(path);
+            using Microsoft.Maui.Graphics.IImage original = PlatformImage.FromStream(input);
+            using Microsoft.Maui.Graphics.IImage resized = original.Downsize(MaxLongestSide);
+
+            var target = Path.Combine(Path.GetDirectoryName(path)!, $"{Guid.NewGuid():N}.jpg");
+            using (var output = File.Create(target))
+                resized.Save(output, ImageFormat.Jpeg, JpegQuality);
+
+            input.Close();
+            File.Delete(path);
+            return target;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Photos] Could not resize {Path.GetFileName(path)}: {ex.Message}");
+            return path;
         }
     }
 }

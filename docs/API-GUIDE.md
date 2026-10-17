@@ -386,8 +386,20 @@ Catalog shape: **Category** (global) → **Product** (per provider, e.g. "Suit")
 | `Damage` | Provider / driver | When something is damaged or stained |
 | `Completion` | Driver | At delivery |
 
-JPG, PNG, HEIC or WEBP; max 5 MB (`Storage:MaxUploadBytes`). Files are served from `/uploads/...`;
-`url` in responses is relative to the API base URL.
+JPG, PNG, HEIC or WEBP; max 5 MB (`Storage:MaxUploadBytes`). The app shrinks every photo before upload
+(longest side 1600 px, JPEG quality 80%), so a 17 MB phone photo arrives as about 1 MB.
+
+**Where files live** (`Storage:Provider`):
+
+| Provider | Where | `url` in responses | Use for |
+|---|---|---|---|
+| `Local` (default) | `wwwroot/uploads/orders/<orderId>/…` on the API's disk | relative, e.g. `/uploads/orders/…`; open it on the API base URL. Anyone with the link can open it. | Development, a single server with a persistent disk |
+| `AzureBlob` | Azure Blob Storage | absolute. **Order photos**: private container, short-lived signed link (`Storage:AzureBlob:SignedLinkMinutes`, default 15) – list the photos again to get a fresh link. **Provider logos**: public-read container, plain link. | Azure hosting |
+
+With `AzureBlob` the database stores `blob://container/path`, not a URL; the API turns it into a link on every response.
+Older `/uploads/...` rows keep working. Sign-in to Azure uses the App Service's managed identity (role **Storage Blob
+Data Contributor** on the storage account) – set `Storage__AzureBlob__AccountUrl`. For local testing with Azurite set
+`Storage__AzureBlob__ConnectionString=UseDevelopmentStorage=true`.
 
 ### 4.11 Real-time updates (SignalR)
 
@@ -1962,7 +1974,11 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | | `CallbackUrl` | `edrycleaners://payment-complete` | Where Paystack returns to the app |
 | `Otp` | `Length`, `ExpirySeconds`, `MaxAttempts` | `6`, `300`, `5` | Login / reset codes |
 | | `ExposeCodeInResponse` | `false` (`true` in Development) | Return `devCode` for testing |
-| `Storage` | `UploadsFolder`, `MaxUploadBytes` | `uploads`, 5 MB | Photo and logo uploads |
+| `Storage` | `Provider` | `Local` | `Local` (wwwroot) or `AzureBlob` |
+| | `UploadsFolder`, `MaxUploadBytes` | `uploads`, 5 MB | Local folder and max photo size |
+| | `AzureBlob:AccountUrl` / `ConnectionString` | *(empty)* | Storage account (managed identity) or connection string (Azurite) |
+| | `AzureBlob:PrivateContainer`, `PublicContainer` | `order-photos`, `public-assets` | Containers (created on first upload) |
+| | `AzureBlob:SignedLinkMinutes` | `15` | How long a signed photo link works |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` | `true`, Development only | Migrate and seed demo data on start |
 | `Swagger` | `Enabled` | `true` | Swagger UI at `/swagger` |
 | `Cors` | `AllowedOrigins` | *(empty = any)* | Browser clients |
