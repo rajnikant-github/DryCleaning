@@ -27,10 +27,11 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
-                // Swap these files for Outfit (Figma) by dropping the .ttf files into Resources/Fonts
-                // and changing only the file names below – styles use the aliases.
-                fonts.AddFont("OpenSans-Regular.ttf", "AppRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "AppSemibold");
+                // Nunito (bundled static weights); styles use the aliases only.
+                fonts.AddFont("Nunito-Regular.ttf", "AppRegular");
+                fonts.AddFont("Nunito-SemiBold.ttf", "AppSemibold");
+                fonts.AddFont("Nunito-Bold.ttf", "AppBold");
+                fonts.AddFont("Nunito-ExtraBold.ttf", "AppExtraBold");
                 fonts.AddFont("FontAwesome-Solid.ttf", "FA");
             });
 

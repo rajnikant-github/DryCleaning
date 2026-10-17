@@ -8,8 +8,8 @@ public static class StatusPalette
     public static (Color Background, Color Text) For(OrderStatus status) => status switch
     {
         OrderStatus.Created => (C("#F3F4F6"), C("#4B5563")),
-        OrderStatus.Confirmed => (C("#DBEAFE"), C("#1D4ED8")),
-        OrderStatus.PickupAssigned or OrderStatus.PickedUp => (C("#E0F2FE"), C("#0369A1")),
+        OrderStatus.Confirmed => (C("#FFE3DD"), C("#D13F2A")),
+        OrderStatus.PickupAssigned or OrderStatus.PickedUp => (C("#F3E8FF"), C("#6B21A8")),
         OrderStatus.ReceivedByProvider => (C("#EDE9FE"), C("#6D28D9")),
         OrderStatus.Processing => (C("#FEF3C7"), C("#B45309")),
         OrderStatus.QualityCheck => (C("#F3E8FF"), C("#7E22CE")),

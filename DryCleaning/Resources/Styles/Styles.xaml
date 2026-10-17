@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  Design system: typography, buttons, cards and inputs.
-      Fonts: "AppRegular" / "AppSemibold" aliases are mapped in MauiProgram.cs.  -->
+      Fonts: Nunito via "AppRegular" / "AppSemibold" / "AppBold" / "AppExtraBold" aliases (MauiProgram.cs).  -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -29,18 +29,23 @@
         <Setter Property="FontSize" Value="15" />
     </Style>
 
+    <Style x:Key="Amount" TargetType="Label">
+        <Setter Property="FontFamily" Value="AppExtraBold" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="TextColor" Value="{StaticResource AppForeground}" />
+    </Style>
     <Style x:Key="Display" TargetType="Label">
-        <Setter Property="FontFamily" Value="AppSemibold" />
+        <Setter Property="FontFamily" Value="AppBold" />
         <Setter Property="FontSize" Value="30" />
         <Setter Property="TextColor" Value="{StaticResource AppForeground}" />
     </Style>
     <Style x:Key="H1" TargetType="Label">
-        <Setter Property="FontFamily" Value="AppSemibold" />
+        <Setter Property="FontFamily" Value="AppBold" />
         <Setter Property="FontSize" Value="26" />
         <Setter Property="TextColor" Value="{StaticResource AppForeground}" />
     </Style>
     <Style x:Key="H2" TargetType="Label">
-        <Setter Property="FontFamily" Value="AppSemibold" />
+        <Setter Property="FontFamily" Value="AppBold" />
         <Setter Property="FontSize" Value="20" />
         <Setter Property="TextColor" Value="{StaticResource AppForeground}" />
     </Style>
@@ -88,7 +93,7 @@
         <Setter Property="TextColor" Value="{StaticResource Accent}" />
     </Style>
     <Style x:Key="HeaderTitle" TargetType="Label">
-        <Setter Property="FontFamily" Value="AppSemibold" />
+        <Setter Property="FontFamily" Value="AppBold" />
         <Setter Property="FontSize" Value="22" />
         <Setter Property="TextColor" Value="{StaticResource White}" />
     </Style>
@@ -102,8 +107,8 @@
     <Style x:Key="BaseButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
         <Setter Property="TextColor" Value="{StaticResource White}" />
-        <Setter Property="FontFamily" Value="AppSemibold" />
-        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="AppBold" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="CornerRadius" Value="12" />
         <Setter Property="HeightRequest" Value="52" />
         <Setter Property="Padding" Value="16,0" />
@@ -183,6 +188,14 @@
         <Setter Property="Padding" Value="12" />
     </Style>
 
+    <!-- Hero card: deep navy surface with white text (earnings totals etc.) -->
+    <Style x:Key="HeroCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource DarkSurface}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
     <Style x:Key="IconTile" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryColor}" />
         <Setter Property="StrokeThickness" Value="0" />
@@ -198,7 +211,7 @@
     </Style>
 
     <Style x:Key="InputField" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource CardColor}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource White}" />
         <Setter Property="Stroke" Value="{StaticResource BorderBrush}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
@@ -243,7 +256,7 @@
     </Style>
 
     <Style TargetType="Switch">
-        <Setter Property="OnColor" Value="{StaticResource Success}" />
+        <Setter Property="OnColor" Value="{DynamicResource Primary}" />
         <Setter Property="ThumbColor" Value="{StaticResource White}" />
     </Style>
 

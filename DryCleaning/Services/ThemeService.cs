@@ -7,7 +7,7 @@ public sealed class ThemeService : IThemeService
 {
     private const string PreferenceKey = "edc.app.theme";
 
-    public ColorTheme Current { get; private set; } = ColorThemes.Navy;
+    public ColorTheme Current { get; private set; } = ColorThemes.Coral;
 
     public IReadOnlyList<ColorTheme> Themes => ColorThemes.All;
 
