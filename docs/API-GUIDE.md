@@ -591,6 +591,8 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/admin/orders/{orderId}` | Admin | — | `OrderDetailDto` | Full order detail: items, history, photos, jobs, payments, disputes. |
 | `GET` | `/api/admin/driver-jobs` | Admin | Query: `status`, `jobType`, `page`, `pageSize`, `search` | `PagedResult<DriverJobDto>` | All driver jobs (paged, `status`, `jobType`). |
 | `POST` | `/api/admin/driver-jobs/{jobId}/assign` | Admin | Body: `AssignDriverRequest` | `DriverJobDto` | Assign or reassign a job to a driver (`driverId`); the driver is notified. |
+| `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Starts as the flat `Marketplace:DeliveryFee`. |
+| `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
 | `GET` | `/api/admin/disputes` | Admin | Query: `status`, `page`, `pageSize`, `search` | `PagedResult<DisputeDto>` | All disputes (paged, `status`). |
 | `POST` | `/api/admin/disputes/{disputeId}/review` | Admin | — | `DisputeDto` | Mark a dispute `UnderReview`. |
@@ -1577,6 +1579,7 @@ SQL Server, EF Core migrations in `DryCleaning.Api/Data/Migrations`. Every table
 | [`Addresses`](#addresses) | Google Places addresses (customers, providers, drivers, job routes) | `PUT /api/me/address` |
 | [`Categories`](#categories) | Global service categories (Dry Cleaning, Shoe Cleaning, …) | Admin categories |
 | [`ServiceProviderCategories`](#serviceprovidercategories) | Which categories each provider offers | Register provider, `PUT /api/provider/categories` |
+| [`DeliveryPricing`](#deliverypricing) | The single pickup & delivery price rule | `PUT /api/admin/delivery-pricing` |
 | [`ProviderWorkingHours`](#providerworkinghours) | Pickup days and hours per provider | `PUT /api/provider/working-hours` |
 | [`Products`](#products) | Provider's products under a category (e.g. "Suit") | Provider products |
 | [`ServiceItems`](#serviceitems) | Priced services of a product (price, estimated days) | Provider service items |
@@ -1731,6 +1734,21 @@ Which categories each provider offers.
 | `CategoryId` | `Guid` | foreign key |
 | `IsActive` | `bool` | — |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
+
+#### DeliveryPricing
+
+One row: the marketplace's pickup & delivery price rule. Created from `Marketplace:DeliveryFee` (flat) the first time it is needed.
+
+| Column | Type | Notes |
+|---|---|---|
+| `Id` | `Guid` | primary key |
+| `BaseFee` | `decimal` | charged for the first `IncludedKm` |
+| `PricePerKm` | `decimal` | for each km beyond `IncludedKm` |
+| `IncludedKm` | `decimal` | distance covered by the base fee |
+| `MinFee`, `MaxFee` | `decimal`, `decimal?` | the fee is kept between them (`MaxFee` null = no limit) |
+| `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
+
+The order's fee uses the road distance estimate (straight line between the customer's pickup address and the provider × 1.3). `POST /api/customer/orders/quote` returns it as `deliveryFee` with `distanceKm`.
 
 #### ProviderWorkingHours
 

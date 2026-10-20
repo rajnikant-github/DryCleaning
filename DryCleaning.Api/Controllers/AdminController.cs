@@ -12,7 +12,7 @@ namespace DryCleaning.Api.Controllers;
 [Route("api/admin")]
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
-public sealed class AdminController(AdminService admin, CategoryService categories) : ControllerBase
+public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -119,4 +119,12 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     [HttpPost("disputes/{disputeId:guid}/resolve")]
     public Task<DisputeDto> ResolveDispute(Guid disputeId, ResolveDisputeRequest request, CancellationToken ct) =>
         admin.ResolveDisputeAsync(disputeId, request, ct);
+
+    // Pickup & delivery pricing
+    [HttpGet("delivery-pricing")]
+    public Task<DeliveryPricingDto> GetDeliveryPricing(CancellationToken ct) => pricing.GetAsync(ct);
+
+    /// <summary>Set the pickup &amp; delivery price: base fee + price per km beyond the included distance, within min/max. Applies to new orders only.</summary>
+    [HttpPut("delivery-pricing")]
+    public Task<DeliveryPricingDto> SetDeliveryPricing(DeliveryPricingDto request, CancellationToken ct) => pricing.UpdateAsync(request, ct);
 }

@@ -9,20 +9,23 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Services;
 
 /// <summary>Customer order flow: quote → create → pay → track → confirm delivery with OTP.</summary>
-public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, WorkingHoursService workingHours)
+public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, WorkingHoursService workingHours,
+    DeliveryPricingService deliveryPricing)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
     public async Task<OrderQuoteDto> QuoteAsync(CreateOrderRequest request, CancellationToken ct)
     {
-        var order = await BuildOrderAsync(request, ct);
+        var customer = await profile.CustomerAsync(ct);
+        var (order, distanceKm) = await BuildOrderAsync(request, customer.Address, ct);
         return new OrderQuoteDto
         {
             SubTotal = order.SubTotal,
             Tax = order.Tax,
             DeliveryFee = order.DeliveryFee,
             TotalAmount = order.TotalAmount,
-            Currency = Market.Currency
+            Currency = Market.Currency,
+            DistanceKm = distanceKm
         };
     }
 
@@ -32,7 +35,7 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         if (customer.AddressId is null)
             throw new BadRequestException("Add your pickup address before placing an order.");
 
-        var order = await BuildOrderAsync(request, ct);
+        var (order, _) = await BuildOrderAsync(request, customer.Address, ct);
         order.CustomerId = customer.Id;
         order.PickupAddressId = customer.AddressId.Value;
         order.OrderNumber = await db.NextOrderNumberAsync(ct);
@@ -141,9 +144,9 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
     }
 
     /// <summary>Validates the cart against the provider's active catalog and prices it server-side.</summary>
-    private async Task<Order> BuildOrderAsync(CreateOrderRequest request, CancellationToken ct)
+    private async Task<(Order Order, decimal? DistanceKm)> BuildOrderAsync(CreateOrderRequest request, Address? pickupAddress, CancellationToken ct)
     {
-        var provider = await db.ServiceProviders.FirstOrDefaultAsync(p => p.Id == request.ServiceProviderId && p.IsActive, ct)
+        var provider = await db.ServiceProviders.Include(p => p.Address).FirstOrDefaultAsync(p => p.Id == request.ServiceProviderId && p.IsActive, ct)
                        ?? throw new NotFoundException("Service provider not found.");
 
         if (request.PickupDate is { } pickupDate)
@@ -185,8 +188,10 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
             });
         }
 
-        order.Recalculate(Market.VatRate, Market.DeliveryFee);
-        return order;
+        // The fee comes from the admin's pricing rule and the distance between pickup address and provider; it is stored on the order.
+        var (fee, distanceKm) = await deliveryPricing.QuoteAsync(pickupAddress, provider.Address, ct);
+        order.Recalculate(Market.VatRate, fee);
+        return (order, distanceKm);
     }
 
     private static string NewCode() => RandomNumberGenerator.GetInt32(0, 10000).ToString("0000");

@@ -8,9 +8,21 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | [`DryCleaning/`](DryCleaning/) | .NET MAUI app (Android + iOS, MVVM) – Customer, Service Provider and Driver roles in one app |
 | [`DryCleaning.Api/`](DryCleaning.Api/) | ASP.NET Core Web API (.NET 10) – SQL Server, EF Core, JWT, Swagger, Paystack. [API docs →](DryCleaning.Api/README.md) |
 | [`docs/API-GUIDE.md`](docs/API-GUIDE.md) | API & workflow guide – every endpoint, order/payment/driver/dispute flows, request rules, enums and all database tables |
+| [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories and delivery pricing. Talks to the API only |
 | `run-api.sh` / `run-api.ps1` | One-command local API runner – macOS (bash) / Windows (PowerShell) |
 | `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
 | `DryCleaning.sln` | Solution with both projects |
+
+## Admin portal
+
+```bash
+cd DryCleaning.Admin && dotnet run --launch-profile http   # http://localhost:5190
+```
+
+Sign in with an **Admin** account (locally `admin@edrycleaners.co.za`, password in the [API guide](docs/API-GUIDE.md#1-quick-start)).
+The portal calls the API at `Api:BaseUrl` (`DryCleaning.Admin/appsettings.json`, default `http://localhost:5180/`); in production set
+`Api__BaseUrl` to your API address. It keeps no data of its own, so there is nothing to migrate. The sign-in lasts as long as
+the API's access token (60 minutes), then you sign in again.
 
 ## Contents
 
