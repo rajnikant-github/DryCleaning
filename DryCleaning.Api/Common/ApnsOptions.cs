@@ -14,10 +14,14 @@ public sealed class ApnsOptions
     /// <summary>Path to the AuthKey_XXXX.p8 file (relative paths start at the API folder). Keep it out of git.</summary>
     public string? PrivateKeyPath { get; set; }
 
+    /// <summary>The key itself (the .p8 text, as kept in secrets.json). Used instead of <see cref="PrivateKeyPath"/> when set.</summary>
+    public string? PrivateKey { get; set; }
+
     /// <summary>True for development builds (Xcode/TestFlight-internal debug), false for TestFlight/App Store builds.</summary>
     public bool UseSandbox { get; set; }
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(TeamId) && !string.IsNullOrWhiteSpace(KeyId) &&
-        !string.IsNullOrWhiteSpace(BundleId) && !string.IsNullOrWhiteSpace(PrivateKeyPath);
+        !string.IsNullOrWhiteSpace(BundleId) &&
+        (!string.IsNullOrWhiteSpace(PrivateKey) || !string.IsNullOrWhiteSpace(PrivateKeyPath));
 }

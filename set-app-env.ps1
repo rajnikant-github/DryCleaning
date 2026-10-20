@@ -16,9 +16,10 @@ EDry Cleaners - switch the mobile app between environments (Windows PowerShell 5
 Profiles live in DryCleaning\environments\<name>.json and only list what differs from
 appsettings.json. The chosen one is copied to DryCleaning\appsettings.env.json (git-ignored) and
 built into the app - rebuild/redeploy the app after switching.
-Keys (Google Maps) live only in DryCleaning\environments\<name>.secrets.json (git-ignored, on your
-machine). Only the chosen environment's keys are copied into the build; environments without a
-secrets file get no key (address search then uses sample addresses).
+Keys (Google Maps) live only in the repository's single secrets.json (git-ignored, on your machine), in the
+"App" section of the environment's block: { "local": { "App": { "GoogleMaps": { "ApiKey": "..." } } } }.
+Only that App section is copied into the build (the Api section never goes into the app); environments
+without keys get none (address search then uses sample addresses). See secrets.example.json.
 "running scripts is disabled"? Use: powershell -ExecutionPolicy Bypass -File .\set-app-env.ps1 local
 #>
 [CmdletBinding()]
@@ -39,6 +40,7 @@ $EnvDir = Join-Path $AppDir 'environments'
 $BaseFile = Join-Path $AppDir 'appsettings.json'
 $TargetFile = Join-Path $AppDir 'appsettings.env.json'
 $SecretsFile = Join-Path $AppDir 'appsettings.secrets.json'   # generated - keys of the chosen environment
+$SecretsJson = Join-Path $PSScriptRoot 'secrets.json'          # the single file with every secret (git-ignored)
 $NscFile = Join-Path $AppDir 'Platforms\Android\Resources\xml\network_security_config.xml'
 
 function Ok([string]$m)   { Write-Host "  [ok] $m" -ForegroundColor Green }
@@ -79,6 +81,15 @@ function Get-Setting([string[]]$path) {
 
 function Test-Key([string]$path) { return [bool](Get-Value (Read-Json $path) @('GoogleMaps', 'ApiKey')) }
 
+# The "App" section of an environment's block in secrets.json (null when there is none).
+function Get-AppSecrets([string]$name) {
+    $root = Read-Json $SecretsJson
+    if ($null -eq $root) { return $null }
+    return Get-Value $root @($name, 'App')
+}
+
+function Test-AppKey([string]$name) { return [bool](Get-Value (Get-AppSecrets $name) @('GoogleMaps', 'ApiKey')) }
+
 function Get-Profiles {
     if (-not (Test-Path -LiteralPath $EnvDir)) { return @() }
     return @(Get-ChildItem -LiteralPath $EnvDir -Filter '*.json' | Sort-Object Name | ForEach-Object { $_.BaseName } |
@@ -93,7 +104,7 @@ function Show-List {
         if ((Get-Value $json @('Features', 'UseMockData')) -eq $true) { $desc = 'demo data, no API' }
         elseif ((Get-Value $json @('Api', 'UseLocalApiInDebug')) -eq $true) { $desc = "API on this machine (port $ApiPort)" }
         else { $desc = Get-Value $json @('Api', 'BaseUrl') }
-        if (Test-Key (Join-Path $EnvDir "$p.secrets.json")) { $desc = "$desc - Google key" }
+        if (Test-AppKey $p) { $desc = "$desc - Google key" }
         if ($p -eq $current) { Write-Host "  * $p  $desc  (current)" -ForegroundColor Green }
         else { Write-Host "    $p  $desc" }
     }
@@ -116,8 +127,8 @@ function Show-Current {
         Write-Host "  Debug + Release builds: $base"
     }
     $envName = Get-Value (Read-Json $TargetFile) @('Environment')
-    if (Test-Key $SecretsFile) { Write-Host "  Google Maps:   key set (environments\$envName.secrets.json)" }
-    elseif (Get-Setting @('GoogleMaps', 'ApiKey')) { Write-Host '  Google Maps:   key set (in a committed file - move it to environments\<name>.secrets.json)' -ForegroundColor Yellow }
+    if (Test-Key $SecretsFile) { Write-Host "  Google Maps:   key set (secrets.json: $envName.App)" }
+    elseif (Get-Setting @('GoogleMaps', 'ApiKey')) { Write-Host '  Google Maps:   key set (in a committed file - move it to secrets.json: <env>.App)' -ForegroundColor Yellow }
     else { Write-Host '  Google Maps:   no key - sample addresses' }
 }
 
@@ -138,20 +149,18 @@ function Add-DeviceIpToAndroid([string]$ip) {
     Ok "Android allows http to $ip (network_security_config.xml - remove it before a release)"
 }
 
-# Copies environments\<name>.secrets.json into the build, or removes the previous environment's keys.
+# Copies the App section of secrets.json (for this environment) into the build, or removes the previous environment's keys.
 function Set-Secrets([string]$name) {
-    $source = Join-Path $EnvDir "$name.secrets.json"
-    if (Test-Path -LiteralPath $source) {
-        $null = Read-Json $source
-        Copy-Item -LiteralPath $source -Destination $SecretsFile -Force
-        Ok "Keys from environments\$name.secrets.json (git-ignored)"
+    $block = Get-AppSecrets $name
+    if ($null -ne $block) {
+        Write-Utf8NoBom $SecretsFile (($block | ConvertTo-Json -Depth 10) + "`n")
+        Ok "Keys from secrets.json -> $name.App (git-ignored)"
     }
     else {
         if (Test-Path -LiteralPath $SecretsFile) { Remove-Item -LiteralPath $SecretsFile }
         if ($name -eq 'local') {
-            Warn 'No environments\local.secrets.json - address search will use sample addresses. To add your Google key:'
-            Write-Host '      Create DryCleaning\environments\local.secrets.json containing:'
-            Write-Host '      { "GoogleMaps": { "ApiKey": "<your key>" } }'
+            Warn "No $name.App section in secrets.json - address search will use sample addresses. To add your Google key:"
+            Write-Host '      Copy secrets.example.json to secrets.json (repository root) and fill in local > App > GoogleMaps > ApiKey,'
             Write-Host '      then run .\set-app-env.ps1 local again.'
         }
         else { Write-Host "  - No keys for $name (address search uses sample addresses)." }

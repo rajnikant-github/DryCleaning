@@ -2019,7 +2019,7 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 
 ## 10. Configuration
 
-`DryCleaning.Api/appsettings.json` (override with user-secrets or environment variables, e.g. `Paystack__SecretKey`).
+`DryCleaning.Api/appsettings.json` (override with the repository's `secrets.json` – see the main README – or environment variables, e.g. `Paystack__SecretKey`).
 
 | Section | Key | Default | Purpose |
 |---|---|---|---|
@@ -2034,8 +2034,8 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | | `ExpiryMinutes` | `60` (`1440` in Development) | Access token lifetime |
 | | `RefreshTokenDays` | `30` | Refresh token lifetime |
 | `Push` | `Enabled` | `true` | Send pushes |
-| | `FirebaseCredentialsPath` | *(empty = log only)* | Firebase service-account JSON (Android pushes) |
-| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKeyPath` | *(Team/Key/Bundle ids, `.p8` path)* | Apple APNs for iPhone pushes; missing key = log only |
+| | `FirebaseCredentialsJson` | *(empty = log only)* | The Firebase service-account JSON itself (Android pushes); `FirebaseCredentialsPath` (a file) also works |
+| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` | *(Team/Key/Bundle ids, `.p8` text)* | Apple APNs for iPhone pushes; missing key = log only |
 | | `UseSandbox` | `false` (`true` in Development) | `true` for debug builds, `false` for TestFlight/App Store |
 | `Paystack` | `SecretKey`, `PublicKey` | *(secret)* | Payments + webhook signature |
 | | `CallbackUrl` | `edrycleaners://payment-complete` | Where Paystack returns to the app |

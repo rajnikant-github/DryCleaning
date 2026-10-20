@@ -154,20 +154,25 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | Section | Purpose |
 |---|---|
 | `Marketplace` | Currency (`ZAR`), VAT rate, delivery fee, driver earning per job, `RequirePaymentBeforeAccept` |
-| `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in user-secrets / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
+| `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in `secrets.json` / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
 | `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
-| `Push` | `Enabled`, `FirebaseCredentialsPath` (Firebase service-account JSON, Android). Empty path → Android pushes are only logged |
-| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKeyPath` (the `.p8`), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
+| `Push` | `Enabled`, `FirebaseCredentialsJson` (the Firebase service-account JSON itself, kept in `secrets.json`) or `FirebaseCredentialsPath` (a file). Nothing set → Android pushes are only logged |
+| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` (the `.p8` text, kept in `secrets.json`) or `PrivateKeyPath` (a file), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
 | `Storage` | `Local` (wwwroot) or `AzureBlob` provider, containers, signed-link lifetime, max photo size |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
 
-Secrets (don't commit real keys):
-```bash
-dotnet user-secrets set "Jwt:SigningKey" "<long random string>"
-dotnet user-secrets set "Paystack:SecretKey" "sk_live_..."
-dotnet user-secrets set "Push:FirebaseCredentialsPath" "/secure/path/firebase-service-account.json"
+Secrets (don't commit real keys): put them in the repository's single git-ignored `secrets.json` (template: `secrets.example.json`,
+explained in the [main README](../README.md#secrets-one-file-for-everything)), in the `Api` section of your environment's block:
+
+```json
+{ "local": { "Api": {
+    "Jwt": { "SigningKey": "<long random string>" },
+    "Paystack": { "SecretKey": "sk_test_...", "PublicKey": "pk_test_..." }
+} } }
 ```
+
+On a server use environment variables instead (`Jwt__SigningKey`, `Paystack__SecretKey`, …); they override the file.
 
 ## Sign-in, sessions and passwords
 
@@ -208,18 +213,20 @@ the app can open the right screen. On Android these keys arrive in the FCM `data
 **Setup – Android (Firebase)**
 
 1. *Firebase console → Project settings → Service accounts → Generate new private key* – download the JSON. **Don't commit it.**
-2. Set `Push:FirebaseCredentialsPath` to that file (user-secrets or environment variable `Push__FirebaseCredentialsPath`).
+2. Paste the whole JSON as an object into `secrets.json` at `<env>` → `Api` → `Push` → `FirebaseCredentialsJson` (on a server: environment
+   variable `Push__FirebaseCredentialsJson` with the file's text). `Push:FirebaseCredentialsPath` (a file path) still works as an alternative.
 
 **Setup – iOS (APNs)**
 
 1. In the Apple Developer account: the App ID has the **Push Notifications** capability, and you have an **APNs auth key** (`AuthKey_XXXX.p8`).
-2. Put the `.p8` outside git (the repo ignores `DryCleaning.Api/Certificates/`) and fill `ApnsSettings`:
+2. Paste the `.p8` text into `secrets.json` at `<env>` → `Api` → `ApnsSettings` → `PrivateKey` (newlines as `\n`), and keep the non-secret
+   settings in `appsettings.json`:
 
    | Setting | Meaning |
    |---|---|
    | `TeamId`, `KeyId` | From the Apple Developer account / the key |
    | `BundleId` | The app's bundle id (`apns-topic`), `com.dev.edrycleaners` |
-   | `PrivateKeyPath` | Path to the `.p8` (relative paths start at the API folder). In production use `ApnsSettings__PrivateKeyPath` |
+   | `PrivateKey` | The `.p8` text (from `secrets.json`; on a server `ApnsSettings__PrivateKey`). Alternatively `PrivateKeyPath`, a file path (relative paths start at the API folder) |
    | `UseSandbox` | `true` for Xcode/debug builds (Development environment sets it), `false` for TestFlight and App Store builds |
 
 3. The app's `aps-environment` entitlement is `development` for Debug and `production` for Release

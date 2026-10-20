@@ -15,4 +15,7 @@ public sealed class PushOptions
     /// When empty, pushes are only logged.
     /// </summary>
     public string? FirebaseCredentialsPath { get; set; }
+
+    /// <summary>The Firebase service-account JSON itself (as kept in secrets.json). Used instead of <see cref="FirebaseCredentialsPath"/> when set.</summary>
+    public string? FirebaseCredentialsJson { get; set; }
 }

@@ -14,11 +14,10 @@ public sealed class FcmPushSender : IPushSender
     private readonly FirebaseMessaging _messaging;
     private readonly ILogger<FcmPushSender> _logger;
 
-    public FcmPushSender(string credentialsPath, ILogger<FcmPushSender> logger)
+    public FcmPushSender(GoogleCredential credential, ILogger<FcmPushSender> logger)
     {
         _logger = logger;
-        var app = FirebaseApp.GetInstance("edry") ?? FirebaseApp.Create(
-            new AppOptions { Credential = GoogleCredential.FromFile(credentialsPath) }, "edry");
+        var app = FirebaseApp.GetInstance("edry") ?? FirebaseApp.Create(new AppOptions { Credential = credential }, "edry");
         _messaging = FirebaseMessaging.GetMessaging(app);
     }
 

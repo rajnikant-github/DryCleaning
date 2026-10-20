@@ -7,4 +7,9 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- One shared implementation of the secrets.json reader (lives in the API project). -->
+    <Compile Include="..\DryCleaning.Api\Infrastructure\Configuration\SecretsFile.cs" Link="Configuration\SecretsFile.cs" />
+  </ItemGroup>
+
 </Project>

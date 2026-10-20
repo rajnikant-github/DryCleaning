@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using DryCleaning.Api.Common;
 using DryCleaning.Api.Data;
 using DryCleaning.Api.Infrastructure.Auth;
+using DryCleaning.Shared.Secrets;
 using DryCleaning.Api.Infrastructure.Errors;
 using DryCleaning.Api.Infrastructure.Payments;
 using DryCleaning.Api.Infrastructure.Push;
@@ -17,6 +18,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsFile(builder.Environment, "Api"); // the repository's single secrets.json (git-ignored)
 var config = builder.Configuration;
 
 // ── Options ──────────────────────────────────────────────────────────────────

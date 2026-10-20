@@ -1,11 +1,13 @@
 using System.Security.Claims;
 using DryCleaning.Admin.Components;
 using DryCleaning.Admin.Services;
+using DryCleaning.Shared.Secrets;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsFile(builder.Environment, "Admin"); // the repository's single secrets.json (git-ignored)
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 

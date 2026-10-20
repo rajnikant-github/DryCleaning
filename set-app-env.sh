@@ -16,9 +16,10 @@
 # Profiles live in DryCleaning/environments/<name>.json and only list what differs from
 # appsettings.json. The chosen one is copied to DryCleaning/appsettings.env.json (git-ignored) and
 # built into the app – rebuild/redeploy the app after switching.
-# Keys (Google Maps) live only in DryCleaning/environments/<name>.secrets.json (git-ignored, on your
-# machine). Only the chosen environment's keys are copied into the build; environments without a
-# secrets file get no key (address search then uses sample addresses).
+# Keys (Google Maps) live only in the repository's single secrets.json (git-ignored, on your machine),
+# in the "App" section of the environment's block: { "local": { "App": { "GoogleMaps": { "ApiKey": "…" } } } }.
+# Only that App section is copied into the build (the Api section never goes into the app); environments
+# without keys get none (address search then uses sample addresses). See secrets.example.json.
 # "permission denied"? Run once: chmod +x set-app-env.sh   (or use: bash set-app-env.sh)
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
@@ -29,6 +30,7 @@ ENV_DIR="$APP_DIR/environments"
 BASE_FILE="$APP_DIR/appsettings.json"
 TARGET_FILE="$APP_DIR/appsettings.env.json"
 SECRETS_FILE="$APP_DIR/appsettings.secrets.json"          # generated – keys of the chosen environment
+SECRETS_JSON="$SCRIPT_DIR/secrets.json"                    # the single file with every secret (git-ignored)
 NSC_FILE="$APP_DIR/Platforms/Android/Resources/xml/network_security_config.xml"
 API_PORT=5180
 
@@ -73,6 +75,25 @@ profiles() {
 
 has_key() { [ -n "$(json_value ApiKey "$1")" ]; }
 
+# The "App" section of an environment's block in secrets.json, as JSON (empty when there is none).
+app_secrets() {
+  [ -f "$SECRETS_JSON" ] || return 0
+  command -v python3 >/dev/null 2>&1 || fail "python3 is needed to read secrets.json."
+  python3 - "$SECRETS_JSON" "$1" <<'PY'
+import json, sys
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8-sig"))
+except ValueError as e:
+    sys.exit("secrets.json is not valid JSON: %s" % e)
+app = (data.get(sys.argv[2]) or {}).get("App")
+if app:
+    print(json.dumps(app, indent=2))
+PY
+}
+
+# True when the environment has a non-empty Google Maps key in secrets.json.
+has_app_key() { app_secrets "$1" | grep -q '"ApiKey": "[^"]\+"'; }
+
 list() {
   echo "${bold}Environments${reset} ${dim}(DryCleaning/environments/)${reset}"
   local current; current="$(json_value Environment "$TARGET_FILE")"
@@ -81,7 +102,7 @@ list() {
     if [ "$(json_value UseMockData "$f")" = "true" ]; then desc="demo data, no API"
     elif [ "$(json_value UseLocalApiInDebug "$f")" = "true" ]; then desc="API on this machine (port $API_PORT)"
     else desc="$(json_value BaseUrl "$f")"; fi
-    has_key "$ENV_DIR/$p.secrets.json" && desc="$desc · Google key"
+    has_app_key "$p" && desc="$desc · Google key"
     if [ "$p" = "$current" ]; then echo "  ${green}● $p${reset}  ${dim}$desc  (current)${reset}"
     else echo "  ○ $p  ${dim}$desc${reset}"; fi
   done
@@ -101,8 +122,8 @@ show() {
   else
     echo "  Debug + Release builds: $base"
   fi
-  if has_key "$SECRETS_FILE"; then echo "  Google Maps:   key set ${dim}(environments/${name:-?}.secrets.json)${reset}"
-  elif [ -n "$(setting ApiKey)" ]; then echo "  Google Maps:   key set ${yellow}(in a committed file – move it to environments/<name>.secrets.json)${reset}"
+  if has_key "$SECRETS_FILE"; then echo "  Google Maps:   key set ${dim}(secrets.json → ${name:-?}.App)${reset}"
+  elif [ -n "$(setting ApiKey)" ]; then echo "  Google Maps:   key set ${yellow}(in a committed file – move it to secrets.json → <env>.App)${reset}"
   else echo "  Google Maps:   no key – sample addresses"; fi
 }
 
@@ -116,19 +137,18 @@ add_device_ip_to_android() {
   ok "Android allows http to $ip ${dim}(network_security_config.xml – remove it before a release)${reset}"
 }
 
-# Copies environments/<name>.secrets.json into the build, or removes the previous environment's keys.
+# Copies the App section of secrets.json (for this environment) into the build, or removes the previous environment's keys.
 apply_secrets() {
-  local name="$1" source="$ENV_DIR/$1.secrets.json"
-  if [ -f "$source" ]; then
-    validate_json "$source"
-    cp "$source" "$SECRETS_FILE"
-    ok "Keys from environments/$name.secrets.json ${dim}(git-ignored)${reset}"
+  local name="$1" block; block="$(app_secrets "$name")"
+  if [ -n "$block" ]; then
+    printf '%s\n' "$block" > "$SECRETS_FILE"
+    validate_json "$SECRETS_FILE"
+    ok "Keys from secrets.json → $name.App ${dim}(git-ignored)${reset}"
   else
     rm -f "$SECRETS_FILE"
     if [ "$name" = "local" ]; then
-      warn "No environments/local.secrets.json – address search will use sample addresses. To add your Google key:"
-      echo "      Create DryCleaning/environments/local.secrets.json containing:"
-      echo '      { "GoogleMaps": { "ApiKey": "<your key>" } }'
+      warn "No $name.App section in secrets.json – address search will use sample addresses. To add your Google key:"
+      echo "      Copy secrets.example.json to secrets.json (repository root) and fill in local → App → GoogleMaps → ApiKey,"
       echo "      then run ./set-app-env.sh local again."
     else
       echo "  ${dim}– No keys for $name (address search uses sample addresses).${reset}"

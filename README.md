@@ -13,6 +13,32 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
 | `DryCleaning.sln` | Solution with both projects |
 
+## Secrets: one file for everything
+
+Every secret of the repo lives in **one git-ignored file at the repository root: `secrets.json`**. Create it by copying the
+committed template and filling it in:
+
+```bash
+cp secrets.example.json secrets.json     # then edit secrets.json (chmod 600 is a good idea)
+```
+
+It has one block per environment (`local`, `staging`, `production`) and, in each, one section per project:
+
+| Section | Read by | Holds |
+|---|---|---|
+| `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key, the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), and any other API setting you want kept out of git |
+| `Admin` | the admin portal | nothing secret yet (it only needs the API address) |
+| `App` | `./set-app-env.sh <env>` → the mobile app build | keys that are restricted in Google's console, e.g. `GoogleMaps.ApiKey`. **Never put server secrets here** – anything in the app can be extracted |
+
+- **Which block:** the API and portal pick the block from `ASPNETCORE_ENVIRONMENT` (`Development` → `local`). Override with
+  `EDRY_ENVIRONMENT=staging`. Override the file location with `EDRY_SECRETS_FILE=/path/secrets.json`.
+- **Order of precedence:** `appsettings*.json` < user-secrets < `secrets.json` < real environment variables. So on a server you can skip the
+  file and set variables like `Paystack__SecretKey`; they win over the file.
+- **Production:** don't copy `secrets.json` to the server or into an image. Keep the `production` block empty on developer
+  machines and supply production values as environment variables or from a secret manager (e.g. Azure Key Vault).
+- **Property names ending in `Json`** keep their object as raw JSON text (that is how the Firebase file is pasted in unchanged).
+- **Rotating a key** = edit one line in `secrets.json` and restart the API.
+
 ## Admin portal
 
 ```bash
@@ -104,18 +130,12 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 OTP `123456`, and the "simulate driver" / show-customer-code shortcuts (`Features:ShowDemoActions`).
 
 **Address search** uses Google: Places API (New) for suggestions and Geocoding API for "Use my current location".
-The key is **never committed** and is used **only in the `local` environment**. It lives on your machine in
-`DryCleaning/environments/local.secrets.json` (git-ignored):
+The key is **never committed**. It lives in the repository's single secrets file (see [Secrets](#secrets-one-file-for-everything)),
+under `local` → `App` → `GoogleMaps` → `ApiKey`. Add it there, then run `./set-app-env.sh local` to copy the `App` section into the build.
 
-```json
-{ "GoogleMaps": { "ApiKey": "<your key>" } }
-```
-
-Create that file with your key, then run `./set-app-env.sh local` to copy it into the build.
-
-`set-app-env` copies only the chosen environment's `<name>.secrets.json` into the build (as the git-ignored
-`DryCleaning/appsettings.secrets.json`, merged last). `mock`, `staging` and `production` have no secrets file, so their
-builds contain no key. To give another environment a key later, create `environments/<name>.secrets.json` the same way.
+`set-app-env` copies only the chosen environment's `App` section into the build (as the git-ignored
+`DryCleaning/appsettings.secrets.json`, merged last) – the `Api` section never goes into the app. Environments without an `App`
+section or key get none. To give another environment a key later, fill its `App` section in `secrets.json` the same way.
 In Google Cloud Console enable both APIs, restrict the key to them, and (for released apps) to your Android package /
 iOS bundle id. Without a key the app uses sample Cape Town addresses. A key built into an app can be extracted
 from it – the API restrictions are what protect it.
@@ -178,8 +198,8 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
 | `Otp__ExposeCodeInResponse` | `false`. No SMS/email provider is connected yet, so on a server sign in with **password**. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
-| `Push__FirebaseCredentialsPath` | Path to the Firebase service-account JSON for Android pushes (optional – without it they are only logged). |
-| `ApnsSettings__PrivateKeyPath` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | Path to the Apple APNs `.p8` key for iPhone pushes; `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
+| `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
+| `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
 | Uploads | **Azure:** set `Storage__Provider=AzureBlob` and `Storage__AzureBlob__AccountUrl=https://<account>.blob.core.windows.net`, and give the App Service's managed identity the **Storage Blob Data Contributor** role on that account. Order photos are then private (signed 15-minute links); logos are public. **Other hosting:** the default `Local` provider saves under `wwwroot/uploads` – use persistent disk, not a container's temporary file system. |
 
@@ -207,7 +227,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
 | Photos missing after a restart/redeploy | Using `Local` storage without persistent disk – switch to `Storage__Provider=AzureBlob`. |
 | Photos not loading after a while (Azure) | Signed links expire after 15 minutes; reload the order to get new ones. |
-| "Address search isn't working" | Check `DryCleaning/environments/<name>.secrets.json` has your key and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
+| "Address search isn't working" | Check `secrets.json` has your key under `<env>` → `App` → `GoogleMaps` and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
 
 ## Switching environments
 
@@ -252,13 +272,13 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
   `Platforms/Android/Resources/xml/network_security_config.xml` (Android blocks plain `http` otherwise). That file
   is committed – remove the extra IP before a release. Start the API with the `http` profile so the phone can reach
   it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
-- Keys: `environments/<name>.secrets.json` (git-ignored) is copied as `appsettings.secrets.json` for that environment
-  only; switching to an environment without one removes the key from the build. `--reset` removes both files.
+- Keys: the `App` section of that environment in `secrets.json` (git-ignored) is copied as `appsettings.secrets.json`;
+  switching to an environment without one removes the key from the build. `--reset` removes both files.
 - Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
 
 **Change or add an environment** – edit `DryCleaning/environments/staging.json` to your real test-server address
 (`Api:BaseUrl`), or add e.g. `uat.json` with the same shape and run `./set-app-env.sh uat`. Any setting from
-`appsettings.json` can go in a profile – but keys go in `environments/<name>.secrets.json` (git-ignored), never in
+`appsettings.json` can go in a profile – but keys go in `secrets.json` (git-ignored), never in
 a profile, because profiles are committed.
 
 **API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
@@ -270,9 +290,9 @@ a profile, because profiles are committed.
 - **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-ZA), VAT, delivery fee, driver earning per job,
   mock data and demo switches, API URLs (production + local Debug), payment callback.
   Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
-  environment's keys, from `environments/<name>.secrets.json`) – all git-ignored, never committed.
+  environment's keys, from `secrets.json`) – all git-ignored, never committed.
 - **API** – `DryCleaning.Api/appsettings.json`: connection string, marketplace rules, JWT, Paystack, OTP, storage.
-  Keep real secrets in `dotnet user-secrets` or environment variables.
+  Real secrets live in the single `secrets.json` (see [Secrets](#secrets-one-file-for-everything)) or in server environment variables.
 
 ## Status (V1)
 

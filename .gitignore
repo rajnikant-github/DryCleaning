@@ -445,3 +445,6 @@ DryCleaning.Api/wwwroot/uploads/*
 DryCleaning.Api/Certificates/
 *.p8
 *firebase-adminsdk*.json
+
+# The single file that holds every secret of the repo (copy secrets.example.json to create it)
+/secrets.json
