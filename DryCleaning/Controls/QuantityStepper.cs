@@ -37,7 +37,7 @@ public sealed class QuantityStepper : ContentView
         };
 
         var minus = CreateButton("−", filled: false, () => Value = Math.Max(Minimum, Value - 1));
-        var plus = CreateButton("+", filled: true, () => Value = Math.Min(Maximum, Value + 1));
+        var plus = CreateButton("+", filled: false, () => Value = Math.Min(Maximum, Value + 1));
         SemanticProperties.SetDescription(minus, "Decrease");
         SemanticProperties.SetDescription(plus, "Increase");
 
