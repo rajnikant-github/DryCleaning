@@ -23,7 +23,6 @@ public sealed partial class CartViewModel : BaseViewModel
 
     [ObservableProperty] private string providerName = string.Empty;
     [ObservableProperty] private decimal subTotal;
-    [ObservableProperty] private decimal deliveryFee;
     [ObservableProperty] private decimal tax;
     [ObservableProperty] private decimal total;
     [ObservableProperty] private string itemCountText = string.Empty;
@@ -43,9 +42,9 @@ public sealed partial class CartViewModel : BaseViewModel
     private void RefreshTotals()
     {
         SubTotal = _cart.SubTotal;
-        DeliveryFee = _cart.DeliveryFee;
         Tax = _cart.Tax;
-        Total = _cart.Total;
+        // Pickup & delivery depends on the address, so the cart total leaves it out; Order Summary shows the full price.
+        Total = _cart.SubTotal + _cart.Tax;
         ItemCountText = _cart.ItemCount == 1 ? "1 item" : $"{_cart.ItemCount} items";
 
         // Lines removed by setting quantity to 0
