@@ -5,7 +5,8 @@ namespace DryCleaning.Admin.Services;
 /// <summary>Display formatting shared by the pages.</summary>
 public static class Fmt
 {
-    private static readonly CultureInfo Za = new("en-ZA");
+    // US-style numbers (R1,234.50) so amounts read the same as in the mobile app.
+    private static readonly CultureInfo Za = new("en-US");
 
     public static string Money(decimal amount, string currency = "ZAR") =>
         currency == "ZAR" ? $"R{amount.ToString("N2", Za)}" : $"{amount.ToString("N2", Za)} {currency}";

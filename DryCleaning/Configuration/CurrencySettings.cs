@@ -11,8 +11,8 @@ public sealed class CurrencySettings
     /// <summary>Symbol shown in the UI, e.g. R.</summary>
     public string Symbol { get; set; } = "R";
 
-    /// <summary>Culture used for number grouping/decimal separators, e.g. en-ZA.</summary>
-    public string Culture { get; set; } = "en-ZA";
+    /// <summary>Culture used for number grouping/decimal separators. en-US gives R1,234.50; en-ZA would give R1 234,50.</summary>
+    public string Culture { get; set; } = "en-US";
 
     public int DecimalPlaces { get; set; } = 2;
 }
