@@ -1,0 +1,176 @@
+@page "/notify"
+@inherits AdminPageBase
+
+<PageTitle>Send notification – EDry Cleaners Admin</PageTitle>
+<h1>Send notification</h1>
+<p class="muted">Everyone you choose gets an in-app notification and a push on their phone. Group sends go to active customers, providers and drivers.</p>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="grid2">
+    <div class="card">
+        <h2>Who</h2>
+        <label class="field">
+            <span>Send to</span>
+            <select @bind="_audience" @bind:after="OnAudienceChangedAsync">
+                <option value="@NotificationAudience.User">A specific user</option>
+                <option value="@NotificationAudience.AllUsers">All users</option>
+                <option value="@NotificationAudience.Customers">All customers</option>
+                <option value="@NotificationAudience.Providers">All service providers</option>
+                <option value="@NotificationAudience.Drivers">All drivers</option>
+            </select>
+        </label>
+
+        @if (_audience == NotificationAudience.User)
+        {
+            @if (_selected is not null)
+            {
+                <p>
+                    <strong>@_selected.Name</strong> <span class="badge info">@Fmt.Words(_selected.Role)</span><br />
+                    <span class="muted">@_selected.Email @_selected.Phone</span>
+                    <button class="btn btn-light btn-sm" @onclick="ClearSelection">Change</button>
+                </p>
+            }
+            else
+            {
+                <div class="toolbar">
+                    <input class="grow" placeholder="Search name, email or phone" @bind="_search" @bind:event="oninput" @onkeydown="OnSearchKey" />
+                    <button class="btn" disabled="@Busy" @onclick="SearchAsync">Search</button>
+                </div>
+                @if (_results is not null)
+                {
+                    @if (_results.Count == 0)
+                    {
+                        <div class="empty">No users match.</div>
+                    }
+                    else
+                    {
+                        <table>
+                            <tbody>
+                            @foreach (var user in _results)
+                            {
+                                <tr>
+                                    <td>@user.Name <span class="badge info">@Fmt.Words(user.Role)</span><br /><span class="muted">@user.Email @user.Phone</span></td>
+                                    <td class="row-actions">
+                                        @if (user.IsActive)
+                                        {
+                                            <button class="btn btn-sm" @onclick="() => Select(user)">Choose</button>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bad">Deactivated</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    }
+                }
+            }
+        }
+        else if (_audienceCount is { } count)
+        {
+            <p>This reaches <strong>@count</strong> @(count == 1 ? "user" : "users").</p>
+        }
+    </div>
+
+    <div class="card">
+        <h2>Message</h2>
+        <label class="field">
+            <span>Title (@_title.Length/100)</span>
+            <input @bind="_title" @bind:event="oninput" maxlength="100" placeholder="e.g. Scheduled maintenance tonight" />
+        </label>
+        <label class="field">
+            <span>Message (@_message.Length/500)</span>
+            <textarea @bind="_message" @bind:event="oninput" maxlength="500" placeholder="What do you want to tell them?"></textarea>
+        </label>
+
+        @if (_confirming)
+        {
+            <div class="notice bad">
+                Send "<strong>@_title.Trim()</strong>" to @(_audience == NotificationAudience.User ? _selected?.Name : $"{_audienceCount} users")?
+                This can't be undone.
+            </div>
+            <button class="btn btn-danger" disabled="@Busy" @onclick="SendAsync">Yes, send now</button>
+            <button class="btn btn-light" disabled="@Busy" @onclick="() => _confirming = false">Cancel</button>
+        }
+        else
+        {
+            <button class="btn" disabled="@(Busy || !CanSend)" @onclick="() => _confirming = true">Review and send</button>
+        }
+    </div>
+</div>
+
+@code {
+    private NotificationAudience _audience = NotificationAudience.User;
+    private string _search = string.Empty;
+    private List<AdminUserDto>? _results;
+    private AdminUserDto? _selected;
+    private int? _audienceCount;
+    private string _title = string.Empty;
+    private string _message = string.Empty;
+    private bool _confirming;
+
+    private bool CanSend =>
+        !string.IsNullOrWhiteSpace(_title) && !string.IsNullOrWhiteSpace(_message) &&
+        (_audience == NotificationAudience.User ? _selected is not null : _audienceCount > 0);
+
+    private async Task OnAudienceChangedAsync()
+    {
+        _confirming = false;
+        _audienceCount = null;
+        ClearMessages();
+        if (_audience != NotificationAudience.User)
+            await RunAsync(async () =>
+                _audienceCount = (await Api.GetAsync<SendNotificationResult>($"api/admin/notifications/recipients?audience={_audience}")).Recipients);
+    }
+
+    private async Task OnSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await SearchAsync();
+    }
+
+    private Task SearchAsync() => RunAsync(async () =>
+    {
+        var query = "api/admin/users?pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search))
+            query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        _results = (await Api.GetAsync<PagedResult<AdminUserDto>>(query)).Items;
+    });
+
+    private void Select(AdminUserDto user)
+    {
+        _selected = user;
+        _confirming = false;
+    }
+
+    private void ClearSelection()
+    {
+        _selected = null;
+        _confirming = false;
+    }
+
+    private async Task SendAsync()
+    {
+        var request = new SendNotificationRequest
+        {
+            Audience = _audience,
+            UserId = _audience == NotificationAudience.User ? _selected?.Id : null,
+            Title = _title.Trim(),
+            Message = _message.Trim()
+        };
+
+        SendNotificationResult? result = null;
+        var ok = await RunAsync(async () => result = await Api.PostAsync<SendNotificationResult>("api/admin/notifications/send", request));
+        _confirming = false;
+        if (ok && result is not null)
+        {
+            // RunAsync cleared the messages; show the outcome after it.
+            _title = string.Empty;
+            _message = string.Empty;
+            await RunAsync(() => Task.CompletedTask, $"Sent to {result.Recipients} {(result.Recipients == 1 ? "user" : "users")}.");
+        }
+    }
+}

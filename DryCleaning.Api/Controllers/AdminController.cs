@@ -12,7 +12,8 @@ namespace DryCleaning.Api.Controllers;
 [Route("api/admin")]
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
-public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing) : ControllerBase
+public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing,
+    AdminNotificationService notifications) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -127,4 +128,19 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     /// <summary>Set the pickup &amp; delivery price: base fee + price per km beyond the included distance, within min/max. Applies to new orders only.</summary>
     [HttpPut("delivery-pricing")]
     public Task<DeliveryPricingDto> SetDeliveryPricing(DeliveryPricingDto request, CancellationToken ct) => pricing.UpdateAsync(request, ct);
+
+    // Users and announcements
+    /// <summary>Find any user account (optionally one role) – used to pick who to notify.</summary>
+    [HttpGet("users")]
+    public Task<PagedResult<AdminUserDto>> Users([FromQuery] PagedRequest request, [FromQuery] UserRole? role, CancellationToken ct) =>
+        admin.GetUsersAsync(request, role, ct);
+
+    /// <summary>How many users an announcement would reach (shown before sending).</summary>
+    [HttpGet("notifications/recipients")]
+    public async Task<SendNotificationResult> NotificationRecipients([FromQuery] NotificationAudience audience, [FromQuery] Guid? userId, CancellationToken ct) =>
+        new() { Recipients = await notifications.CountAsync(audience, userId, ct) };
+
+    /// <summary>Send an announcement to one user, everyone, or all customers / providers / drivers. Each recipient gets an in-app notification and a push.</summary>
+    [HttpPost("notifications/send")]
+    public Task<SendNotificationResult> SendNotification(SendNotificationRequest request, CancellationToken ct) => notifications.SendAsync(request, ct);
 }

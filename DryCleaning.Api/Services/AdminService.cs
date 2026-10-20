@@ -12,6 +12,24 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
 {
     private MarketplaceOptions Market => marketplace.Value;
 
+    // ── Users (any role) ─────────────────────────────────────────────────────
+
+    public async Task<PagedResult<AdminUserDto>> GetUsersAsync(PagedRequest request, UserRole? role, CancellationToken ct)
+    {
+        var query = db.Users.AsNoTracking().AsQueryable();
+        if (role is not null)
+            query = query.Where(u => u.Role == role);
+        if (!string.IsNullOrWhiteSpace(request.Search))
+            query = query.Where(u => u.Name.Contains(request.Search) || (u.Email ?? "").Contains(request.Search) || (u.Phone ?? "").Contains(request.Search));
+
+        var total = await query.CountAsync(ct);
+        var items = await query.OrderBy(u => u.Name)
+            .Skip((request.Page - 1) * request.PageSize).Take(request.PageSize)
+            .Select(u => new AdminUserDto { Id = u.Id, Name = u.Name, Role = u.Role, Email = u.Email, Phone = u.Phone, IsActive = u.IsActive })
+            .ToListAsync(ct);
+        return new PagedResult<AdminUserDto> { Items = items, Page = request.Page, PageSize = request.PageSize, TotalCount = total };
+    }
+
     // ── A02 Dashboard ────────────────────────────────────────────────────────
 
     public async Task<AdminDashboardDto> GetDashboardAsync(CancellationToken ct)
