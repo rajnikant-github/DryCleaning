@@ -30,12 +30,12 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
-                // Swap these files for Outfit (Figma) by dropping the .ttf files into Resources/Fonts
-                // and changing only the file names below – styles use the aliases.
-                fonts.AddFont("OpenSans-Regular.ttf", "AppRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "AppSemibold");
+                // The app's text font is Nunito (Figma). Every style and control uses these two aliases, so switching
+                // fonts again only means dropping the .ttf files into Resources/Fonts and changing the file names below.
+                fonts.AddFont("Nunito-Regular.ttf", "AppRegular");
+                fonts.AddFont("Nunito-SemiBold.ttf", "AppSemibold");
                 fonts.AddFont("FontAwesome-Solid.ttf", "FA");
-                // Intro & onboarding screens (Figma)
+                // Extra weights used by the intro & onboarding screens (Figma)
                 fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
                 fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
                 fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
