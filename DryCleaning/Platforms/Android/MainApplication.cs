@@ -1,4 +1,4 @@
-﻿using Android.App;
+using Android.App;
 using Android.Runtime;
 
 namespace DryCleaning;
@@ -9,6 +9,12 @@ public class MainApplication : MauiApplication
     public MainApplication(IntPtr handle, JniHandleOwnership ownership)
         : base(handle, ownership)
     {
+    }
+
+    public override void OnCreate()
+    {
+        base.OnCreate();
+        PushChannel.Create(this); // before any push can arrive
     }
 
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

@@ -336,10 +336,11 @@ Codes are only returned to the customer, never to the provider or driver.
 
 1. A business step calls `db.Notify(userId, order, title, message, type)` → a row in `Notifications`.
 2. After the save succeeds, the notification is queued for push (in memory, never blocks the request).
-3. A background worker looks up the user's `DeviceTokens` and sends through **Firebase Cloud Messaging**
-   (Android + iOS). Without Firebase credentials pushes are only logged.
-4. Push payload: `notification.title`, `notification.body`, and `data` = `{ notificationId, type, orderId? }`.
-5. Tokens Firebase reports as dead are deleted.
+3. A background worker looks up the user's `DeviceTokens` and sends Android tokens through **Firebase Cloud Messaging**
+   and iOS tokens straight through **Apple APNs** (HTTP/2, `.p8` key). A platform without credentials is only logged.
+4. Push payload: title and body, and `{ notificationId, type, orderId? }` (FCM `data` map on Android, custom keys next to `aps` on iOS).
+5. Tokens Firebase reports as invalid, or Apple reports as unregistered, are deleted. Apple's `BadDeviceToken` is only logged
+   (it also means a sandbox/production mix-up).
 
 The app reads the same rows with `GET /api/notifications` (bell list) and `GET /api/notifications/unread-count`
 (badge). Phones register with `POST /api/me/devices` and unregister with `DELETE /api/me/devices?token=`.
@@ -594,6 +595,9 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Starts as the flat `Marketplace:DeliveryFee`. |
 | `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
+| `GET` | `/api/admin/users` | Admin | Query: `search`, `role`, `page`, `pageSize` | `PagedResult<AdminUserDto>` | Find any user account (name, email or phone), optionally one role – used by the portal to pick who to notify. |
+| `GET` | `/api/admin/notifications/recipients` | Admin | Query: `audience`, `userId` | `SendNotificationResult` | How many users an announcement would reach (`recipients`), shown before sending. |
+| `POST` | `/api/admin/notifications/send` | Admin | Body: `SendNotificationRequest` | `SendNotificationResult` | Send an announcement to one user (`audience: User` + `userId`), `AllUsers`, `Customers`, `Providers` or `Drivers`. Each recipient gets an in-app notification (type `System`), a push to their phones and the live update in open apps. Group sends reach active customers, providers and drivers only (not admins, not deactivated accounts). |
 | `GET` | `/api/admin/disputes` | Admin | Query: `status`, `page`, `pageSize`, `search` | `PagedResult<DisputeDto>` | All disputes (paged, `status`). |
 | `POST` | `/api/admin/disputes/{disputeId}/review` | Admin | — | `DisputeDto` | Mark a dispute `UnderReview`. |
 | `POST` | `/api/admin/disputes/{disputeId}/resolve` | Admin | Body: `ResolveDisputeRequest` | `DisputeDto` | Resolve or reject with a resolution text, optionally moving the order to a new status (e.g. `Processing`, `Completed`, `Cancelled`). Both parties are notified. |
@@ -760,6 +764,17 @@ Used by: `PUT /api/provider/working-hours`
 | `days[].day` | int | yes | 0–6 |
 | `days[].isOpen` | bool | yes | `false` = no pickups that day |
 | `days[].openTime`, `days[].closeTime` | string | when open | `HH:mm` (24-hour), closing at least two hours after opening |
+
+#### SendNotificationRequest
+
+Used by: `POST /api/admin/notifications/send`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `audience` | enum | yes | `User`, `AllUsers`, `Customers`, `Providers`, `Drivers` |
+| `userId` | guid | when `audience` is `User` | An active user account |
+| `title` | string | yes | max 100 |
+| `message` | string | yes | max 500 |
 
 #### ReasonRequest
 
@@ -2019,7 +2034,9 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | | `ExpiryMinutes` | `60` (`1440` in Development) | Access token lifetime |
 | | `RefreshTokenDays` | `30` | Refresh token lifetime |
 | `Push` | `Enabled` | `true` | Send pushes |
-| | `FirebaseCredentialsPath` | *(empty = log only)* | Firebase service-account JSON |
+| | `FirebaseCredentialsPath` | *(empty = log only)* | Firebase service-account JSON (Android pushes) |
+| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKeyPath` | *(Team/Key/Bundle ids, `.p8` path)* | Apple APNs for iPhone pushes; missing key = log only |
+| | `UseSandbox` | `false` (`true` in Development) | `true` for debug builds, `false` for TestFlight/App Store |
 | `Paystack` | `SecretKey`, `PublicKey` | *(secret)* | Payments + webhook signature |
 | | `CallbackUrl` | `edrycleaners://payment-complete` | Where Paystack returns to the app |
 | `Otp` | `Length`, `ExpirySeconds`, `MaxAttempts` | `6`, `300`, `5` | Login / reset codes |

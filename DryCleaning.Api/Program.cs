@@ -26,8 +26,8 @@ builder.Services.Configure<PaystackOptions>(config.GetSection(PaystackOptions.Se
 builder.Services.Configure<OtpOptions>(config.GetSection(OtpOptions.Section));
 builder.Services.Configure<StorageOptions>(config.GetSection(StorageOptions.Section));
 
-// ── Push notifications (Firebase Cloud Messaging; log-only when not configured) ──
-builder.Services.AddPushNotifications(config);
+// ── Push notifications (Android: Firebase Cloud Messaging, iOS: Apple APNs; log-only when not configured) ──
+builder.Services.AddPushNotifications(config, builder.Environment);
 
 // ── Real-time updates (SignalR hub at /hubs/realtime) ─────────────────────────
 builder.Services.AddRealtime();
@@ -106,6 +106,7 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<UserPhotoService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<AdminNotificationService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

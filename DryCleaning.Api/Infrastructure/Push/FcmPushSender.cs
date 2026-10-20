@@ -1,17 +1,11 @@
-using System.Runtime.CompilerServices;
-using System.Threading.Channels;
-using DryCleaning.Api.Common;
-using DryCleaning.Api.Data;
+using DryCleaning.Api.Domain;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Options;
 
 namespace DryCleaning.Api.Infrastructure.Push;
 
-/// <summary>Firebase Cloud Messaging – one API for Android and iOS (APNs is configured in the Firebase console).</summary>
+/// <summary>Firebase Cloud Messaging for Android phones (iPhones are sent through <see cref="ApnsPushSender"/>).</summary>
 public sealed class FcmPushSender : IPushSender
 {
     private static readonly MessagingErrorCode[] DeadTokenErrors =
@@ -27,6 +21,8 @@ public sealed class FcmPushSender : IPushSender
             new AppOptions { Credential = GoogleCredential.FromFile(credentialsPath) }, "edry");
         _messaging = FirebaseMessaging.GetMessaging(app);
     }
+
+    public DevicePlatform Platform => DevicePlatform.Android;
 
     public async Task<IReadOnlyList<string>> SendAsync(IReadOnlyList<string> tokens, PushMessage message, CancellationToken ct)
     {
@@ -46,8 +42,11 @@ public sealed class FcmPushSender : IPushSender
                 Tokens = batch,
                 Notification = new FirebaseAdmin.Messaging.Notification { Title = message.Title, Body = message.Body },
                 Data = data,
-                Android = new AndroidConfig { Priority = Priority.High },
-                Apns = new ApnsConfig { Aps = new Aps { Sound = "default" } }
+                Android = new AndroidConfig
+                {
+                    Priority = Priority.High,
+                    Notification = new AndroidNotification { ChannelId = PushChannels.Android }
+                }
             }, ct);
 
             for (var i = 0; i < response.Responses.Count; i++)
@@ -58,7 +57,7 @@ public sealed class FcmPushSender : IPushSender
                 if (result.Exception?.MessagingErrorCode is { } code && DeadTokenErrors.Contains(code))
                     dead.Add(batch[i]);
                 else
-                    _logger.LogWarning(result.Exception, "Push to a device of user {UserId} failed", message.UserId);
+                    _logger.LogWarning(result.Exception, "Push to an Android device of user {UserId} failed", message.UserId);
             }
         }
 

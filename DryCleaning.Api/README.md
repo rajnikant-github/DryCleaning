@@ -14,7 +14,7 @@ SQL Server + EF Core 10, JWT auth, Swagger UI, Paystack payments. Tables follow 
   - [Troubleshooting](#troubleshooting)
 - [Configuration (`appsettings.json`)](#configuration-appsettingsjson)
 - [Sign-in, sessions and passwords](#sign-in-sessions-and-passwords)
-- [Push notifications (Firebase Cloud Messaging)](#push-notifications-firebase-cloud-messaging)
+- [Push notifications (Android: Firebase, iOS: Apple APNs)](#push-notifications-android-firebase-ios-apple-apns)
 - [Paystack flow](#paystack-flow)
 - [Order lifecycle](#order-lifecycle)
   - [Screen helpers](#screen-helpers)
@@ -157,7 +157,8 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in user-secrets / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
 | `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
-| `Push` | `Enabled`, `FirebaseCredentialsPath` (Firebase service-account JSON). Empty path → pushes are only logged |
+| `Push` | `Enabled`, `FirebaseCredentialsPath` (Firebase service-account JSON, Android). Empty path → Android pushes are only logged |
+| `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKeyPath` (the `.p8`), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
 | `Storage` | `Local` (wwwroot) or `AzureBlob` provider, containers, signed-link lifetime, max photo size |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
 
@@ -190,28 +191,44 @@ dotnet user-secrets set "Push:FirebaseCredentialsPath" "/secure/path/firebase-se
   accounts. In Development the code is returned as `devCode`.
 - Login and reset codes are invalidated after `Otp:MaxAttempts` (5) wrong guesses.
 
-## Push notifications (Firebase Cloud Messaging)
+## Push notifications (Android: Firebase, iOS: Apple APNs)
 
 Every in-app notification the API creates (new order, driver assigned, out for delivery, payment, …) is also
-sent as a push to the user's phones – Android and iOS through Firebase.
+sent as a push to the user's phones. Android phones are reached through **Firebase Cloud Messaging**, iPhones
+**directly through Apple's APNs** (no Firebase on iOS).
 
 | Action | Endpoint |
 |---|---|
-| Register this phone (after sign-in, on app start, when Firebase issues a new token) | `POST /api/me/devices` `{ token, platform: "Android" \| "iOS" }` |
+| Register this phone (after sign-in, on app start, when the platform issues a new token) | `POST /api/me/devices` `{ token, platform: "Android" \| "iOS" }` (FCM token / APNs device token in hex) |
 | Stop pushes to this phone (on logout) | `DELETE /api/me/devices?token=…` |
 
-Push payload: `notification.title` / `notification.body` plus `data.notificationId`, `data.type` and
-`data.orderId` (when the notification is about an order), so the app can open the right screen.
+Push payload: title and body plus `notificationId`, `type` and `orderId` (when the notification is about an order), so
+the app can open the right screen. On Android these keys arrive in the FCM `data` map, on iOS as custom keys next to `aps`.
 
-**Setup**
+**Setup – Android (Firebase)**
 
-1. Create a Firebase project and add the Android and iOS apps (for iOS, upload the APNs key in
-   *Project settings → Cloud Messaging*).
-2. *Project settings → Service accounts → Generate new private key* – download the JSON. **Don't commit it.**
-3. Set `Push:FirebaseCredentialsPath` to that file (user-secrets or environment variable `Push__FirebaseCredentialsPath`).
+1. *Firebase console → Project settings → Service accounts → Generate new private key* – download the JSON. **Don't commit it.**
+2. Set `Push:FirebaseCredentialsPath` to that file (user-secrets or environment variable `Push__FirebaseCredentialsPath`).
 
-Without a credentials file the API runs normally and logs each push instead of sending it. Sending happens on a
-background queue, so API calls never wait for Firebase; tokens Firebase reports as expired are removed automatically.
+**Setup – iOS (APNs)**
+
+1. In the Apple Developer account: the App ID has the **Push Notifications** capability, and you have an **APNs auth key** (`AuthKey_XXXX.p8`).
+2. Put the `.p8` outside git (the repo ignores `DryCleaning.Api/Certificates/`) and fill `ApnsSettings`:
+
+   | Setting | Meaning |
+   |---|---|
+   | `TeamId`, `KeyId` | From the Apple Developer account / the key |
+   | `BundleId` | The app's bundle id (`apns-topic`), `com.dev.edrycleaners` |
+   | `PrivateKeyPath` | Path to the `.p8` (relative paths start at the API folder). In production use `ApnsSettings__PrivateKeyPath` |
+   | `UseSandbox` | `true` for Xcode/debug builds (Development environment sets it), `false` for TestFlight and App Store builds |
+
+3. The app's `aps-environment` entitlement is `development` for Debug and `production` for Release
+   (`DryCleaning/Platforms/iOS/Entitlements*.plist`); the signing profile must include Push Notifications.
+
+Without a platform's credentials the API runs normally and logs each push for that platform instead of sending it. Sending
+happens on a background queue, so API calls never wait for Firebase or Apple. Tokens that Firebase reports as invalid, or that
+Apple reports as unregistered (app uninstalled), are removed automatically. Apple's `BadDeviceToken` is only logged: it also
+means "sandbox token sent to production (or the reverse)", so a wrong `UseSandbox` never deletes working devices.
 
 ## Paystack flow
 

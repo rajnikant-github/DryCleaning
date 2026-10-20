@@ -4,6 +4,7 @@ using DryCleaning.Services;
 using DryCleaning.Services.Api;
 using DryCleaning.Services.Mock;
 using DryCleaning.Services.Places;
+using DryCleaning.Services.Push;
 using DryCleaning.ViewModels;
 using DryCleaning.ViewModels.Auth;
 using DryCleaning.ViewModels.Customer;
@@ -47,6 +48,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
         builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
         builder.Services.AddSingleton<IDialogService, DialogService>();
+        builder.Services.AddSingleton<IOrderLinkService, OrderLinkService>();
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
         builder.Services.AddSingleton<ProfilePhotoChanger>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
@@ -153,6 +155,8 @@ public static class MauiProgram
         services.AddSingleton<IDriverService, MockDriverService>();
         services.AddSingleton<IRealtimeService, MockRealtimeService>();
         services.AddSingleton<IUserPhotoService, MockUserPhotoService>();
+        services.AddSingleton<IPushRegistry, NoPushRegistry>();
+        services.AddSingleton<IPushService, NoPushService>();
     }
 
     private static void AddApiServices(IServiceCollection services, AppSettings settings)
@@ -174,6 +178,8 @@ public static class MauiProgram
         services.AddSingleton<IDriverService, ApiDriverService>();
         services.AddSingleton<IRealtimeService, ApiRealtimeService>();
         services.AddSingleton<IUserPhotoService, ApiUserPhotoService>();
+        services.AddSingleton<IPushRegistry, ApiPushRegistry>();
+        services.AddSingleton<IPushService, PushService>();
     }
 
     private static IServiceCollection AddPage<TPage, TViewModel>(this IServiceCollection services)

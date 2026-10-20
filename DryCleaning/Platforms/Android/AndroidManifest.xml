@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" android:label="EDry Cleaners" android:networkSecurityConfig="@xml/network_security_config"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" android:label="EDry Cleaners" android:networkSecurityConfig="@xml/network_security_config">
+		<!-- Push notifications shown by Android itself (app in the background) use this channel -->
+		<meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="edry_orders" />
+	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<!-- Push notifications (Android 13+ asks at runtime) -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<!-- Photo verification (receive, inspection, quality check) -->
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" android:required="false" />

@@ -8,7 +8,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | [`DryCleaning/`](DryCleaning/) | .NET MAUI app (Android + iOS, MVVM) – Customer, Service Provider and Driver roles in one app |
 | [`DryCleaning.Api/`](DryCleaning.Api/) | ASP.NET Core Web API (.NET 10) – SQL Server, EF Core, JWT, Swagger, Paystack. [API docs →](DryCleaning.Api/README.md) |
 | [`docs/API-GUIDE.md`](docs/API-GUIDE.md) | API & workflow guide – every endpoint, order/payment/driver/dispute flows, request rules, enums and all database tables |
-| [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories and delivery pricing. Talks to the API only |
+| [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories, delivery pricing and push announcements to any user or everyone. Talks to the API only |
 | `run-api.sh` / `run-api.ps1` | One-command local API runner – macOS (bash) / Windows (PowerShell) |
 | `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
 | `DryCleaning.sln` | Solution with both projects |
@@ -23,6 +23,9 @@ Sign in with an **Admin** account (locally `admin@edrycleaners.co.za`, password 
 The portal calls the API at `Api:BaseUrl` (`DryCleaning.Admin/appsettings.json`, default `http://localhost:5180/`); in production set
 `Api__BaseUrl` to your API address. It keeps no data of its own, so there is nothing to migrate. The sign-in lasts as long as
 the API's access token (60 minutes), then you sign in again.
+
+From **Send notification** an admin can notify one user (search by name, email or phone), everyone, or all customers / providers /
+drivers. Each recipient gets an in-app notification and a push on their phone.
 
 ## Contents
 
@@ -121,6 +124,19 @@ from it – the API restrictions are what protect it.
 `edrycleaners://payment-complete` (must match `Paystack:CallbackUrl` in the API). The API then verifies the payment.
 Use Paystack test keys and a [test card](https://paystack.com/docs/payments/test-payments/) while developing.
 
+**Push notifications in the app** (Android: Firebase, iOS: Apple APNs – server setup in [DryCleaning.Api/README.md](DryCleaning.Api/README.md#push-notifications-android-firebase-ios-apple-apns)):
+
+- The app asks for notification permission after sign-in, registers the phone with the API and unregisters it on sign-out. Tapping a
+  notification opens the order. Demo (mock) mode has no push.
+- **iOS needs a real iPhone** to receive pushes: the simulator can't get an APNs token because simulator builds aren't signed with the
+  push entitlement. In the simulator you can still check how a notification looks with
+  `xcrun simctl push <device> com.dev.edrycleaners payload.apns` (payload with `aps.alert` and an `orderId`).
+- A real iPhone build needs an App ID with **Push Notifications** enabled and a development provisioning profile that includes it.
+- **Android** works on an emulator with Google Play services; the first run asks for the Android 13+ notification permission.
+- **Android build tip:** `DryCleaning.csproj` pins `Xamarin.AndroidX.Fragment.Ktx` to 1.9.0 next to the Firebase packages. Without it the
+  build fails with "Type androidx.fragment.app… is defined multiple times". After adding or upgrading Android packages, delete
+  `DryCleaning/obj` and `DryCleaning/bin` and rebuild – a stale incremental build can crash on start with a missing-resource error.
+
 ## Testing the app against a deployed API
 
 Use this when the API runs on a server (staging or production) instead of your machine.
@@ -162,7 +178,8 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
 | `Otp__ExposeCodeInResponse` | `false`. No SMS/email provider is connected yet, so on a server sign in with **password**. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
-| `Push__FirebaseCredentialsPath` | Path to the Firebase service-account JSON (optional – without it pushes are only logged). |
+| `Push__FirebaseCredentialsPath` | Path to the Firebase service-account JSON for Android pushes (optional – without it they are only logged). |
+| `ApnsSettings__PrivateKeyPath` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | Path to the Apple APNs `.p8` key for iPhone pushes; `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
 | Uploads | **Azure:** set `Storage__Provider=AzureBlob` and `Storage__AzureBlob__AccountUrl=https://<account>.blob.core.windows.net`, and give the App Service's managed identity the **Storage Blob Data Contributor** role on that account. Order photos are then private (signed 15-minute links); logos are public. **Other hosting:** the default `Local` provider saves under `wwwroot/uploads` – use persistent disk, not a container's temporary file system. |
 
@@ -261,8 +278,8 @@ a profile, because profiles are committed.
 
 - ✅ Mobile screens and workflows for Customer, Service Provider and Driver (mock data)
 - ✅ API for all three roles plus admin endpoints, Paystack payments, Swagger
-- ✅ API: refresh tokens, forgot/reset password, push notifications (Firebase – needs your service-account file)
+- ✅ API: refresh tokens, forgot/reset password, push notifications (Android through Firebase, iPhone through Apple APNs)
 - ✅ App connected to the API (sign-in + saved session with token refresh, all screens, photo upload, Paystack checkout, Google address search)
-- ⏳ Push notification registration in the app (needs your Firebase project files)
+- ✅ App: push notifications on Android (native Firebase) and iOS (native APNs) – registers on sign-in, opens the order when a notification is tapped
 - ✅ App: sign-up (all roles), forgot/reset and change password, provider business profile (incl. logo) and categories
 - ⏳ Admin web portal, SMS/email provider for codes

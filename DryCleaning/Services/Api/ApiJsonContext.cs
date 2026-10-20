@@ -69,6 +69,7 @@ namespace DryCleaning.Services.Api;
 [JsonSerializable(typeof(ChangePasswordRequest))]
 [JsonSerializable(typeof(UpdateProviderProfileRequest))]
 [JsonSerializable(typeof(SetProviderCategoriesRequest))]
+[JsonSerializable(typeof(RegisterDeviceRequest))]
 [JsonSerializable(typeof(SetWorkingHoursRequest))]
 [JsonSerializable(typeof(List<WorkingHourDto>))]
 [JsonSerializable(typeof(List<CategoryDto>))]

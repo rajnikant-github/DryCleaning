@@ -15,7 +15,7 @@ namespace DryCleaning.Api.Infrastructure.Push;
 public sealed class PushDispatcher(
     PushQueue queue,
     IServiceScopeFactory scopes,
-    IPushSender sender,
+    IEnumerable<IPushSender> senders,
     IOptions<PushOptions> options,
     ILogger<PushDispatcher> logger) : BackgroundService
 {
@@ -30,18 +30,23 @@ public sealed class PushDispatcher(
             {
                 using var scope = scopes.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var tokens = await db.DeviceTokens
+                var devices = await db.DeviceTokens
                     .Where(d => d.UserId == message.UserId)
-                    .Select(d => d.Token)
+                    .Select(d => new { d.Platform, d.Token })
                     .ToListAsync(stoppingToken);
-                if (tokens.Count == 0)
-                    continue;
 
-                var dead = await sender.SendAsync(tokens, message, stoppingToken);
-                if (dead.Count > 0)
+                foreach (var sender in senders)
                 {
-                    await db.DeviceTokens.Where(d => dead.Contains(d.Token)).ExecuteDeleteAsync(stoppingToken);
-                    logger.LogInformation("Removed {Count} expired push token(s) for user {UserId}", dead.Count, message.UserId);
+                    var tokens = devices.Where(d => d.Platform == sender.Platform).Select(d => d.Token).ToList();
+                    if (tokens.Count == 0)
+                        continue;
+
+                    var dead = await sender.SendAsync(tokens, message, stoppingToken);
+                    if (dead.Count > 0)
+                    {
+                        await db.DeviceTokens.Where(d => dead.Contains(d.Token)).ExecuteDeleteAsync(stoppingToken);
+                        logger.LogInformation("Removed {Count} expired {Platform} push token(s) for user {UserId}", dead.Count, sender.Platform, message.UserId);
+                    }
                 }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

@@ -8,7 +8,7 @@ using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
 
-public sealed partial class NotificationsViewModel(ViewModelServices services, INotificationService notifications, ISessionService session, IDriverService drivers)
+public sealed partial class NotificationsViewModel(ViewModelServices services, INotificationService notifications, IOrderLinkService orderLinks)
     : BaseViewModel(services)
 {
     protected override bool ReactsTo(RealtimeChangedMessage message) =>
@@ -34,21 +34,7 @@ public sealed partial class NotificationsViewModel(ViewModelServices services, I
             return;
         }
 
-        switch (session.CurrentUser?.Role)
-        {
-            case Models.UserRole.Customer:
-                await Navigation.GoToAsync(Routes.CustomerOrderDetail, Param(Routes.OrderIdKey, orderId));
-                break;
-            case Models.UserRole.Driver:
-                if (await drivers.FindJobForOrderAsync(orderId) is { } jobId)
-                    await Navigation.GoToAsync(Routes.DriverJobDetail, Param(Routes.JobIdKey, jobId));
-                else
-                    await Dialogs.AlertAsync("Job unavailable", "This job is no longer available.");
-                break;
-            default:
-                await Navigation.GoToAsync(Routes.OrderDetail, Param(Routes.OrderIdKey, orderId));
-                break;
-        }
+        await orderLinks.OpenAsync(orderId);
     }
 
     [RelayCommand]

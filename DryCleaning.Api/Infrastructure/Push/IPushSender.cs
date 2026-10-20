@@ -1,18 +1,12 @@
-using System.Runtime.CompilerServices;
-using System.Threading.Channels;
-using DryCleaning.Api.Common;
-using DryCleaning.Api.Data;
-using FirebaseAdmin;
-using FirebaseAdmin.Messaging;
-using Google.Apis.Auth.OAuth2;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Options;
+using DryCleaning.Api.Domain;
 
 namespace DryCleaning.Api.Infrastructure.Push;
 
+/// <summary>Sends pushes to one platform's devices (Android through Firebase, iOS straight through Apple).</summary>
 public interface IPushSender
 {
-    /// <summary>Sends to the given FCM tokens. Returns tokens Firebase reported as no longer valid.</summary>
+    DevicePlatform Platform { get; }
+
+    /// <summary>Sends to the given device tokens. Returns tokens the platform reported as no longer valid.</summary>
     Task<IReadOnlyList<string>> SendAsync(IReadOnlyList<string> tokens, PushMessage message, CancellationToken ct);
 }

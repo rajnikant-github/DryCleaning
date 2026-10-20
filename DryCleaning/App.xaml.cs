@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Messaging;
 using DryCleaning.Services;
+using DryCleaning.Services.Push;
 using DryCleaning.Services.Theming;
 
 namespace DryCleaning;
@@ -9,7 +10,8 @@ public partial class App : Application
     private readonly AppShell _shell;
     private readonly IRealtimeService _realtime;
 
-    public App(AppShell shell, IRealtimeService realtime, IThemeService themes)
+    // IPushService is injected so it exists from app start and can receive a notification tap that launched the app.
+    public App(AppShell shell, IRealtimeService realtime, IThemeService themes, IPushService push)
     {
         InitializeComponent();
         themes.LoadSaved();

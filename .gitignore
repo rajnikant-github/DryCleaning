@@ -440,3 +440,8 @@ DryCleaning/appsettings.secrets.json
 # Photos and logos uploaded to a local/dev API (production uses Azure Blob Storage). Keep the folder, ignore the files.
 DryCleaning.Api/wwwroot/uploads/*
 !DryCleaning.Api/wwwroot/uploads/.gitkeep
+
+# Push notification keys (Apple APNs .p8, Firebase service account) – never commit
+DryCleaning.Api/Certificates/
+*.p8
+*firebase-adminsdk*.json

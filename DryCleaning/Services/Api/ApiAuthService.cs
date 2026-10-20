@@ -1,6 +1,7 @@
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services.Api.Contracts;
+using DryCleaning.Services.Push;
 
 namespace DryCleaning.Services.Api;
 
@@ -12,14 +13,16 @@ public sealed class ApiAuthService : IAuthService
     private readonly ISessionService _session;
     private readonly INavigationService _navigation;
     private readonly IRealtimeService _realtime;
+    private readonly IPushService _push;
 
-    public ApiAuthService(ApiClient api, TokenStore tokens, ISessionService session, INavigationService navigation, IRealtimeService realtime)
+    public ApiAuthService(ApiClient api, TokenStore tokens, ISessionService session, INavigationService navigation, IRealtimeService realtime, IPushService push)
     {
         _api = api;
         _tokens = tokens;
         _session = session;
         _navigation = navigation;
         _realtime = realtime;
+        _push = push;
         _api.SessionExpired += OnSessionExpired;
         _api.SessionRefreshed += (_, auth) => SignIn(auth);
     }
@@ -112,6 +115,7 @@ public sealed class ApiAuthService : IAuthService
 
             await _tokens.SaveAsync(auth);
             SignIn(auth);
+            _ = _push.EnableAsync();
             return AuthResult.Ok();
         }
         catch (ApiException ex)
@@ -162,6 +166,7 @@ public sealed class ApiAuthService : IAuthService
         if (!string.IsNullOrEmpty(auth?.RefreshToken))
             await RevokeAsync(auth.RefreshToken);
 
+        await _push.DisableAsync(); // while the session is still valid
         await _realtime.StopAsync();
         _tokens.Clear();
         _session.SignOut();
@@ -193,6 +198,7 @@ public sealed class ApiAuthService : IAuthService
         }
 
         SignIn(saved);
+        _ = _push.EnableAsync();
         return true;
     }
 
@@ -210,6 +216,7 @@ public sealed class ApiAuthService : IAuthService
 
         await _tokens.SaveAsync(auth);
         SignIn(auth);
+        _ = _push.EnableAsync();
         return AuthResult.Ok();
     }
 
