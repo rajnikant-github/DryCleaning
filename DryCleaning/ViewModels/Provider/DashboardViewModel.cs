@@ -37,10 +37,15 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
     [NotifyPropertyChangedFor(nameof(HasNoTodaysOrders))]
     private bool hasTodaysOrders;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNoRecentActivity))]
+    private bool hasRecentActivity;
+
     public bool HasUnread => UnreadCount > 0;
     public string UnreadText => UnreadCount == 1 ? "1 new alert" : $"{UnreadCount} new alerts";
     public bool HasIncomingDriver => IncomingDriverOrder is not null;
     public bool HasNoTodaysOrders => !HasTodaysOrders;
+    public bool HasNoRecentActivity => !HasRecentActivity;
     public string IncomingDriverName => IncomingDriverOrder?.DriverName ?? "Driver";
     public string IncomingDriverText => IncomingDriverOrder is null
         ? string.Empty
@@ -73,6 +78,7 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
         RecentActivity.Clear();
         foreach (var entry in dashboard.RecentActivity)
             RecentActivity.Add(new ActivityItem(entry, id => Navigation.GoToAsync(Routes.OrderDetail, Param(Routes.OrderIdKey, id))));
+        HasRecentActivity = RecentActivity.Count > 0;
 
         return true;
     }

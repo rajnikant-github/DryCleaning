@@ -153,7 +153,10 @@
                     <!--  Recent activity  -->
                     <VerticalStackLayout Padding="16,0" Spacing="10">
                         <Label Text="Recent Activity" Style="{StaticResource H3}" />
-                        <Border Style="{StaticResource Card}" Padding="16,6">
+                        <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoRecentActivity}">
+                            <Label Text="No recent activity yet." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        </Border>
+                        <Border Style="{StaticResource Card}" Padding="16,6" IsVisible="{Binding HasRecentActivity}">
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecentActivity}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="items:ActivityItem">
