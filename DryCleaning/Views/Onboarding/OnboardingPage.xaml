@@ -14,7 +14,7 @@
         <Grid Grid.Row="0" Margin="24,0">
             <Image Source="applogo.png" WidthRequest="240" HeightRequest="120" Aspect="AspectFit"
                    HorizontalOptions="Center" SemanticProperties.Description="E Dry Cleaners" />
-            <Button Text="&#xf053;" FontFamily="FA" FontSize="20" TextColor="{StaticResource OnboardingCoralButton}"
+            <Button Text="&#xf053;" FontFamily="FA" FontSize="20" TextColor="{DynamicResource Primary}"
                     BackgroundColor="Transparent" Padding="0" WidthRequest="44" HeightRequest="44"
                     HorizontalOptions="Start" VerticalOptions="Start" Margin="-8,36,0,0"
                     Command="{Binding BackCommand}" SemanticProperties.Description="Back" />
@@ -39,17 +39,12 @@
 
         <!--  Page dots  -->
         <IndicatorView Grid.Row="2" Count="3" Position="{Binding Position}" IndicatorSize="10" IndicatorsShape="Circle"
-                       IndicatorColor="{StaticResource OnboardingMuted}" SelectedIndicatorColor="{StaticResource OnboardingInk}"
+                       IndicatorColor="{StaticResource OnboardingMuted}" SelectedIndicatorColor="{DynamicResource Primary}"
                        HorizontalOptions="Center" Margin="0,8,0,16" />
 
         <!--  Next / Get Started  -->
         <Button Grid.Row="3" Text="{Binding ButtonText}" Command="{Binding NextCommand}" Style="{StaticResource OnboardingPill}"
                 HorizontalOptions="Center">
-            <Button.Triggers>
-                <DataTrigger TargetType="Button" Binding="{Binding IsLast}" Value="True">
-                    <Setter Property="BackgroundColor" Value="{StaticResource OnboardingCoralButton}" />
-                </DataTrigger>
-            </Button.Triggers>
         </Button>
 
         <!--  Skip (hidden on the last slide, keeping its space so nothing jumps)  -->

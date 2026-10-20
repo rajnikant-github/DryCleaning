@@ -7,9 +7,9 @@
                 x:Class="DryCleaning.Views.Onboarding.IntroPage"
                 x:DataType="vm:IntroViewModel"
                 Shell.NavBarIsVisible="False"
-                BackgroundColor="{StaticResource OnboardingCoral}">
+                BackgroundColor="{DynamicResource Primary}">
     <Grid RowDefinitions="Auto,*,Auto" Padding="{OnPlatform iOS='24,56,24,24', Default='24,36,24,24'}">
-        <Image Grid.Row="0" Source="applogo.png" WidthRequest="240" HeightRequest="120" Aspect="AspectFit"
+        <Image Grid.Row="0" Source="applogo_white.png" WidthRequest="240" HeightRequest="120" Aspect="AspectFit"
                HorizontalOptions="Center" SemanticProperties.Description="E Dry Cleaners" />
 
         <VerticalStackLayout Grid.Row="1" Spacing="14" VerticalOptions="Center" HorizontalOptions="Center">
@@ -34,6 +34,7 @@
         <VerticalStackLayout Grid.Row="2" Spacing="12" HorizontalOptions="Center">
             <Label Text="Already have an account?" Style="{StaticResource OnboardingBody}" TextColor="{StaticResource White}" />
             <Button Text="Log in" Command="{Binding LogInCommand}" Style="{StaticResource OnboardingPill}"
+                    BackgroundColor="{StaticResource White}" TextColor="{DynamicResource Primary}"
                     WidthRequest="229" HeightRequest="52" />
         </VerticalStackLayout>
     </Grid>

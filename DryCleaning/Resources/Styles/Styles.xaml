@@ -262,7 +262,7 @@
         <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
     <Style x:Key="OnboardingPill" TargetType="Button" BasedOn="{StaticResource BaseButton}">
-        <Setter Property="BackgroundColor" Value="{StaticResource OnboardingInk}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
         <Setter Property="FontFamily" Value="NunitoBlack" />
         <Setter Property="FontSize" Value="20" />
         <Setter Property="CornerRadius" Value="27" />
@@ -271,7 +271,7 @@
     </Style>
     <Style x:Key="OnboardingLink" TargetType="Button" BasedOn="{StaticResource BaseButton}">
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="TextColor" Value="{StaticResource OnboardingCoralButton}" />
+        <Setter Property="TextColor" Value="{DynamicResource Primary}" />
         <Setter Property="FontFamily" Value="NunitoBlack" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HeightRequest" Value="40" />
