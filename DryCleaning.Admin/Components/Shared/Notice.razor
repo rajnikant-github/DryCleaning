@@ -1,0 +1,20 @@
+@if (!string.IsNullOrEmpty(Error))
+{
+    <div class="notice bad">
+        @Error
+        @if (SessionExpired)
+        {
+            <a href="/auth/logout">Sign in again</a>
+        }
+    </div>
+}
+@if (!string.IsNullOrEmpty(Success))
+{
+    <div class="notice ok">@Success</div>
+}
+
+@code {
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public string? Success { get; set; }
+    [Parameter] public bool SessionExpired { get; set; }
+}

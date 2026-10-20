@@ -1,0 +1,81 @@
+@page "/"
+@inherits AdminPageBase
+
+<PageTitle>Dashboard – EDry Cleaners Admin</PageTitle>
+<h1>Dashboard</h1>
+
+<Notice Error="@Error" SessionExpired="SessionExpired" />
+
+@if (_data is null)
+{
+    @if (Error is null)
+    {
+        <p class="muted">Loading…</p>
+    }
+}
+else
+{
+    <div class="cards">
+        <div class="stat"><div class="label">Active orders</div><div class="value">@_data.ActiveOrders</div></div>
+        <div class="stat"><div class="label">Completed orders</div><div class="value">@_data.CompletedOrders</div></div>
+        <div class="stat"><div class="label">Revenue</div><div class="value">@Fmt.Money(_data.Revenue, _data.Currency)</div></div>
+        <div class="stat @(_data.OpenDisputes > 0 ? "alert" : "")"><div class="label">Open disputes</div><div class="value">@_data.OpenDisputes</div></div>
+        <div class="stat"><div class="label">Customers</div><div class="value">@_data.TotalCustomers</div></div>
+        <div class="stat"><div class="label">Providers</div><div class="value">@_data.TotalProviders</div></div>
+        <div class="stat"><div class="label">Drivers</div><div class="value">@_data.TotalDrivers</div></div>
+    </div>
+
+    <div class="grid2">
+        <div class="card">
+            <h2>Orders in the last 30 days</h2>
+            @if (_data.OrdersLast30Days.Count == 0)
+            {
+                <div class="empty">No orders yet.</div>
+            }
+            else
+            {
+                var max = Math.Max(1, _data.OrdersLast30Days.Max(d => d.Orders));
+                <div class="bars">
+                    @foreach (var day in _data.OrdersLast30Days)
+                    {
+                        <div class="bar" style="height:@(Math.Max(2, day.Orders * 100 / max))%"
+                             title="@day.Date.ToString("d MMM"): @day.Orders orders, @Fmt.Money(day.Revenue, _data.Currency)"></div>
+                    }
+                </div>
+                <div class="bar-labels">
+                    <span>@_data.OrdersLast30Days.First().Date.ToString("d MMM")</span>
+                    <span>@_data.OrdersLast30Days.Last().Date.ToString("d MMM")</span>
+                </div>
+            }
+        </div>
+
+        <div class="card">
+            <h2>Orders by status</h2>
+            @if (_data.OrdersByStatus.Count == 0)
+            {
+                <div class="empty">No orders yet.</div>
+            }
+            else
+            {
+                <table>
+                    <tbody>
+                    @foreach (var (status, count) in _data.OrdersByStatus.OrderByDescending(s => s.Value))
+                    {
+                        <tr>
+                            <td>@Fmt.Words(status)</td>
+                            <td class="num"><a href="/orders?status=@status">@count</a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private AdminDashboardDto? _data;
+
+    protected override async Task OnInitializedAsync() =>
+        await RunAsync(async () => _data = await Api.GetAsync<AdminDashboardDto>("api/admin/dashboard"));
+}

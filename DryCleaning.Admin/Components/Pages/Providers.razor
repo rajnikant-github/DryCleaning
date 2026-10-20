@@ -1,0 +1,93 @@
+@page "/providers"
+@inherits AdminPageBase
+
+<PageTitle>Providers – EDry Cleaners Admin</PageTitle>
+<h1>Providers</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search business or owner" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <select @bind="_filter" @bind:after="ReloadAsync">
+        <option value="">All</option>
+        <option value="pending">Waiting for approval</option>
+        <option value="active">Active</option>
+    </select>
+    <button class="btn" @onclick="ReloadAsync">Search</button>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No providers match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Business</th><th>Owner</th><th>Categories</th><th class="num">Orders</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var p in _page.Items)
+            {
+                <tr>
+                    <td><a href="/providers/@p.Id">@p.BusinessName</a></td>
+                    <td>@p.OwnerName</td>
+                    <td class="muted">@string.Join(", ", p.Categories)</td>
+                    <td class="num">@p.OrderCount</td>
+                    <td>@Fmt.Date(p.CreatedAt)</td>
+                    <td>@if (p.IsActive) { <StatusBadge Value="@("Active")" /> } else { <span class="badge warn">Waiting for approval</span> }</td>
+                    <td class="row-actions">
+                        <button class="btn btn-sm @(p.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(p, !p.IsActive)">
+                            @(p.IsActive ? "Deactivate" : "Approve")
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminProviderDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+    private string _filter = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ReloadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/providers?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search)) query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        if (_filter == "pending") query += "&isActive=false";
+        if (_filter == "active") query += "&isActive=true";
+        _page = await Api.GetAsync<PagedResult<AdminProviderDto>>(query);
+    });
+
+    private async Task SetActiveAsync(AdminProviderDto provider, bool active)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/providers/{provider.Id}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{provider.BusinessName} approved." : $"{provider.BusinessName} deactivated.");
+        if (ok)
+            await LoadAsync();
+    }
+}

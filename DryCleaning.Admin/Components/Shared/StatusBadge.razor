@@ -1,0 +1,13 @@
+<span class="badge @Tone">@Fmt.Words(Value)</span>
+
+@code {
+    [Parameter, EditorRequired] public object Value { get; set; } = string.Empty;
+
+    private string Tone => Value.ToString() switch
+    {
+        "Completed" or "Delivered" or "Success" or "Resolved" or "Active" => "ok",
+        "Cancelled" or "Failed" or "Rejected" or "Disputed" or "Inactive" => "bad",
+        "Created" or "Pending" or "Open" or "UnderReview" => "warn",
+        _ => "info"
+    };
+}

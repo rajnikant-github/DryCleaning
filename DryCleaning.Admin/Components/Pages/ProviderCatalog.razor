@@ -1,0 +1,59 @@
+@page "/providers/{Id:guid}"
+@inherits AdminPageBase
+
+<PageTitle>@(_catalog?.BusinessName ?? "Provider") – EDry Cleaners Admin</PageTitle>
+
+<p><a href="/providers">‹ All providers</a></p>
+<Notice Error="@Error" SessionExpired="SessionExpired" />
+
+@if (_catalog is null)
+{
+    @if (Error is null)
+    {
+        <p class="muted">Loading…</p>
+    }
+}
+else
+{
+    <h1>@_catalog.BusinessName</h1>
+    <p class="muted">Full catalog, including hidden items.</p>
+
+    @if (_catalog.Categories.Count == 0)
+    {
+        <div class="card"><div class="empty">This provider has not added any products yet.</div></div>
+    }
+
+    @foreach (var category in _catalog.Categories)
+    {
+        <div class="card">
+            <h2>@category.Name</h2>
+            <table>
+                <thead><tr><th>Product</th><th>Service</th><th class="num">Price</th><th class="num">Days</th><th>Visible</th></tr></thead>
+                <tbody>
+                @foreach (var product in category.Products)
+                {
+                    @foreach (var item in product.ServiceItems)
+                    {
+                        <tr>
+                            <td>@product.Name @if (!product.IsActive) { <span class="badge warn">Hidden</span> }</td>
+                            <td>@item.Name</td>
+                            <td class="num">@Fmt.Money(item.Price, _catalog.Currency)</td>
+                            <td class="num">@item.EstimatedDays</td>
+                            <td>@(item.IsActive && product.IsActive ? "Yes" : "No")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private ProviderCatalogDto? _catalog;
+
+    protected override Task OnInitializedAsync() =>
+        RunAsync(async () => _catalog = await Api.GetAsync<ProviderCatalogDto>($"api/admin/providers/{Id}/catalog"));
+}

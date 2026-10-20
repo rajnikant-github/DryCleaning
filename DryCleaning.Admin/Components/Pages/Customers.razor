@@ -1,0 +1,86 @@
+@page "/customers"
+@inherits AdminPageBase
+
+<PageTitle>Customers – EDry Cleaners Admin</PageTitle>
+<h1>Customers</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search name, email or phone" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <button class="btn" @onclick="ReloadAsync">Search</button>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No customers match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Customer</th><th>Email</th><th>Phone</th><th>Address</th><th class="num">Orders</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var c in _page.Items)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.Email</td>
+                    <td>@c.Phone</td>
+                    <td class="muted">@c.Address</td>
+                    <td class="num">@c.OrderCount</td>
+                    <td>@Fmt.Date(c.CreatedAt)</td>
+                    <td><StatusBadge Value="@(c.IsActive ? "Active" : "Inactive")" /></td>
+                    <td class="row-actions">
+                        <button class="btn btn-sm @(c.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(c, !c.IsActive)">
+                            @(c.IsActive ? "Deactivate" : "Activate")
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminCustomerDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ReloadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/customers?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search)) query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        _page = await Api.GetAsync<PagedResult<AdminCustomerDto>>(query);
+    });
+
+    private async Task SetActiveAsync(AdminCustomerDto customer, bool active)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/users/{customer.UserId}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{customer.Name} activated." : $"{customer.Name} deactivated.");
+        if (ok)
+            await LoadAsync();
+    }
+}

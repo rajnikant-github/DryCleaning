@@ -1,0 +1,91 @@
+@page "/orders"
+@inherits AdminPageBase
+@inject NavigationManager Navigation
+
+<PageTitle>Orders – EDry Cleaners Admin</PageTitle>
+<h1>Orders</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search order number, customer or provider" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <select @bind="_status" @bind:after="ApplyFilterAsync">
+        <option value="">All statuses</option>
+        @foreach (var s in Enum.GetValues<OrderStatus>())
+        {
+            <option value="@s">@Fmt.Words(s)</option>
+        }
+    </select>
+    <button class="btn" @onclick="ApplyFilterAsync">Search</button>
+</div>
+
+<Notice Error="@Error" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No orders match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Provider</th><th>Driver</th><th>Status</th><th class="num">Total</th><th>Placed</th></tr></thead>
+            <tbody>
+            @foreach (var o in _page.Items)
+            {
+                <tr>
+                    <td><a href="/orders/@o.Id">@o.OrderNumber</a></td>
+                    <td>@o.CustomerName</td>
+                    <td>@o.ProviderName</td>
+                    <td>@(o.DriverName ?? "–")</td>
+                    <td><StatusBadge Value="o.Status" /></td>
+                    <td class="num">@Fmt.Money(o.TotalAmount)</td>
+                    <td>@Fmt.DateTime(o.CreatedAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminOrderDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+    private string _status = string.Empty;
+
+    [SupplyParameterFromQuery(Name = "status")] private string? StatusQuery { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _status = StatusQuery ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private Task ApplyFilterAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ApplyFilterAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/orders?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search))
+            query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        if (!string.IsNullOrEmpty(_status))
+            query += "&status=" + _status;
+        _page = await Api.GetAsync<PagedResult<AdminOrderDto>>(query);
+    });
+}

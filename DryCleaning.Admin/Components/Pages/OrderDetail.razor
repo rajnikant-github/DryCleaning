@@ -1,0 +1,211 @@
+@page "/orders/{Id:guid}"
+@inherits AdminPageBase
+
+<PageTitle>@(_order?.OrderNumber ?? "Order") – EDry Cleaners Admin</PageTitle>
+
+<p><a href="/orders">‹ All orders</a></p>
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+@if (_order is null)
+{
+    @if (Error is null)
+    {
+        <p class="muted">Loading…</p>
+    }
+}
+else
+{
+    <h1>@_order.OrderNumber <StatusBadge Value="_order.Status" /></h1>
+
+    <div class="grid2">
+        <div class="card">
+            <h2>Order</h2>
+            <dl class="kv">
+                <dt>Customer</dt><dd>@_order.Customer.Name @(_order.Customer.Phone is { } cp ? $"· {cp}" : "")</dd>
+                <dt>Provider</dt><dd>@_order.Provider.Name @(_order.Provider.Phone is { } pp ? $"· {pp}" : "")</dd>
+                <dt>Pickup address</dt><dd>@_order.PickupAddress.FormattedAddress</dd>
+                <dt>Pickup time</dt><dd>@(_order.PickupDate is { } d ? $"{Fmt.Date(d)} · {_order.PickupSlot}" : "–")</dd>
+                <dt>Placed</dt><dd>@Fmt.DateTime(_order.CreatedAt)</dd>
+                <dt>Paid</dt><dd>@(_order.IsPaid ? "Yes" : "No")</dd>
+            </dl>
+        </div>
+        <div class="card">
+            <h2>Totals</h2>
+            <dl class="kv">
+                <dt>Subtotal</dt><dd>@Fmt.Money(_order.SubTotal, _order.Currency)</dd>
+                <dt>Pickup &amp; delivery</dt><dd>@Fmt.Money(_order.DeliveryFee, _order.Currency)</dd>
+                <dt>VAT</dt><dd>@Fmt.Money(_order.Tax, _order.Currency)</dd>
+                <dt><strong>Total</strong></dt><dd><strong>@Fmt.Money(_order.TotalAmount, _order.Currency)</strong></dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Items</h2>
+        <table>
+            <thead><tr><th>Item</th><th>Service</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Total</th><th>Notes</th></tr></thead>
+            <tbody>
+            @foreach (var item in _order.Items)
+            {
+                <tr>
+                    <td>@item.ProductName <span class="muted">· @item.CategoryName</span></td>
+                    <td>@item.ServiceItemName</td>
+                    <td class="num">@item.Quantity</td>
+                    <td class="num">@Fmt.Money(item.UnitPrice, _order.Currency)</td>
+                    <td class="num">@Fmt.Money(item.TotalPrice, _order.Currency)</td>
+                    <td>@item.Notes</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Driver jobs</h2>
+        @if (_order.DriverJobs.Count == 0)
+        {
+            <div class="empty">No driver jobs yet.</div>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Job</th><th>Status</th><th>Driver</th><th>Route</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var job in _order.DriverJobs)
+                {
+                    <tr>
+                        <td>@job.JobType</td>
+                        <td><StatusBadge Value="job.Status" /></td>
+                        <td>@(job.DriverName ?? "Not assigned") @(job.DriverPhone is { } ph ? $"· {ph}" : "")</td>
+                        <td class="muted">@job.PickupName → @job.DeliveryName</td>
+                        <td class="row-actions">
+                            @if (job.Status is DriverJobStatus.Pending or DriverJobStatus.Assigned)
+                            {
+                                <select @bind="_assign[job.Id]">
+                                    <option value="">Choose driver…</option>
+                                    @foreach (var driver in _drivers)
+                                    {
+                                        <option value="@driver.Id">@driver.Name</option>
+                                    }
+                                </select>
+                                <button class="btn btn-sm" disabled="@(Busy || string.IsNullOrEmpty(_assign[job.Id]))" @onclick="() => AssignAsync(job)">Assign</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="grid2">
+        <div class="card">
+            <h2>Timeline</h2>
+            <table>
+                <tbody>
+                @foreach (var h in _order.History.OrderByDescending(x => x.CreatedAt))
+                {
+                    <tr>
+                        <td><StatusBadge Value="h.Status" /></td>
+                        <td>@h.Notes</td>
+                        <td class="muted">@Fmt.DateTime(h.CreatedAt)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h2>Payments</h2>
+            @if (_order.Payments.Count == 0)
+            {
+                <div class="empty">No payments.</div>
+            }
+            else
+            {
+                <table>
+                    <tbody>
+                    @foreach (var p in _order.Payments)
+                    {
+                        <tr>
+                            <td>@Fmt.Money(p.Amount, _order.Currency)</td>
+                            <td><StatusBadge Value="p.Status" /></td>
+                            <td class="muted">@p.TransactionId</td>
+                            <td class="muted">@Fmt.DateTime(p.PaidAt ?? p.CreatedAt)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    @if (_order.Disputes.Count > 0)
+    {
+        <div class="card">
+            <h2>Disputes</h2>
+            <table>
+                <tbody>
+                @foreach (var dispute in _order.Disputes)
+                {
+                    <tr>
+                        <td><StatusBadge Value="dispute.Status" /></td>
+                        <td><strong>@dispute.Reason</strong><br /><span class="muted">@dispute.Description</span></td>
+                        <td>@dispute.RaisedByName</td>
+                        <td><a href="/disputes">Open disputes</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (_order.Photos.Count > 0)
+    {
+        <div class="card">
+            <h2>Photos</h2>
+            <div class="photos">
+                @foreach (var photo in _order.Photos)
+                {
+                    <a href="@Absolute(photo.Url)" target="_blank" title="@photo.Type by @photo.UploadedBy">
+                        <img src="@Absolute(photo.Url)" alt="@photo.Type photo" />
+                    </a>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    [Inject] private IConfiguration Config { get; set; } = default!;
+
+    private OrderDetailDto? _order;
+    private List<AdminDriverDto> _drivers = [];
+    private readonly Dictionary<Guid, string> _assign = [];
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        _order = await Api.GetAsync<OrderDetailDto>($"api/admin/orders/{Id}");
+        _drivers = (await Api.GetAsync<PagedResult<AdminDriverDto>>("api/admin/drivers?pageSize=100"))
+            .Items.Where(d => d.IsActive).OrderBy(d => d.Name).ToList();
+        foreach (var job in _order.DriverJobs)
+            _assign[job.Id] = string.Empty;
+    });
+
+    private async Task AssignAsync(DriverJobDto job)
+    {
+        if (!Guid.TryParse(_assign[job.Id], out var driverId))
+            return;
+
+        var ok = await RunAsync(() => Api.PostAsync<DriverJobDto>($"api/admin/driver-jobs/{job.Id}/assign", new AssignDriverRequest { DriverId = driverId }),
+            "Driver assigned.");
+        if (ok)
+            await LoadAsync();
+    }
+
+    // Photo links can be relative to the API.
+    private string Absolute(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out _) ? url : new Uri(new Uri(Config["Api:BaseUrl"]!), url).ToString();
+}

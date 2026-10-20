@@ -1,0 +1,151 @@
+@page "/disputes"
+@inherits AdminPageBase
+
+<PageTitle>Disputes – EDry Cleaners Admin</PageTitle>
+<h1>Disputes</h1>
+
+<div class="toolbar">
+    <select @bind="_status" @bind:after="ReloadAsync">
+        <option value="">All</option>
+        @foreach (var s in Enum.GetValues<DisputeStatus>())
+        {
+            <option value="@s">@Fmt.Words(s)</option>
+        }
+    </select>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+@if (_resolving is { } target)
+{
+    <div class="card">
+        <h2>Resolve dispute on @target.OrderNumber</h2>
+        <p><strong>@target.Reason</strong> <span class="muted">@target.Description</span></p>
+        <label class="field">
+            <span>Decision</span>
+            <select @bind="_decision">
+                <option value="@DisputeStatus.Resolved">Resolved (in the customer's favour)</option>
+                <option value="@DisputeStatus.Rejected">Rejected</option>
+            </select>
+        </label>
+        <label class="field">
+            <span>Resolution notes (shown to both sides)</span>
+            <textarea @bind="_resolution"></textarea>
+        </label>
+        <label class="field">
+            <span>Move the order to (optional)</span>
+            <select @bind="_nextStatus">
+                <option value="">Leave the order as it is</option>
+                <option value="@OrderStatus.Processing">Processing – resume</option>
+                <option value="@OrderStatus.Completed">Completed</option>
+                <option value="@OrderStatus.Cancelled">Cancelled</option>
+            </select>
+        </label>
+        <button class="btn" disabled="@(Busy || string.IsNullOrWhiteSpace(_resolution))" @onclick="ResolveAsync">Save decision</button>
+        <button class="btn btn-light" @onclick="() => _resolving = null">Cancel</button>
+    </div>
+}
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No disputes.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Raised by</th><th>Issue</th><th>Status</th><th>Opened</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var d in _page.Items)
+            {
+                <tr>
+                    <td><a href="/orders/@d.OrderId">@d.OrderNumber</a></td>
+                    <td>@d.RaisedByName</td>
+                    <td><strong>@d.Reason</strong><br /><span class="muted">@d.Description</span>
+                        @if (!string.IsNullOrEmpty(d.Resolution)) { <br /><em>Resolution: @d.Resolution</em> }</td>
+                    <td><StatusBadge Value="d.Status" /></td>
+                    <td>@Fmt.DateTime(d.CreatedAt)</td>
+                    <td class="row-actions">
+                        @if (d.Status == DisputeStatus.Open)
+                        {
+                            <button class="btn btn-sm btn-light" disabled="@Busy" @onclick="() => ReviewAsync(d)">Start review</button>
+                        }
+                        @if (d.Status is DisputeStatus.Open or DisputeStatus.UnderReview)
+                        {
+                            <button class="btn btn-sm" disabled="@Busy" @onclick="() => StartResolve(d)">Resolve</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<DisputeDto>? _page;
+    private int _pageNumber = 1;
+    private string _status = string.Empty;
+
+    private DisputeDto? _resolving;
+    private DisputeStatus _decision = DisputeStatus.Resolved;
+    private string _resolution = string.Empty;
+    private string _nextStatus = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/disputes?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrEmpty(_status)) query += "&status=" + _status;
+        _page = await Api.GetAsync<PagedResult<DisputeDto>>(query);
+    });
+
+    private async Task ReviewAsync(DisputeDto dispute)
+    {
+        var ok = await RunAsync(() => Api.PostAsync<DisputeDto>($"api/admin/disputes/{dispute.Id}/review"), $"{dispute.OrderNumber} is now under review.");
+        if (ok)
+            await LoadAsync();
+    }
+
+    private void StartResolve(DisputeDto dispute)
+    {
+        _resolving = dispute;
+        _decision = DisputeStatus.Resolved;
+        _resolution = string.Empty;
+        _nextStatus = string.Empty;
+        ClearMessages();
+    }
+
+    private async Task ResolveAsync()
+    {
+        if (_resolving is not { } dispute)
+            return;
+
+        var request = new ResolveDisputeRequest
+        {
+            Status = _decision,
+            Resolution = _resolution.Trim(),
+            OrderStatus = Enum.TryParse<OrderStatus>(_nextStatus, out var next) ? next : null
+        };
+        var ok = await RunAsync(() => Api.PostAsync<DisputeDto>($"api/admin/disputes/{dispute.Id}/resolve", request), $"Dispute on {dispute.OrderNumber} saved.");
+        if (ok)
+        {
+            _resolving = null;
+            await LoadAsync();
+        }
+    }
+}

@@ -1,0 +1,87 @@
+@page "/drivers"
+@inherits AdminPageBase
+
+<PageTitle>Drivers – EDry Cleaners Admin</PageTitle>
+<h1>Drivers</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search name, phone or licence" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <button class="btn" @onclick="ReloadAsync">Search</button>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No drivers match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Driver</th><th>Phone</th><th>Licence</th><th>Online</th><th class="num">Active jobs</th><th class="num">Completed</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var d in _page.Items)
+            {
+                <tr>
+                    <td>@d.Name</td>
+                    <td>@d.Phone</td>
+                    <td class="muted">@d.LicenseNumber</td>
+                    <td>@(d.IsAvailable ? "Online" : "Offline")</td>
+                    <td class="num">@d.ActiveJobs</td>
+                    <td class="num">@d.CompletedJobs</td>
+                    <td><StatusBadge Value="@(d.IsActive ? "Active" : "Inactive")" /></td>
+                    <td class="row-actions">
+                        <button class="btn btn-sm @(d.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(d, !d.IsActive)">
+                            @(d.IsActive ? "Deactivate" : "Activate")
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminDriverDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ReloadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/drivers?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search)) query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        _page = await Api.GetAsync<PagedResult<AdminDriverDto>>(query);
+    });
+
+    private async Task SetActiveAsync(AdminDriverDto driver, bool active)
+    {
+        // Driver accounts are deactivated through the driver endpoint.
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/drivers/{driver.Id}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{driver.Name} activated." : $"{driver.Name} deactivated.");
+        if (ok)
+            await LoadAsync();
+    }
+}

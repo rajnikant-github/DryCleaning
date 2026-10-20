@@ -1,0 +1,128 @@
+@page "/categories"
+@inherits AdminPageBase
+
+<PageTitle>Categories – EDry Cleaners Admin</PageTitle>
+<h1>Categories</h1>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="toolbar">
+    <button class="btn" @onclick="StartNew">Add category</button>
+</div>
+
+@if (_editing is not null)
+{
+    <div class="card">
+        <h2>@(_editingId is null ? "New category" : "Edit category")</h2>
+        <label class="field"><span>Name</span><input @bind="_editing.Name" maxlength="100" /></label>
+        <label class="field"><span>Description</span><input @bind="_editing.Description" maxlength="500" /></label>
+        <label class="field"><span>Image URL (optional)</span><input @bind="_editing.ImageUrl" maxlength="255" /></label>
+        <label class="field"><span><input type="checkbox" @bind="_editing.IsActive" /> Active (customers can see it)</span></label>
+        <button class="btn" disabled="@(Busy || string.IsNullOrWhiteSpace(_editing.Name))" @onclick="SaveAsync">Save</button>
+        <button class="btn btn-light" @onclick="() => _editing = null">Cancel</button>
+    </div>
+}
+
+<div class="card">
+    @if (_categories is null || _categories.Count == 0)
+    {
+        <div class="empty">@(_categories is null ? "Loading…" : "No categories yet.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Name</th><th>Description</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @for (var i = 0; i < _categories.Count; i++)
+            {
+                var index = i;
+                var c = _categories[i];
+                <tr>
+                    <td class="row-actions" style="justify-content:flex-start">
+                        <button class="btn btn-sm btn-light" disabled="@(Busy || index == 0)" @onclick="() => MoveAsync(index, -1)">↑</button>
+                        <button class="btn btn-sm btn-light" disabled="@(Busy || index == _categories.Count - 1)" @onclick="() => MoveAsync(index, 1)">↓</button>
+                    </td>
+                    <td><strong>@c.Name</strong></td>
+                    <td class="muted">@c.Description</td>
+                    <td><StatusBadge Value="@(c.IsActive ? "Active" : "Inactive")" /></td>
+                    <td class="row-actions">
+                        <button class="btn btn-sm btn-light" @onclick="() => StartEdit(c)">Edit</button>
+                        <button class="btn btn-sm @(c.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(c, !c.IsActive)">
+                            @(c.IsActive ? "Deactivate" : "Activate")
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<CategoryDto>? _categories;
+    private CategoryRequest? _editing;
+    private Guid? _editingId;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task LoadAsync() => RunAsync(async () =>
+        _categories = (await Api.GetAsync<List<CategoryDto>>("api/admin/categories")).OrderBy(c => c.DisplayOrder).ToList());
+
+    private void StartNew()
+    {
+        _editingId = null;
+        _editing = new CategoryRequest { DisplayOrder = (_categories?.Count ?? 0) + 1 };
+        ClearMessages();
+    }
+
+    private void StartEdit(CategoryDto category)
+    {
+        _editingId = category.Id;
+        _editing = new CategoryRequest
+        {
+            Name = category.Name,
+            Description = category.Description,
+            ImageUrl = category.ImageUrl,
+            DisplayOrder = category.DisplayOrder,
+            IsActive = category.IsActive
+        };
+        ClearMessages();
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_editing is null)
+            return;
+
+        _editing.Name = _editing.Name.Trim();
+        var request = _editing;
+        var ok = _editingId is { } id
+            ? await RunAsync(() => Api.PutAsync<CategoryDto>($"api/admin/categories/{id}", request), "Category saved.")
+            : await RunAsync(() => Api.PostAsync<CategoryDto>("api/admin/categories", request), "Category added.");
+        if (ok)
+        {
+            _editing = null;
+            await LoadAsync();
+        }
+    }
+
+    private async Task SetActiveAsync(CategoryDto category, bool active)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/categories/{category.Id}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{category.Name} is visible to customers." : $"{category.Name} is hidden from customers.");
+        if (ok)
+            await LoadAsync();
+    }
+
+    private async Task MoveAsync(int index, int offset)
+    {
+        if (_categories is null)
+            return;
+
+        var list = _categories.ToList();
+        (list[index], list[index + offset]) = (list[index + offset], list[index]);
+        var ok = await RunAsync(() => Api.PutAsync("api/admin/categories/order", new ReorderRequest { CategoryIds = list.Select(c => c.Id).ToList() }));
+        if (ok)
+            await LoadAsync();
+    }
+}

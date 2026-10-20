@@ -1,0 +1,111 @@
+@page "/jobs"
+@inherits AdminPageBase
+
+<PageTitle>Driver jobs – EDry Cleaners Admin</PageTitle>
+<h1>Driver jobs</h1>
+
+<div class="toolbar">
+    <select @bind="_status" @bind:after="ReloadAsync">
+        <option value="">All statuses</option>
+        @foreach (var s in Enum.GetValues<DriverJobStatus>())
+        {
+            <option value="@s">@Fmt.Words(s)</option>
+        }
+    </select>
+    <select @bind="_type" @bind:after="ReloadAsync">
+        <option value="">Pickup &amp; delivery</option>
+        @foreach (var t in Enum.GetValues<DriverJobType>())
+        {
+            <option value="@t">@t</option>
+        }
+    </select>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No jobs match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Job</th><th>Status</th><th>Driver</th><th>Route</th><th>Pickup time</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var job in _page.Items)
+            {
+                <tr>
+                    <td><a href="/orders/@job.OrderId">@job.OrderNumber</a></td>
+                    <td>@job.JobType</td>
+                    <td><StatusBadge Value="job.Status" /> @(job.IsOnHold ? "On hold" : "")</td>
+                    <td>@(job.DriverName ?? "Not assigned")</td>
+                    <td class="muted">@job.PickupName → @job.DeliveryName</td>
+                    <td>@(job.PickupDate is { } d ? $"{Fmt.Date(d)} {job.PickupSlot}" : "–")</td>
+                    <td class="row-actions">
+                        @if (job.Status is DriverJobStatus.Pending or DriverJobStatus.Assigned)
+                        {
+                            <select @bind="_assign[job.Id]">
+                                <option value="">Choose driver…</option>
+                                @foreach (var driver in _drivers)
+                                {
+                                    <option value="@driver.Id">@driver.Name</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm" disabled="@(Busy || string.IsNullOrEmpty(_assign[job.Id]))" @onclick="() => AssignAsync(job)">Assign</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<DriverJobDto>? _page;
+    private List<AdminDriverDto> _drivers = [];
+    private readonly Dictionary<Guid, string> _assign = [];
+    private int _pageNumber = 1;
+    private string _status = string.Empty;
+    private string _type = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/driver-jobs?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrEmpty(_status)) query += "&status=" + _status;
+        if (!string.IsNullOrEmpty(_type)) query += "&jobType=" + _type;
+        _page = await Api.GetAsync<PagedResult<DriverJobDto>>(query);
+        if (_drivers.Count == 0)
+            _drivers = (await Api.GetAsync<PagedResult<AdminDriverDto>>("api/admin/drivers?pageSize=100"))
+                .Items.Where(d => d.IsActive).OrderBy(d => d.Name).ToList();
+        foreach (var job in _page.Items)
+            _assign.TryAdd(job.Id, string.Empty);
+    });
+
+    private async Task AssignAsync(DriverJobDto job)
+    {
+        if (!Guid.TryParse(_assign[job.Id], out var driverId))
+            return;
+
+        var ok = await RunAsync(() => Api.PostAsync<DriverJobDto>($"api/admin/driver-jobs/{job.Id}/assign", new AssignDriverRequest { DriverId = driverId }),
+            $"Driver assigned to {job.OrderNumber}.");
+        if (ok)
+            await LoadAsync();
+    }
+}

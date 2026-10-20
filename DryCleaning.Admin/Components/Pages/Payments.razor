@@ -1,0 +1,82 @@
+@page "/payments"
+@inherits AdminPageBase
+
+<PageTitle>Payments – EDry Cleaners Admin</PageTitle>
+<h1>Payments</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search order, customer or reference" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <select @bind="_status" @bind:after="ReloadAsync">
+        <option value="">All statuses</option>
+        @foreach (var s in Enum.GetValues<PaymentStatus>())
+        {
+            <option value="@s">@s</option>
+        }
+    </select>
+    <button class="btn" @onclick="ReloadAsync">Search</button>
+</div>
+
+<Notice Error="@Error" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No payments match.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Customer</th><th class="num">Amount</th><th>Method</th><th>Status</th><th>Reference</th><th>Paid</th></tr></thead>
+            <tbody>
+            @foreach (var p in _page.Items)
+            {
+                <tr>
+                    <td><a href="/orders/@p.OrderId">@p.OrderNumber</a></td>
+                    <td>@p.CustomerName</td>
+                    <td class="num">@Fmt.Money(p.Amount)</td>
+                    <td>@p.Method</td>
+                    <td><StatusBadge Value="p.Status" /></td>
+                    <td class="muted">@p.TransactionId</td>
+                    <td>@Fmt.DateTime(p.PaidAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminPaymentDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+    private string _status = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ReloadAsync();
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/payments?page={_pageNumber}&pageSize=20";
+        if (!string.IsNullOrWhiteSpace(_search)) query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        if (!string.IsNullOrEmpty(_status)) query += "&status=" + _status;
+        _page = await Api.GetAsync<PagedResult<AdminPaymentDto>>(query);
+    });
+}
