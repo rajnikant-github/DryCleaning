@@ -45,26 +45,25 @@
                     }
                     else
                     {
-                        <table>
-                            <tbody>
+                        <div class="user-list">
                             @foreach (var user in _results)
                             {
-                                <tr>
-                                    <td>@user.Name <span class="badge info">@Fmt.Words(user.Role)</span><br /><span class="muted">@user.Email @user.Phone</span></td>
-                                    <td class="row-actions">
-                                        @if (user.IsActive)
-                                        {
-                                            <button class="btn btn-sm" @onclick="() => Select(user)">Choose</button>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bad">Deactivated</span>
-                                        }
-                                    </td>
-                                </tr>
+                                <div class="user-row">
+                                    <div>
+                                        @user.Name <span class="badge info">@Fmt.Words(user.Role)</span><br />
+                                        <span class="muted">@user.Email @user.Phone</span>
+                                    </div>
+                                    @if (user.IsActive)
+                                    {
+                                        <button class="btn btn-sm" @onclick="() => Select(user)">Choose</button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bad">Deactivated</span>
+                                    }
+                                </div>
                             }
-                            </tbody>
-                        </table>
+                        </div>
                     }
                 }
             }

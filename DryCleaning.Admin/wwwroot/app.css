@@ -103,6 +103,12 @@ label.field input, label.field select { width: 100%; }
 #blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: .75rem; top: .5rem; }
 .blazor-error-boundary { background: var(--bad); padding: 1rem; color: #fff; }
 
+/* Pickable list of users (send notification): name on the left, action on the right, wrapping on narrow screens */
+.user-list { display: flex; flex-direction: column; }
+.user-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+.user-row:last-child { border-bottom: none; }
+.user-row > div { min-width: 0; overflow-wrap: anywhere; }
+
 /* Narrow windows: the sidebar becomes a scrolling bar on top and two-column grids stack. */
 @media (max-width: 900px) {
     .shell { flex-direction: column; }

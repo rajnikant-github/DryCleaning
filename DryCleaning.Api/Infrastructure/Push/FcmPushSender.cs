@@ -45,7 +45,12 @@ public sealed class FcmPushSender : IPushSender
                 Android = new AndroidConfig
                 {
                     Priority = Priority.High,
-                    Notification = new AndroidNotification { ChannelId = PushChannels.Android }
+                    Notification = new AndroidNotification
+                    {
+                        ChannelId = PushChannels.Android,
+                        // Without an event time Android shows a bogus age (e.g. "2032y") on notifications it displays itself.
+                        EventTimestamp = DateTime.UtcNow
+                    }
                 }
             }, ct);
 
