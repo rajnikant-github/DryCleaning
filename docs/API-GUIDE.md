@@ -483,6 +483,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/catalog/products/{productId}` | Public | — | `ProductDto` | One product with its active service items (prices, estimated days). |
 | `GET` | `/api/catalog/popular` | Public | Query: `take` | `IReadOnlyList<PopularServiceItemDto>` | "Popular right now": most-ordered service items in the last 30 days (`take`, default 6). |
 | `GET` | `/api/providers/{providerId}/catalog` | Public | — | `ProviderCatalogDto` | A provider's active catalog: categories → products → service items. |
+| `GET` | `/api/providers/{providerId}/working-hours` | Public | — | `IReadOnlyList<WorkingHourDto>` | The provider's pickup days and hours (seven entries, Sunday first) – the customer app only offers pickup slots inside them. |
 
 ### 5.4 Customer
 
@@ -531,6 +532,8 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/provider/profile/logo` | Provider | Body: multipart form | `ProviderProfileDto` | Upload a new logo (multipart `file`; JPG, PNG, HEIC or WEBP). Returns the profile with the new `logoUrl`. |
 | `GET` | `/api/provider/categories` | Provider | — | `IReadOnlyList<ProviderCategoryDto>` | All global categories with `isEnabled` for my business. |
 | `PUT` | `/api/provider/categories` | Provider | Body: `SetProviderCategoriesRequest` | `IReadOnlyList<ProviderCategoryDto>` | Choose which global categories my business offers (providers can't create categories). |
+| `GET` | `/api/provider/working-hours` | Provider | — | `IReadOnlyList<WorkingHourDto>` | My pickup days and hours: seven entries, Sunday (`day` 0) first. Until a provider sets hours they are open every day 09:00–19:00. |
+| `PUT` | `/api/provider/working-hours` | Provider | Body: `SetWorkingHoursRequest` | `IReadOnlyList<WorkingHourDto>` | Set my pickup days and hours. Customers can only book pickup slots on open days inside the hours; `POST /api/customer/orders` enforces it. |
 
 ### 5.6 Driver
 
@@ -744,6 +747,17 @@ Used by: `POST /api/customer/orders`, `POST /api/customer/orders/quote`
 | `items[].notes` | string | no | Special instructions, max 500 |
 | `pickupDate` | date | no | Today-1 … today+30 |
 | `pickupSlot` | string | with pickupDate | e.g. `08:00 – 10:00`, max 50 |
+
+#### SetWorkingHoursRequest
+
+Used by: `PUT /api/provider/working-hours`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `days` | WorkingHourDto[] | yes | Exactly seven entries, one per `day` 0–6 (0 = Sunday); at least one open |
+| `days[].day` | int | yes | 0–6 |
+| `days[].isOpen` | bool | yes | `false` = no pickups that day |
+| `days[].openTime`, `days[].closeTime` | string | when open | `HH:mm` (24-hour), closing at least two hours after opening |
 
 #### ReasonRequest
 
@@ -1563,6 +1577,7 @@ SQL Server, EF Core migrations in `DryCleaning.Api/Data/Migrations`. Every table
 | [`Addresses`](#addresses) | Google Places addresses (customers, providers, drivers, job routes) | `PUT /api/me/address` |
 | [`Categories`](#categories) | Global service categories (Dry Cleaning, Shoe Cleaning, …) | Admin categories |
 | [`ServiceProviderCategories`](#serviceprovidercategories) | Which categories each provider offers | Register provider, `PUT /api/provider/categories` |
+| [`ProviderWorkingHours`](#providerworkinghours) | Pickup days and hours per provider | `PUT /api/provider/working-hours` |
 | [`Products`](#products) | Provider's products under a category (e.g. "Suit") | Provider products |
 | [`ServiceItems`](#serviceitems) | Priced services of a product (price, estimated days) | Provider service items |
 | [`Orders`](#orders) | Orders: number `EDC-10001…`, status, totals, pickup slot | Every order step |
@@ -1715,6 +1730,19 @@ Which categories each provider offers.
 | `ServiceProviderId` | `Guid` | foreign key |
 | `CategoryId` | `Guid` | foreign key |
 | `IsActive` | `bool` | — |
+| `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
+
+#### ProviderWorkingHours
+
+A provider's pickup hours, one row per weekday (a provider with no rows is open every day 09:00–19:00).
+
+| Column | Type | Notes |
+|---|---|---|
+| `Id` | `Guid` | primary key |
+| `ServiceProviderId` | `Guid` | foreign key; unique with `Day` |
+| `Day` | `DayOfWeek` | 0 = Sunday … 6 = Saturday |
+| `IsOpen` | `bool` | `false` = no pickups that day |
+| `OpenTime`, `CloseTime` | `time` | pickup windows must fall inside |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
 
 #### Products

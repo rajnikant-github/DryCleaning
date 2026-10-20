@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Services;
 
 /// <summary>Customer order flow: quote → create → pay → track → confirm delivery with OTP.</summary>
-public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace)
+public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, WorkingHoursService workingHours)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
@@ -145,6 +145,9 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
     {
         var provider = await db.ServiceProviders.FirstOrDefaultAsync(p => p.Id == request.ServiceProviderId && p.IsActive, ct)
                        ?? throw new NotFoundException("Service provider not found.");
+
+        if (request.PickupDate is { } pickupDate)
+            await workingHours.EnsurePickupAllowedAsync(provider.Id, pickupDate, request.PickupSlot, ct);
 
         var ids = request.Items.Select(i => i.ServiceItemId).Distinct().ToList();
         var serviceItems = await db.ServiceItems

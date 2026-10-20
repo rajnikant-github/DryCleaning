@@ -11,13 +11,19 @@ namespace DryCleaning.ViewModels.Customer;
 /// <summary>C12 – Pickup date and time slot.</summary>
 public sealed partial class PickupTimeViewModel : BaseViewModel, IQueryAttributable
 {
+    private const int DaysAhead = 14;
+    private const int MaxDates = 7;
+
     private readonly ICartService _cart;
+    private readonly ICustomerCatalogService _catalog;
     private readonly List<DateTime> _dates = [];
+    private IReadOnlyList<WorkingHour> _hours = WorkingHour.DefaultWeek();
     private string _mode = "checkout";
 
-    public PickupTimeViewModel(ViewModelServices services, ICartService cart) : base(services)
+    public PickupTimeViewModel(ViewModelServices services, ICartService cart, ICustomerCatalogService catalog) : base(services)
     {
         _cart = cart;
+        _catalog = catalog;
     }
 
     public ObservableCollection<SegmentItem> Dates { get; } = [];
@@ -39,25 +45,37 @@ public sealed partial class PickupTimeViewModel : BaseViewModel, IQueryAttributa
         OnPropertyChanged(nameof(ContinueText));
     }
 
-    protected override Task<bool> LoadDataAsync()
+    protected override async Task<bool> LoadDataAsync()
     {
-        if (Dates.Count == 0)
-        {
-            for (var i = 0; i < 7; i++)
-            {
-                var date = DateTime.Today.AddDays(i);
-                _dates.Add(date);
-                var title = i switch { 0 => "Today", 1 => "Tomorrow", _ => date.ToString("ddd d MMM") };
-                Dates.Add(new SegmentItem(date.ToString("yyyy-MM-dd"), title, OnDateSelected));
-            }
+        _hours = _cart.ProviderId is { } providerId
+            ? await _catalog.GetWorkingHoursAsync(providerId)
+            : WorkingHour.DefaultWeek();
 
-            var initial = _cart.PickupDate?.Date ?? DateTime.Today;
-            if (initial < DateTime.Today || !AvailableSlots(initial).Any())
-                initial = DateTime.Today.AddDays(1);
+        Dates.Clear();
+        _dates.Clear();
+        // Only days the provider is open (and still has a bookable window) are offered, up to a week of them.
+        for (var i = 0; i < DaysAhead && _dates.Count < MaxDates; i++)
+        {
+            var date = DateTime.Today.AddDays(i);
+            if (!AvailableSlots(date).Any())
+                continue;
+
+            _dates.Add(date);
+            var title = date == DateTime.Today ? "Today" : date == DateTime.Today.AddDays(1) ? "Tomorrow" : date.ToString("ddd d MMM");
+            Dates.Add(new SegmentItem(date.ToString("yyyy-MM-dd"), title, OnDateSelected));
+        }
+
+        Slots.Clear();
+        SelectedSlot = null;
+        HasNoSlots = _dates.Count == 0;
+        if (_dates.Count > 0)
+        {
+            var preferred = _cart.PickupDate?.Date;
+            var initial = preferred is { } p && _dates.Contains(p) ? p : _dates[0];
             SelectDate(initial, _cart.PickupSlot);
         }
 
-        return Task.FromResult(true);
+        return true;
     }
 
     private void OnDateSelected(SegmentItem item)
@@ -88,11 +106,12 @@ public sealed partial class PickupTimeViewModel : BaseViewModel, IQueryAttributa
         HasNoSlots = Slots.All(s => !s.IsAvailable);
     }
 
-    private static IEnumerable<string> AvailableSlots(DateTime date)
+    private IEnumerable<string> AvailableSlots(DateTime date)
     {
-        // Same-day pickups need at least an hour's notice before the window starts.
+        // Same-day pickups need at least an hour's notice before the window starts, and the window must be inside the provider's hours.
         var cutoff = DateTime.Now.AddHours(1);
         return PickupSlots.All
+            .Where(s => PickupSlots.IsWithinHours(s, _hours, date))
             .Where(s => date.Date > DateTime.Today || date.Date.Add(s.Start) >= cutoff)
             .Select(PickupSlots.Label);
     }

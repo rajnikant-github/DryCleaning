@@ -82,5 +82,13 @@ public sealed class ApiProviderProfileService(ApiClient api) : IProviderProfileS
             ApiJsonContext.Default.SetProviderCategoriesRequest, ApiJsonContext.Default.ListProviderCategoryDto);
     }
 
+    public async Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync() =>
+        (await api.GetAsync("api/provider/working-hours", ApiJsonContext.Default.ListWorkingHourDto)).Select(ApiMapping.ToWorkingHour).ToList();
+
+    public async Task SetWorkingHoursAsync(IReadOnlyList<WorkingHour> hours) =>
+        await api.SendAsync(HttpMethod.Put, "api/provider/working-hours",
+            new SetWorkingHoursRequest { Days = hours.Select(ApiMapping.ToDto).ToList() },
+            ApiJsonContext.Default.SetWorkingHoursRequest, ApiJsonContext.Default.ListWorkingHourDto);
+
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

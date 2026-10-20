@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Provider: working days and pickup hours  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.WorkingHoursPage"
+                x:DataType="vm:WorkingHoursViewModel"
+                Title="Working days &amp; hours">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView IsVisible="{Binding IsContent}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="Customers can only book a pickup on the days you are open, inside your opening hours. Pickup windows are two hours long."
+                       Style="{StaticResource Caption}" FontSize="14" />
+                <Border Style="{StaticResource Card}" Padding="0">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Days}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="items:WorkingHourItem">
+                                <VerticalStackLayout>
+                                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Padding="16,10">
+                                        <Label Text="{Binding DayName}" Style="{StaticResource BodyMedium}" FontSize="15" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="Closed" Style="{StaticResource Small}" VerticalOptions="Center" IsVisible="{Binding IsOpen, Converter={StaticResource InvertedBool}}" />
+                                        <Switch Grid.Column="2" IsToggled="{Binding IsOpen}" VerticalOptions="Center" />
+                                    </Grid>
+                                    <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8" Padding="16,0,16,10" IsVisible="{Binding IsOpen}">
+                                        <Label Text="From" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                        <TimePicker Grid.Column="1" Time="{Binding OpenTime}" Format="HH:mm" />
+                                        <Label Grid.Column="2" Text="To" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                        <TimePicker Grid.Column="3" Time="{Binding CloseTime}" Format="HH:mm" />
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
+
+        <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
+                Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
+            <Grid>
+                <Button Text="Save Working Hours" Command="{Binding SaveCommand}" IsVisible="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:BasePage>

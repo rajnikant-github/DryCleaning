@@ -49,4 +49,8 @@ public sealed class ApiCustomerCatalogService(ApiClient api) : ICustomerCatalogS
         var items = await api.GetAsync($"api/catalog/popular?take={take}", Json.ListPopularServiceItemDto, authorize: false);
         return items.Select(ApiMapping.ToPopular).ToList();
     }
+
+    public async Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync(Guid providerId) =>
+        (await api.GetAsync($"api/providers/{providerId}/working-hours", Json.ListWorkingHourDto, authorize: false))
+        .Select(ApiMapping.ToWorkingHour).ToList();
 }

@@ -11,4 +11,7 @@ public interface ICustomerCatalogService
     Task<IReadOnlyList<CatalogProduct>> GetProductsAsync(Guid providerId, Guid categoryId);
     Task<CatalogProduct> GetProductAsync(Guid productId);
     Task<IReadOnlyList<PopularServiceItem>> GetPopularItemsAsync(int take);
+
+    /// <summary>The provider's pickup days and hours: seven entries, Sunday first.</summary>
+    Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync(Guid providerId);
 }

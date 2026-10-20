@@ -11,7 +11,7 @@ namespace DryCleaning.Api.Controllers;
 [Route("api")]
 [AllowAnonymous]
 [Produces("application/json")]
-public sealed class CatalogController(CategoryService categories, PublicCatalogService catalog) : ControllerBase
+public sealed class CatalogController(CategoryService categories, PublicCatalogService catalog, WorkingHoursService workingHours) : ControllerBase
 {
     /// <summary>Active categories (Dry Cleaning, Shoe Cleaning, …).</summary>
     [HttpGet("categories")]
@@ -41,4 +41,9 @@ public sealed class CatalogController(CategoryService categories, PublicCatalogS
     [HttpGet("providers/{providerId:guid}/catalog")]
     public Task<ProviderCatalogDto> GetProviderCatalog(Guid providerId, CancellationToken ct) =>
         catalog.GetProviderCatalogAsync(providerId, ct);
+
+    /// <summary>A provider's pickup days and hours (seven days, Sunday first) for the customer's pickup screen.</summary>
+    [HttpGet("providers/{providerId:guid}/working-hours")]
+    public Task<IReadOnlyList<WorkingHourDto>> GetProviderWorkingHours(Guid providerId, CancellationToken ct) =>
+        workingHours.GetAsync(providerId, ct);
 }

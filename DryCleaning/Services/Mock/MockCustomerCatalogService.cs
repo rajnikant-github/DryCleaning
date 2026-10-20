@@ -128,4 +128,11 @@ public sealed class MockCustomerCatalogService(MockDataStore store) : ICustomerC
             ServiceItems = items
         };
     }
+
+    public async Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync(Guid providerId)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        lock (store.Gate)
+            return store.WorkingHours.TryGetValue(providerId, out var hours) ? hours.ToList() : WorkingHour.DefaultWeek();
+    }
 }

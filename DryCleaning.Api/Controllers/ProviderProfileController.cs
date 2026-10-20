@@ -11,7 +11,7 @@ namespace DryCleaning.Api.Controllers;
 [Route("api/provider")]
 [Authorize(Roles = Roles.Provider)]
 [Produces("application/json")]
-public sealed class ProviderProfileController(ProviderProfileService profiles, ProviderCatalogService catalog) : ControllerBase
+public sealed class ProviderProfileController(ProviderProfileService profiles, ProviderCatalogService catalog, WorkingHoursService workingHours) : ControllerBase
 {
     [HttpGet("profile")]
     public Task<ProviderProfileDto> GetProfile(CancellationToken ct) => profiles.GetAsync(ct);
@@ -33,4 +33,13 @@ public sealed class ProviderProfileController(ProviderProfileService profiles, P
     [HttpPut("categories")]
     public Task<IReadOnlyList<ProviderCategoryDto>> SetCategories(SetProviderCategoriesRequest request, CancellationToken ct) =>
         catalog.SetCategoriesAsync(request, ct);
+
+    /// <summary>My pickup days and hours (seven days, Sunday first).</summary>
+    [HttpGet("working-hours")]
+    public Task<IReadOnlyList<WorkingHourDto>> GetWorkingHours(CancellationToken ct) => workingHours.GetMineAsync(ct);
+
+    /// <summary>Set my pickup days and hours. Customers can only book pickup slots inside them.</summary>
+    [HttpPut("working-hours")]
+    public Task<IReadOnlyList<WorkingHourDto>> SetWorkingHours(SetWorkingHoursRequest request, CancellationToken ct) =>
+        workingHours.SetMineAsync(request, ct);
 }

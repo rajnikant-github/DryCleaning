@@ -20,4 +20,10 @@ public interface IProviderProfileService
 
     /// <summary>Sets which categories this provider offers (at least one).</summary>
     Task SetCategoriesAsync(IReadOnlyList<Guid> categoryIds);
+
+    /// <summary>My pickup days and hours: seven entries, Sunday first.</summary>
+    Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync();
+
+    /// <summary>Saves my pickup days and hours (all seven days; at least one open).</summary>
+    Task SetWorkingHoursAsync(IReadOnlyList<WorkingHour> hours);
 }

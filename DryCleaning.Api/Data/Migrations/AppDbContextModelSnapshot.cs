@@ -757,6 +757,42 @@ namespace DryCleaning.Api.Data.Migrations
                     b.ToTable("ServiceProviders", (string)null);
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.ProviderWorkingHour", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("CloseTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeOnly>("OpenTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("ServiceProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceProviderId", "Day")
+                        .IsUnique();
+
+                    b.ToTable("ProviderWorkingHours", (string)null);
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1190,6 +1226,17 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.ProviderWorkingHour", b =>
+                {
+                    b.HasOne("DryCleaning.Api.Domain.Provider", "ServiceProvider")
+                        .WithMany("WorkingHours")
+                        .HasForeignKey("ServiceProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceProvider");
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.RefreshToken", b =>
                 {
                     b.HasOne("DryCleaning.Api.Domain.User", "User")
@@ -1275,6 +1322,8 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Products");
+
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("DryCleaning.Api.Domain.User", b =>

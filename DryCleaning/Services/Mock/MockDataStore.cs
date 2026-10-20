@@ -26,6 +26,9 @@ public sealed class MockDataStore
     public List<Address> Addresses { get; } = [];
     public List<Category> Categories { get; } = [];
     public List<ServiceProviderCategory> ServiceProviderCategories { get; } = [];
+
+    /// <summary>Pickup hours per provider; a provider without an entry uses <see cref="WorkingHour.DefaultWeek"/>.</summary>
+    public Dictionary<Guid, List<WorkingHour>> WorkingHours { get; } = [];
     public List<Product> Products { get; } = [];
     public List<ServiceItem> ServiceItems { get; } = [];
     public List<Order> Orders { get; } = [];

@@ -95,6 +95,7 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<PublicCatalogService>();
 builder.Services.AddScoped<ProviderCatalogService>();
 builder.Services.AddScoped<ProviderProfileService>();
+builder.Services.AddScoped<WorkingHoursService>();
 builder.Services.AddScoped<CustomerOrderService>();
 builder.Services.AddScoped<ProviderOrderService>();
 builder.Services.AddScoped<DriverService>();

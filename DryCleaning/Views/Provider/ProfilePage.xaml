@@ -67,6 +67,16 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Working days &amp; hours" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="Manage" Style="{StaticResource TextButton}" Command="{Binding ManageWorkingHoursCommand}" />
+                        </Grid>
+                        <Label Text="Customers can only book pickups on the days and times you set." FontSize="14" />
+                    </VerticalStackLayout>
+                </Border>
+
                 <Border Style="{StaticResource Card}" Padding="0">
                     <VerticalStackLayout>
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">

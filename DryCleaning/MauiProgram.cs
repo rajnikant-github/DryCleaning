@@ -81,6 +81,7 @@ public static class MauiProgram
             .AddPage<ChangePasswordPage, ChangePasswordViewModel>()
             .AddPage<EditBusinessProfilePage, EditBusinessProfileViewModel>()
             .AddPage<ProviderCategoriesPage, ProviderCategoriesViewModel>()
+            .AddPage<WorkingHoursPage, WorkingHoursViewModel>()
             .AddPage<DashboardPage, DashboardViewModel>()
             .AddPage<OrdersPage, OrdersViewModel>()
             .AddPage<OrderHistoryPage, OrderHistoryViewModel>()

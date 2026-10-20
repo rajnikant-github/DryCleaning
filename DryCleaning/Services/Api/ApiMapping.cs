@@ -85,6 +85,24 @@ public static class ApiMapping
         PlusCode = a.PlusCode
     };
 
+    // ── Working hours ────────────────────────────────────────────────────────
+
+    public static WorkingHour ToWorkingHour(WorkingHourDto dto) => new()
+    {
+        Day = (DayOfWeek)dto.Day,
+        IsOpen = dto.IsOpen,
+        Open = TimeSpan.TryParse(dto.OpenTime, System.Globalization.CultureInfo.InvariantCulture, out var open) ? open : new TimeSpan(9, 0, 0),
+        Close = TimeSpan.TryParse(dto.CloseTime, System.Globalization.CultureInfo.InvariantCulture, out var close) ? close : new TimeSpan(19, 0, 0)
+    };
+
+    public static WorkingHourDto ToDto(WorkingHour h) => new()
+    {
+        Day = (int)h.Day,
+        IsOpen = h.IsOpen,
+        OpenTime = h.Open.ToString(@"hh\:mm", System.Globalization.CultureInfo.InvariantCulture),
+        CloseTime = h.Close.ToString(@"hh\:mm", System.Globalization.CultureInfo.InvariantCulture)
+    };
+
     // ── Catalog ──────────────────────────────────────────────────────────────
 
     public static Category ToCategory(CategoryDto dto) => new()

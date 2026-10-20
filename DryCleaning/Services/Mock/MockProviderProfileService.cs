@@ -120,4 +120,23 @@ public sealed class MockProviderProfileService(MockDataStore store, ISessionServ
                 store.ServiceProviderCategories.Add(new ServiceProviderCategory { ServiceProviderId = providerId, CategoryId = categoryId });
         }
     }
+
+    public async Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync()
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        lock (store.Gate)
+            return store.WorkingHours.TryGetValue(CurrentProvider.Id, out var hours) ? hours.Select(Copy).ToList() : WorkingHour.DefaultWeek();
+    }
+
+    public async Task SetWorkingHoursAsync(IReadOnlyList<WorkingHour> hours)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        if (!hours.Any(h => h.IsOpen))
+            throw new InvalidOperationException("Be open on at least one day.");
+
+        lock (store.Gate)
+            store.WorkingHours[CurrentProvider.Id] = hours.Select(Copy).ToList();
+    }
+
+    private static WorkingHour Copy(WorkingHour h) => new() { Day = h.Day, IsOpen = h.IsOpen, Open = h.Open, Close = h.Close };
 }

@@ -60,6 +60,9 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     private Task ManageCategoriesAsync() => Navigation.GoToAsync(Routes.ProviderCategories);
 
     [RelayCommand]
+    private Task ManageWorkingHoursAsync() => Navigation.GoToAsync(Routes.WorkingHours);
+
+    [RelayCommand]
     private Task ChangePasswordAsync() => Navigation.GoToAsync(Routes.ChangePassword);
 
     [RelayCommand]

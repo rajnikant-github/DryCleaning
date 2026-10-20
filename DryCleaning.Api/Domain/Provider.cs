@@ -17,6 +17,7 @@ public class Provider : EntityBase
     public User User { get; set; } = null!;
     public Address? Address { get; set; }
     public ICollection<ServiceProviderCategory> Categories { get; set; } = [];
+    public ICollection<ProviderWorkingHour> WorkingHours { get; set; } = [];
     public ICollection<Product> Products { get; set; } = [];
     public ICollection<Order> Orders { get; set; } = [];
 }

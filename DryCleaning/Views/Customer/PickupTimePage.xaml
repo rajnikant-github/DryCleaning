@@ -48,7 +48,7 @@
                 </VerticalStackLayout>
 
                 <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding HasNoSlots}">
-                    <Label Text="No more pickup windows today. Please choose another day." TextColor="{StaticResource WarningDark}" FontSize="13" />
+                    <Label Text="No pickup windows are available here. Please choose another day or check back later." TextColor="{StaticResource WarningDark}" FontSize="13" />
                 </Border>
             </VerticalStackLayout>
         </ScrollView>
