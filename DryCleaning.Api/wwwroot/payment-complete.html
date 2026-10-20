@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payment complete</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #f8f7f3; color: #1c3a6b; margin: 0; display: flex; min-height: 100vh; align-items: center; justify-content: center; text-align: center; }
+  main { padding: 24px; }
+  a.button { display: inline-block; margin-top: 20px; padding: 14px 28px; border-radius: 12px; background: #1c3a6b; color: #fff; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Payment received</h1>
+  <p>Returning you to the EDry Cleaners app…</p>
+  <a id="open" class="button" href="edrycleaners://payment-complete">Return to the app</a>
+</main>
+<script>
+  // Paystack redirects here (https) with ?reference=…; hand the same query to the app's deep link.
+  var target = "edrycleaners://payment-complete" + window.location.search;
+  document.getElementById("open").href = target;
+  window.location.replace(target);
+</script>
+</body>
+</html>
