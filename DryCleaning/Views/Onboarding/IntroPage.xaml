@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Intro screen (Figma: Customer General Onboarding → Intro Screen)  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Onboarding"
+                x:Class="DryCleaning.Views.Onboarding.IntroPage"
+                x:DataType="vm:IntroViewModel"
+                Shell.NavBarIsVisible="False"
+                BackgroundColor="{StaticResource OnboardingCoral}">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="{OnPlatform iOS='24,56,24,24', Default='24,36,24,24'}">
+        <Image Grid.Row="0" Source="applogo.png" WidthRequest="240" HeightRequest="120" Aspect="AspectFit"
+               HorizontalOptions="Center" SemanticProperties.Description="E Dry Cleaners" />
+
+        <VerticalStackLayout Grid.Row="1" Spacing="14" VerticalOptions="Center" HorizontalOptions="Center">
+            <Image Source="introicon.png" HeightRequest="200" Aspect="AspectFit" HorizontalOptions="Center" />
+            <Label Text="We at E Dry Cleaners offer you a convenient Laundry and Dry Cleaning Service from your mobile to your doorstep."
+                   Style="{StaticResource OnboardingBody}" TextColor="{StaticResource White}" MaximumWidthRequest="280" />
+            <Label Text="Select • Pay • Deliver" Style="{StaticResource OnboardingTitle}" TextColor="{StaticResource White}" />
+            <!--  Outlined pill with a chevron (a Border so the icon and text sit side by side)  -->
+            <Border StrokeThickness="1" Stroke="{StaticResource White}" StrokeShape="RoundRectangle 26" BackgroundColor="Transparent"
+                    WidthRequest="216" HeightRequest="52" HorizontalOptions="Center"
+                    SemanticProperties.Description="Get Started">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GetStartedCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="&#xf054;" FontFamily="FA" FontSize="16" TextColor="{StaticResource White}" VerticalOptions="Center" />
+                    <Label Text="Get Started" FontFamily="NunitoBlack" FontSize="18" TextColor="{StaticResource White}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="12" HorizontalOptions="Center">
+            <Label Text="Already have an account?" Style="{StaticResource OnboardingBody}" TextColor="{StaticResource White}" />
+            <Button Text="Log in" Command="{Binding LogInCommand}" Style="{StaticResource OnboardingPill}"
+                    WidthRequest="229" HeightRequest="52" />
+        </VerticalStackLayout>
+    </Grid>
+</views:BasePage>

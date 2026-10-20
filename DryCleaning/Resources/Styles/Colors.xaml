@@ -37,6 +37,12 @@
     <Color x:Key="Purple">#7E22CE</Color>
     <Color x:Key="PurpleSoft">#F3E8FF</Color>
 
+    <!--  Intro & onboarding screens (Figma "Customer General Onboarding")  -->
+    <Color x:Key="OnboardingCoral">#FF5E5E</Color>
+    <Color x:Key="OnboardingCoralButton">#FF725E</Color>
+    <Color x:Key="OnboardingInk">#2F2E41</Color>
+    <Color x:Key="OnboardingMuted">#999999</Color>
+
     <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Black">#000000</Color>
 

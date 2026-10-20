@@ -9,10 +9,12 @@ using DryCleaning.ViewModels;
 using DryCleaning.ViewModels.Auth;
 using DryCleaning.ViewModels.Customer;
 using DryCleaning.ViewModels.Driver;
+using DryCleaning.ViewModels.Onboarding;
 using DryCleaning.ViewModels.Provider;
 using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
 using DryCleaning.Views.Driver;
+using DryCleaning.Views.Onboarding;
 using DryCleaning.Views.Provider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,6 +35,10 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "AppRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "AppSemibold");
                 fonts.AddFont("FontAwesome-Solid.ttf", "FA");
+                // Intro & onboarding screens (Figma)
+                fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
+                fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
+                fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
             });
 
         ConfigureHandlers();
@@ -52,6 +58,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
         builder.Services.AddSingleton<ProfilePhotoChanger>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
+        builder.Services.AddSingleton<IPreferences>(Preferences.Default);
+        builder.Services.AddSingleton<IOnboardingService, OnboardingService>();
         builder.Services.AddSingleton<IThemeService, ThemeService>();
         builder.Services.AddSingleton<ViewModelServices>();
 
@@ -75,6 +83,8 @@ public static class MauiProgram
         // Pages & ViewModels
         builder.Services
             .AddPage<SplashPage, SplashViewModel>()
+            .AddPage<IntroPage, IntroViewModel>()
+            .AddPage<OnboardingPage, OnboardingViewModel>()
             .AddPage<RoleSelectionPage, RoleSelectionViewModel>()
             .AddPage<LoginPage, LoginViewModel>()
             .AddPage<OtpPage, OtpViewModel>()

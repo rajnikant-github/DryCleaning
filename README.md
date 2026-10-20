@@ -129,6 +129,11 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 **Demo data instead of the API:** set `"UseMockData": true` – no API needed, any email/phone + 4-character password,
 OTP `123456`, and the "simulate driver" / show-customer-code shortcuts (`Features:ShowDemoActions`).
 
+**First launch:** someone who isn't signed in and hasn't seen it yet gets the intro screen and three onboarding slides (Get Started /
+Next / Skip) before the role picker, built from the Figma "Customer General Onboarding" screens. Finishing, skipping or tapping *Log in*
+remembers that on the phone, so later launches go straight to the role picker (or to the home screen when signed in). To see it again,
+uninstall the app (Android) or, on an iOS simulator, also log out first, because the iOS keychain keeps the sign-in after an uninstall.
+
 **Address search** uses Google: Places API (New) for suggestions and Geocoding API for "Use my current location".
 The key is **never committed**. It lives in the repository's single secrets file (see [Secrets](#secrets-one-file-for-everything)),
 under `local` → `App` → `GoogleMaps` → `ApiKey`. Add it there, then run `./set-app-env.sh local` to copy the `App` section into the build.

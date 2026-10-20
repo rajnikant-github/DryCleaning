@@ -6,6 +6,8 @@ public static class Routes
 {
     // Shell roots (absolute)
     public const string Splash = "//splash";
+    public const string Intro = "//intro";
+    public const string Onboarding = "//onboarding";
     public const string RoleSelection = "//roles";
     public const string Login = "//login";
     public const string ProviderDashboard = "//provider/dashboard";
