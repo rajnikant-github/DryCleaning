@@ -1,8 +1,9 @@
 @page "/pricing"
 @inherits AdminPageBase
 
-<PageTitle>Delivery pricing – EDry Cleaners Admin</PageTitle>
-<h1>Pickup &amp; delivery pricing</h1>
+<PageTitle>Pricing – EDry Cleaners Admin</PageTitle>
+<h1>Pricing</h1>
+<p class="muted">Everything that makes up an order's price: pickup &amp; delivery, extra charges and VAT. Changes apply to new orders only; existing orders keep what they were charged.</p>
 
 <Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
 
@@ -17,7 +18,7 @@ else
 {
     <div class="grid2">
         <div class="card">
-            <h2>Price rule</h2>
+            <h2>Pickup &amp; delivery</h2>
             <p class="muted">
                 Pickup &amp; delivery is always charged per kilometre: base fee (covers the included distance) + price per km beyond it,
                 kept between the minimum and maximum. The mobile app shows and charges exactly this. It applies to new orders;
@@ -33,7 +34,7 @@ else
 
         <div class="card">
             <h2>Preview</h2>
-            <p class="muted">What a customer would pay for pickup and delivery (VAT is added on the items only).</p>
+            <p class="muted">What a customer would pay for pickup and delivery before any VAT.</p>
             <table>
                 <thead><tr><th>Distance</th><th class="num">Fee</th></tr></thead>
                 <tbody>
@@ -45,6 +46,119 @@ else
             </table>
             <p class="muted">Distance is the real driving distance between the pickup address and the provider (Google Routes). If Google can't be reached, a straight-line estimate plus 30% for roads is used.</p>
         </div>
+    </div>
+
+    <div class="card">
+        <h2>VAT</h2>
+        <p class="muted">VAT is always charged on the items. Choose whether it is also charged on the pickup &amp; delivery fee; each extra charge below has its own "charge VAT" switch.</p>
+        @if (_vat is not null)
+        {
+            <label class="field"><span><input type="checkbox" @bind="_vat.IsEnabled" /> Charge VAT on new orders</span></label>
+            <label class="field"><span>VAT rate (%)</span><input type="number" step="0.01" min="0" max="100" @bind="_vat.Rate" disabled="@(!_vat.IsEnabled)" /></label>
+            <label class="field"><span><input type="checkbox" @bind="_vat.AppliesToDelivery" disabled="@(!_vat.IsEnabled)" /> Also charge VAT on the pickup &amp; delivery fee</span></label>
+            <button class="btn" disabled="@Busy" @onclick="SaveVatAsync">Save VAT</button>
+        }
+    </div>
+
+    <div class="card">
+        <h2>Extra charges</h2>
+        <p class="muted">
+            Added to every new order, each as its own line on the Order Summary, the order and the receipt. A charge is either a <strong>fixed amount</strong>
+            or a <strong>percentage</strong> of the items (optionally including the pickup &amp; delivery fee). Charges never build on each other.
+        </p>
+        <div class="toolbar"><button class="btn" @onclick="StartNew">Add extra charge</button></div>
+
+        @if (_editing is not null)
+        {
+            <div class="card">
+                <h3>@(_editingId is null ? "New extra charge" : "Edit extra charge")</h3>
+                <label class="field"><span>Name (shown to the customer)</span><input @bind="_editing.Name" maxlength="100" placeholder="e.g. Service fee" /></label>
+                <label class="field"><span>Description (optional)</span><input @bind="_editing.Description" maxlength="200" placeholder="e.g. Covers packaging and handling" /></label>
+                <label class="field"><span>Type</span>
+                    <select @bind="_editing.Type">
+                        <option value="@ExtraChargeType.Fixed">Fixed amount</option>
+                        <option value="@ExtraChargeType.Percentage">Percentage</option>
+                    </select>
+                </label>
+                @if (_editing.Type == ExtraChargeType.Fixed)
+                {
+                    <label class="field"><span>Amount (@_currency)</span><input type="number" step="0.01" min="0.01" @bind="_editing.Amount" /></label>
+                }
+                else
+                {
+                    <label class="field"><span>Percentage (%)</span><input type="number" step="0.01" min="0.01" max="100" @bind="_editing.Percent" /></label>
+                    <label class="field"><span>Take the percentage of</span>
+                        <select @bind="_editing.PercentBase">
+                            <option value="@ChargeBase.ItemsSubtotal">Items only</option>
+                            <option value="@ChargeBase.ItemsAndDelivery">Items + pickup &amp; delivery fee</option>
+                        </select>
+                    </label>
+                }
+                <label class="field"><span><input type="checkbox" @bind="_editing.IsTaxable" /> Charge VAT on this extra charge</span></label>
+                <label class="field"><span>Position on the summary (1 shows first)</span><input type="number" step="1" min="0" @bind="_editing.DisplayOrder" /></label>
+                <label class="field"><span><input type="checkbox" @bind="_editing.IsActive" /> On – add it to new orders</span></label>
+                <button class="btn" disabled="@(Busy || string.IsNullOrWhiteSpace(_editing.Name) || (_editing.Type == ExtraChargeType.Fixed ? _editing.Amount <= 0 : _editing.Percent <= 0))" @onclick="SaveChargeAsync">Save</button>
+                <button class="btn btn-light" @onclick="() => _editing = null">Cancel</button>
+            </div>
+        }
+
+        @if (_charges is null || _charges.Count == 0)
+        {
+            <div class="empty">@(_charges is null ? "Loading…" : "No extra charges yet. Orders are charged for items, delivery and VAT only.")</div>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Name</th><th>Charge</th><th>VAT</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var c in _charges)
+                {
+                    <tr>
+                        <td><strong>@c.Name</strong>@if (!string.IsNullOrEmpty(c.Description)) { <br /><span class="muted">@c.Description</span> }</td>
+                        <td>@Describe(c)</td>
+                        <td>@(c.IsTaxable ? "Yes" : "No")</td>
+                        <td><StatusBadge Value="@(c.IsActive ? "Active" : "Inactive")" /></td>
+                        <td class="row-actions">
+                            <button class="btn btn-sm btn-light" @onclick="() => StartEdit(c)">Edit</button>
+                            <button class="btn btn-sm @(c.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(c, !c.IsActive)">@(c.IsActive ? "Turn off" : "Turn on")</button>
+                            @if (_confirmDelete == c.Id)
+                            {
+                                <button class="btn btn-sm btn-danger" disabled="@Busy" @onclick="() => DeleteChargeAsync(c)">Yes, delete</button>
+                                <button class="btn btn-sm btn-light" @onclick="() => _confirmDelete = null">No</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-light" @onclick="() => _confirmDelete = c.Id">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="card">
+        <h2>Price preview</h2>
+        <p class="muted">Try a sample order. This uses the <strong>saved</strong> extra charges and VAT, exactly like a real order.</p>
+        <div class="grid2">
+            <label class="field"><span>Items subtotal (@_currency)</span><input type="number" step="0.01" min="0" @bind="_previewItems" /></label>
+            <label class="field"><span>Pickup &amp; delivery fee (@_currency)</span><input type="number" step="0.01" min="0" @bind="_previewDelivery" /></label>
+        </div>
+        <button class="btn" disabled="@Busy" @onclick="PreviewAsync">Calculate</button>
+        @if (_preview is not null)
+        {
+            <dl class="kv">
+                <dt>Items</dt><dd>@Fmt.Money(_preview.SubTotal, _preview.Currency)</dd>
+                <dt>Pickup &amp; delivery</dt><dd>@Fmt.Money(_preview.DeliveryFee, _preview.Currency)</dd>
+                @foreach (var extra in _preview.ExtraCharges)
+                {
+                    <dt>@extra.Name@if (!string.IsNullOrEmpty(extra.Basis)) { <span class="muted"> (@extra.Basis)</span> }</dt><dd>@Fmt.Money(extra.Amount, _preview.Currency)</dd>
+                }
+                <dt>@(_preview.VatRate > 0 ? $"VAT ({_preview.VatRate:0.##}%)" : "VAT")</dt><dd>@Fmt.Money(_preview.Tax, _preview.Currency)</dd>
+                <dt><strong>Total</strong></dt><dd><strong>@Fmt.Money(_preview.TotalAmount, _preview.Currency)</strong></dd>
+            </dl>
+        }
     </div>
 
     <div class="card">
@@ -78,7 +192,7 @@ else
         <ul>
             <li><strong>Distance:</strong> the real driving distance between the customer's pickup address and the provider, measured with Google Routes. If Google can't be reached, a straight-line estimate plus 30% for roads is used and the app marks it "(est.)". If an address has no saved location, the base fee applies.</li>
             <li><strong>What customers see:</strong> the cart does not show this fee. The Order Summary shows it with the distance, for example "Pickup &amp; delivery · 6.2 km", before the customer pays.</li>
-            <li><strong>VAT:</strong> VAT is added on the items only, not on the pickup and delivery fee.</li>
+            <li><strong>VAT:</strong> configured in the VAT card above. By default it is charged on the items only; you can also include this fee.</li>
             <li><strong>Existing orders:</strong> each order keeps the fee it was charged. A change here only affects new orders.</li>
             <li><strong>Driver pay:</strong> this is separate. Drivers earn a flat amount per completed job, set in the API settings.</li>
         </ul>
@@ -86,10 +200,104 @@ else
 }
 
 @code {
-    private DeliveryPricingDto? _rule;
+    private const string _currency = "ZAR";
 
-    protected override Task OnInitializedAsync() =>
-        RunAsync(async () => _rule = await Api.GetAsync<DeliveryPricingDto>("api/admin/delivery-pricing"));
+    private DeliveryPricingDto? _rule;
+    private VatSettingDto? _vat;
+    private List<ExtraChargeDto>? _charges;
+    private ExtraChargeRequest? _editing;
+    private Guid? _editingId;
+    private Guid? _confirmDelete;
+    private decimal _previewItems = 200m;
+    private decimal _previewDelivery = 40m;
+    private PricePreviewDto? _preview;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RunAsync(async () =>
+        {
+            _rule = await Api.GetAsync<DeliveryPricingDto>("api/admin/delivery-pricing");
+            _vat = await Api.GetAsync<VatSettingDto>("api/admin/vat");
+        });
+        await LoadChargesAsync();
+        await PreviewAsync();
+    }
+
+    private Task LoadChargesAsync() => RunAsync(async () =>
+        _charges = (await Api.GetAsync<List<ExtraChargeDto>>("api/admin/extra-charges")).OrderBy(c => c.DisplayOrder).ToList());
+
+    private Task SaveVatAsync() => RunAsync(async () =>
+    {
+        _vat = await Api.PutAsync<VatSettingDto>("api/admin/vat", _vat!);
+        _preview = await Api.PostAsync<PricePreviewDto>("api/admin/pricing/preview", new PricePreviewRequest { ItemsSubTotal = _previewItems, DeliveryFee = _previewDelivery });
+    }, "VAT saved. New orders use it straight away.");
+
+    private Task PreviewAsync() => RunAsync(async () =>
+        _preview = await Api.PostAsync<PricePreviewDto>("api/admin/pricing/preview", new PricePreviewRequest { ItemsSubTotal = _previewItems, DeliveryFee = _previewDelivery }));
+
+    private string Describe(ExtraChargeDto c) => c.Type == ExtraChargeType.Fixed
+        ? Fmt.Money(c.Amount, _currency)
+        : $"{c.Percent:0.##}% of {(c.PercentBase == ChargeBase.ItemsAndDelivery ? "items and delivery" : "items")}";
+
+    private void StartNew()
+    {
+        _editingId = null;
+        _editing = new ExtraChargeRequest { DisplayOrder = (_charges?.Count ?? 0) + 1 };
+        _confirmDelete = null;
+        ClearMessages();
+    }
+
+    private void StartEdit(ExtraChargeDto charge)
+    {
+        _editingId = charge.Id;
+        _editing = new ExtraChargeRequest
+        {
+            Name = charge.Name, Description = charge.Description, Type = charge.Type, Amount = charge.Amount, Percent = charge.Percent,
+            PercentBase = charge.PercentBase, IsTaxable = charge.IsTaxable, IsActive = charge.IsActive, DisplayOrder = charge.DisplayOrder
+        };
+        _confirmDelete = null;
+        ClearMessages();
+    }
+
+    private async Task SaveChargeAsync()
+    {
+        if (_editing is null)
+            return;
+
+        _editing.Name = _editing.Name.Trim();
+        var request = _editing;
+        var ok = _editingId is { } id
+            ? await RunAsync(() => Api.PutAsync<ExtraChargeDto>($"api/admin/extra-charges/{id}", request), "Extra charge saved. New orders use it straight away.")
+            : await RunAsync(() => Api.PostAsync<ExtraChargeDto>("api/admin/extra-charges", request), "Extra charge added.");
+        if (ok)
+        {
+            _editing = null;
+            await LoadChargesAsync();
+            await PreviewAsync();
+        }
+    }
+
+    private async Task SetActiveAsync(ExtraChargeDto charge, bool active)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/extra-charges/{charge.Id}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{charge.Name} is on: new orders will include it." : $"{charge.Name} is off: new orders won't include it.");
+        if (ok)
+        {
+            await LoadChargesAsync();
+            await PreviewAsync();
+        }
+    }
+
+    private async Task DeleteChargeAsync(ExtraChargeDto charge)
+    {
+        var ok = await RunAsync(() => Api.DeleteAsync($"api/admin/extra-charges/{charge.Id}"), $"{charge.Name} deleted. Past orders keep it.");
+        _confirmDelete = null;
+        if (ok)
+        {
+            await LoadChargesAsync();
+            await PreviewAsync();
+        }
+    }
 
     private Task SaveAsync() => RunAsync(async () =>
         _rule = await Api.PutAsync<DeliveryPricingDto>("api/admin/delivery-pricing", _rule!), "Pricing saved. New orders use it straight away.");

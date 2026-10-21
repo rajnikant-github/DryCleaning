@@ -36,9 +36,9 @@ else
                 <dt>Pickup &amp; delivery</dt><dd>@Fmt.Money(_order.DeliveryFee, _order.Currency)</dd>
                 @foreach (var extra in _order.ExtraCharges)
                 {
-                    <dt>@extra.Name</dt><dd>@Fmt.Money(extra.Amount, _order.Currency)</dd>
+                    <dt>@extra.Name@if (!string.IsNullOrEmpty(extra.Basis)) { <span class="muted"> (@extra.Basis)</span> }</dt><dd>@Fmt.Money(extra.Amount, _order.Currency)</dd>
                 }
-                <dt>VAT</dt><dd>@Fmt.Money(_order.Tax, _order.Currency)</dd>
+                <dt>VAT@(_order.VatRate > 0 ? $" ({_order.VatRate:0.##}%)" : "")</dt><dd>@Fmt.Money(_order.Tax, _order.Currency)</dd>
                 <dt><strong>Total</strong></dt><dd><strong>@Fmt.Money(_order.TotalAmount, _order.Currency)</strong></dd>
             </dl>
         </div>

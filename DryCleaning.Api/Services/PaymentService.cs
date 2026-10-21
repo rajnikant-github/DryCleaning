@@ -3,6 +3,7 @@ using DryCleaning.Api.Common;
 using DryCleaning.Api.Data;
 using DryCleaning.Api.Domain;
 using DryCleaning.Api.Dtos;
+using DryCleaning.Api.Infrastructure.Email;
 using DryCleaning.Api.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ public sealed class PaymentService(
     IPaystackClient paystack,
     IOptions<PaystackOptions> paystackOptions,
     IOptions<MarketplaceOptions> marketplace,
+    EmailQueue email,
     ILogger<PaymentService> logger)
 {
     public async Task<InitializePaymentResponse> InitializePaystackAsync(Guid orderId, CancellationToken ct)
@@ -126,6 +128,7 @@ public sealed class PaymentService(
 
         var result = await paystack.VerifyAsync(payment.TransactionId, ct);
         var expected = PaystackClient.ToSubunit(payment.Amount);
+        var paidNow = false;
 
         if (result.Status == "success" && result.AmountSubunit == expected &&
             string.Equals(result.Currency, marketplace.Value.Currency, StringComparison.OrdinalIgnoreCase))
@@ -138,6 +141,7 @@ public sealed class PaymentService(
             var customerUserId = await db.Customers.Where(c => c.Id == order.CustomerId).Select(c => c.UserId).FirstAsync(ct);
             db.Notify(providerUserId, order, "New order received", $"{order.OrderNumber} is paid and waiting for you to accept.");
             db.Notify(customerUserId, order, "Payment successful", $"Payment for {order.OrderNumber} was successful.", NotificationType.Payment);
+            paidNow = true;
         }
         else if (result.Status is "failed" or "abandoned" or "reversed")
         {
@@ -150,5 +154,31 @@ public sealed class PaymentService(
         }
 
         await db.SaveChangesAsync(ct);
+
+        if (paidNow)
+            await QueueReceiptEmailAsync(payment.OrderId, ct);
+    }
+
+    /// <summary>Emails the customer a receipt. Never lets an email problem undo or fail the payment.</summary>
+    private async Task QueueReceiptEmailAsync(Guid orderId, CancellationToken ct)
+    {
+        try
+        {
+            var order = await db.Orders.AsNoTracking()
+                .Include(o => o.Items).ThenInclude(i => i.Product)
+                .Include(o => o.ExtraCharges)
+                .Include(o => o.ServiceProvider)
+                .Include(o => o.Customer).ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(o => o.Id == orderId, ct);
+            var user = order?.Customer.User;
+            if (order is null || user is null || string.IsNullOrWhiteSpace(user.Email))
+                return;
+
+            email.Enqueue(EmailTemplates.OrderConfirmation(user.Email, user.Name, order, order.ServiceProvider.BusinessName, marketplace.Value.Currency));
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not queue the receipt email for order {OrderId}", orderId);
+        }
     }
 }

@@ -5,6 +5,9 @@ public sealed class OrderQuote
 {
     public decimal SubTotal { get; init; }
     public decimal Tax { get; init; }
+
+    /// <summary>The VAT percentage applied (e.g. 15); 0 = no VAT.</summary>
+    public decimal VatRate { get; init; }
     public decimal DeliveryFee { get; init; }
 
     /// <summary>Extra charges that will be added (already in <see cref="Total"/>).</summary>

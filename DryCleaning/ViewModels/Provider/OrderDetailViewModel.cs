@@ -30,6 +30,7 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
     [ObservableProperty] private decimal totalAmount;
     [ObservableProperty] private string itemCountText = string.Empty;
     [ObservableProperty] private string vatLabel = "VAT";
+    [ObservableProperty] private bool hasVat;
 
     [ObservableProperty] private bool hasPickupDriver;
     [ObservableProperty] private string pickupDriverName = string.Empty;
@@ -69,7 +70,8 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
         DeliveryFee = order.DeliveryFee;
         TotalAmount = order.TotalAmount;
         ItemCountText = d.ExpectedItemCount == 1 ? "1 item" : $"{d.ExpectedItemCount} items";
-        VatLabel = $"VAT ({Services.Settings.Pricing.VatRate:P0})";
+        VatLabel = VatText.Label(order.VatRate);
+        HasVat = order.VatRate > 0 || order.Tax > 0;
 
         HasPickupDriver = d.PickupDriver is not null;
         PickupDriverName = d.PickupDriver?.DriverName ?? string.Empty;

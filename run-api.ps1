@@ -38,7 +38,7 @@ $SqlPort      = 1433
 $SqlImage     = 'mcr.microsoft.com/mssql/server:2022-latest'
 $DotnetMajor  = 10
 # Named migrations, oldest first. A missing one is created (only if the model actually needs it).
-$Migrations   = @('AddPickupSlotAndItemNotes', 'AddPushDevicesAndRefreshTokens', 'ClientGeneratedIds', 'AddUserPhoto', 'AddProviderWorkingHours', 'AddDeliveryPricing', 'AddExtraCharges')
+$Migrations   = @('AddPickupSlotAndItemNotes', 'AddPushDevicesAndRefreshTokens', 'ClientGeneratedIds', 'AddUserPhoto', 'AddProviderWorkingHours', 'AddDeliveryPricing', 'AddExtraCharges', 'AddConfigurablePricing')
 $SwaggerUrl   = 'https://localhost:7180/swagger'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

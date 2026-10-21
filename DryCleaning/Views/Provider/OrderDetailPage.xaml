@@ -98,8 +98,8 @@
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
-                            <Label Grid.Row="0" Text="{Binding VatLabel}" Style="{StaticResource Caption}" />
-                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" HorizontalOptions="End" />
+                            <Label Grid.Row="0" Text="{Binding VatLabel}" Style="{StaticResource Caption}" IsVisible="{Binding HasVat}" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" IsVisible="{Binding HasVat}" HorizontalOptions="End" />
                             <Label Grid.Row="1" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />
                             <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
                                    Style="{StaticResource BodyMedium}" TextColor="{DynamicResource Primary}" Margin="0,4,0,0" HorizontalOptions="End" />

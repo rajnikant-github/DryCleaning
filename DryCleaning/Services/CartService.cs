@@ -16,9 +16,6 @@ public sealed class CartService(AppSettings settings) : ICartService
     public int ItemCount => _lines.Sum(l => l.Quantity);
     public bool IsEmpty => _lines.Count == 0;
     public decimal SubTotal => _lines.Sum(l => l.LineTotal);
-    public decimal Tax => Math.Round(SubTotal * settings.Pricing.VatRate, 2, MidpointRounding.AwayFromZero);
-    /// <summary>Items plus VAT. Pickup &amp; delivery depends on the address and is added by the server at checkout.</summary>
-    public decimal Total => SubTotal + Tax;
     public int EstimatedDays => _lines.Count == 0 ? 0 : _lines.Max(l => l.EstimatedDays);
 
     public Address? PickupAddress { get; set; }

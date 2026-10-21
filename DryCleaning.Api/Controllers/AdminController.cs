@@ -4,6 +4,7 @@ using DryCleaning.Api.Dtos;
 using DryCleaning.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace DryCleaning.Api.Controllers;
 
@@ -13,7 +14,7 @@ namespace DryCleaning.Api.Controllers;
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
 public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing,
-    AdminNotificationService notifications, ExtraChargeService extraCharges) : ControllerBase
+    AdminNotificationService notifications, ExtraChargeService extraCharges, VatSettingService vatSettings, IOptions<MarketplaceOptions> marketplace) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -143,6 +144,27 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     /// <summary>Send an announcement to one user, everyone, or all customers / providers / drivers. Each recipient gets an in-app notification and a push.</summary>
     [HttpPost("notifications/send")]
     public Task<SendNotificationResult> SendNotification(SendNotificationRequest request, CancellationToken ct) => notifications.SendAsync(request, ct);
+
+    // VAT and price preview
+    [HttpGet("vat")]
+    public Task<VatSettingDto> GetVat(CancellationToken ct) => vatSettings.GetAsync(ct);
+
+    /// <summary>Set the VAT rate, switch VAT on/off, and choose whether it also applies to the delivery fee. Applies to new orders only.</summary>
+    [HttpPut("vat")]
+    public Task<VatSettingDto> SetVat(VatSettingDto request, CancellationToken ct) => vatSettings.UpdateAsync(request, ct);
+
+    /// <summary>Prices a sample order with the current extra charges and VAT, so admins can check their settings.</summary>
+    [HttpPost("pricing/preview")]
+    public async Task<PricePreviewDto> PreviewPrice(PricePreviewRequest request, CancellationToken ct)
+    {
+        var priced = OrderPricing.Calculate(request.ItemsSubTotal, request.DeliveryFee, await extraCharges.ActiveAsync(ct), await vatSettings.CurrentAsync(ct));
+        return new PricePreviewDto
+        {
+            SubTotal = priced.SubTotal, DeliveryFee = priced.DeliveryFee, Tax = priced.Tax, VatRate = priced.VatRate, TotalAmount = priced.Total,
+            Currency = marketplace.Value.Currency,
+            ExtraCharges = priced.ExtraCharges.Select(c => new OrderExtraChargeDto { Name = c.Name, Amount = c.Amount, Basis = c.Basis }).ToList()
+        };
+    }
 
     // Extra charges
     /// <summary>All extra charges (on and off), in display order.</summary>

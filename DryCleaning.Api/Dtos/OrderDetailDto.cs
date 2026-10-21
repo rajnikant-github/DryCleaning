@@ -16,6 +16,9 @@ public sealed class OrderDetailDto
     public required IReadOnlyList<OrderItemDto> Items { get; init; }
     public required decimal SubTotal { get; init; }
     public required decimal Tax { get; init; }
+
+    /// <summary>The VAT percentage this order was charged (0 = no VAT), e.g. 15.</summary>
+    public required decimal VatRate { get; init; }
     public required decimal DeliveryFee { get; init; }
 
     /// <summary>Extra charges the admin had switched on when the order was placed (already included in <see cref="TotalAmount"/>).</summary>

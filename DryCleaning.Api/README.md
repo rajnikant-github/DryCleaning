@@ -153,7 +153,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 
 | Section | Purpose |
 |---|---|
-| `Marketplace` | Currency (`ZAR`), VAT rate, driver earning per job (the pickup & delivery price is per km and is set in the admin portal), `RequirePaymentBeforeAccept` |
+| `Marketplace` | Currency (`ZAR`), driver earning per job (the pickup & delivery price, extra charges and VAT are set on the admin portal's Pricing page), `RequirePaymentBeforeAccept` |
 | `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in `secrets.json` / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
 | `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |

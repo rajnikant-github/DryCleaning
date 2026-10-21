@@ -194,7 +194,7 @@ public static class DbSeeder
             });
         }
 
-        order.Recalculate(0.15m, 45m);
+        order.Reprice(45m, [], new VatSetting());
         order.MarkCreated(customer.UserId);
         order.Verifications.Add(new OrderVerification { OrderId = order.Id, Type = VerificationType.QR, OtpCode = Code() });
         order.Verifications.Add(new OrderVerification { OrderId = order.Id, Type = VerificationType.OTP, OtpCode = Code() });

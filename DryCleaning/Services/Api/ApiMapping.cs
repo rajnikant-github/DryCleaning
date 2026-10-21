@@ -234,6 +234,7 @@ public static class ApiMapping
                 Status = dto.Status,
                 SubTotal = dto.SubTotal,
                 Tax = dto.Tax,
+                VatRate = dto.VatRate,
                 DeliveryFee = dto.DeliveryFee,
                 TotalAmount = dto.TotalAmount,
                 PickupDate = CalendarDate(dto.PickupDate),
@@ -242,7 +243,7 @@ public static class ApiMapping
                 UpdatedAt = Local(dto.UpdatedAt)
             },
             CustomerName = dto.Customer.Name,
-            ExtraCharges = dto.ExtraCharges.Select(c => new ExtraChargeLine { Name = c.Name, Amount = c.Amount }).ToList(),
+            ExtraCharges = dto.ExtraCharges.Select(c => new ExtraChargeLine { Name = c.Name, Amount = c.Amount, Basis = c.Basis }).ToList(),
             CustomerPhone = dto.Customer.Phone ?? string.Empty,
             PickupAddress = ToAddress(dto.PickupAddress),
             Items = dto.Items.Select(ToItemDetail).ToList(),

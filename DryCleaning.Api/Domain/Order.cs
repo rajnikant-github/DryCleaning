@@ -1,3 +1,5 @@
+using DryCleaning.Api.Services;
+
 namespace DryCleaning.Api.Domain;
 
 public class Order : EntityBase
@@ -9,6 +11,9 @@ public class Order : EntityBase
     public OrderStatus Status { get; private set; } = OrderStatus.Created;
     public decimal SubTotal { get; set; }
     public decimal Tax { get; set; }
+
+    /// <summary>The VAT percentage this order was charged (0 when no VAT).</summary>
+    public decimal VatRate { get; set; }
     public decimal DeliveryFee { get; set; }
     public decimal TotalAmount { get; set; }
 
@@ -64,12 +69,23 @@ public class Order : EntityBase
         StatusHistory.Add(new OrderStatusHistory { OrderId = Id, Status = OrderStatus.Created, ChangedByUserId = userId });
     }
 
-    public void Recalculate(decimal vatRate, decimal deliveryFee)
+    /// <summary>Works out every price line (items, delivery, extra charges, VAT, total) and keeps a copy of the charges on the order.</summary>
+    public void Reprice(decimal deliveryFee, IEnumerable<ExtraCharge> activeCharges, VatSetting vat)
     {
-        SubTotal = Items.Sum(i => i.TotalPrice);
-        DeliveryFee = deliveryFee;
-        Tax = Math.Round(SubTotal * vatRate, 2, MidpointRounding.AwayFromZero);
-        // Extra charges are fixed amounts the admin adds; like the delivery fee they carry no VAT.
-        TotalAmount = SubTotal + Tax + DeliveryFee + ExtraCharges.Sum(c => c.Amount);
+        var priced = OrderPricing.Calculate(Items.Sum(i => i.TotalPrice), deliveryFee, activeCharges, vat);
+
+        SubTotal = priced.SubTotal;
+        DeliveryFee = priced.DeliveryFee;
+        Tax = priced.Tax;
+        VatRate = priced.VatRate;
+        TotalAmount = priced.Total;
+
+        ExtraCharges.Clear();
+        foreach (var charge in priced.ExtraCharges)
+            ExtraCharges.Add(new OrderExtraCharge
+            {
+                OrderId = Id, Name = charge.Name, Amount = charge.Amount, Percent = charge.Percent, Basis = charge.Basis,
+                IsTaxable = charge.IsTaxable, DisplayOrder = charge.DisplayOrder
+            });
     }
 }

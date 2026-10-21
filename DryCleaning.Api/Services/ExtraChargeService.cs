@@ -62,13 +62,18 @@ public sealed class ExtraChargeService(AppDbContext db)
     {
         charge.Name = request.Name.Trim();
         charge.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
-        charge.Amount = Math.Round(request.Amount, 2, MidpointRounding.AwayFromZero);
+        charge.Type = request.Type;
+        charge.Amount = request.Type == ExtraChargeType.Fixed ? Math.Round(request.Amount, 2, MidpointRounding.AwayFromZero) : 0m;
+        charge.Percent = request.Type == ExtraChargeType.Percentage ? Math.Round(request.Percent, 2, MidpointRounding.AwayFromZero) : 0m;
+        charge.PercentBase = request.PercentBase;
+        charge.IsTaxable = request.IsTaxable;
         charge.IsActive = request.IsActive;
         charge.DisplayOrder = request.DisplayOrder;
     }
 
     private static ExtraChargeDto ToDto(ExtraCharge c) => new()
     {
-        Id = c.Id, Name = c.Name, Description = c.Description, Amount = c.Amount, IsActive = c.IsActive, DisplayOrder = c.DisplayOrder
+        Id = c.Id, Name = c.Name, Description = c.Description, Type = c.Type, Amount = c.Amount, Percent = c.Percent,
+        PercentBase = c.PercentBase, IsTaxable = c.IsTaxable, IsActive = c.IsActive, DisplayOrder = c.DisplayOrder
     };
 }

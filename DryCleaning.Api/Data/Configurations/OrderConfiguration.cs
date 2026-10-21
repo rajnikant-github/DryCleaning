@@ -14,6 +14,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         b.Property(x => x.Status);
         b.Property(x => x.SubTotal).HasPrecision(10, 2);
         b.Property(x => x.Tax).HasPrecision(10, 2);
+        // Orders placed before the VAT rate was stored all carried 15%.
+        b.Property(x => x.VatRate).HasPrecision(5, 2).HasDefaultValue(15m);
         b.Property(x => x.DeliveryFee).HasPrecision(10, 2);
         b.Property(x => x.TotalAmount).HasPrecision(10, 2);
         b.Property(x => x.PickupDate).HasColumnType("date");

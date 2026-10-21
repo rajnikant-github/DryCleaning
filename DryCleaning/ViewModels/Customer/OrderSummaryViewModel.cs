@@ -29,7 +29,13 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
     [ObservableProperty] private string deliveryLabel = "Pickup & delivery";
     [ObservableProperty] private string deliveryText = string.Empty;
 
-    public string VatLabel => $"VAT ({Services.Settings.Pricing.VatRate:P0})";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VatLabel))]
+    [NotifyPropertyChangedFor(nameof(HasVat))]
+    private decimal vatRate;
+
+    public string VatLabel => VatText.Label(VatRate);
+    public bool HasVat => VatRate > 0;
 
     protected override async Task<bool> LoadDataAsync()
     {
@@ -47,8 +53,9 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
         // Until the server has quoted the price, delivery is left out rather than guessed.
         SubTotal = cart.SubTotal;
         DeliveryFee = 0;
-        Tax = cart.Tax;
-        Total = cart.Total;
+        Tax = 0;
+        VatRate = 0;
+        Total = cart.SubTotal;
         DeliveryLabel = "Pickup & delivery";
         DeliveryText = "Calculated when you pay";
 
@@ -60,6 +67,7 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
                 SubTotal = quote.SubTotal;
                 DeliveryFee = quote.DeliveryFee;
                 Tax = quote.Tax;
+                VatRate = quote.VatRate;
                 Total = quote.Total;
                 DeliveryText = CurrencyFormatter.Current.Format(quote.DeliveryFee);
                 ExtraCharges.Clear();

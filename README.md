@@ -292,7 +292,7 @@ a profile, because profiles are committed.
 
 ## Configuration
 
-- **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
+- **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), the demo-data VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
   mock data and demo switches, API URLs (production + local Debug), payment callback.
   Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
   environment's keys, from `secrets.json`) – all git-ignored, never committed.

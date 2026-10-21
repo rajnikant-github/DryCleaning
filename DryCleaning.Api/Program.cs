@@ -6,6 +6,7 @@ using DryCleaning.Api.Infrastructure.Auth;
 using DryCleaning.Shared.Secrets;
 using DryCleaning.Api.Infrastructure.Errors;
 using DryCleaning.Api.Infrastructure.Payments;
+using DryCleaning.Api.Infrastructure.Email;
 using DryCleaning.Api.Infrastructure.Push;
 using DryCleaning.Api.Infrastructure.Routing;
 using DryCleaning.Api.Infrastructure.Realtime;
@@ -31,6 +32,9 @@ builder.Services.Configure<StorageOptions>(config.GetSection(StorageOptions.Sect
 
 // ── Push notifications (Android: Firebase Cloud Messaging, iOS: Apple APNs; log-only when not configured) ──
 builder.Services.AddPushNotifications(config, builder.Environment);
+
+// ── Email (SendGrid or SMTP; log-only when not configured) ──
+builder.Services.AddEmail(config);
 
 // ── Real-time updates (SignalR hub at /hubs/realtime) ─────────────────────────
 builder.Services.AddRealtime();
@@ -109,6 +113,7 @@ builder.Services.AddScoped<ProviderProfileService>();
 builder.Services.AddScoped<WorkingHoursService>();
 builder.Services.AddScoped<DeliveryPricingService>();
 builder.Services.AddScoped<ExtraChargeService>();
+builder.Services.AddScoped<VatSettingService>();
 builder.Services.AddScoped<CustomerOrderService>();
 builder.Services.AddScoped<ProviderOrderService>();
 builder.Services.AddScoped<DriverService>();

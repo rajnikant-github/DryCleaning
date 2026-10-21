@@ -3,6 +3,7 @@ using DryCleaning.Api.Data;
 using DryCleaning.Api.Domain;
 using DryCleaning.Api.Dtos;
 using DryCleaning.Api.Infrastructure.Auth;
+using DryCleaning.Api.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -13,6 +14,7 @@ public sealed class AuthService(
     IPasswordHasher hasher,
     ITokenService tokens,
     IOtpService otp,
+    EmailQueue email,
     CurrentProfile profile,
     IOptions<OtpOptions> otpOptions,
     IOptions<JwtOptions> jwtOptions,
@@ -24,6 +26,7 @@ public sealed class AuthService(
         var customer = new Customer { UserId = user.Id };
         db.Customers.Add(customer);
         await db.SaveChangesAsync(ct);
+        QueueWelcomeEmail(user);
         return await IssueAsync(user, customer.Id, ct);
     }
 
@@ -52,6 +55,7 @@ public sealed class AuthService(
             db.Notify(adminId, null, "New provider registration", $"{provider.BusinessName} is waiting for approval.", NotificationType.System);
 
         await db.SaveChangesAsync(ct);
+        QueueWelcomeEmail(user);
         return await IssueAsync(user, provider.Id, ct);
     }
 
@@ -61,6 +65,7 @@ public sealed class AuthService(
         var driver = new Driver { UserId = user.Id, LicenseNumber = request.LicenseNumber.Trim(), IsAvailable = false };
         db.Drivers.Add(driver);
         await db.SaveChangesAsync(ct);
+        QueueWelcomeEmail(user);
         return await IssueAsync(user, driver.Id, ct);
     }
 
@@ -80,8 +85,9 @@ public sealed class AuthService(
         var user = await FindByIdentifierAsync(request.Identifier, ct)
                    ?? throw new NotFoundException("No account found for that mobile number or email.");
 
-        var destination = user.Phone ?? user.Email ?? request.Identifier;
+        var destination = user.Email ?? user.Phone ?? request.Identifier;
         var code = await otp.SendAsync(Normalize(request.Identifier), destination, ct);
+        QueueCodeEmail(user, code, passwordReset: false);
         var options = otpOptions.Value;
         return new RequestOtpResponse
         {
@@ -196,8 +202,9 @@ public sealed class AuthService(
                 DevCode = null
             };
 
-        var destination = user.Phone ?? user.Email ?? request.Identifier;
+        var destination = user.Email ?? user.Phone ?? request.Identifier;
         var code = await otp.SendAsync(ResetKey(request.Identifier), destination, ct);
+        QueueCodeEmail(user, code, passwordReset: true);
         return new RequestOtpResponse
         {
             Destination = Mask(destination),
@@ -255,6 +262,18 @@ public sealed class AuthService(
     private static string ResetKey(string identifier) => $"reset:{Normalize(identifier)}";
 
     // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private void QueueWelcomeEmail(User user)
+    {
+        if (!string.IsNullOrWhiteSpace(user.Email))
+            email.Enqueue(EmailTemplates.Welcome(user.Email, user.Name, user.Role));
+    }
+
+    private void QueueCodeEmail(User user, string code, bool passwordReset)
+    {
+        if (!string.IsNullOrWhiteSpace(user.Email))
+            email.Enqueue(EmailTemplates.Code(user.Email, user.Name, code, Math.Max(1, otpOptions.Value.ExpirySeconds / 60), passwordReset));
+    }
 
     private async Task<User> CreateUserAsync(UserRole role, string name, string? email, string? phone, string password, CancellationToken ct)
     {

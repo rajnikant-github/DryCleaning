@@ -11,6 +11,8 @@ public sealed class OrderExtraChargeConfiguration : IEntityTypeConfiguration<Ord
         b.ToTable("OrderExtraCharges");
         b.Property(x => x.Name).HasMaxLength(100).IsRequired();
         b.Property(x => x.Amount).HasPrecision(10, 2);
+        b.Property(x => x.Percent).HasPrecision(5, 2);
+        b.Property(x => x.Basis).HasMaxLength(100);
         b.HasOne(x => x.Order).WithMany(o => o.ExtraCharges).HasForeignKey(x => x.OrderId);
         b.HasIndex(x => x.OrderId);
     }

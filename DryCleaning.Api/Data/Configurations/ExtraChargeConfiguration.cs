@@ -12,5 +12,8 @@ public sealed class ExtraChargeConfiguration : IEntityTypeConfiguration<ExtraCha
         b.Property(x => x.Name).HasMaxLength(100).IsRequired();
         b.Property(x => x.Description).HasMaxLength(200);
         b.Property(x => x.Amount).HasPrecision(10, 2);
+        b.Property(x => x.Percent).HasPrecision(5, 2);
+        b.Property(x => x.Type).HasDefaultValue(ExtraChargeType.Fixed);
+        b.Property(x => x.PercentBase).HasDefaultValue(ChargeBase.ItemsSubtotal);
     }
 }

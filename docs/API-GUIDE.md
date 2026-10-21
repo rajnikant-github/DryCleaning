@@ -147,10 +147,11 @@ All amounts are **ZAR** (`currency: "ZAR"`), decimals with 2 places. Prices are 
 | Value | Rule | Default (`Marketplace` settings) |
 |---|---|---|
 | `subTotal` | Σ (service item price × quantity) | — |
-| `tax` | `subTotal × VatRate`, rounded to cents | VAT 15 % |
 | `deliveryFee` | per kilometre: base fee + price per km beyond the included distance, within min/max (set in the admin portal; starts at R30 for 2 km, then R5/km, min R30, max R250) | R 51.00 for 6.2 km |
-| `extraCharges` | the admin's extra charges that were on when the order was placed: fixed amounts, each its own line, no VAT (copied onto the order, so later edits never change it) | e.g. Service fee R 10.00 |
-| `totalAmount` | `subTotal + tax + deliveryFee + Σ extraCharges` | — |
+| `extraCharges` | the admin's extra charges that were on when the order was placed, each its own line, copied onto the order so later edits never change it. A charge is a **fixed amount** or a **percentage** of the items (or of items + delivery, rounded to the cent); `basis` says how it was worked out (e.g. "5% of items"). Charges never build on each other | Service fee R 10.00 (5% of items) |
+| `tax` | `vatRate % × (subTotal + deliveryFee if the VAT setting includes delivery + the extra charges marked taxable)`, rounded to cents; 0 when VAT is switched off | VAT 15 % on the items |
+| `vatRate` | the VAT percentage that was applied (0 = no VAT); stored on the order so old orders keep the rate they were charged | 15 |
+| `totalAmount` | `subTotal + deliveryFee + Σ extraCharges + tax` | — |
 | Driver earning | flat per completed job (pickup or delivery) | R 35.00 |
 
 ---
@@ -596,8 +597,11 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Always per km: `pricePerKm` must be more than zero. Starts at R30 for the first 2 km, then R5/km, min R30, max R250. |
 | `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
 | `GET` | `/api/admin/extra-charges` | Admin | — | `IReadOnlyList<ExtraChargeDto>` | All extra charges (on and off), in display order. |
-| `POST` | `/api/admin/extra-charges` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Add an extra charge: a name and a fixed amount (more than zero, not a percentage). Charges that are on are added to every new order as their own line. Up to 50. |
-| `PUT` | `/api/admin/extra-charges/{id}` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Change a charge's name, description, amount, position or on/off. Applies to new orders only. |
+| `POST` | `/api/admin/extra-charges` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Add an extra charge: a name plus either a fixed `amount` (`type: Fixed`) or a `percent` (`type: Percentage`) of the items (`percentBase: ItemsSubtotal`) or of items + delivery (`ItemsAndDelivery`); `isTaxable` adds VAT on it too. Charges that are on are added to every new order as their own line. Up to 50. |
+| `PUT` | `/api/admin/extra-charges/{id}` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Change a charge's name, description, type, amount/percentage, VAT switch, position or on/off. Applies to new orders only. |
+| `GET` | `/api/admin/vat` | Admin | — | `VatSettingDto` | The VAT rule: `rate` (%, e.g. 15), `isEnabled`, `appliesToDelivery`. Starts at 15%, on, items only. |
+| `PUT` | `/api/admin/vat` | Admin | Body: `VatSettingDto` | `VatSettingDto` | Change the VAT rule. Applies to new orders only; each order keeps the `vatRate` it was charged. |
+| `POST` | `/api/admin/pricing/preview` | Admin | Body: `PricePreviewRequest` (`itemsSubTotal`, `deliveryFee`) | `PricePreviewDto` | Price a sample order with the saved extra charges and VAT (what the portal's price preview shows). |
 | `PUT` | `/api/admin/extra-charges/{id}/active` | Admin | Body: `SetActiveRequest` | `204` | Switch a charge on or off without deleting it. |
 | `DELETE` | `/api/admin/extra-charges/{id}` | Admin | — | `204` | Delete a charge. Orders already placed keep their own copy. |
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
@@ -1771,14 +1775,18 @@ Which categories each provider offers.
 
 #### ExtraCharges
 
-Admin-defined fixed charges added to every new order. `OrderExtraCharges` holds the name and amount each order was charged (copied when it was placed).
+Admin-defined charges added to every new order: a fixed amount or a percentage. `OrderExtraCharges` holds the name, amount, percentage/basis and VAT flag each order was charged (copied when it was placed).
 
 | Column | Type | Notes |
 |---|---|---|
 | `Id` | `Guid` | primary key |
 | `Name` | `string(100)` | shown to the customer |
 | `Description` | `string(200)?` | — |
-| `Amount` | `decimal(10,2)` | fixed amount, not a percentage |
+| `Type` | `string` | `Fixed` or `Percentage` |
+| `Amount` | `decimal(10,2)` | the fixed amount (Type = Fixed) |
+| `Percent` | `decimal(5,2)` | the percentage, e.g. 5 (Type = Percentage) |
+| `PercentBase` | `string` | `ItemsSubtotal` or `ItemsAndDelivery` |
+| `IsTaxable` | `bool` | VAT is charged on this charge too |
 | `IsActive` | `bool` | only charges that are on are added to new orders |
 | `DisplayOrder` | `int` | lowest first |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
@@ -1858,6 +1866,7 @@ Orders: number `EDC-10001…`, status, totals, pickup slot.
 | `Status` | `OrderStatus` | enum, stored as text |
 | `SubTotal` | `decimal` | — |
 | `Tax` | `decimal` | VAT amount |
+| `VatRate` | `decimal(5,2)` | the VAT percentage charged (0 = none); orders from before this existed show 15 |
 | `DeliveryFee` | `decimal` | — |
 | `TotalAmount` | `decimal` | — |
 | `PickupDate` | `DateTime?` | — |
@@ -2058,7 +2067,6 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 |---|---|---|---|
 | `ConnectionStrings` | `DefaultConnection` | local Docker SQL Server | Database |
 | `Marketplace` | `Currency` | `ZAR` | Currency code in responses |
-| | `VatRate` | `0.15` | VAT on the subtotal |
 | | `DriverEarningPerJob` | `35.00` | Driver pay per completed job |
 | | `RequirePaymentBeforeAccept` | `true` | Providers only see paid new orders |
 | `Jwt` | `Issuer`, `Audience` | `EDryCleaners`, `EDryCleaners.App` | Token validation |

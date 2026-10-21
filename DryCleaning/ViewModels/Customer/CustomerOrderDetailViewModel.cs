@@ -28,6 +28,7 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
     [ObservableProperty] private decimal tax;
     [ObservableProperty] private decimal total;
     [ObservableProperty] private string vatLabel = "VAT";
+    [ObservableProperty] private bool hasVat;
     [ObservableProperty] private string itemCountText = string.Empty;
 
     [ObservableProperty] private string paymentText = string.Empty;
@@ -59,7 +60,8 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
         DeliveryFee = order.DeliveryFee;
         Tax = order.Tax;
         Total = order.TotalAmount;
-        VatLabel = $"VAT ({Services.Settings.Pricing.VatRate:P0})";
+        VatLabel = VatText.Label(order.VatRate);
+        HasVat = order.VatRate > 0 || order.Tax > 0;
         ItemCountText = d.ExpectedItemCount == 1 ? "1 item" : $"{d.ExpectedItemCount} items";
 
         Items.Clear();

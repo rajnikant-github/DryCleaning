@@ -13,8 +13,6 @@ public interface ICartService
     int ItemCount { get; }
     bool IsEmpty { get; }
     decimal SubTotal { get; }
-    decimal Tax { get; }
-    decimal Total { get; }
     int EstimatedDays { get; }
 
     Address? PickupAddress { get; set; }

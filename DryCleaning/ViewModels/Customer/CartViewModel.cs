@@ -23,11 +23,7 @@ public sealed partial class CartViewModel : BaseViewModel
 
     [ObservableProperty] private string providerName = string.Empty;
     [ObservableProperty] private decimal subTotal;
-    [ObservableProperty] private decimal tax;
-    [ObservableProperty] private decimal total;
     [ObservableProperty] private string itemCountText = string.Empty;
-
-    public string VatLabel => $"VAT ({Services.Settings.Pricing.VatRate:P0})";
 
     protected override Task<bool> LoadDataAsync()
     {
@@ -42,9 +38,7 @@ public sealed partial class CartViewModel : BaseViewModel
     private void RefreshTotals()
     {
         SubTotal = _cart.SubTotal;
-        Tax = _cart.Tax;
-        // Pickup & delivery depends on the address, so the cart total leaves it out; Order Summary shows the full price.
-        Total = _cart.Total;
+        // VAT, pickup & delivery and extra charges are worked out by the server; the Order Summary shows the full price.
         ItemCountText = _cart.ItemCount == 1 ? "1 item" : $"{_cart.ItemCount} items";
 
         // Lines removed by setting quantity to 0

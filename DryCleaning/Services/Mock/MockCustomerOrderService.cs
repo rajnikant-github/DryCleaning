@@ -96,12 +96,14 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
         {
             var km = DistanceKm(cart.PickupAddress, cart.ProviderId.Value);
             var fee = settings.Pricing.Delivery.FeeFor(km);
+            var tax = Math.Round(cart.SubTotal * settings.Pricing.VatRate, 2, MidpointRounding.AwayFromZero);
             return Task.FromResult<OrderQuote?>(new OrderQuote
             {
                 SubTotal = cart.SubTotal,
-                Tax = cart.Tax,
+                Tax = tax,
+                VatRate = settings.Pricing.VatRate * 100m,
                 DeliveryFee = fee,
-                Total = cart.SubTotal + cart.Tax + fee,
+                Total = cart.SubTotal + tax + fee,
                 DistanceKm = (decimal)km,
                 DistanceIsEstimate = true
             });
@@ -163,6 +165,7 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
             order.SubTotal = store.OrderItems.Where(i => i.OrderId == order.Id).Sum(i => i.TotalPrice);
             order.DeliveryFee = settings.Pricing.Delivery.FeeFor(DistanceKm(cart.PickupAddress, cart.ProviderId.Value));
             order.Tax = Math.Round(order.SubTotal * settings.Pricing.VatRate, 2, MidpointRounding.AwayFromZero);
+            order.VatRate = settings.Pricing.VatRate * 100m;
             order.TotalAmount = order.SubTotal + order.Tax + order.DeliveryFee;
             store.Orders.Add(order);
             store.OrderStatusHistory.Add(new OrderStatusHistory { OrderId = order.Id, Status = OrderStatus.Created, ChangedByUserId = customer.UserId });

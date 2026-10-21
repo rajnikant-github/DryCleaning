@@ -58,6 +58,8 @@ textarea { width: 100%; min-height: 80px; }
 label.field { display: block; margin-bottom: .75rem; }
 label.field span { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .2rem; }
 label.field input, label.field select { width: 100%; }
+label.field input[type="checkbox"] { width: auto; margin-right: .4rem; vertical-align: middle; }
+label.field span:has(> input[type="checkbox"]) { display: flex; align-items: center; color: inherit; font-size: .9rem; }
 
 .btn { font: inherit; border: 1px solid var(--navy); background: var(--navy); color: #fff; padding: .45rem .9rem; border-radius: 8px; cursor: pointer; }
 .btn:hover { background: var(--navy-dark); }

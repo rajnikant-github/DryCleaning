@@ -9,6 +9,9 @@ public sealed class Order : EntityBase
     public OrderStatus Status { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Tax { get; set; }
+
+    /// <summary>The VAT percentage the order was charged (e.g. 15); 0 = no VAT.</summary>
+    public decimal VatRate { get; set; }
     public decimal DeliveryFee { get; set; }
     public decimal TotalAmount { get; set; }
 
