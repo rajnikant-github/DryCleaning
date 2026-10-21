@@ -385,6 +385,41 @@ namespace DryCleaning.Api.Data.Migrations
                     b.ToTable("DriverJobs", (string)null);
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.ExtraCharge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExtraCharges", (string)null);
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -494,6 +529,39 @@ namespace DryCleaning.Api.Data.Migrations
                     b.HasIndex("ServiceProviderId", "Status");
 
                     b.ToTable("Orders", (string)null);
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.OrderExtraCharge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderExtraCharges", (string)null);
                 });
 
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderItem", b =>
@@ -1144,6 +1212,17 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("ServiceProvider");
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.OrderExtraCharge", b =>
+                {
+                    b.HasOne("DryCleaning.Api.Domain.Order", "Order")
+                        .WithMany("ExtraCharges")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.OrderItem", b =>
                 {
                     b.HasOne("DryCleaning.Api.Domain.Order", "Order")
@@ -1334,6 +1413,8 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("Disputes");
 
                     b.Navigation("DriverJobs");
+
+                    b.Navigation("ExtraCharges");
 
                     b.Navigation("Items");
 

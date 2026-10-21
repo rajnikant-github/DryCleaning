@@ -70,6 +70,7 @@ public sealed class ApiCustomerOrderService(ApiClient api, ISessionService sessi
             SubTotal = dto.SubTotal,
             Tax = dto.Tax,
             DeliveryFee = dto.DeliveryFee,
+            ExtraCharges = dto.ExtraCharges.Select(c => new ExtraChargeLine { Name = c.Name, Amount = c.Amount }).ToList(),
             Total = dto.TotalAmount,
             DistanceKm = dto.DistanceKm,
             DistanceIsEstimate = dto.DistanceIsEstimate,

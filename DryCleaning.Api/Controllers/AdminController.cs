@@ -13,7 +13,7 @@ namespace DryCleaning.Api.Controllers;
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
 public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing,
-    AdminNotificationService notifications) : ControllerBase
+    AdminNotificationService notifications, ExtraChargeService extraCharges) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -143,4 +143,34 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     /// <summary>Send an announcement to one user, everyone, or all customers / providers / drivers. Each recipient gets an in-app notification and a push.</summary>
     [HttpPost("notifications/send")]
     public Task<SendNotificationResult> SendNotification(SendNotificationRequest request, CancellationToken ct) => notifications.SendAsync(request, ct);
+
+    // Extra charges
+    /// <summary>All extra charges (on and off), in display order.</summary>
+    [HttpGet("extra-charges")]
+    public Task<IReadOnlyList<ExtraChargeDto>> ExtraCharges(CancellationToken ct) => extraCharges.ListAsync(ct);
+
+    /// <summary>Add an extra charge: a name and a fixed amount. Charges that are on are added to every new order.</summary>
+    [HttpPost("extra-charges")]
+    public Task<ExtraChargeDto> CreateExtraCharge(ExtraChargeRequest request, CancellationToken ct) => extraCharges.CreateAsync(request, ct);
+
+    [HttpPut("extra-charges/{id:guid}")]
+    public Task<ExtraChargeDto> UpdateExtraCharge(Guid id, ExtraChargeRequest request, CancellationToken ct) => extraCharges.UpdateAsync(id, request, ct);
+
+    /// <summary>Switch a charge on or off without deleting it.</summary>
+    [HttpPut("extra-charges/{id:guid}/active")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> SetExtraChargeActive(Guid id, SetActiveRequest request, CancellationToken ct)
+    {
+        await extraCharges.SetActiveAsync(id, request.IsActive, ct);
+        return NoContent();
+    }
+
+    /// <summary>Delete a charge. Orders already placed keep their copy.</summary>
+    [HttpDelete("extra-charges/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteExtraCharge(Guid id, CancellationToken ct)
+    {
+        await extraCharges.DeleteAsync(id, ct);
+        return NoContent();
+    }
 }

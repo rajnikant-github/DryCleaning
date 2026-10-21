@@ -7,6 +7,9 @@ public sealed class OrderDetail
     public string CustomerPhone { get; init; } = string.Empty;
     public required Address PickupAddress { get; init; }
     public IReadOnlyList<OrderItemDetail> Items { get; init; } = [];
+
+    /// <summary>Extra charges the admin had switched on when the order was placed (already in the order total).</summary>
+    public IReadOnlyList<ExtraChargeLine> ExtraCharges { get; init; } = [];
     public IReadOnlyList<OrderStatusHistory> History { get; init; } = [];
     public IReadOnlyList<OrderPhoto> Photos { get; init; } = [];
     public DriverAssignment? PickupDriver { get; init; }

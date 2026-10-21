@@ -7,6 +7,9 @@ public sealed class OrderQuoteDto
     public required decimal SubTotal { get; init; }
     public required decimal Tax { get; init; }
     public required decimal DeliveryFee { get; init; }
+
+    /// <summary>Extra charges that would be added (already included in <see cref="TotalAmount"/>).</summary>
+    public IReadOnlyList<OrderExtraChargeDto> ExtraCharges { get; init; } = [];
     public required decimal TotalAmount { get; init; }
     public required string Currency { get; init; }
 

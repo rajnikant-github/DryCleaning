@@ -13,6 +13,8 @@ namespace DryCleaning.Services.Api;
 [JsonSerializable(typeof(CreateOrderItemRequest))]
 [JsonSerializable(typeof(CreateOrderRequest))]
 [JsonSerializable(typeof(OrderQuoteDto))]
+[JsonSerializable(typeof(OrderExtraChargeDto))]
+[JsonSerializable(typeof(List<OrderExtraChargeDto>))]
 [JsonSerializable(typeof(CustomerOrderCountsDto))]
 [JsonSerializable(typeof(DisputeDto))]
 [JsonSerializable(typeof(DriverDashboardDto))]

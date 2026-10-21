@@ -15,6 +15,7 @@ public sealed class OrderDetailDto
     public decimal SubTotal { get; set; }
     public decimal Tax { get; set; }
     public decimal DeliveryFee { get; set; }
+    public List<OrderExtraChargeDto> ExtraCharges { get; set; } = [];
     public decimal TotalAmount { get; set; }
     public string Currency { get; set; } = "ZAR";
     public bool IsPaid { get; set; }

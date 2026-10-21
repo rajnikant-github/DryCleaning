@@ -22,6 +22,7 @@ public class Order : EntityBase
     public Provider ServiceProvider { get; set; } = null!;
     public Address PickupAddress { get; set; } = null!;
     public ICollection<OrderItem> Items { get; set; } = [];
+    public ICollection<OrderExtraCharge> ExtraCharges { get; set; } = [];
     public ICollection<OrderStatusHistory> StatusHistory { get; set; } = [];
     public ICollection<OrderVerification> Verifications { get; set; } = [];
     public ICollection<OrderPhoto> Photos { get; set; } = [];
@@ -68,6 +69,7 @@ public class Order : EntityBase
         SubTotal = Items.Sum(i => i.TotalPrice);
         DeliveryFee = deliveryFee;
         Tax = Math.Round(SubTotal * vatRate, 2, MidpointRounding.AwayFromZero);
-        TotalAmount = SubTotal + Tax + DeliveryFee;
+        // Extra charges are fixed amounts the admin adds; like the delivery fee they carry no VAT.
+        TotalAmount = SubTotal + Tax + DeliveryFee + ExtraCharges.Sum(c => c.Amount);
     }
 }

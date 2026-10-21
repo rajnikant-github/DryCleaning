@@ -17,6 +17,7 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
         message.Kind == RealtimeChangeKind.Reconnected || (message.Kind == RealtimeChangeKind.OrderUpdated && message.OrderId == OrderId);
 
     public ObservableCollection<OrderItemDetail> Items { get; } = [];
+    public ObservableCollection<ExtraChargeLine> ExtraCharges { get; } = [];
     public ObservableCollection<TimelineStep> Timeline { get; } = [];
 
     [ObservableProperty] private string createdText = string.Empty;
@@ -62,6 +63,9 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
         ItemCountText = d.ExpectedItemCount == 1 ? "1 item" : $"{d.ExpectedItemCount} items";
 
         Items.Clear();
+        ExtraCharges.Clear();
+        foreach (var charge in d.ExtraCharges)
+            ExtraCharges.Add(charge);
         foreach (var item in d.Items)
             Items.Add(item);
 

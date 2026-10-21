@@ -17,6 +17,9 @@ public sealed class OrderDetailDto
     public required decimal SubTotal { get; init; }
     public required decimal Tax { get; init; }
     public required decimal DeliveryFee { get; init; }
+
+    /// <summary>Extra charges the admin had switched on when the order was placed (already included in <see cref="TotalAmount"/>).</summary>
+    public required IReadOnlyList<OrderExtraChargeDto> ExtraCharges { get; init; }
     public required decimal TotalAmount { get; init; }
     public required string Currency { get; init; }
     public required bool IsPaid { get; init; }

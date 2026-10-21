@@ -6,6 +6,9 @@ public sealed class OrderQuote
     public decimal SubTotal { get; init; }
     public decimal Tax { get; init; }
     public decimal DeliveryFee { get; init; }
+
+    /// <summary>Extra charges that will be added (already in <see cref="Total"/>).</summary>
+    public IReadOnlyList<ExtraChargeLine> ExtraCharges { get; init; } = [];
     public decimal Total { get; init; }
 
     /// <summary>Driving distance between the pickup address and the provider; null when unknown.</summary>

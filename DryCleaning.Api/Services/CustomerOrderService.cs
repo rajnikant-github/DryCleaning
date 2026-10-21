@@ -10,7 +10,7 @@ namespace DryCleaning.Api.Services;
 
 /// <summary>Customer order flow: quote → create → pay → track → confirm delivery with OTP.</summary>
 public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, WorkingHoursService workingHours,
-    DeliveryPricingService deliveryPricing)
+    DeliveryPricingService deliveryPricing, ExtraChargeService extraCharges)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
@@ -23,6 +23,7 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
             SubTotal = order.SubTotal,
             Tax = order.Tax,
             DeliveryFee = order.DeliveryFee,
+            ExtraCharges = order.ExtraCharges.Select(c => new OrderExtraChargeDto { Name = c.Name, Amount = c.Amount }).ToList(),
             TotalAmount = order.TotalAmount,
             Currency = Market.Currency,
             DistanceKm = delivery.DistanceKm,
@@ -192,6 +193,11 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
 
         // The fee comes from the admin's pricing rule and the distance between pickup address and provider; it is stored on the order.
         var delivery = await deliveryPricing.QuoteAsync(pickupAddress, provider.Address, ct);
+
+        // The admin's extra charges that are switched on right now are copied onto the order (later edits never change it).
+        foreach (var charge in await extraCharges.ActiveAsync(ct))
+            order.ExtraCharges.Add(new OrderExtraCharge { OrderId = order.Id, Name = charge.Name, Amount = charge.Amount, DisplayOrder = charge.DisplayOrder });
+
         order.Recalculate(Market.VatRate, delivery.Fee);
         return (order, delivery);
     }

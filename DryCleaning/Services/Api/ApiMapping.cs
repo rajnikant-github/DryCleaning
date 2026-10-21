@@ -242,6 +242,7 @@ public static class ApiMapping
                 UpdatedAt = Local(dto.UpdatedAt)
             },
             CustomerName = dto.Customer.Name,
+            ExtraCharges = dto.ExtraCharges.Select(c => new ExtraChargeLine { Name = c.Name, Amount = c.Amount }).ToList(),
             CustomerPhone = dto.Customer.Phone ?? string.Empty,
             PickupAddress = ToAddress(dto.PickupAddress),
             Items = dto.Items.Select(ToItemDetail).ToList(),

@@ -16,6 +16,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ServiceProviderCategory> ServiceProviderCategories => Set<ServiceProviderCategory>();
+    public DbSet<ExtraCharge> ExtraCharges => Set<ExtraCharge>();
+    public DbSet<OrderExtraCharge> OrderExtraCharges => Set<OrderExtraCharge>();
     public DbSet<DeliveryPricing> DeliveryPricing => Set<DeliveryPricing>();
     public DbSet<ProviderWorkingHour> ProviderWorkingHours => Set<ProviderWorkingHour>();
     public DbSet<Product> Products => Set<Product>();

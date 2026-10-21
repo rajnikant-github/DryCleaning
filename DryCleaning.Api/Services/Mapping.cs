@@ -177,6 +177,7 @@ public static class Mapping
         .Include(o => o.PickupAddress)
         .Include(o => o.Items).ThenInclude(i => i.Product).ThenInclude(p => p.Category)
         .Include(o => o.Items).ThenInclude(i => i.ServiceItem)
+        .Include(o => o.ExtraCharges)
         .Include(o => o.StatusHistory)
         .Include(o => o.Photos)
         .Include(o => o.Payments)
@@ -316,6 +317,7 @@ public static class Mapping
         SubTotal = o.SubTotal,
         Tax = o.Tax,
         DeliveryFee = o.DeliveryFee,
+        ExtraCharges = o.ExtraCharges.OrderBy(c => c.DisplayOrder).ThenBy(c => c.CreatedAt).Select(c => new OrderExtraChargeDto { Name = c.Name, Amount = c.Amount }).ToList(),
         TotalAmount = o.TotalAmount,
         Currency = currency,
         IsPaid = o.IsPaid(),

@@ -16,6 +16,7 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
     private string _placedSignature = string.Empty;
 
     public ObservableCollection<CartLine> Lines { get; } = [];
+    public ObservableCollection<ExtraChargeLine> ExtraCharges { get; } = [];
 
     [ObservableProperty] private string providerName = string.Empty;
     [ObservableProperty] private string addressText = string.Empty;
@@ -40,6 +41,7 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
             : string.Empty;
 
         Lines.Clear();
+        ExtraCharges.Clear();
         foreach (var line in cart.Lines)
             Lines.Add(line);
         // Until the server has quoted the price, delivery is left out rather than guessed.
@@ -60,6 +62,9 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
                 Tax = quote.Tax;
                 Total = quote.Total;
                 DeliveryText = CurrencyFormatter.Current.Format(quote.DeliveryFee);
+                ExtraCharges.Clear();
+                foreach (var charge in quote.ExtraCharges)
+                    ExtraCharges.Add(charge);
                 if (quote.DistanceKm is { } km)
                     DeliveryLabel = $"Pickup & delivery · {km.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} km{(quote.DistanceIsEstimate ? " (est.)" : "")}";
             }

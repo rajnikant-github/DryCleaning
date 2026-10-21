@@ -18,6 +18,7 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
 
     public ObservableCollection<TimelineStep> Timeline { get; } = [];
     public ObservableCollection<string> PhotoPaths { get; } = [];
+    public ObservableCollection<ExtraChargeLine> ExtraCharges { get; } = [];
 
     [ObservableProperty] private string createdText = string.Empty;
     [ObservableProperty] private string customerPhone = string.Empty;
@@ -85,6 +86,9 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
         DisputeTitle = d.OpenDispute is null ? string.Empty : $"{d.OpenDispute.Reason} · {d.OpenDispute.Status}";
         DisputeText = d.OpenDispute?.Description ?? string.Empty;
 
+        ExtraCharges.Clear();
+        foreach (var charge in d.ExtraCharges)
+            ExtraCharges.Add(charge);
         PhotoPaths.Clear();
         foreach (var photo in d.Photos.Where(p => p.Url.StartsWith("http", StringComparison.OrdinalIgnoreCase) || File.Exists(p.Url)))
             PhotoPaths.Add(photo.Url);

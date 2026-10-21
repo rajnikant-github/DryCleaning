@@ -108,6 +108,7 @@ builder.Services.AddScoped<ProviderCatalogService>();
 builder.Services.AddScoped<ProviderProfileService>();
 builder.Services.AddScoped<WorkingHoursService>();
 builder.Services.AddScoped<DeliveryPricingService>();
+builder.Services.AddScoped<ExtraChargeService>();
 builder.Services.AddScoped<CustomerOrderService>();
 builder.Services.AddScoped<ProviderOrderService>();
 builder.Services.AddScoped<DriverService>();

@@ -28,6 +28,8 @@ public sealed class AdminApiClient(IHttpClientFactory factory, AuthenticationSta
 
     public Task PutAsync(string path, object body) => SendAsync(HttpMethod.Put, path, body);
 
+    public Task DeleteAsync(string path) => SendAsync(HttpMethod.Delete, path, null);
+
     public async Task<T> SendAsync<T>(HttpMethod method, string path, object? body)
     {
         using var response = await SendRawAsync(method, path, body);

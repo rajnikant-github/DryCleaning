@@ -149,7 +149,8 @@ All amounts are **ZAR** (`currency: "ZAR"`), decimals with 2 places. Prices are 
 | `subTotal` | Σ (service item price × quantity) | — |
 | `tax` | `subTotal × VatRate`, rounded to cents | VAT 15 % |
 | `deliveryFee` | per kilometre: base fee + price per km beyond the included distance, within min/max (set in the admin portal; starts at R30 for 2 km, then R5/km, min R30, max R250) | R 51.00 for 6.2 km |
-| `totalAmount` | `subTotal + tax + deliveryFee` | — |
+| `extraCharges` | the admin's extra charges that were on when the order was placed: fixed amounts, each its own line, no VAT (copied onto the order, so later edits never change it) | e.g. Service fee R 10.00 |
+| `totalAmount` | `subTotal + tax + deliveryFee + Σ extraCharges` | — |
 | Driver earning | flat per completed job (pickup or delivery) | R 35.00 |
 
 ---
@@ -594,6 +595,11 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/admin/driver-jobs/{jobId}/assign` | Admin | Body: `AssignDriverRequest` | `DriverJobDto` | Assign or reassign a job to a driver (`driverId`); the driver is notified. |
 | `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Always per km: `pricePerKm` must be more than zero. Starts at R30 for the first 2 km, then R5/km, min R30, max R250. |
 | `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
+| `GET` | `/api/admin/extra-charges` | Admin | — | `IReadOnlyList<ExtraChargeDto>` | All extra charges (on and off), in display order. |
+| `POST` | `/api/admin/extra-charges` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Add an extra charge: a name and a fixed amount (more than zero, not a percentage). Charges that are on are added to every new order as their own line. Up to 50. |
+| `PUT` | `/api/admin/extra-charges/{id}` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Change a charge's name, description, amount, position or on/off. Applies to new orders only. |
+| `PUT` | `/api/admin/extra-charges/{id}/active` | Admin | Body: `SetActiveRequest` | `204` | Switch a charge on or off without deleting it. |
+| `DELETE` | `/api/admin/extra-charges/{id}` | Admin | — | `204` | Delete a charge. Orders already placed keep their own copy. |
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
 | `GET` | `/api/admin/users` | Admin | Query: `search`, `role`, `page`, `pageSize` | `PagedResult<AdminUserDto>` | Find any user account (name, email or phone), optionally one role – used by the portal to pick who to notify. |
 | `GET` | `/api/admin/notifications/recipients` | Admin | Query: `audience`, `userId` | `SendNotificationResult` | How many users an announcement would reach (`recipients`), shown before sending. |
@@ -753,6 +759,18 @@ Used by: `POST /api/customer/orders`, `POST /api/customer/orders/quote`
 | `items[].notes` | string | no | Special instructions, max 500 |
 | `pickupDate` | date | no | Today-1 … today+30 |
 | `pickupSlot` | string | with pickupDate | e.g. `08:00 – 10:00`, max 50 |
+
+#### ExtraChargeRequest
+
+Used by: `POST /api/admin/extra-charges`, `PUT /api/admin/extra-charges/{id}`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `name` | string | yes | max 100 – shown to the customer |
+| `description` | string | no | max 200 |
+| `amount` | decimal | yes | fixed amount in the marketplace currency, 0.01–100000 (not a percentage) |
+| `isActive` | bool | no | default `true`; only charges that are on are added to new orders |
+| `displayOrder` | int | no | 0–1000; lowest shows first |
 
 #### SetWorkingHoursRequest
 
@@ -1594,6 +1612,7 @@ SQL Server, EF Core migrations in `DryCleaning.Api/Data/Migrations`. Every table
 | [`Addresses`](#addresses) | Google Places addresses (customers, providers, drivers, job routes) | `PUT /api/me/address` |
 | [`Categories`](#categories) | Global service categories (Dry Cleaning, Shoe Cleaning, …) | Admin categories |
 | [`ServiceProviderCategories`](#serviceprovidercategories) | Which categories each provider offers | Register provider, `PUT /api/provider/categories` |
+| [`ExtraCharges`](#extracharges) / `OrderExtraCharges` | The admin's extra charges, and the copy each order keeps | `/api/admin/extra-charges`, order creation |
 | [`DeliveryPricing`](#deliverypricing) | The single pickup & delivery price rule | `PUT /api/admin/delivery-pricing` |
 | [`ProviderWorkingHours`](#providerworkinghours) | Pickup days and hours per provider | `PUT /api/provider/working-hours` |
 | [`Products`](#products) | Provider's products under a category (e.g. "Suit") | Provider products |
@@ -1748,6 +1767,20 @@ Which categories each provider offers.
 | `ServiceProviderId` | `Guid` | foreign key |
 | `CategoryId` | `Guid` | foreign key |
 | `IsActive` | `bool` | — |
+| `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
+
+#### ExtraCharges
+
+Admin-defined fixed charges added to every new order. `OrderExtraCharges` holds the name and amount each order was charged (copied when it was placed).
+
+| Column | Type | Notes |
+|---|---|---|
+| `Id` | `Guid` | primary key |
+| `Name` | `string(100)` | shown to the customer |
+| `Description` | `string(200)?` | — |
+| `Amount` | `decimal(10,2)` | fixed amount, not a percentage |
+| `IsActive` | `bool` | only charges that are on are added to new orders |
+| `DisplayOrder` | `int` | lowest first |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
 
 #### DeliveryPricing

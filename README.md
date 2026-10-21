@@ -8,7 +8,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | [`DryCleaning/`](DryCleaning/) | .NET MAUI app (Android + iOS, MVVM) – Customer, Service Provider and Driver roles in one app |
 | [`DryCleaning.Api/`](DryCleaning.Api/) | ASP.NET Core Web API (.NET 10) – SQL Server, EF Core, JWT, Swagger, Paystack. [API docs →](DryCleaning.Api/README.md) |
 | [`docs/API-GUIDE.md`](docs/API-GUIDE.md) | API & workflow guide – every endpoint, order/payment/driver/dispute flows, request rules, enums and all database tables |
-| [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories, delivery pricing and push announcements to any user or everyone. Talks to the API only |
+| [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories, delivery pricing, extra order charges and push announcements to any user or everyone. Talks to the API only |
 | `run-api.sh` / `run-api.ps1` | One-command local API runner – macOS (bash) / Windows (PowerShell) |
 | `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
 | `DryCleaning.sln` | Solution with both projects |

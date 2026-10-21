@@ -23,7 +23,7 @@ SQL_PORT=1433
 SQL_IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
 DOTNET_MAJOR=10
 # Named migrations, oldest first. A missing one is created (only if the model actually needs it).
-MIGRATIONS=(AddPickupSlotAndItemNotes AddPushDevicesAndRefreshTokens ClientGeneratedIds AddUserPhoto AddProviderWorkingHours AddDeliveryPricing)
+MIGRATIONS=(AddPickupSlotAndItemNotes AddPushDevicesAndRefreshTokens ClientGeneratedIds AddUserPhoto AddProviderWorkingHours AddDeliveryPricing AddExtraCharges)
 SWAGGER_URL="https://localhost:7180/swagger"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
