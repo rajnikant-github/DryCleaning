@@ -9,19 +9,23 @@
         <Border.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding OpenCommand}" />
         </Border.GestureRecognizers>
-        <VerticalStackLayout Spacing="10">
+        <VerticalStackLayout Spacing="12">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                <VerticalStackLayout Spacing="2">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="{Binding OrderNumber}" TextColor="{DynamicResource Primary}"
+                           FontFamily="AppSemibold" FontSize="13" />
                     <Label Text="{Binding Title}" Style="{StaticResource BodyMedium}" LineBreakMode="TailTruncation" />
-                    <Label Text="{Binding Subtitle}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                </VerticalStackLayout>
+                <controls:StatusChip Grid.Column="1" Status="{Binding Status}" VerticalOptions="Start" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="{Binding Subtitle}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" MaxLines="2" />
                     <Label Text="{Binding TimeText}" Style="{StaticResource Small}" />
                 </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1" Spacing="6">
-                    <Label Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
-                           Style="{StaticResource BodyMedium}"
-                           HorizontalOptions="End" />
-                    <controls:StatusChip Status="{Binding Status}" HorizontalOptions="End" />
-                </VerticalStackLayout>
+                <Label Grid.Column="1" Text="{Binding TotalAmount, Converter={StaticResource Currency}}"
+                       Style="{StaticResource BodyMedium}" HorizontalOptions="End" VerticalOptions="Center" />
             </Grid>
 
             <Label Text="{Binding HintText}"

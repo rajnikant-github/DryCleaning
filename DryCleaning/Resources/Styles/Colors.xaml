@@ -6,6 +6,7 @@
 
     <!--  Brand  -->
     <Color x:Key="Primary">#1B3A6B</Color>
+    <Color x:Key="ShellBarColor">#142C50</Color>
     <Color x:Key="PrimaryForeground">#FFFFFF</Color>
     <Color x:Key="PrimaryLight">#BFDBFE</Color>
     <Color x:Key="Accent">#0EA5E9</Color>
@@ -45,6 +46,10 @@
 
     <!--  Brushes (Border.Stroke etc. need Brush, not Color)  -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#1B3A6B" />
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#142C50" Offset="0" />
+        <GradientStop Color="#315B94" Offset="1" />
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="AccentBrush" Color="#0EA5E9" />
     <SolidColorBrush x:Key="BorderBrush" Color="#E5E2D8" />
     <SolidColorBrush x:Key="SuccessBrush" Color="#059669" />
@@ -53,4 +58,6 @@
     <SolidColorBrush x:Key="PrimaryLightBrush" Color="#BFDBFE" />
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent" />
     <SolidColorBrush x:Key="HeaderOverlayBrush" Color="#1AFFFFFF" />
+
+    <Shadow x:Key="CardShadow" Brush="#26334455" Offset="0,3" Radius="12" Opacity="0.35" />
 </ResourceDictionary>

@@ -10,7 +10,7 @@
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource ShellBarColor}" />
         <Setter Property="Shell.ForegroundColor" Value="{StaticResource White}" />
         <Setter Property="Shell.TitleColor" Value="{StaticResource White}" />
         <Setter Property="Shell.DisabledColor" Value="{DynamicResource PrimaryLight}" />
@@ -175,8 +175,9 @@
         <Setter Property="BackgroundColor" Value="{StaticResource CardColor}" />
         <Setter Property="Stroke" Value="{StaticResource BorderBrush}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
-        <Setter Property="Padding" Value="16" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="Shadow" Value="{StaticResource CardShadow}" />
     </Style>
 
     <Style x:Key="CardCompact" TargetType="Border" BasedOn="{StaticResource Card}">

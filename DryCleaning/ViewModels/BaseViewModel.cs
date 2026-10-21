@@ -63,6 +63,11 @@ public abstract partial class BaseViewModel : ObservableObject
     /// </summary>
     protected virtual bool ReactsTo(RealtimeChangedMessage message) => false;
 
+    /// <summary>Called while this page is active for each real-time event; override for one-off UI reactions.</summary>
+    protected virtual void OnRealtimeMessage(RealtimeChangedMessage message)
+    {
+    }
+
     /// <summary>Called by <see cref="Views.BasePage"/> when the page appears: start listening for live updates.</summary>
     public void AttachRealtime()
     {
@@ -84,6 +89,8 @@ public abstract partial class BaseViewModel : ObservableObject
 
     private void OnRealtimeChange(RealtimeChangedMessage message)
     {
+        OnRealtimeMessage(message);
+
         if (!ReactsTo(message))
             return;
 

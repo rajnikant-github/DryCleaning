@@ -15,7 +15,7 @@
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
                 <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
-                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
+                    <Border Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,8,20,24">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                             <controls:AvatarView Text="{Binding Initials}" Photo="{Binding PhotoSource}" AvatarSize="60">
                                     <controls:AvatarView.GestureRecognizers>

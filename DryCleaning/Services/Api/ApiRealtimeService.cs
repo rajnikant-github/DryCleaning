@@ -81,12 +81,14 @@ public sealed class ApiRealtimeService(ApiClient api, ISessionService session) :
             Kind = RealtimeChangeKind.JobChanged,
             JobId = Guid(p, "jobId"),
             OrderId = Guid(p, "orderId"),
+            JobType = Text(p, "jobType"),
             Status = Text(p, "status")
         }));
         connection.On<JsonElement>("NotificationReceived", p => Publish(new RealtimeChangedMessage
         {
             Kind = RealtimeChangeKind.NotificationReceived,
-            OrderId = Guid(p, "orderId")
+            OrderId = Guid(p, "orderId"),
+            Title = Text(p, "title")
         }));
 
         connection.Reconnected += _ =>

@@ -16,6 +16,31 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
     protected override bool ReactsTo(RealtimeChangedMessage message) =>
         message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.OrderUpdated || message.Kind == RealtimeChangeKind.NotificationReceived;
 
+    private readonly HashSet<Guid> _alertedOrders = [];
+
+    protected override void OnRealtimeMessage(RealtimeChangedMessage message)
+    {
+        if (message.Kind != RealtimeChangeKind.NotificationReceived ||
+            !string.Equals(message.Title, "New order received", StringComparison.OrdinalIgnoreCase) ||
+            message.OrderId is not { } orderId || !_alertedOrders.Add(orderId))
+            return;
+
+        _ = ShowIncomingOrderAlertAsync(orderId);
+    }
+
+    private async Task ShowIncomingOrderAlertAsync(Guid orderId)
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => Navigation.GoToAsync(
+                Routes.IncomingOrderAlert, Param(Routes.OrderIdKey, orderId)));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProviderDashboard] Could not show new-order alert: {ex.Message}");
+        }
+    }
+
     [ObservableProperty] private string greeting = string.Empty;
     [ObservableProperty] private string businessName = string.Empty;
     [ObservableProperty] private string todayText = string.Empty;
@@ -43,6 +68,11 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
 
     public bool HasUnread => UnreadCount > 0;
     public string UnreadText => UnreadCount == 1 ? "1 new alert" : $"{UnreadCount} new alerts";
+    public string ReadyQueueText => ReadyCount == 0
+        ? "Ready orders will appear here for delivery handoff."
+        : ReadyCount == 1
+            ? "1 order is ready for delivery handoff."
+            : $"{ReadyCount} orders are ready for delivery handoff.";
     public bool HasIncomingDriver => IncomingDriverOrder is not null;
     public bool HasNoTodaysOrders => !HasTodaysOrders;
     public bool HasNoRecentActivity => !HasRecentActivity;
@@ -64,6 +94,7 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
         NewCount = dashboard.NewCount;
         InProcessCount = dashboard.InProcessCount;
         ReadyCount = dashboard.ReadyCount;
+        OnPropertyChanged(nameof(ReadyQueueText));
         CompletedCount = dashboard.CompletedCount;
         UnreadCount = dashboard.UnreadNotifications;
         IncomingDriverOrder = dashboard.IncomingDriverOrder;
@@ -111,4 +142,7 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
 
     [RelayCommand]
     private Task ViewAllOrdersAsync() => Navigation.GoToAsync(Routes.ProviderOrders);
+
+    [RelayCommand]
+    private Task OpenReadyOrdersAsync() => OpenFilterAsync(nameof(ProviderOrderFilter.Ready));
 }

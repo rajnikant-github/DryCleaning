@@ -7,6 +7,10 @@ public sealed class RealtimeChangedMessage
     public Guid? OrderId { get; init; }
     public Guid? JobId { get; init; }
 
+    /// <summary>Notification title or driver job type, when supplied by the API event.</summary>
+    public string? Title { get; init; }
+    public string? JobType { get; init; }
+
     /// <summary>Order or job status as sent by the API (e.g. "Confirmed", "Assigned").</summary>
     public string? Status { get; init; }
 }

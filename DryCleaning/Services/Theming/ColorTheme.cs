@@ -1,12 +1,23 @@
 namespace DryCleaning.Services.Theming;
 
 /// <summary>One selectable set of app colours.</summary>
-public sealed class ColorTheme(string key, string name, string primary, string primaryLight, string secondary)
+public sealed class ColorTheme(
+    string key,
+    string name,
+    string primary,
+    string primaryLight,
+    string secondary,
+    string gradientStart,
+    string gradientEnd,
+    string? swatch = null)
 {
     /// <summary>Stored on the phone to remember the choice.</summary>
     public string Key { get; } = key;
 
     public string Name { get; } = name;
+
+    /// <summary>The colour shown in the theme picker.</summary>
+    public Color Swatch { get; } = Color.FromArgb(swatch ?? primary);
 
     /// <summary>Headers, buttons and highlights.</summary>
     public Color Primary { get; } = Color.FromArgb(primary);
@@ -16,4 +27,13 @@ public sealed class ColorTheme(string key, string name, string primary, string p
 
     /// <summary>Very light tint of the primary colour for soft panels and secondary buttons.</summary>
     public Color Secondary { get; } = Color.FromArgb(secondary);
+
+    /// <summary>Dark, readable gradient colours derived from the selected theme.</summary>
+    public Color GradientStart { get; } = Color.FromArgb(gradientStart);
+    public Color GradientEnd { get; } = Color.FromArgb(gradientEnd);
+
+    public LinearGradientBrush CreateGradientBrush() => new(
+        [new GradientStop(GradientStart, 0), new GradientStop(GradientEnd, 1)],
+        new Point(0, 0),
+        new Point(1, 1));
 }

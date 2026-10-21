@@ -6,7 +6,7 @@
                 x:Class="DryCleaning.Views.Auth.SplashPage"
                 x:DataType="vm:SplashViewModel"
                 Shell.NavBarIsVisible="False"
-                BackgroundColor="{DynamicResource Primary}">
+                Background="{DynamicResource PrimaryGradientBrush}">
     <Grid>
         <!--  Decorative circles (Figma)  -->
         <Ellipse WidthRequest="260" HeightRequest="260" Fill="{StaticResource HeaderOverlayBrush}"
