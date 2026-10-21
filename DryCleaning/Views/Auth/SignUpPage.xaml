@@ -38,13 +38,12 @@
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Categories}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="items:CategoryToggleItem">
-                                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10" Padding="12,8">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Padding="12,8">
                                             <Grid.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding ToggleCommand}" />
                                             </Grid.GestureRecognizers>
                                             <CheckBox IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
-                                            <Label Grid.Column="1" Text="{Binding Icon}" FontSize="18" VerticalOptions="Center"  FontFamily="FA" />
-                                            <Label Grid.Column="2" Text="{Binding Name}" FontSize="15" VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Name}" FontSize="15" VerticalOptions="Center" />
                                         </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
