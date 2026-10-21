@@ -11,7 +11,6 @@ public sealed partial class LoginViewModel(ViewModelServices services, IAuthServ
 {
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ContinueWithOtpCommand))]
     private string identifier = string.Empty;
 
     [ObservableProperty]
@@ -43,12 +42,17 @@ public sealed partial class LoginViewModel(ViewModelServices services, IAuthServ
     }
 
     private bool CanLogin() => !string.IsNullOrWhiteSpace(Identifier) && !string.IsNullOrWhiteSpace(Password);
-    private bool CanUseOtp() => !string.IsNullOrWhiteSpace(Identifier);
 
     [RelayCommand(CanExecute = nameof(CanLogin))]
     private Task LoginAsync() => RunBusyAsync(async () =>
     {
         ErrorText = string.Empty;
+        if (!InputRules.IsValidEmail(Identifier))
+        {
+            ErrorText = "Enter a valid email address, e.g. you@example.com.";
+            return;
+        }
+
         var result = await auth.LoginAsync(Identifier.Trim(), Password, session.SelectedRole);
         if (!result.Success)
         {
@@ -58,13 +62,6 @@ public sealed partial class LoginViewModel(ViewModelServices services, IAuthServ
 
         Password = string.Empty;
         await Navigation.GoToAsync(Routes.HomeFor(session.CurrentUser?.Role ?? session.SelectedRole));
-    });
-
-    [RelayCommand(CanExecute = nameof(CanUseOtp))]
-    private Task ContinueWithOtpAsync() => RunBusyAsync(async () =>
-    {
-        ErrorText = string.Empty;
-        await Navigation.GoToAsync(Routes.Otp, Param(Routes.IdentifierKey, Identifier.Trim()));
     });
 
     [RelayCommand]

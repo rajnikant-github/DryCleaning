@@ -12,7 +12,7 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
         await MockDataStore.SimulateLatencyAsync();
 
         if (string.IsNullOrWhiteSpace(identifier))
-            return AuthResult.Fail("Enter your mobile number or email.");
+            return AuthResult.Fail("Enter your email address.");
         if (string.IsNullOrWhiteSpace(password) || password.Length < 4)
             return AuthResult.Fail("Password must be at least 4 characters.");
 
@@ -39,8 +39,6 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
             ? SignInAs(role)
             : AuthResult.Fail("That code is incorrect. Please try again.");
     }
-
-    public string? OtpHint => DemoOtp;
 
     private readonly Dictionary<string, Registration> _pending = new(StringComparer.OrdinalIgnoreCase);
 

@@ -156,7 +156,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | `Marketplace` | Currency (`ZAR`), driver earning per job (the pickup & delivery price, extra charges and VAT are set on the admin portal's Pricing page), `RequirePaymentBeforeAccept` |
 | `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in `secrets.json` / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
-| `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). `ExposeCodeInResponse` returns the code in dev (no SMS provider wired yet) |
+| `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). Codes are only emailed, never returned by the API |
 | `Push` | `Enabled`, `FirebaseCredentialsJson` (the Firebase service-account JSON itself, kept in `secrets.json`) or `FirebaseCredentialsPath` (a file). Nothing set → Android pushes are only logged |
 | `Email` | `Key` (a SendGrid key starting `SG.`, preferred) or `SmtpServer`, `Port`, `Username`, `Password`; plus `From`, `Name`, `ReplyTo`, `Enabled` (keys and passwords live in `secrets.json`). Not configured = emails are only logged. Admin portal → **Email** shows the status and sends a test email |
 | `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` (the `.p8` text, kept in `secrets.json`) or `PrivateKeyPath` (a file), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
@@ -194,7 +194,7 @@ On a server use environment variables instead (`Jwt__SigningKey`, `Paystack__Sec
   Only a SHA-256 hash of each refresh token is stored.
 - Password reset and change password sign the user out on every other device.
 - `password/forgot` answers the same way whether or not the account exists, so it can't be used to discover
-  accounts. In Development the code is returned as `devCode`.
+  accounts.
 - Login and reset codes are invalidated after `Otp:MaxAttempts` (5) wrong guesses.
 
 ## Push notifications (Android: Firebase, iOS: Apple APNs)

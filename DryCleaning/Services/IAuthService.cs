@@ -34,6 +34,4 @@ public interface IAuthService
     /// <summary>Signs back in with the session saved on this phone (API mode). True when a user is signed in.</summary>
     Task<bool> RestoreSessionAsync();
 
-    /// <summary>Code to show on the OTP screen while testing (mock code, or the API's development code). Null in production.</summary>
-    string? OtpHint { get; }
 }

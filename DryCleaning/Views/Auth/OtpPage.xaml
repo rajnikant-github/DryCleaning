@@ -30,9 +30,6 @@
             <Label Text="{Binding ErrorText}" IsVisible="{Binding HasError}" TextColor="{StaticResource ErrorDark}"
                    HorizontalTextAlignment="Center" FontSize="14" />
 
-            <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding ShowDemoHint}">
-                <Label Text="{Binding DemoHint}" TextColor="{StaticResource WarningDark}" FontSize="13" HorizontalTextAlignment="Center" />
-            </Border>
 
             <Button Text="{Binding ResendText}" Style="{StaticResource TextButton}" HorizontalOptions="Center"
                     Command="{Binding ResendCommand}" IsEnabled="{Binding CanResend}" />

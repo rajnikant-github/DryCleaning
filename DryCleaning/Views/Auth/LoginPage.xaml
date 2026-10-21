@@ -20,11 +20,11 @@
 
             <VerticalStackLayout Padding="24,28" Spacing="18">
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Mobile number or email" Style="{StaticResource FieldLabel}" />
+                    <Label Text="Email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <Label Text="&#xf095;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
-                            <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="+27 82 555 0142"
+                            <Label Text="&#xf0e0;" VerticalOptions="Center"  FontFamily="FA" WidthRequest="24" HorizontalTextAlignment="Center"/>
+                            <Entry Grid.Column="1" Text="{Binding Identifier}" Placeholder="you@example.com"
                                    Keyboard="Email" ReturnType="Next" />
                         </Grid>
                     </Border>
@@ -57,16 +57,6 @@
                     <Button Text="Login" Command="{Binding LoginCommand}" IsVisible="{Binding IsNotBusy}" />
                     <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
                 </Grid>
-
-                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
-                    <BoxView Style="{StaticResource Divider}" VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="or" Style="{StaticResource Small}" />
-                    <BoxView Grid.Column="2" Style="{StaticResource Divider}" VerticalOptions="Center" />
-                </Grid>
-
-                <Button Text="Continue with OTP" ContentLayout="Left,8" Style="{StaticResource OutlineButton}" Command="{Binding ContinueWithOtpCommand}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3cf;" Size="16" Color="{StaticResource AppForeground}" /></Button.ImageSource>
-                </Button>
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8,0,0">
                     <Label Text="New to E Dry Cleaners?" Style="{StaticResource Caption}" VerticalOptions="Center" />

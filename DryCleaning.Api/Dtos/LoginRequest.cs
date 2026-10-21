@@ -4,7 +4,7 @@ namespace DryCleaning.Api.Dtos;
 
 public sealed class LoginRequest
 {
-    /// <summary>Mobile number or email.</summary>
+    /// <summary>The account's email address (sign-in is by email only).</summary>
     public string Identifier { get; set; } = string.Empty;
 
     public string Password { get; set; } = string.Empty;

@@ -7,5 +7,4 @@ public sealed class RequestOtpResponse
 {
     public string Destination { get; set; } = string.Empty;
     public int ExpiresInSeconds { get; set; }
-    public string? DevCode { get; set; }
 }

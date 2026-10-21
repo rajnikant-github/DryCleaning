@@ -24,7 +24,7 @@ public sealed class AdminLoginService(IHttpClientFactory factory)
         using (response)
         {
             if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.BadRequest)
-                return (null, "Incorrect email/mobile number or password.");
+                return (null, "Incorrect email or password.");
             if (!response.IsSuccessStatusCode)
                 return (null, await AdminApiClient.ReadProblemAsync(response));
 

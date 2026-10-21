@@ -39,7 +39,7 @@ public sealed class AuthController(AuthService auth, RegistrationService registr
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public Task<AuthResponse> RegisterConfirm(RegisterConfirmRequest request, CancellationToken ct) => registration.ConfirmAsync(request, ct);
 
-    /// <summary>Log in with mobile number or email and password.</summary>
+    /// <summary>Log in with email and password.</summary>
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]

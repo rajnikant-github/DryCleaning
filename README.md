@@ -106,8 +106,7 @@ The app talks to the **real API** (`"UseMockData": false` in `DryCleaning/appset
 3. Release builds use `Api:BaseUrl` (`https://edrycleaners.co.za/`). To test against a server, see
    [Testing the app against a deployed API](#testing-the-app-against-a-deployed-api).
 
-Pick a role, then sign in with a demo account (password `Demo@12345`) or with OTP – in Development the API returns the
-code and the OTP screen shows it. Choosing the wrong role for an account shows which role to pick. The session is kept
+Pick a role, then sign in with a demo account (password `Demo@12345`). Codes (sign-up, forgot password) are only ever **emailed** – never shown in the app or returned by the API – so use a real email address you can open. Choosing the wrong role for an account shows which role to pick. The session is kept
 on the phone (SecureStorage) and refreshed automatically, so you stay signed in after closing the app.
 
 **Accounts and passwords in the app**
@@ -115,7 +114,7 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 | Where | What |
 |---|---|
 | Login → *Create account* | Sign up for the role picked on the Role screen. An **email is required**: the app emails a 6-digit code and the account is only created once the code is entered (customers and drivers are then signed in straight away; a new **Service Provider** (business name, description, categories) is reviewed by an admin first, so the app confirms the registration and returns to Login). Passwords: at least 8 characters with a letter and a number. |
-| Login → *Forgot password?* | Enter your email (or the mobile number on the account) → enter the 6-digit code we **email** (shown on screen in Development) and a new password → you're signed in; other devices are signed out. |
+| Login → *Forgot password?* | Enter your email → enter the 6-digit code we **email** (use a real email you can open) and a new password → you're signed in; other devices are signed out. |
 | Profile → *Change Password* | Customer, Service Provider and Driver profiles: current password + new password. |
 | Provider Profile → *Edit* (Business) | Business name, description, phone, email and logo (take or choose a photo – uploaded to `POST api/provider/profile/logo`). |
 | Provider Profile → *Manage* (Categories) | Switch the categories you offer on or off; customers only see your products in categories that are on. |
@@ -127,7 +126,7 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 | Driver | `bongani@drivers.edrycleaners.co.za` | Go online → accept a job → navigate → verify items → pickup code → hand over / deliver with OTP |
 
 **Demo data instead of the API:** set `"UseMockData": true` – no API needed, any email/phone + 4-character password,
-OTP `123456`, and the "simulate driver" / show-customer-code shortcuts (`Features:ShowDemoActions`).
+code `123456` (demo mode only), and the "simulate driver" / show-customer-code shortcuts (`Features:ShowDemoActions`).
 
 **First launch:** someone who isn't signed in and hasn't seen it yet gets the intro screen and three onboarding slides (Get Started /
 Next / Skip) before the role picker, built from the Figma "Customer General Onboarding" screens. Finishing, skipping or tapping *Log in*
@@ -202,7 +201,6 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | `Paystack__CallbackUrl` | `edrycleaners://payment-complete` – must match `Api:PaymentCallbackUrl` in the app. |
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
-| `Otp__ExposeCodeInResponse` | `false`. No SMS provider is connected (codes are only emailed), so on a server sign in with **password** unless the account has an email. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
 | `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
 | `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
@@ -228,7 +226,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | "Cleartext HTTP traffic not permitted" (Android) / ATS error (iOS) | The server URL is `http://` – put the API behind HTTPS. |
 | Everyone signed out after a deploy, 401 errors | `Jwt:SigningKey` changed between deploys – keep it the same. |
 | Login works in Swagger but the app says "This is a … account" | You picked a different role on the role screen than the account has. |
-| OTP never arrives | Expected for now – use password login, or `Otp__ExposeCodeInResponse=true` on a test server. |
+| Code email never arrives | Check the spam folder, the **Email** page in the admin portal (status + test email) and the `Email` settings in `secrets.json`. |
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
 | Photos missing after a restart/redeploy | Using `Local` storage without persistent disk – switch to `Storage__Provider=AzureBlob`. |
 | Photos not loading after a while (Azure) | Signed links expire after 15 minutes; reload the order to get new ones. |

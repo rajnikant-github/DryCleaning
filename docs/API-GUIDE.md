@@ -184,7 +184,7 @@ Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and
 | Change password | `POST /api/auth/me/change-password` | New password, all sessions revoked | `Users`, `RefreshTokens` |
 | Sign out | `DELETE /api/me/devices?token=` then `POST /api/auth/logout` | Push stopped, refresh token revoked | `DeviceTokens`, `RefreshTokens` |
 
-In Development, `otp/request` and `password/forgot` return the code as `devCode` (codes are only ever emailed: there is no SMS).
+Codes are only ever **emailed** (there is no SMS), and the API never returns them in a response, so use a real email address you can open.
 
 ### 4.2 Order lifecycle (status machine)
 
@@ -449,10 +449,10 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/auth/register/start` | Public | Body: `RegisterStartRequest` | `RegisterStartResponse` | Sign-up step 1 for a customer, provider or driver. Checks the details (email or phone already used → `409`), **creates nothing**, holds the sign-up and emails a 6-digit code. |
 | `POST` | `/api/auth/register/resend` | Public | Body: `RegisterResendRequest` | `RegisterStartResponse` | Email a new code for a waiting sign-up. One per minute, at most 5 per sign-up. |
 | `POST` | `/api/auth/register/confirm` | Public | Body: `RegisterConfirmRequest` | `AuthResponse` | Sign-up step 2: right code → the account (and customer/provider/driver profile) is created and signed in. A provider's business and a driver account stay **inactive** until an admin approves them (`user.profileStatus` = `PendingApproval`). Wrong code → `401`; the 5th wrong code cancels the sign-up. |
-| `POST` | `/api/auth/login` | Public | Body: `LoginRequest` | `AuthResponse` | Sign in with mobile number or email plus password. Returns access token (60 min) + refresh token (30 days). |
+| `POST` | `/api/auth/login` | Public | Body: `LoginRequest` | `AuthResponse` | Sign in with email plus password. Returns access token (60 min) + refresh token (30 days). |
 | `POST` | `/api/auth/refresh` | Public | Body: `RefreshTokenRequest` | `AuthResponse` | Swap a refresh token for a new access + refresh token. The old refresh token stops working (rotation); re-using it signs the user out everywhere. |
 | `POST` | `/api/auth/logout` | Public | Body: `RefreshTokenRequest` | `204` | Revoke this device's refresh token. Call `DELETE /api/me/devices` first to stop pushes. |
-| `POST` | `/api/auth/password/forgot` | Public | Body: `ForgotPasswordRequest` | `RequestOtpResponse` | Send a password-reset code. Always answers the same way, so it can't be used to discover accounts. In Development the code is returned as `devCode`. |
+| `POST` | `/api/auth/password/forgot` | Public | Body: `ForgotPasswordRequest` | `RequestOtpResponse` | Send a password-reset code. Always answers the same way, so it can't be used to discover accounts. |
 | `POST` | `/api/auth/password/reset` | Public | Body: `ResetPasswordRequest` | `AuthResponse` | Check the reset code, set the new password and sign in. All other sessions are signed out. |
 | `POST` | `/api/auth/otp/request` | Public | Body: `RequestOtpRequest` | `RequestOtpResponse` | Send a 6-digit login code ("Continue with OTP"). Valid 5 minutes, 5 attempts. |
 | `POST` | `/api/auth/otp/verify` | Public | Body: `VerifyOtpRequest` | `AuthResponse` | Check the login code and sign in. |
@@ -627,7 +627,7 @@ Used by: `POST /api/auth/login`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `identifier` | string | yes | Mobile number or email, max 100 |
+| `identifier` | string | yes | The account's **email address**, max 100 (sign-in is email only) |
 | `password` | string | yes | — |
 
 #### RegisterStartRequest
@@ -655,7 +655,6 @@ Returned by: `register/start`, `register/resend`
 | `destination` | string | masked email, e.g. `ra***@gmail.com` |
 | `expiresInSeconds` | int | 600 |
 | `resendInSeconds` | int | 60: wait this long before `register/resend` |
-| `devCode` | string? | only when `Otp:ExposeCodeInResponse` is true (development) |
 
 #### RegisterResendRequest
 
@@ -679,7 +678,7 @@ Used by: `POST /api/auth/otp/request`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `identifier` | string | yes | Mobile number or email, max 100 |
+| `identifier` | string | yes | The account's **email address**, max 100 (sign-in is email only) |
 
 #### VerifyOtpRequest
 
@@ -1528,13 +1527,11 @@ Wrapper for every paged list.
 
 #### RequestOtpResponse
 
-`devCode` only when `Otp:ExposeCodeInResponse` is true (Development).
 
 | Field | Type |
 |---|---|
 | `destination` | `string` |
 | `expiresInSeconds` | `int` |
-| `devCode` | `string?` |
 
 #### ServiceItemDto
 
@@ -2086,7 +2083,6 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | `Paystack` | `SecretKey`, `PublicKey` | *(secret)* | Payments + webhook signature |
 | | `CallbackUrl` | `edrycleaners://payment-complete` | Where Paystack returns to the app |
 | `Otp` | `Length`, `ExpirySeconds`, `MaxAttempts` | `6`, `300`, `5` | Login / reset codes |
-| | `ExposeCodeInResponse` | `false` (`true` in Development) | Return `devCode` for testing |
 | `Storage` | `Provider` | `Local` | `Local` (wwwroot) or `AzureBlob` |
 | | `UploadsFolder`, `MaxUploadBytes` | `uploads`, 5 MB | Local folder and max photo size |
 | | `AzureBlob:AccountUrl` / `ConnectionString` | *(empty)* | Storage account (managed identity) or connection string (Azurite) |

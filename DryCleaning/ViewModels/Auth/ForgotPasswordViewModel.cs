@@ -6,7 +6,7 @@ using DryCleaning.Services;
 namespace DryCleaning.ViewModels.Auth;
 
 /// <summary>
-/// Reset a forgotten password: 1) send a code to the mobile number / email, 2) enter the code and a new password.
+/// Reset a forgotten password: 1) email a code to the account's email address, 2) enter the code and a new password.
 /// A successful reset signs the user in (other devices are signed out).
 /// </summary>
 public sealed partial class ForgotPasswordViewModel(ViewModelServices services, IAuthService auth, ISessionService session)
@@ -38,8 +38,6 @@ public sealed partial class ForgotPasswordViewModel(ViewModelServices services, 
     public bool HasError => !string.IsNullOrEmpty(ErrorText);
     public string PasswordToggleText => IsPasswordHidden ? "Show" : "Hide";
     public string PasswordHint => InputRules.PasswordHint;
-    public bool ShowCodeHint => IsCodeSent && !string.IsNullOrEmpty(auth.OtpHint);
-    public string CodeHint => $"Demo code: {auth.OtpHint}";
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -59,6 +57,12 @@ public sealed partial class ForgotPasswordViewModel(ViewModelServices services, 
     private Task SendCodeAsync() => RunBusyAsync(async () =>
     {
         ErrorText = string.Empty;
+        if (!InputRules.IsValidEmail(Identifier))
+        {
+            ErrorText = "Enter a valid email address, e.g. you@example.com.";
+            return;
+        }
+
         try
         {
             Destination = await auth.RequestPasswordResetAsync(Identifier.Trim());
@@ -70,8 +74,6 @@ public sealed partial class ForgotPasswordViewModel(ViewModelServices services, 
             ErrorText = ex.Message;
         }
 
-        OnPropertyChanged(nameof(ShowCodeHint));
-        OnPropertyChanged(nameof(CodeHint));
     });
 
     [RelayCommand]
@@ -113,7 +115,6 @@ public sealed partial class ForgotPasswordViewModel(ViewModelServices services, 
     {
         IsCodeSent = false;
         ErrorText = string.Empty;
-        OnPropertyChanged(nameof(ShowCodeHint));
     }
 
     [RelayCommand]

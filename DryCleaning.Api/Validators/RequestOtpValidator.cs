@@ -6,5 +6,5 @@ namespace DryCleaning.Api.Validators;
 
 public sealed class RequestOtpValidator : AbstractValidator<RequestOtpRequest>
 {
-    public RequestOtpValidator() => RuleFor(x => x.Identifier).NotEmpty().MaximumLength(100);
+    public RequestOtpValidator() => RuleFor(x => x.Identifier).NotEmpty().EmailAddress().WithMessage("Enter the email address on your account.").MaximumLength(100);
 }

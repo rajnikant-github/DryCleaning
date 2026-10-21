@@ -10,6 +10,4 @@ public sealed class RegisterStartResponse
     /// <summary>How long the app should wait before offering "Resend code".</summary>
     public required int ResendInSeconds { get; init; }
 
-    /// <summary>Only returned when Otp:ExposeCodeInResponse is true (development).</summary>
-    public required string? DevCode { get; init; }
 }

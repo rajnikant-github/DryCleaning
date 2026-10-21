@@ -8,7 +8,7 @@ public sealed class ResetPasswordValidator : AbstractValidator<ResetPasswordRequ
 {
     public ResetPasswordValidator()
     {
-        RuleFor(x => x.Identifier).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Identifier).NotEmpty().EmailAddress().WithMessage("Enter the email address on your account.").MaximumLength(100);
         RuleFor(x => x.Code).NotEmpty().Matches("^[0-9]{4,8}$");
         RuleFor(x => x.NewPassword).Password();
     }

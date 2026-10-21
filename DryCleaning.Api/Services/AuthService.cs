@@ -81,7 +81,7 @@ public sealed class AuthService(
     {
         var user = await FindByIdentifierAsync(request.Identifier, ct);
         if (user is null || !hasher.Verify(request.Password, user.PasswordHash))
-            throw new UnauthorizedException("Incorrect mobile number/email or password.");
+            throw new UnauthorizedException("Incorrect email or password.");
         if (!user.IsActive)
             throw new ForbiddenException("This account has been deactivated.");
 
@@ -91,7 +91,7 @@ public sealed class AuthService(
     public async Task<RequestOtpResponse> RequestOtpAsync(RequestOtpRequest request, CancellationToken ct)
     {
         var user = await FindByIdentifierAsync(request.Identifier, ct)
-                   ?? throw new NotFoundException("No account found for that mobile number or email.");
+                   ?? throw new NotFoundException("No account found for that email.");
 
         // Codes are only ever emailed (no SMS), even when the account was found by its mobile number.
         if (string.IsNullOrWhiteSpace(user.Email))
@@ -104,8 +104,7 @@ public sealed class AuthService(
         return new RequestOtpResponse
         {
             Destination = Mask(destination),
-            ExpiresInSeconds = options.ExpirySeconds,
-            DevCode = options.ExposeCodeInResponse ? code : null
+            ExpiresInSeconds = options.ExpirySeconds
         };
     }
 
@@ -210,8 +209,7 @@ public sealed class AuthService(
             return new RequestOtpResponse
             {
                 Destination = "your registered email",
-                ExpiresInSeconds = options.ExpirySeconds,
-                DevCode = null
+                ExpiresInSeconds = options.ExpirySeconds
             };
 
         var destination = user.Email;
@@ -220,8 +218,7 @@ public sealed class AuthService(
         return new RequestOtpResponse
         {
             Destination = Mask(destination),
-            ExpiresInSeconds = options.ExpirySeconds,
-            DevCode = options.ExposeCodeInResponse ? code : null
+            ExpiresInSeconds = options.ExpirySeconds
         };
     }
 

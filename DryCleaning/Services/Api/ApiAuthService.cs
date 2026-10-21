@@ -27,12 +27,10 @@ public sealed class ApiAuthService : IAuthService
         _api.SessionRefreshed += (_, auth) => SignIn(auth);
     }
 
-    public string? OtpHint { get; private set; }
-
     public async Task<AuthResult> LoginAsync(string identifier, string password, UserRole role)
     {
         if (string.IsNullOrWhiteSpace(identifier))
-            return AuthResult.Fail("Enter your mobile number or email.");
+            return AuthResult.Fail("Enter your email address.");
         if (string.IsNullOrWhiteSpace(password))
             return AuthResult.Fail("Enter your password.");
 
@@ -51,11 +49,9 @@ public sealed class ApiAuthService : IAuthService
 
     public async Task<string> RequestOtpAsync(string identifier, UserRole role)
     {
-        OtpHint = null;
         var response = await _api.SendAsync(HttpMethod.Post, "api/auth/otp/request",
             new RequestOtpRequest { Identifier = identifier.Trim() },
             ApiJsonContext.Default.RequestOtpRequest, ApiJsonContext.Default.RequestOtpResponse, authorize: false);
-        OtpHint = response.DevCode;
         return response.Destination;
     }
 
@@ -76,7 +72,6 @@ public sealed class ApiAuthService : IAuthService
 
     public async Task<RegistrationStart> StartRegistrationAsync(Registration registration)
     {
-        OtpHint = null;
         try
         {
             var response = await _api.SendAsync(HttpMethod.Post, "api/auth/register/start",
@@ -93,7 +88,6 @@ public sealed class ApiAuthService : IAuthService
                     LicenseNumber = Clean(registration.LicenseNumber)
                 },
                 ApiJsonContext.Default.RegisterStartRequest, ApiJsonContext.Default.RegisterStartResponse, authorize: false);
-            OtpHint = response.DevCode;
             return RegistrationStart.Ok(response.Destination, response.ResendInSeconds);
         }
         catch (ApiException ex)
@@ -104,13 +98,11 @@ public sealed class ApiAuthService : IAuthService
 
     public async Task<RegistrationStart> ResendRegistrationCodeAsync(string email)
     {
-        OtpHint = null;
         try
         {
             var response = await _api.SendAsync(HttpMethod.Post, "api/auth/register/resend",
                 new RegisterResendRequest { Email = email.Trim() },
                 ApiJsonContext.Default.RegisterResendRequest, ApiJsonContext.Default.RegisterStartResponse, authorize: false);
-            OtpHint = response.DevCode;
             return RegistrationStart.Ok(response.Destination, response.ResendInSeconds);
         }
         catch (ApiException ex)
@@ -131,7 +123,6 @@ public sealed class ApiAuthService : IAuthService
             await _tokens.SaveAsync(auth);
             SignIn(auth);
             _ = _push.EnableAsync();
-            OtpHint = null;
             return AuthResult.Ok();
         }
         catch (ApiException ex)
@@ -142,11 +133,9 @@ public sealed class ApiAuthService : IAuthService
 
     public async Task<string> RequestPasswordResetAsync(string identifier)
     {
-        OtpHint = null;
         var response = await _api.SendAsync(HttpMethod.Post, "api/auth/password/forgot",
             new ForgotPasswordRequest { Identifier = identifier.Trim() },
             ApiJsonContext.Default.ForgotPasswordRequest, ApiJsonContext.Default.RequestOtpResponse, authorize: false);
-        OtpHint = response.DevCode;
         return response.Destination;
     }
 

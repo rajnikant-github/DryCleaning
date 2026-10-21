@@ -25,7 +25,7 @@ public sealed class MemoryOtpService(IMemoryCache cache, IOptions<OtpOptions> op
         cache.Set(CacheKey(key), code, TimeSpan.FromSeconds(settings.ExpirySeconds));
         cache.Remove(AttemptsKey(key));
 
-        logger.LogInformation("OTP for {Destination}: {Code} (delivered by email)", destination, code);
+        logger.LogInformation("Verification code sent by email to {Destination}", destination);
         return Task.FromResult(code);
     }
 

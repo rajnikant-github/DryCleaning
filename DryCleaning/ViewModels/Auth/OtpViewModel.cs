@@ -35,8 +35,6 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
     public bool HasError => !string.IsNullOrEmpty(ErrorText);
     public bool CanResend => SecondsRemaining == 0;
     public string ResendText => CanResend ? "Resend code" : $"Resend code in {SecondsRemaining}s";
-    public bool ShowDemoHint => !string.IsNullOrEmpty(auth.OtpHint);
-    public string DemoHint => $"Demo code: {auth.OtpHint}";
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -61,8 +59,6 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
             if (!_started)
             {
                 _started = true;
-                OnPropertyChanged(nameof(ShowDemoHint));
-                OnPropertyChanged(nameof(DemoHint));
                 await StartCountdownAsync();
             }
             return;
@@ -128,8 +124,6 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
             ErrorText = ex.Message;
         }
 
-        OnPropertyChanged(nameof(ShowDemoHint));
-        OnPropertyChanged(nameof(DemoHint));
         await StartCountdownAsync();
     }
 

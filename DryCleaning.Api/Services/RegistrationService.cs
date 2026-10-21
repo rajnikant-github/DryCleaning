@@ -128,8 +128,7 @@ public sealed class RegistrationService(AppDbContext db, AuthService auth, IPass
         {
             Destination = AuthService.MaskEmail(pending.Email),
             ExpiresInSeconds = CodeMinutes * 60,
-            ResendInSeconds = ResendCooldownSeconds,
-            DevCode = settings.ExposeCodeInResponse ? code : null
+            ResendInSeconds = ResendCooldownSeconds
         };
     }
 

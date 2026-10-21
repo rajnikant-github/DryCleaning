@@ -19,8 +19,8 @@
         <form method="post" action="/auth/login">
             <AntiforgeryToken />
             <label class="field">
-                <span>Email or mobile number</span>
-                <input name="identifier" autocomplete="username" required autofocus />
+                <span>Email</span>
+                <input name="identifier" type="email" autocomplete="username" required autofocus />
             </label>
             <label class="field">
                 <span>Password</span>
