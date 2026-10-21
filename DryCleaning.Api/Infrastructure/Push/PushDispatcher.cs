@@ -21,42 +21,49 @@ public sealed class PushDispatcher(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var message in queue.ReadAllAsync(stoppingToken))
+        try
         {
-            if (!options.Value.Enabled)
-                continue;
-
-            try
+            await foreach (var message in queue.ReadAllAsync(stoppingToken))
             {
-                using var scope = scopes.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var devices = await db.DeviceTokens
-                    .Where(d => d.UserId == message.UserId)
-                    .Select(d => new { d.Platform, d.Token })
-                    .ToListAsync(stoppingToken);
+                if (!options.Value.Enabled)
+                    continue;
 
-                foreach (var sender in senders)
+                try
                 {
-                    var tokens = devices.Where(d => d.Platform == sender.Platform).Select(d => d.Token).ToList();
-                    if (tokens.Count == 0)
-                        continue;
+                    using var scope = scopes.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var devices = await db.DeviceTokens
+                        .Where(d => d.UserId == message.UserId)
+                        .Select(d => new { d.Platform, d.Token })
+                        .ToListAsync(stoppingToken);
 
-                    var dead = await sender.SendAsync(tokens, message, stoppingToken);
-                    if (dead.Count > 0)
+                    foreach (var sender in senders)
                     {
-                        await db.DeviceTokens.Where(d => dead.Contains(d.Token)).ExecuteDeleteAsync(stoppingToken);
-                        logger.LogInformation("Removed {Count} expired {Platform} push token(s) for user {UserId}", dead.Count, sender.Platform, message.UserId);
+                        var tokens = devices.Where(d => d.Platform == sender.Platform).Select(d => d.Token).ToList();
+                        if (tokens.Count == 0)
+                            continue;
+
+                        var dead = await sender.SendAsync(tokens, message, stoppingToken);
+                        if (dead.Count > 0)
+                        {
+                            await db.DeviceTokens.Where(d => dead.Contains(d.Token)).ExecuteDeleteAsync(stoppingToken);
+                            logger.LogInformation("Removed {Count} expired {Platform} push token(s) for user {UserId}", dead.Count, sender.Platform, message.UserId);
+                        }
                     }
                 }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Push for notification {NotificationId} failed", message.NotificationId);
+                }
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Push for notification {NotificationId} failed", message.NotificationId);
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // ReadAllAsync throws when the host stops; this is a normal worker shutdown.
         }
     }
 }

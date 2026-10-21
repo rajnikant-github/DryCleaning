@@ -16,6 +16,36 @@ public sealed partial class DriverDashboardViewModel(ViewModelServices services,
     protected override bool ReactsTo(RealtimeChangedMessage message) =>
         message.Kind == RealtimeChangeKind.Reconnected || message.Kind == RealtimeChangeKind.JobChanged;
 
+    private readonly HashSet<Guid> _alertedJobs = [];
+
+    protected override void OnRealtimeMessage(RealtimeChangedMessage message)
+    {
+        if (message.Kind != RealtimeChangeKind.JobChanged ||
+            !string.Equals(message.Status, nameof(DriverJobStatus.Pending), StringComparison.OrdinalIgnoreCase) ||
+            message.JobId is not { } jobId || message.OrderId is not { } orderId ||
+            !_alertedJobs.Add(jobId))
+            return;
+
+        _ = ShowIncomingJobAlertAsync(orderId, message.JobType);
+    }
+
+    private async Task ShowIncomingJobAlertAsync(Guid orderId, string? jobType)
+    {
+        try
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                [Routes.OrderIdKey] = orderId,
+                [Routes.JobTypeKey] = jobType ?? string.Empty
+            };
+            await MainThread.InvokeOnMainThreadAsync(() => Navigation.GoToAsync(Routes.IncomingOrderAlert, parameters));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DriverDashboard] Could not show new-job alert: {ex.Message}");
+        }
+    }
+
     private bool _suppressOnline;
     private Guid? _activeJobId;
 
@@ -27,7 +57,9 @@ public sealed partial class DriverDashboardViewModel(ViewModelServices services,
     [ObservableProperty] private int availableCount;
     [ObservableProperty] private int completedToday;
     [ObservableProperty] private decimal earningsToday;
-    [ObservableProperty] private bool hasTodaysJobs;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNoTodaysJobs))]
+    private bool hasTodaysJobs;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(OnlineText))]
@@ -47,6 +79,7 @@ public sealed partial class DriverDashboardViewModel(ViewModelServices services,
     public string OnlineText => IsOnline ? "You're online" : "You're offline";
     public string OnlineHint => IsOnline ? "New pickup and delivery jobs will appear in Jobs." : "Go online to receive new jobs.";
     public bool IsDriverOffline => !IsOnline;
+    public bool HasNoTodaysJobs => !HasTodaysJobs;
 
     protected override async Task<bool> LoadDataAsync()
     {

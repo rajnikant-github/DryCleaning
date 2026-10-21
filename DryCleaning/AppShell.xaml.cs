@@ -4,6 +4,7 @@ using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
 using DryCleaning.Views.Driver;
 using DryCleaning.Views.Provider;
+using DryCleaning.Views;
 
 namespace DryCleaning;
 
@@ -24,6 +25,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(Routes.ProviderCategories, typeof(ProviderCategoriesPage));
         Routing.RegisterRoute(Routes.WorkingHours, typeof(WorkingHoursPage));
         Routing.RegisterRoute(Routes.Notifications, typeof(NotificationsPage));
+        Routing.RegisterRoute(Routes.IncomingOrderAlert, typeof(IncomingOrderAlertPage));
         Routing.RegisterRoute(Routes.OrderDetail, typeof(OrderDetailPage));
         Routing.RegisterRoute(Routes.ReceiveOrder, typeof(ReceiveOrderPage));
         Routing.RegisterRoute(Routes.Inspection, typeof(InspectionPage));

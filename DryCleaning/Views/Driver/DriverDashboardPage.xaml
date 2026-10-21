@@ -21,12 +21,14 @@
     <Grid>
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+                <VerticalStackLayout Spacing="16" Padding="0,0,0,100">
                     <!--  Header with availability  -->
-                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
-                            <Label Text="{Binding DriverName}" Style="{StaticResource HeaderTitle}" />
+                    <Border Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0" StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding Greeting}" TextColor="{DynamicResource PrimaryLight}"
+                                   FontFamily="AppSemibold" FontSize="15" />
+                            <Label Text="{Binding DriverName}" Style="{StaticResource HeaderTitle}" FontSize="27"
+                                   LineBreakMode="TailTruncation" />
                             <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0" StrokeShape="RoundRectangle 14"
                                     Padding="14,10" Margin="0,10,0,0">
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
@@ -54,14 +56,26 @@
                                 <TapGestureRecognizer Command="{Binding OpenEarningsCommand}" />
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="4">
-                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf81d;" FontFamily="FA" /><Span Text="  Today's earnings" /></FormattedString></Label.FormattedText></Label>
-                                <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontSize="24" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Border WidthRequest="30" HeightRequest="30" BackgroundColor="{StaticResource SuccessSoft}" StrokeThickness="0" StrokeShape="RoundRectangle 9">
+                                        <Label Text="&#xf81d;" FontFamily="FA" FontSize="14" TextColor="{StaticResource SuccessDark}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="Today's earnings" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="{Binding EarningsToday, Converter={StaticResource Currency}}" FontSize="25" FontFamily="AppSemibold" TextColor="{StaticResource SuccessDark}" />
+                                <Label Text="Today" Style="{StaticResource Small}" />
                             </VerticalStackLayout>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="4">
-                                <Label Style="{StaticResource Caption}" ><Label.FormattedText><FormattedString><Span Text="&#xf058;" FontFamily="FA" /><Span Text="  Jobs done today" /></FormattedString></Label.FormattedText></Label>
-                                <Label Text="{Binding CompletedToday}" FontSize="24" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Border WidthRequest="30" HeightRequest="30" BackgroundColor="{StaticResource InfoSoft}" StrokeThickness="0" StrokeShape="RoundRectangle 9">
+                                        <Label Text="&#xf058;" FontFamily="FA" FontSize="14" TextColor="{StaticResource InfoDark}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="Jobs done today" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="{Binding CompletedToday}" FontSize="25" FontFamily="AppSemibold" TextColor="{DynamicResource Primary}" />
+                                <Label Text="Completed" Style="{StaticResource Small}" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -120,15 +134,29 @@
                     </Border>
 
                     <!--  Today's jobs  -->
-                    <VerticalStackLayout Padding="16,0" Spacing="10" IsVisible="{Binding HasTodaysJobs}">
+                    <VerticalStackLayout Padding="16,0" Spacing="10">
                         <Label Text="Today's jobs" Style="{StaticResource H3}" />
-                        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding TodaysJobs}">
+                        <VerticalStackLayout Spacing="10" IsVisible="{Binding HasTodaysJobs}"
+                                             BindableLayout.ItemsSource="{Binding TodaysJobs}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="items:DriverJobCardItem">
                                     <controls:DriverJobCardView />
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
+                        <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoTodaysJobs}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border WidthRequest="42" HeightRequest="42" BackgroundColor="{StaticResource InfoSoft}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 13">
+                                    <Label Text="&#xf0d1;" FontFamily="FA" FontSize="18" TextColor="{StaticResource InfoDark}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="No jobs yet today" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                    <Label Text="New pickup and delivery jobs will appear here." Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </ScrollView>

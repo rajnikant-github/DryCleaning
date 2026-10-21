@@ -58,16 +58,28 @@ public sealed class ThemePickerView : ContentView
                 WidthRequest = 48,
                 HeightRequest = 48,
                 StrokeShape = new RoundRectangle { CornerRadius = 24 },
-                BackgroundColor = theme.Primary,
+                Background = theme.CreateGradientBrush(),
                 StrokeThickness = selected ? 3 : 0,
-                Stroke = new SolidColorBrush(Theme.Foreground),
+                Stroke = new SolidColorBrush(Theme.Foreground)
+            };
+
+            // Keep the picker swatch faithful to the selected palette colour, with a soft gradient rim.
+            circle.Content = new Border
+            {
+                WidthRequest = 42,
+                HeightRequest = 42,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center,
+                StrokeThickness = 0,
+                StrokeShape = new RoundRectangle { CornerRadius = 21 },
+                BackgroundColor = theme.Swatch,
                 Content = selected
                     ? new Label
                     {
                         Text = FontAwesome.Check,
                         FontFamily = FontAwesome.Family,
                         FontSize = 18,
-                        TextColor = Colors.White,
+                        TextColor = theme.Key == "mint" ? Color.FromArgb("#234B2B") : Colors.White,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
                     }

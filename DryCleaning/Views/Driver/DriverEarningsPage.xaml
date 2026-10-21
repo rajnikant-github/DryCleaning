@@ -17,7 +17,7 @@
             <ScrollView>
                 <VerticalStackLayout Padding="16" Spacing="14">
                     <!--  Total  -->
-                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="20">
+                    <Border Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="20">
                         <VerticalStackLayout Spacing="4">
                             <Label Text="{Binding PeriodText}" TextColor="{DynamicResource PrimaryLight}" FontSize="13" />
                             <Label Text="{Binding Total, Converter={StaticResource Currency}}" TextColor="{StaticResource White}" FontSize="34" FontFamily="AppSemibold" />

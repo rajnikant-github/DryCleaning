@@ -13,27 +13,34 @@ public sealed class RealtimeDispatcher(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var batch in queue.ReadAllAsync(stoppingToken))
+        try
         {
-            try
+            await foreach (var batch in queue.ReadAllAsync(stoppingToken))
             {
-                using var scope = scopes.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                try
+                {
+                    using var scope = scopes.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                await SendOrdersAsync(db, batch, stoppingToken);
-                await SendJobsAsync(db, batch, stoppingToken);
-                foreach (var notification in batch.Notifications)
-                    await hub.Clients.User(notification.UserId.ToString())
-                        .SendAsync(RealtimeEvents.NotificationReceived, notification, stoppingToken);
+                    await SendOrdersAsync(db, batch, stoppingToken);
+                    await SendJobsAsync(db, batch, stoppingToken);
+                    foreach (var notification in batch.Notifications)
+                        await hub.Clients.User(notification.UserId.ToString())
+                            .SendAsync(RealtimeEvents.NotificationReceived, notification, stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Real-time dispatch failed");
+                }
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Real-time dispatch failed");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // ReadAllAsync throws when the host stops; this is a normal worker shutdown.
         }
     }
 

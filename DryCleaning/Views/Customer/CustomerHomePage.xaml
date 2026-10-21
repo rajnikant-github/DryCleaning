@@ -20,14 +20,16 @@
     <Grid RowDefinitions="*,Auto">
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Spacing="18" Padding="0,0,0,24">
+                <VerticalStackLayout Spacing="18" Padding="0,0,0,96">
 
                     <!--  Header  -->
-                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
+                    <Border Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderCaption}" />
-                            <Label Text="{Binding FirstName}" Style="{StaticResource HeaderTitle}" />
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding Greeting}" TextColor="{DynamicResource PrimaryLight}"
+                                   FontFamily="AppSemibold" FontSize="15" />
+                            <Label Text="{Binding FirstName}" Style="{StaticResource HeaderTitle}" FontSize="27"
+                                   LineBreakMode="TailTruncation" />
                             <Border BackgroundColor="{StaticResource HeaderOverlay}" StrokeThickness="0"
                                     StrokeShape="RoundRectangle 12" Padding="12,8" Margin="0,10,0,0">
                                 <Border.GestureRecognizers>
@@ -49,14 +51,14 @@
 
                     <!--  Quick order  -->
                     <Border Margin="16,0" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="18"
-                            BackgroundColor="{StaticResource Accent}">
+                            Background="{DynamicResource PrimaryGradientBrush}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding QuickOrderCommand}" />
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="Schedule a pickup" TextColor="{StaticResource White}" FontSize="18" FontFamily="AppSemibold" />
-                                <Label Text="We collect, clean and deliver back to your door." TextColor="#E0F2FE" FontSize="13" />
+                                <Label Text="We collect, clean and deliver back to your door." TextColor="{DynamicResource PrimaryLight}" FontSize="13" />
                                 <Border BackgroundColor="{StaticResource White}" StrokeThickness="0" StrokeShape="RoundRectangle 10"
                                         Padding="14,6" HorizontalOptions="Start" Margin="0,8,0,0">
                                     <Label Text="Start an order ›" TextColor="{DynamicResource Primary}" FontSize="13" FontFamily="AppSemibold" />
@@ -142,7 +144,7 @@
         <controls:PageStateView State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}" />
 
         <!--  Cart bar  -->
-        <Border Grid.Row="1" IsVisible="{Binding HasCart}" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
+        <Border Grid.Row="1" IsVisible="{Binding HasCart}" Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0"
                 StrokeShape="RoundRectangle 14" Margin="16,8,16,16" Padding="16,14">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenCartCommand}" />

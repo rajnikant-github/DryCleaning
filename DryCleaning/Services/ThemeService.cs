@@ -23,7 +23,9 @@ public sealed class ThemeService : IThemeService
         if (Application.Current?.Resources is { } resources)
         {
             resources["Primary"] = theme.Primary;
+            resources["ShellBarColor"] = theme.GradientStart;
             resources["PrimaryBrush"] = new SolidColorBrush(theme.Primary);
+            resources["PrimaryGradientBrush"] = theme.CreateGradientBrush();
             resources["PrimaryLight"] = theme.PrimaryLight;
             resources["PrimaryLightBrush"] = new SolidColorBrush(theme.PrimaryLight);
             resources["SecondaryColor"] = theme.Secondary;

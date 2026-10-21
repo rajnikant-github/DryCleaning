@@ -17,6 +17,7 @@ using DryCleaning.Views.Customer;
 using DryCleaning.Views.Driver;
 using DryCleaning.Views.Onboarding;
 using DryCleaning.Views.Provider;
+using DryCleaning.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -56,6 +57,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
         builder.Services.AddSingleton<IDialogService, DialogService>();
         builder.Services.AddSingleton<IOrderLinkService, OrderLinkService>();
+#if ANDROID
+        builder.Services.AddSingleton<IIncomingAlertFeedbackService, Platforms.Android.IncomingAlertFeedbackService>();
+#elif IOS
+        builder.Services.AddSingleton<IIncomingAlertFeedbackService, Platforms.iOS.IncomingAlertFeedbackService>();
+#endif
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
         builder.Services.AddSingleton<ProfilePhotoChanger>();
         builder.Services.AddSingleton<IDocumentPicker, DocumentPicker>();
@@ -114,6 +120,7 @@ public static class MauiProgram
             .AddPage<ServiceItemEditPage, ServiceItemEditViewModel>()
             .AddPage<ProfilePage, ProfileViewModel>()
             .AddPage<NotificationsPage, NotificationsViewModel>()
+            .AddPage<IncomingOrderAlertPage, IncomingOrderAlertViewModel>()
             // Customer
             .AddPage<CustomerHomePage, CustomerHomeViewModel>()
             .AddPage<CategoriesPage, CategoriesViewModel>()

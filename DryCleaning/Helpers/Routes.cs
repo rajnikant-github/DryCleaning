@@ -30,6 +30,7 @@ public static class Routes
     public const string ProviderCategories = "providercategories";
     public const string WorkingHours = "workinghours";
     public const string Notifications = "notifications";
+    public const string IncomingOrderAlert = "incomingorderalert";
     public const string Documents = "documents";
     public const string Document = "document";
     public const string OrderDetail = "orderdetail";
@@ -88,6 +89,7 @@ public static class Routes
     public const string ProviderIdKey = "providerId";
     public const string ModeKey = "mode";
     public const string JobIdKey = "jobId";
+    public const string JobTypeKey = "jobType";
 
     /// <summary>Home route for a signed-in role.</summary>
     public static string HomeFor(UserRole role) => role switch

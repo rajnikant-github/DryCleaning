@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels"
+                x:Class="DryCleaning.Views.IncomingOrderAlertPage"
+                x:DataType="vm:IncomingOrderAlertViewModel"
+                Title="New order"
+                Background="{DynamicResource PrimaryGradientBrush}"
+                Shell.NavBarIsVisible="False"
+                Shell.TabBarIsVisible="False">
+    <Grid Padding="28,24" SemanticProperties.Hint="Tap anywhere to review the new order">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding ReviewCommand}" />
+        </Grid.GestureRecognizers>
+
+        <VerticalStackLayout VerticalOptions="Center" Spacing="18">
+            <Label Text="{Binding Heading}" TextColor="{StaticResource White}"
+                   FontFamily="AppSemibold" FontSize="36" LineBreakMode="WordWrap" />
+            <Label Text="{Binding Instruction}" TextColor="{DynamicResource PrimaryLight}"
+                   FontSize="18" />
+            <Label Text="&#xf061;" FontFamily="FA" FontSize="40" TextColor="{StaticResource White}"
+                   Margin="0,14,0,0" />
+        </VerticalStackLayout>
+    </Grid>
+</views:BasePage>

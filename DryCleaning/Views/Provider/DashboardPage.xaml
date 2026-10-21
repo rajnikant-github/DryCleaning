@@ -8,7 +8,7 @@
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
                 x:Class="DryCleaning.Views.Provider.DashboardPage"
                 x:DataType="vm:DashboardViewModel"
-                Title="Dashboard">
+                Title="Operations Hub">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
             <ToolbarItem.IconImageSource>
@@ -20,14 +20,24 @@
     <Grid>
         <RefreshView IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Spacing="16" Padding="0,0,0,28">
+                <VerticalStackLayout Spacing="16" Padding="0,0,0,100">
 
-                    <!--  Header (continues the primary nav bar)  -->
-                    <Border BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
+                    <!--  Business greeting and today's operating context  -->
+                    <Border Background="{DynamicResource PrimaryGradientBrush}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 0,0,24,24" Padding="20,4,20,22">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding BusinessName}" Style="{StaticResource HeaderCaption}" />
-                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderTitle}" />
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                <Border WidthRequest="30" HeightRequest="30" StrokeThickness="1" Stroke="{StaticResource HeaderOverlayBrush}"
+                                        BackgroundColor="{StaticResource HeaderOverlay}" StrokeShape="RoundRectangle 9">
+                                    <Label Text="&#xf0f2;" FontFamily="FA" FontSize="15" TextColor="{StaticResource White}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1" Text="{Binding BusinessName}" TextColor="{StaticResource White}"
+                                       FontFamily="AppSemibold" FontSize="14" LineBreakMode="TailTruncation" VerticalOptions="Center" />
+                            </Grid>
+                            <Label Text="STORE OPERATOR" TextColor="{DynamicResource PrimaryLight}" FontSize="10"
+                                   FontFamily="AppSemibold" CharacterSpacing="1.1" Margin="0,3,0,0" />
+                            <Label Text="{Binding Greeting}" Style="{StaticResource HeaderTitle}" FontSize="25" />
                             <Label Text="{Binding TodayText}" Style="{StaticResource HeaderCaption}" />
                             <Border IsVisible="{Binding HasUnread}" BackgroundColor="{StaticResource HeaderOverlay}"
                                     StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12,6"
@@ -40,8 +50,8 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!--  Summary cards  -->
-                    <Grid Padding="16,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                    <!--  At-a-glance order pipeline  -->
+                    <Grid Margin="16,-23,16,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
                         <Border Style="{StaticResource Card}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OpenFilterCommand}" CommandParameter="New" />
@@ -70,7 +80,7 @@
                                     <Label Grid.Column="1" Text="{Binding InProcessCount}" FontSize="30" FontFamily="AppSemibold"
                                            TextColor="{StaticResource WarningDark}" HorizontalOptions="End" VerticalOptions="Center" />
                                 </Grid>
-                                <Label Text="Processing" Style="{StaticResource Caption}" />
+                                <Label Text="In Wash / Dry" Style="{StaticResource Caption}" />
                             </VerticalStackLayout>
                         </Border>
 
@@ -107,27 +117,37 @@
                         </Border>
                     </Grid>
 
+                    <!--  Always-visible delivery handoff entry point, including when the order queue is empty  -->
+                    <Border Style="{StaticResource Card}" Margin="16,0" BackgroundColor="{DynamicResource SecondaryColor}"
+                            Stroke="{DynamicResource PrimaryLightBrush}" StrokeThickness="1">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border WidthRequest="38" HeightRequest="38" BackgroundColor="{StaticResource HeaderOverlay}"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                                <Label Text="&#xf0d1;" FontFamily="FA" FontSize="18" TextColor="{DynamicResource Primary}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Delivery desk" Style="{StaticResource BodyMedium}" />
+                                <Label Text="{Binding ReadyQueueText}" Style="{StaticResource Small}" MaxLines="2" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="Review" Style="{StaticResource SmallPrimaryButton}"
+                                    Command="{Binding OpenReadyOrdersCommand}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
                     <!--  Incoming driver  -->
                     <Border Style="{StaticResource Card}" Margin="16,0" IsVisible="{Binding HasIncomingDriver}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding OpenIncomingCommand}" />
-                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="12">
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                                <Ellipse Fill="{StaticResource AccentBrush}" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
-                                <Label Grid.Column="1" Text="Incoming Driver" Style="{StaticResource BodyMedium}" FontSize="14" />
-                                <Border Grid.Column="2" Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource AccentSoft}" Padding="8,2">
-                                    <Label Text="Tap to receive" TextColor="{StaticResource InfoDark}" FontSize="11" FontFamily="AppSemibold" />
-                                </Border>
-                            </Grid>
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" StrokeShape="RoundRectangle 22">
-                                    <Label Text="&#xf0d1;" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                <Border Style="{StaticResource IconTile}" BackgroundColor="{DynamicResource SecondaryColor}">
+                                    <Label Text="&#xf0d1;" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" FontFamily="FA" TextColor="{DynamicResource Primary}" />
                                 </Border>
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding IncomingDriverName}" Style="{StaticResource BodyMedium}" FontSize="14" />
-                                    <Label Text="{Binding IncomingDriverText}" Style="{StaticResource Small}" />
+                                    <Label Text="Incoming Driver" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                    <Label Text="{Binding IncomingDriverText}" Style="{StaticResource Small}" MaxLines="2" />
                                 </VerticalStackLayout>
+                                <Button Grid.Column="2" Text="Receive" Style="{StaticResource SmallPrimaryButton}"
+                                        Command="{Binding OpenIncomingCommand}" VerticalOptions="Center" />
                             </Grid>
                         </VerticalStackLayout>
                     </Border>
@@ -146,7 +166,16 @@
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
                         <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoTodaysOrders}">
-                            <Label Text="No orders today yet. New orders will appear here." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Style="{StaticResource IconTile}" BackgroundColor="{DynamicResource SecondaryColor}">
+                                    <Label Text="&#xf466;" FontFamily="FA" FontSize="18" TextColor="{DynamicResource Primary}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="No orders today" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                    <Label Text="New customer orders will appear here with their next step." Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                            </Grid>
                         </Border>
                     </VerticalStackLayout>
 
@@ -154,7 +183,16 @@
                     <VerticalStackLayout Padding="16,0" Spacing="10">
                         <Label Text="Recent Activity" Style="{StaticResource H3}" />
                         <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoRecentActivity}">
-                            <Label Text="No recent activity yet." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Style="{StaticResource IconTile}" BackgroundColor="{DynamicResource SecondaryColor}">
+                                    <Label Text="&#xf1da;" FontFamily="FA" FontSize="18" TextColor="{DynamicResource Primary}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="Activity will show here" Style="{StaticResource BodyMedium}" FontSize="14" />
+                                    <Label Text="Order updates and handoffs appear as your team works." Style="{StaticResource Small}" />
+                                </VerticalStackLayout>
+                            </Grid>
                         </Border>
                         <Border Style="{StaticResource Card}" Padding="16,6" IsVisible="{Binding HasRecentActivity}">
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecentActivity}">
