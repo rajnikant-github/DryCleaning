@@ -202,7 +202,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | `Paystack__CallbackUrl` | `edrycleaners://payment-complete` – must match `Api:PaymentCallbackUrl` in the app. |
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
-| `Otp__ExposeCodeInResponse` | `false`. No SMS/email provider is connected yet, so on a server sign in with **password**. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
+| `Otp__ExposeCodeInResponse` | `false`. No SMS provider is connected (codes are only emailed), so on a server sign in with **password** unless the account has an email. For OTP testing on a test server only, set `true` – the OTP screen then shows the code. |
 | `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
 | `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
@@ -307,4 +307,5 @@ a profile, because profiles are committed.
 - ✅ App connected to the API (sign-in + saved session with token refresh, all screens, photo upload, Paystack checkout, Google address search)
 - ✅ App: push notifications on Android (native Firebase) and iOS (native APNs) – registers on sign-in, opens the order when a notification is tapped
 - ✅ App: sign-up (all roles), forgot/reset and change password, provider business profile (incl. logo) and categories
-- ⏳ Admin web portal, SMS/email provider for codes
+- ✅ Email (SendGrid or SMTP): welcome, sign-in/reset codes, payment receipts, optional announcement emails; admin portal **Email** page sends a test
+- ⏳ SMS provider for codes

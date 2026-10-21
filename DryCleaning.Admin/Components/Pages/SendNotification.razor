@@ -3,7 +3,7 @@
 
 <PageTitle>Send notification – EDry Cleaners Admin</PageTitle>
 <h1>Send notification</h1>
-<p class="muted">Everyone you choose gets an in-app notification and a push on their phone. Group sends go to active customers, providers and drivers.</p>
+<p class="muted">Everyone you choose gets an in-app notification and a push on their phone (and an email if you tick the box). Group sends go to active customers, providers and drivers.</p>
 
 <Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
 
@@ -85,6 +85,8 @@
             <textarea @bind="_message" @bind:event="oninput" maxlength="500" placeholder="What do you want to tell them?"></textarea>
         </label>
 
+        <label class="field"><span><input type="checkbox" @bind="_alsoEmail" /> Also send by email (to people who have an email address)</span></label>
+
         @if (_confirming)
         {
             <div class="notice bad">
@@ -110,6 +112,7 @@
     private string _title = string.Empty;
     private string _message = string.Empty;
     private bool _confirming;
+    private bool _alsoEmail;
 
     private bool CanSend =>
         !string.IsNullOrWhiteSpace(_title) && !string.IsNullOrWhiteSpace(_message) &&
@@ -158,7 +161,8 @@
             Audience = _audience,
             UserId = _audience == NotificationAudience.User ? _selected?.Id : null,
             Title = _title.Trim(),
-            Message = _message.Trim()
+            Message = _message.Trim(),
+            AlsoEmail = _alsoEmail
         };
 
         SendNotificationResult? result = null;
@@ -169,7 +173,7 @@
             // RunAsync cleared the messages; show the outcome after it.
             _title = string.Empty;
             _message = string.Empty;
-            await RunAsync(() => Task.CompletedTask, $"Sent to {result.Recipients} {(result.Recipients == 1 ? "user" : "users")}.");
+            await RunAsync(() => Task.CompletedTask, $"Sent to {result.Recipients} {(result.Recipients == 1 ? "user" : "users")}." + (result.EmailsQueued > 0 ? $" {result.EmailsQueued} email(s) queued." : ""));
         }
     }
 }

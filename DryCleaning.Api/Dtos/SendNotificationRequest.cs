@@ -9,4 +9,7 @@ public sealed class SendNotificationRequest
 
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
+
+    /// <summary>Also email the announcement to recipients who have an email address.</summary>
+    public bool AlsoEmail { get; set; }
 }

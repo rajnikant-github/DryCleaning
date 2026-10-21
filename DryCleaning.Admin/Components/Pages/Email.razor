@@ -1,0 +1,53 @@
+@page "/email"
+@inherits AdminPageBase
+
+<PageTitle>Email – EDry Cleaners Admin</PageTitle>
+<h1>Email</h1>
+<p class="muted">
+    The API emails a welcome message, sign-in and password-reset codes and payment receipts. You can also email announcements from Send notification.
+</p>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+@if (_status is not null)
+{
+    <div class="card">
+        <h2>Status</h2>
+        @if (_status.IsConfigured)
+        {
+            <p><span class="badge ok">Ready</span> Sending through <strong>@_status.Provider</strong> from <strong>@_status.From</strong>.</p>
+        }
+        else
+        {
+            <p><span class="badge bad">Not set up</span> Emails are only written to the API log. Add the <code>Email</code> settings to <code>secrets.json</code> (see <code>secrets.example.json</code>) and restart the API.</p>
+        }
+    </div>
+
+    <div class="card">
+        <h2>Send a test email</h2>
+        <p class="muted">Sent straight away, so a wrong key or sender address is reported here.</p>
+        <label class="field"><span>Send to</span><input type="email" @bind="_to" @bind:event="oninput" placeholder="you@example.com" /></label>
+        <button class="btn" disabled="@(Busy || !_status.IsConfigured || string.IsNullOrWhiteSpace(_to))" @onclick="() => SendAsync(false)">Send test email</button>
+        <button class="btn btn-light" disabled="@(Busy || !_status.IsConfigured || string.IsNullOrWhiteSpace(_to))" @onclick="() => SendAsync(true)">Send a sample of every email</button>
+        <p class="muted" style="margin:.75rem 0 0">The samples (welcome for each role, sign-in code, password reset, payment receipt, announcement) use made-up data and are marked "[Sample]".</p>
+    </div>
+}
+else if (Error is null)
+{
+    <p class="muted">Loading…</p>
+}
+
+@code {
+    private EmailStatusDto? _status;
+    private string _to = string.Empty;
+    private int _sent;
+
+    protected override Task OnInitializedAsync() =>
+        RunAsync(async () => _status = await Api.GetAsync<EmailStatusDto>("api/admin/email"));
+
+    private Task SendAsync(bool all) => RunAsync(async () =>
+    {
+        var result = await Api.PostAsync<EmailTestResultDto>("api/admin/email/test", new TestEmailRequest { To = _to.Trim(), AllTemplates = all });
+        _sent = result.Sent;
+    }, all ? "Samples sent. Check the inbox (and spam)." : $"Test email sent to {_to.Trim()}. Check the inbox (and spam).");
+}

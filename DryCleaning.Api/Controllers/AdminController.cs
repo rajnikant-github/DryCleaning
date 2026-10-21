@@ -1,5 +1,6 @@
 using DryCleaning.Api.Common;
 using DryCleaning.Api.Domain;
+using DryCleaning.Api.Infrastructure.Email;
 using DryCleaning.Api.Dtos;
 using DryCleaning.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace DryCleaning.Api.Controllers;
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
 public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing,
-    AdminNotificationService notifications, ExtraChargeService extraCharges, VatSettingService vatSettings, IOptions<MarketplaceOptions> marketplace) : ControllerBase
+    AdminNotificationService notifications, ExtraChargeService extraCharges, VatSettingService vatSettings, IOptions<MarketplaceOptions> marketplace, IOptions<EmailOptions> emailOptions, IEmailSender emailSender) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -144,6 +145,38 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     /// <summary>Send an announcement to one user, everyone, or all customers / providers / drivers. Each recipient gets an in-app notification and a push.</summary>
     [HttpPost("notifications/send")]
     public Task<SendNotificationResult> SendNotification(SendNotificationRequest request, CancellationToken ct) => notifications.SendAsync(request, ct);
+
+    // Email
+    /// <summary>Whether email is set up (provider and sender address only; never keys or passwords).</summary>
+    [HttpGet("email")]
+    public EmailStatusDto EmailStatus()
+    {
+        var email = emailOptions.Value;
+        var ready = email.Enabled && email.IsConfigured;
+        return new EmailStatusDto { IsConfigured = ready, Provider = !ready ? "Not configured" : email.UsesSendGrid ? "SendGrid" : "SMTP", From = ready ? email.From : null };
+    }
+
+    /// <summary>Sends a test email right now (not queued) so a wrong key or sender shows up immediately.</summary>
+    [HttpPost("email/test")]
+    public async Task<EmailTestResultDto> SendTestEmail(TestEmailRequest request, CancellationToken ct)
+    {
+        var email = emailOptions.Value;
+        if (!email.Enabled || !email.IsConfigured)
+            throw new BadRequestException("Email isn't set up yet. Add the Email settings to secrets.json and restart the API.");
+
+        var to = request.To.Trim();
+        var messages = request.AllTemplates ? EmailSamples.All(to) : [EmailTemplates.Test(to)];
+        try
+        {
+            foreach (var message in messages)
+                await emailSender.SendAsync(message, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            throw new BadRequestException($"The mail server refused the test email: {ex.Message}");
+        }
+        return new EmailTestResultDto { Sent = messages.Count };
+    }
 
     // VAT and price preview
     [HttpGet("vat")]

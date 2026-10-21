@@ -2,6 +2,7 @@ using DryCleaning.Api.Common;
 using DryCleaning.Api.Data;
 using DryCleaning.Api.Domain;
 using DryCleaning.Api.Dtos;
+using DryCleaning.Api.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace DryCleaning.Api.Services;
@@ -10,7 +11,7 @@ namespace DryCleaning.Api.Services;
 /// Admin announcements: one in-app notification per recipient. Saving them also triggers the push to the user's phones
 /// and the live update to open apps, the same as for order notifications.
 /// </summary>
-public sealed class AdminNotificationService(AppDbContext db)
+public sealed class AdminNotificationService(AppDbContext db, EmailQueue emailQueue)
 {
     private const int BatchSize = 500;
 
@@ -25,8 +26,16 @@ public sealed class AdminNotificationService(AppDbContext db)
 
         var title = request.Title.Trim();
         var message = request.Message.Trim();
+        var emailed = 0;
         foreach (var batch in recipients.Chunk(BatchSize))
         {
+            if (request.AlsoEmail)
+                foreach (var user in await db.Users.AsNoTracking().Where(u => batch.Contains(u.Id) && u.Email != null).Select(u => new { u.Email, u.Name }).ToListAsync(ct))
+                {
+                    emailQueue.Enqueue(EmailTemplates.Announcement(user.Email!, user.Name, title, message));
+                    emailed++;
+                }
+
             foreach (var userId in batch)
                 db.Notify(userId, order: null, title, message, NotificationType.System);
 
@@ -34,7 +43,7 @@ public sealed class AdminNotificationService(AppDbContext db)
             db.ChangeTracker.Clear(); // keep memory flat for large audiences
         }
 
-        return new SendNotificationResult { Recipients = recipients.Count };
+        return new SendNotificationResult { Recipients = recipients.Count, EmailsQueued = emailed };
     }
 
     private async Task<List<Guid>> RecipientsAsync(NotificationAudience audience, Guid? userId, CancellationToken ct)

@@ -184,7 +184,7 @@ Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and
 | Change password | `POST /api/auth/me/change-password` | New password, all sessions revoked | `Users`, `RefreshTokens` |
 | Sign out | `DELETE /api/me/devices?token=` then `POST /api/auth/logout` | Push stopped, refresh token revoked | `DeviceTokens`, `RefreshTokens` |
 
-In Development, `otp/request` and `password/forgot` return the code as `devCode` (no SMS/email provider yet).
+In Development, `otp/request` and `password/forgot` return the code as `devCode` (the code is also emailed when the account has an email address and Email is configured; there is no SMS provider yet).
 
 ### 4.2 Order lifecycle (status machine)
 
@@ -607,7 +607,9 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
 | `GET` | `/api/admin/users` | Admin | Query: `search`, `role`, `page`, `pageSize` | `PagedResult<AdminUserDto>` | Find any user account (name, email or phone), optionally one role – used by the portal to pick who to notify. |
 | `GET` | `/api/admin/notifications/recipients` | Admin | Query: `audience`, `userId` | `SendNotificationResult` | How many users an announcement would reach (`recipients`), shown before sending. |
-| `POST` | `/api/admin/notifications/send` | Admin | Body: `SendNotificationRequest` | `SendNotificationResult` | Send an announcement to one user (`audience: User` + `userId`), `AllUsers`, `Customers`, `Providers` or `Drivers`. Each recipient gets an in-app notification (type `System`), a push to their phones and the live update in open apps. Group sends reach active customers, providers and drivers only (not admins, not deactivated accounts). |
+| `POST` | `/api/admin/notifications/send` | Admin | Body: `SendNotificationRequest` | `SendNotificationResult` | Send an announcement to one user (`audience: User` + `userId`), `AllUsers`, `Customers`, `Providers` or `Drivers`. Each recipient gets an in-app notification (type `System`), a push to their phones and the live update in open apps. Group sends reach active customers, providers and drivers only (not admins, not deactivated accounts). `alsoEmail: true` also emails it to recipients with an email address; `emailsQueued` in the result says how many. |
+| `GET` | `/api/admin/email` | Admin | — | `EmailStatusDto` | Whether email is set up: `isConfigured`, `provider` (SendGrid / SMTP / Not configured) and `from`. Never returns keys or passwords. |
+| `POST` | `/api/admin/email/test` | Admin | Body: `TestEmailRequest` (`to`) | `204` | Sends a test email straight away (not queued); a refused send returns `400` with the mail server's reason. |
 | `GET` | `/api/admin/disputes` | Admin | Query: `status`, `page`, `pageSize`, `search` | `PagedResult<DisputeDto>` | All disputes (paged, `status`). |
 | `POST` | `/api/admin/disputes/{disputeId}/review` | Admin | — | `DisputeDto` | Mark a dispute `UnderReview`. |
 | `POST` | `/api/admin/disputes/{disputeId}/resolve` | Admin | Body: `ResolveDisputeRequest` | `DisputeDto` | Resolve or reject with a resolution text, optionally moving the order to a new status (e.g. `Processing`, `Completed`, `Cancelled`). Both parties are notified. |
@@ -797,6 +799,7 @@ Used by: `POST /api/admin/notifications/send`
 | `userId` | guid | when `audience` is `User` | An active user account |
 | `title` | string | yes | max 100 |
 | `message` | string | yes | max 500 |
+| `alsoEmail` | bool | no | Also email recipients that have an email address |
 
 #### ReasonRequest
 
@@ -2075,6 +2078,7 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | | `RefreshTokenDays` | `30` | Refresh token lifetime |
 | `Push` | `Enabled` | `true` | Send pushes |
 | | `FirebaseCredentialsJson` | *(empty = log only)* | The Firebase service-account JSON itself (Android pushes); `FirebaseCredentialsPath` (a file) also works |
+| `Email` | `Key` (SendGrid `SG.…`) or `SmtpServer`/`Port`/`Username`/`Password`; `From`, `Name`, `ReplyTo`, `Enabled` | *(none; log-only when missing)* | Outgoing email (welcome, sign-in/reset codes, receipts, announcements). Keep secrets in `secrets.json` |
 | `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` | *(Team/Key/Bundle ids, `.p8` text)* | Apple APNs for iPhone pushes; missing key = log only |
 | | `UseSandbox` | `false` (`true` in Development) | `true` for debug builds, `false` for TestFlight/App Store |
 | `Paystack` | `SecretKey`, `PublicKey` | *(secret)* | Payments + webhook signature |
