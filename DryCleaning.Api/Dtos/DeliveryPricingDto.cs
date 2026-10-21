@@ -4,6 +4,7 @@ namespace DryCleaning.Api.Dtos;
 public sealed class DeliveryPricingDto
 {
     public decimal BaseFee { get; set; }
+    /// <summary>Price for each km beyond <see cref="IncludedKm"/>. Must be more than zero: delivery is always charged per kilometre.</summary>
     public decimal PricePerKm { get; set; }
     public decimal IncludedKm { get; set; }
     public decimal MinFee { get; set; }

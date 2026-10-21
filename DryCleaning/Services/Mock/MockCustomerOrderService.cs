@@ -87,6 +87,32 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
         }
     }
 
+    public Task<OrderQuote?> QuoteAsync(ICartService cart)
+    {
+        if (cart.IsEmpty || cart.ProviderId is null || cart.PickupAddress is null)
+            return Task.FromResult<OrderQuote?>(null);
+
+        lock (store.Gate)
+        {
+            var km = DistanceKm(cart.PickupAddress, cart.ProviderId.Value);
+            var fee = settings.Pricing.Delivery.FeeFor(km);
+            return Task.FromResult<OrderQuote?>(new OrderQuote
+            {
+                SubTotal = cart.SubTotal,
+                Tax = cart.Tax,
+                DeliveryFee = fee,
+                Total = cart.SubTotal + cart.Tax + fee,
+                DistanceKm = (decimal)km,
+                DistanceIsEstimate = true
+            });
+        }
+    }
+
+    private double DistanceKm(Address pickup, Guid providerId) =>
+        store.ProviderById(providerId).AddressId is { } addressId
+            ? Helpers.Geo.DistanceKm(pickup, store.AddressById(addressId))
+            : 0;
+
     public async Task<Guid> PlaceOrderAsync(ICartService cart)
     {
         await MockDataStore.SimulateLatencyAsync();
@@ -135,7 +161,7 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
             }
 
             order.SubTotal = store.OrderItems.Where(i => i.OrderId == order.Id).Sum(i => i.TotalPrice);
-            order.DeliveryFee = settings.Pricing.DefaultDeliveryFee;
+            order.DeliveryFee = settings.Pricing.Delivery.FeeFor(DistanceKm(cart.PickupAddress, cart.ProviderId.Value));
             order.Tax = Math.Round(order.SubTotal * settings.Pricing.VatRate, 2, MidpointRounding.AwayFromZero);
             order.TotalAmount = order.SubTotal + order.Tax + order.DeliveryFee;
             store.Orders.Add(order);

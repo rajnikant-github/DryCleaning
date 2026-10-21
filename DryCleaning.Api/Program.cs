@@ -7,6 +7,7 @@ using DryCleaning.Shared.Secrets;
 using DryCleaning.Api.Infrastructure.Errors;
 using DryCleaning.Api.Infrastructure.Payments;
 using DryCleaning.Api.Infrastructure.Push;
+using DryCleaning.Api.Infrastructure.Routing;
 using DryCleaning.Api.Infrastructure.Realtime;
 using DryCleaning.Api.Infrastructure.Storage;
 using DryCleaning.Api.Infrastructure.Swagger;
@@ -78,6 +79,14 @@ builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddSingleton<IOtpService, MemoryOtpService>();
+builder.Services.Configure<RoutesOptions>(config.GetSection(RoutesOptions.Section));
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient(GoogleRouteDistanceService.HttpClientName, client =>
+{
+    client.BaseAddress = new Uri("https://routes.googleapis.com/");
+    client.Timeout = TimeSpan.FromSeconds(8); // a slow Google must not hold up checkout
+});
+builder.Services.AddSingleton<IRouteDistanceService, GoogleRouteDistanceService>();
 // Photos and logos: wwwroot for development / single server, Azure Blob Storage when hosted in Azure.
 if (config.GetSection(StorageOptions.Section).Get<StorageOptions>()?.UseAzureBlob == true)
     builder.Services.AddSingleton<IFileStorage, AzureBlobFileStorage>();

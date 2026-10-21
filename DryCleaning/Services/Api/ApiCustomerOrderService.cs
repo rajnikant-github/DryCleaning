@@ -53,6 +53,30 @@ public sealed class ApiCustomerOrderService(ApiClient api, ISessionService sessi
     public async Task<OrderDetail> GetOrderAsync(Guid orderId) =>
         ApiMapping.ToDetail(await api.GetAsync($"api/customer/orders/{orderId}", Json.OrderDetailDto), api.AbsoluteUrl);
 
+    public async Task<OrderQuote?> QuoteAsync(ICartService cart)
+    {
+        if (cart.IsEmpty || cart.ProviderId is null)
+            return null;
+
+        // The server prices against the customer's saved pickup address, the same address the order will use.
+        var request = new CreateOrderRequest
+        {
+            ServiceProviderId = cart.ProviderId.Value,
+            Items = cart.Lines.Select(l => new CreateOrderItemRequest { ServiceItemId = l.ServiceItemId, Quantity = l.Quantity }).ToList()
+        };
+        var dto = await api.SendAsync(HttpMethod.Post, "api/customer/orders/quote", request, Json.CreateOrderRequest, Json.OrderQuoteDto);
+        return new OrderQuote
+        {
+            SubTotal = dto.SubTotal,
+            Tax = dto.Tax,
+            DeliveryFee = dto.DeliveryFee,
+            Total = dto.TotalAmount,
+            DistanceKm = dto.DistanceKm,
+            DistanceIsEstimate = dto.DistanceIsEstimate,
+            DurationMinutes = dto.DurationMinutes
+        };
+    }
+
     public async Task<Guid> PlaceOrderAsync(ICartService cart)
     {
         if (cart.IsEmpty || cart.ProviderId is null)

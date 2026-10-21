@@ -408,7 +408,7 @@ public sealed class MockDataStore
         }
 
         order.SubTotal = OrderItems.Where(i => i.OrderId == order.Id).Sum(i => i.TotalPrice);
-        order.DeliveryFee = _settings.Pricing.DefaultDeliveryFee;
+        order.DeliveryFee = _settings.Pricing.Delivery.FeeFor(Helpers.Geo.DistanceKm(AddressById(customer.AddressId), AddressById(provider.AddressId)));
         order.Tax = Math.Round(order.SubTotal * _settings.Pricing.VatRate, 2);
         order.TotalAmount = order.SubTotal + order.Tax + order.DeliveryFee;
         Orders.Add(order);

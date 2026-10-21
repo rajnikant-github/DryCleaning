@@ -17,7 +17,7 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
     public async Task<OrderQuoteDto> QuoteAsync(CreateOrderRequest request, CancellationToken ct)
     {
         var customer = await profile.CustomerAsync(ct);
-        var (order, distanceKm) = await BuildOrderAsync(request, customer.Address, ct);
+        var (order, delivery) = await BuildOrderAsync(request, customer.Address, ct);
         return new OrderQuoteDto
         {
             SubTotal = order.SubTotal,
@@ -25,7 +25,9 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
             DeliveryFee = order.DeliveryFee,
             TotalAmount = order.TotalAmount,
             Currency = Market.Currency,
-            DistanceKm = distanceKm
+            DistanceKm = delivery.DistanceKm,
+            DistanceIsEstimate = delivery.IsEstimate,
+            DurationMinutes = delivery.DurationMinutes
         };
     }
 
@@ -144,7 +146,7 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
     }
 
     /// <summary>Validates the cart against the provider's active catalog and prices it server-side.</summary>
-    private async Task<(Order Order, decimal? DistanceKm)> BuildOrderAsync(CreateOrderRequest request, Address? pickupAddress, CancellationToken ct)
+    private async Task<(Order Order, DeliveryQuote Delivery)> BuildOrderAsync(CreateOrderRequest request, Address? pickupAddress, CancellationToken ct)
     {
         var provider = await db.ServiceProviders.Include(p => p.Address).FirstOrDefaultAsync(p => p.Id == request.ServiceProviderId && p.IsActive, ct)
                        ?? throw new NotFoundException("Service provider not found.");
@@ -189,9 +191,9 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         }
 
         // The fee comes from the admin's pricing rule and the distance between pickup address and provider; it is stored on the order.
-        var (fee, distanceKm) = await deliveryPricing.QuoteAsync(pickupAddress, provider.Address, ct);
-        order.Recalculate(Market.VatRate, fee);
-        return (order, distanceKm);
+        var delivery = await deliveryPricing.QuoteAsync(pickupAddress, provider.Address, ct);
+        order.Recalculate(Market.VatRate, delivery.Fee);
+        return (order, delivery);
     }
 
     private static string NewCode() => RandomNumberGenerator.GetInt32(0, 10000).ToString("0000");

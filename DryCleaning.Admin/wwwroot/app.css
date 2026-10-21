@@ -109,6 +109,13 @@ label.field input, label.field select { width: 100%; }
 .user-row:last-child { border-bottom: none; }
 .user-row > div { min-width: 0; overflow-wrap: anywhere; }
 
+/* Info card on the pricing page */
+h3 { font-size: .95rem; margin: 1.1rem 0 .5rem; color: var(--navy); }
+.formula { background: #EEF4FF; border-radius: 8px; padding: .65rem .9rem; font-weight: 600; color: var(--navy); }
+.kv.wide { grid-template-columns: 170px 1fr; }
+.card ul { margin: 0; padding-left: 1.2rem; }
+.card li { margin-bottom: .45rem; }
+
 /* Narrow windows: the sidebar becomes a scrolling bar on top and two-column grids stack. */
 @media (max-width: 900px) {
     .shell { flex-direction: column; }
@@ -119,5 +126,7 @@ label.field input, label.field select { width: 100%; }
     .nav-heading { display: none; }
     .content { padding: 1rem; }
     .grid2 { grid-template-columns: 1fr; }
+    .kv.wide { grid-template-columns: 1fr; gap: .1rem; }
+    .kv.wide dd { margin-bottom: .6rem; }
     .card { overflow-x: auto; }
 }

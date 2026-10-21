@@ -25,10 +25,12 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
     [ObservableProperty] private decimal deliveryFee;
     [ObservableProperty] private decimal tax;
     [ObservableProperty] private decimal total;
+    [ObservableProperty] private string deliveryLabel = "Pickup & delivery";
+    [ObservableProperty] private string deliveryText = string.Empty;
 
     public string VatLabel => $"VAT ({Services.Settings.Pricing.VatRate:P0})";
 
-    protected override Task<bool> LoadDataAsync()
+    protected override async Task<bool> LoadDataAsync()
     {
         ProviderName = cart.ProviderName;
         AddressText = cart.PickupAddress?.FormattedAddress ?? "No address selected";
@@ -40,11 +42,35 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
         Lines.Clear();
         foreach (var line in cart.Lines)
             Lines.Add(line);
+        // Until the server has quoted the price, delivery is left out rather than guessed.
         SubTotal = cart.SubTotal;
-        DeliveryFee = cart.DeliveryFee;
+        DeliveryFee = 0;
         Tax = cart.Tax;
         Total = cart.Total;
-        return Task.FromResult(!cart.IsEmpty);
+        DeliveryLabel = "Pickup & delivery";
+        DeliveryText = "Calculated when you pay";
+
+        // The server decides the delivery fee from the real distance, so show its price (what will be charged), not a local guess.
+        try
+        {
+            if (await orders.QuoteAsync(cart) is { } quote)
+            {
+                SubTotal = quote.SubTotal;
+                DeliveryFee = quote.DeliveryFee;
+                Tax = quote.Tax;
+                Total = quote.Total;
+                DeliveryText = CurrencyFormatter.Current.Format(quote.DeliveryFee);
+                if (quote.DistanceKm is { } km)
+                    DeliveryLabel = $"Pickup & delivery · {km.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} km{(quote.DistanceIsEstimate ? " (est.)" : "")}";
+            }
+        }
+        catch (Exception ex)
+        {
+            // No quote (offline, server busy): delivery stays "calculated when you pay"; the server prices the order when it is placed.
+            System.Diagnostics.Debug.WriteLine($"[OrderSummary] Quote failed: {ex.Message}");
+        }
+
+        return !cart.IsEmpty;
     }
 
     [RelayCommand]

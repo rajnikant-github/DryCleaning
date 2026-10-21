@@ -44,7 +44,7 @@ public sealed partial class CartViewModel : BaseViewModel
         SubTotal = _cart.SubTotal;
         Tax = _cart.Tax;
         // Pickup & delivery depends on the address, so the cart total leaves it out; Order Summary shows the full price.
-        Total = _cart.SubTotal + _cart.Tax;
+        Total = _cart.Total;
         ItemCountText = _cart.ItemCount == 1 ? "1 item" : $"{_cart.ItemCount} items";
 
         // Lines removed by setting quantity to 0

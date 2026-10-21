@@ -12,4 +12,10 @@ public sealed class OrderQuoteDto
 
     /// <summary>Estimated road distance used for the delivery fee; null when an address has no location.</summary>
     public decimal? DistanceKm { get; init; }
+
+    /// <summary>True when the distance is a straight-line estimate (Google couldn't measure the road distance).</summary>
+    public bool DistanceIsEstimate { get; init; }
+
+    /// <summary>Estimated driving time in minutes (only when the distance was measured on the road).</summary>
+    public int? DurationMinutes { get; init; }
 }

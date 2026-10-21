@@ -76,8 +76,8 @@
                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
                             <Label Text="Subtotal" Style="{StaticResource Caption}" />
                             <Label Grid.Column="1" Text="{Binding SubTotal, Converter={StaticResource Currency}}" FontSize="14" />
-                            <Label Grid.Row="1" Text="Pickup &amp; delivery" Style="{StaticResource Caption}" />
-                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryFee, Converter={StaticResource Currency}}" FontSize="14" />
+                            <Label Grid.Row="1" Text="{Binding DeliveryLabel}" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryText}" FontSize="14" />
                             <Label Grid.Row="2" Text="{Binding VatLabel}" Style="{StaticResource Caption}" />
                             <Label Grid.Row="2" Grid.Column="1" Text="{Binding Tax, Converter={StaticResource Currency}}" FontSize="14" />
                             <Label Grid.Row="3" Text="Total" Style="{StaticResource BodyMedium}" Margin="0,4,0,0" />

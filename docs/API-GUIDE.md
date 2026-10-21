@@ -148,7 +148,7 @@ All amounts are **ZAR** (`currency: "ZAR"`), decimals with 2 places. Prices are 
 |---|---|---|
 | `subTotal` | Σ (service item price × quantity) | — |
 | `tax` | `subTotal × VatRate`, rounded to cents | VAT 15 % |
-| `deliveryFee` | flat per order | R 45.00 |
+| `deliveryFee` | per kilometre: base fee + price per km beyond the included distance, within min/max (set in the admin portal; starts at R30 for 2 km, then R5/km, min R30, max R250) | R 51.00 for 6.2 km |
 | `totalAmount` | `subTotal + tax + deliveryFee` | — |
 | Driver earning | flat per completed job (pickup or delivery) | R 35.00 |
 
@@ -490,7 +490,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 
 | Method | Path | Access | Request | Response | What it does |
 |---|---|---|---|---|---|
-| `POST` | `/api/customer/orders/quote` | Customer | Body: `CreateOrderRequest` | `OrderQuoteDto` | Price a cart (subtotal, VAT, delivery fee, total) without creating an order. Not used by the app. |
+| `POST` | `/api/customer/orders/quote` | Customer | Body: `CreateOrderRequest` | `OrderQuoteDto` | Price a cart (subtotal, VAT, delivery fee, total) without creating an order. The app's Order Summary calls it, so the price shown is the price charged; it also returns `distanceKm`, `durationMinutes` and `distanceIsEstimate`. |
 | `POST` | `/api/customer/orders` | Customer | Body: `CreateOrderRequest` | `201` `OrderDetailDto` | Create an order from the cart. Prices come from the server; pickup address = my saved address. Creates the pickup code and delivery OTP. Status `Created`, unpaid. Returns `201` with the order. |
 | `GET` | `/api/customer/orders` | Customer | Query: `filter`, `page`, `pageSize`, `search` | `PagedResult<OrderSummaryDto>` | My orders by tab: `filter` = Active / Completed / Cancelled / All. |
 | `GET` | `/api/customer/orders/counts` | Customer | — | `CustomerOrderCountsDto` | Badge counts for the Active / Completed / Cancelled tabs. |
@@ -592,7 +592,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/admin/orders/{orderId}` | Admin | — | `OrderDetailDto` | Full order detail: items, history, photos, jobs, payments, disputes. |
 | `GET` | `/api/admin/driver-jobs` | Admin | Query: `status`, `jobType`, `page`, `pageSize`, `search` | `PagedResult<DriverJobDto>` | All driver jobs (paged, `status`, `jobType`). |
 | `POST` | `/api/admin/driver-jobs/{jobId}/assign` | Admin | Body: `AssignDriverRequest` | `DriverJobDto` | Assign or reassign a job to a driver (`driverId`); the driver is notified. |
-| `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Starts as the flat `Marketplace:DeliveryFee`. |
+| `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Always per km: `pricePerKm` must be more than zero. Starts at R30 for the first 2 km, then R5/km, min R30, max R250. |
 | `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
 | `GET` | `/api/admin/payments` | Admin | Query: `page`, `pageSize`, `search`, `status` | `PagedResult<AdminPaymentDto>` | All payments (paged, `status`). |
 | `GET` | `/api/admin/users` | Admin | Query: `search`, `role`, `page`, `pageSize` | `PagedResult<AdminUserDto>` | Find any user account (name, email or phone), optionally one role – used by the portal to pick who to notify. |
@@ -1752,7 +1752,7 @@ Which categories each provider offers.
 
 #### DeliveryPricing
 
-One row: the marketplace's pickup & delivery price rule. Created from `Marketplace:DeliveryFee` (flat) the first time it is needed.
+One row: the marketplace's pickup & delivery price rule. Pickup & delivery is always charged per kilometre (the price per km must be more than zero). Created with starting values (R30 base covering 2 km, R5 per km, min R30, max R250) the first time it is needed; a rule left over from the earlier flat fee is upgraded the same way.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -1763,7 +1763,7 @@ One row: the marketplace's pickup & delivery price rule. Created from `Marketpla
 | `MinFee`, `MaxFee` | `decimal`, `decimal?` | the fee is kept between them (`MaxFee` null = no limit) |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
 
-The order's fee uses the road distance estimate (straight line between the customer's pickup address and the provider × 1.3). `POST /api/customer/orders/quote` returns it as `deliveryFee` with `distanceKm`.
+The fee uses the real driving distance between the customer's pickup address and the provider, measured with the Google **Routes API** (`Routes:ApiKey`, a server key restricted to Routes API). Results are cached per address pair (`Routes:CacheDays`, default 14), and if Google can't be reached the fee falls back to a straight-line estimate × 1.3. `POST /api/customer/orders/quote` returns `deliveryFee`, `distanceKm`, `durationMinutes` and `distanceIsEstimate`, and the app's Order Summary shows that price, so what is shown is what is charged.
 
 #### ProviderWorkingHours
 
@@ -2026,7 +2026,6 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | `ConnectionStrings` | `DefaultConnection` | local Docker SQL Server | Database |
 | `Marketplace` | `Currency` | `ZAR` | Currency code in responses |
 | | `VatRate` | `0.15` | VAT on the subtotal |
-| | `DeliveryFee` | `45.00` | Flat fee per order |
 | | `DriverEarningPerJob` | `35.00` | Driver pay per completed job |
 | | `RequirePaymentBeforeAccept` | `true` | Providers only see paid new orders |
 | `Jwt` | `Issuer`, `Audience` | `EDryCleaners`, `EDryCleaners.App` | Token validation |

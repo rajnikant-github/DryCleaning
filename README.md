@@ -26,7 +26,7 @@ It has one block per environment (`local`, `staging`, `production`) and, in each
 
 | Section | Read by | Holds |
 |---|---|---|
-| `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key, the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), and any other API setting you want kept out of git |
+| `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key (`Routes.ApiKey`, for driving distance), the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), and any other API setting you want kept out of git |
 | `Admin` | the admin portal | nothing secret yet (it only needs the API address) |
 | `App` | `./set-app-env.sh <env>` → the mobile app build | keys that are restricted in Google's console, e.g. `GoogleMaps.ApiKey`. **Never put server secrets here** – anything in the app can be extracted |
 
@@ -292,7 +292,7 @@ a profile, because profiles are committed.
 
 ## Configuration
 
-- **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), VAT, delivery fee, driver earning per job,
+- **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
   mock data and demo switches, API URLs (production + local Debug), payment callback.
   Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
   environment's keys, from `secrets.json`) – all git-ignored, never committed.
