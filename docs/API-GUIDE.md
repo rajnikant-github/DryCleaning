@@ -160,9 +160,9 @@ All amounts are **ZAR** (`currency: "ZAR"`), decimals with 2 places. Prices are 
 
 | Role | Registers via | Uses | Notes |
 |---|---|---|---|
-| **Customer** | `POST /api/auth/register/customer` | Catalog, `api/customer/*`, `api/me/*` | Needs an address before ordering |
-| **Provider** | `POST /api/auth/register/provider` | `api/provider/*`, `api/me/*` | Inactive until an admin approves; needs an address before accepting orders |
-| **Driver** | `POST /api/auth/register/driver` | `api/driver/*`, `api/me/*` | Must be online to accept jobs; one active job at a time |
+| **Customer** | `POST /api/auth/register/start` → `confirm` | Catalog, `api/customer/*`, `api/me/*` | Needs an address before ordering |
+| **Provider** | `POST /api/auth/register/start` → `confirm` | `api/provider/*`, `api/me/*` | Inactive until an admin approves; needs an address before accepting orders |
+| **Driver** | `POST /api/auth/register/start` → `confirm` | `api/driver/*`, `api/me/*` | Must be online to accept jobs; one active job at a time |
 | **Admin** | Seeded only (no sign-up) | `api/admin/*` | Approves providers, assigns drivers, resolves disputes |
 
 Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and order photos for orders they're part of.
@@ -175,16 +175,16 @@ Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and
 
 | Step | Endpoint | Result | Tables |
 |---|---|---|---|
-| Sign up | `POST /api/auth/register/{customer\|provider\|driver}` | Account + role profile. Customer/driver are signed in; provider gets tokens but stays inactive until approved (admins notified) | `Users`, `Customers` / `ServiceProviders` + `ServiceProviderCategories` / `Drivers`, `RefreshTokens`, `Notifications` |
+| Sign up | `POST /api/auth/register/start` → `POST /api/auth/register/confirm` | Step 1 only holds the details and emails a 6-digit code (**no account yet**). Step 2 checks the code and creates the account + role profile; customer/driver are signed in, provider gets tokens but stays inactive until approved (admins notified). Code valid 10 min, 5 wrong tries cancel the sign-up, one resend per minute (`register/resend`), at most 5 codes per sign-up | `Users`, `Customers` / `ServiceProviders` + `ServiceProviderCategories` / `Drivers`, `RefreshTokens`, `Notifications` |
 | Sign in (password) | `POST /api/auth/login` | Access + refresh token | `RefreshTokens` |
-| Sign in (OTP) | `POST /api/auth/otp/request` → `POST /api/auth/otp/verify` | 6-digit code, 5 min, 5 attempts | `RefreshTokens` (codes are in memory, not in a table) |
+| Sign in (OTP) | `POST /api/auth/otp/request` → `POST /api/auth/otp/verify` | 6-digit code, 5 min, 5 attempts | `RefreshTokens` (codes are in memory, not in a table). The code is **only emailed**, never sent by SMS, even when the account is found by mobile number; an account with no email gets a 400 and signs in with its password |
 | Keep signed in | `POST /api/auth/refresh` | New access + refresh token (old one revoked) | `RefreshTokens` |
 | Restore on app start | `POST /api/auth/refresh` with the stored refresh token | Same as above | `RefreshTokens` |
 | Forgot password | `POST /api/auth/password/forgot` → `POST /api/auth/password/reset` | New password, signed in, other sessions revoked, "Password changed" notification | `Users`, `RefreshTokens`, `Notifications` |
 | Change password | `POST /api/auth/me/change-password` | New password, all sessions revoked | `Users`, `RefreshTokens` |
 | Sign out | `DELETE /api/me/devices?token=` then `POST /api/auth/logout` | Push stopped, refresh token revoked | `DeviceTokens`, `RefreshTokens` |
 
-In Development, `otp/request` and `password/forgot` return the code as `devCode` (the code is also emailed when the account has an email address and Email is configured; there is no SMS provider yet).
+In Development, `otp/request` and `password/forgot` return the code as `devCode` (codes are only ever emailed: there is no SMS).
 
 ### 4.2 Order lifecycle (status machine)
 
@@ -369,7 +369,7 @@ The app reads the same rows with `GET /api/notifications` (bell list) and `GET /
 
 ### 4.9 Provider onboarding and catalog
 
-1. `POST /api/auth/register/provider` (with `categoryIds`) → business **inactive**; admins notified.
+1. `POST /api/auth/register/start` (role `Provider`, with `categoryIds`), then `register/confirm` with the emailed code → business **inactive**; admins notified.
 2. Admin: `GET /api/admin/providers?isActive=false` → `PUT /api/admin/providers/{id}/active` `{ isActive: true }` → provider notified.
 3. Provider: `PUT /api/me/address` (needed before accepting orders), `PUT /api/provider/profile`, `POST /api/provider/profile/logo`.
 4. Provider: `PUT /api/provider/categories` – which global categories it offers (admins manage the category list).
@@ -446,9 +446,9 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 
 | Method | Path | Access | Request | Response | What it does |
 |---|---|---|---|---|---|
-| `POST` | `/api/auth/register/customer` | Public | Body: `RegisterCustomerRequest` | `AuthResponse` | Create a customer account and sign in. Needs an email or a phone number (or both). |
-| `POST` | `/api/auth/register/provider` | Public | Body: `RegisterProviderRequest` | `AuthResponse` | Create a provider account and business. The business stays **inactive** until an admin approves it; admins get a notification. |
-| `POST` | `/api/auth/register/driver` | Public | Body: `RegisterDriverRequest` | `AuthResponse` | Create a driver account (shared marketplace driver) and sign in. |
+| `POST` | `/api/auth/register/start` | Public | Body: `RegisterStartRequest` | `RegisterStartResponse` | Sign-up step 1 for a customer, provider or driver. Checks the details (email or phone already used → `409`), **creates nothing**, holds the sign-up and emails a 6-digit code. |
+| `POST` | `/api/auth/register/resend` | Public | Body: `RegisterResendRequest` | `RegisterStartResponse` | Email a new code for a waiting sign-up. One per minute, at most 5 per sign-up. |
+| `POST` | `/api/auth/register/confirm` | Public | Body: `RegisterConfirmRequest` | `AuthResponse` | Sign-up step 2: right code → the account (and customer/provider/driver profile) is created and signed in. A provider's business stays **inactive** until an admin approves it. Wrong code → `401`; the 5th wrong code cancels the sign-up. |
 | `POST` | `/api/auth/login` | Public | Body: `LoginRequest` | `AuthResponse` | Sign in with mobile number or email plus password. Returns access token (60 min) + refresh token (30 days). |
 | `POST` | `/api/auth/refresh` | Public | Body: `RefreshTokenRequest` | `AuthResponse` | Swap a refresh token for a new access + refresh token. The old refresh token stops working (rotation); re-using it signs the user out everywhere. |
 | `POST` | `/api/auth/logout` | Public | Body: `RefreshTokenRequest` | `204` | Revoke this device's refresh token. Call `DELETE /api/me/devices` first to stop pushes. |
@@ -630,42 +630,40 @@ Used by: `POST /api/auth/login`
 | `identifier` | string | yes | Mobile number or email, max 100 |
 | `password` | string | yes | — |
 
-#### RegisterCustomerRequest
+#### RegisterStartRequest
 
-Used by: `POST /api/auth/register/customer`
-
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `name` | string | yes | max 100 |
-| `email` | string | one of email/phone | valid email, max 100, unique |
-| `phone` | string | one of email/phone | Phone, unique |
-| `password` | string | yes | Password |
-
-#### RegisterProviderRequest
-
-Used by: `POST /api/auth/register/provider`
+Used by: `POST /api/auth/register/start`
 
 | Field | Type | Required | Rules |
 |---|---|---|---|
-| `name` | string | yes | Owner name, max 100 |
-| `email` | string | one of email/phone | valid email, max 100, unique |
-| `phone` | string | one of email/phone | Phone, unique |
+| `role` | enum | yes | `Customer`, `Provider` or `Driver` |
+| `name` | string | yes | max 100 (the owner's name for a provider) |
+| `email` | string | yes | valid email, max 100, not already used. The code is emailed here |
+| `phone` | string | no | Phone, not already used |
 | `password` | string | yes | Password |
-| `businessName` | string | yes | max 100 |
-| `description` | string | no | max 500 |
-| `categoryIds` | guid[] | no | Active categories the business offers |
+| `businessName` | string | provider | max 100 |
+| `description` | string | no | provider, max 500 |
+| `categoryIds` | guid[] | no | provider: active categories the business offers |
+| `licenseNumber` | string | driver | max 50 |
 
-#### RegisterDriverRequest
+#### RegisterStartResponse
 
-Used by: `POST /api/auth/register/driver`
+Returned by: `register/start`, `register/resend`
 
-| Field | Type | Required | Rules |
-|---|---|---|---|
-| `name` | string | yes | max 100 |
-| `email` | string | no | valid email, max 100, unique |
-| `phone` | string | yes | Phone, unique |
-| `password` | string | yes | Password |
-| `licenseNumber` | string | yes | max 50 |
+| Field | Type | Notes |
+|---|---|---|
+| `destination` | string | masked email, e.g. `ra***@gmail.com` |
+| `expiresInSeconds` | int | 600 |
+| `resendInSeconds` | int | 60: wait this long before `register/resend` |
+| `devCode` | string? | only when `Otp:ExposeCodeInResponse` is true (development) |
+
+#### RegisterResendRequest
+
+Used by: `POST /api/auth/register/resend`: `email` (string, required).
+
+#### RegisterConfirmRequest
+
+Used by: `POST /api/auth/register/confirm`: `email` (string, required) and `code` (string, required, the emailed code).
 
 #### RefreshTokenRequest
 
@@ -1612,6 +1610,7 @@ SQL Server, EF Core migrations in `DryCleaning.Api/Data/Migrations`. Every table
 
 | Table | Purpose | Written by |
 |---|---|---|
+| `PendingRegistrations` | Sign-ups waiting for their emailed code (details, hashed password, hashed code, expiry, attempts); a row is deleted when the account is created or the code expires | `/api/auth/register/*` |
 | [`Users`](#users) | Every account: role, name, email, phone, password hash, active flag | Auth register/update, admin deactivate |
 | [`Customers`](#customers) | Customer profile (1:1 with a user) and saved address | Register customer, `PUT /api/me/address` |
 | [`ServiceProviders`](#serviceproviders) | Provider business: name, contact, logo, approved/active | Register provider, provider profile, admin approve |

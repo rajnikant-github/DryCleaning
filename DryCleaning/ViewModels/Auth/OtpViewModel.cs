@@ -10,7 +10,9 @@ namespace DryCleaning.ViewModels.Auth;
 public sealed partial class OtpViewModel(ViewModelServices services, IAuthService auth, ISessionService session)
     : BaseViewModel(services), IQueryAttributable
 {
-    private const int ResendSeconds = 30;
+    private int _resendSeconds = 30;
+    private bool _isRegistration;
+    private bool _started;
     private CancellationTokenSource? _countdown;
     private string _identifier = string.Empty;
 
@@ -32,7 +34,7 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
 
     public bool HasError => !string.IsNullOrEmpty(ErrorText);
     public bool CanResend => SecondsRemaining == 0;
-    public string ResendText => CanResend ? "Resend OTP" : $"Resend OTP in {SecondsRemaining}s";
+    public string ResendText => CanResend ? "Resend code" : $"Resend code in {SecondsRemaining}s";
     public bool ShowDemoHint => !string.IsNullOrEmpty(auth.OtpHint);
     public string DemoHint => $"Demo code: {auth.OtpHint}";
 
@@ -40,11 +42,32 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
     {
         if (query.TryGetValue(Routes.IdentifierKey, out var value) && value is string identifier)
             _identifier = identifier;
+
+        // Confirming a new sign-up: the code was already emailed on the previous screen.
+        if (query.TryGetValue(Routes.PurposeKey, out var purpose) && purpose is string p && p == Routes.RegisterPurpose)
+        {
+            _isRegistration = true;
+            _resendSeconds = query.TryGetValue(Routes.ResendSecondsKey, out var seconds) && seconds is int s ? s : 60;
+            if (query.TryGetValue(Routes.DestinationKey, out var destination) && destination is string d)
+                Destination = d;
+        }
     }
 
     public override async Task OnAppearingAsync()
     {
         State = ViewState.Content;
+        if (_isRegistration)
+        {
+            if (!_started)
+            {
+                _started = true;
+                OnPropertyChanged(nameof(ShowDemoHint));
+                OnPropertyChanged(nameof(DemoHint));
+                await StartCountdownAsync();
+            }
+            return;
+        }
+
         if (string.IsNullOrEmpty(Destination))
             await SendCodeAsync();
     }
@@ -55,7 +78,9 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
     private Task VerifyAsync() => RunBusyAsync(async () =>
     {
         ErrorText = string.Empty;
-        var result = await auth.VerifyOtpAsync(_identifier, Code, session.SelectedRole);
+        var result = _isRegistration
+            ? await auth.ConfirmRegistrationAsync(_identifier, Code)
+            : await auth.VerifyOtpAsync(_identifier, Code, session.SelectedRole);
         if (!result.Success)
         {
             ErrorText = result.Error ?? "Verification failed.";
@@ -64,6 +89,14 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
         }
 
         _countdown?.Cancel();
+        if (result.PendingApproval)
+        {
+            // A new provider's business waits for admin approval, so there is no session yet: back to sign-in.
+            await Dialogs.AlertAsync("Registration received", result.Message ?? "Your business is being reviewed.");
+            await Navigation.GoToAsync(Routes.Login);
+            return;
+        }
+
         await Navigation.GoToAsync(Routes.HomeFor(session.CurrentUser?.Role ?? session.SelectedRole));
     });
 
@@ -81,7 +114,22 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
         try
         {
             ErrorText = string.Empty;
-            Destination = await auth.RequestOtpAsync(_identifier, session.SelectedRole);
+            if (_isRegistration)
+            {
+                var resent = await auth.ResendRegistrationCodeAsync(_identifier);
+                if (!resent.Success)
+                {
+                    ErrorText = resent.Error ?? "We couldn't send a new code.";
+                    return;
+                }
+
+                Destination = resent.Destination;
+                _resendSeconds = resent.ResendInSeconds;
+            }
+            else
+            {
+                Destination = await auth.RequestOtpAsync(_identifier, session.SelectedRole);
+            }
         }
         catch (Exception ex)
         {
@@ -99,7 +147,7 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
         _countdown = new CancellationTokenSource();
         var token = _countdown.Token;
 
-        SecondsRemaining = ResendSeconds;
+        SecondsRemaining = _resendSeconds;
         try
         {
             while (SecondsRemaining > 0)

@@ -10,30 +10,34 @@ namespace DryCleaning.Api.Controllers;
 [ApiController]
 [Route("api/auth")]
 [Produces("application/json")]
-public sealed class AuthController(AuthService auth) : ControllerBase
+public sealed class AuthController(AuthService auth, RegistrationService registration) : ControllerBase
 {
-    /// <summary>Register a customer account.</summary>
-    [HttpPost("register/customer")]
+    /// <summary>
+    /// Sign-up step 1 (customer, provider or driver). Nothing is created yet: the details are held and a 6-digit code is emailed.
+    /// Finish with <c>register/confirm</c>.
+    /// </summary>
+    [HttpPost("register/start")]
     [AllowAnonymous]
-    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<RegisterStartResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public Task<AuthResponse> RegisterCustomer(RegisterCustomerRequest request, CancellationToken ct) =>
-        auth.RegisterCustomerAsync(request, ct);
+    public Task<RegisterStartResponse> RegisterStart(RegisterStartRequest request, CancellationToken ct) => registration.StartAsync(request, ct);
 
-    /// <summary>Register a service provider. The business stays inactive until an admin approves it.</summary>
-    [HttpPost("register/provider")]
+    /// <summary>Email a new code for a sign-up that is waiting for its code (one per minute, a few per sign-up).</summary>
+    [HttpPost("register/resend")]
+    [AllowAnonymous]
+    [ProducesResponseType<RegisterStartResponse>(StatusCodes.Status200OK)]
+    public Task<RegisterStartResponse> RegisterResend(RegisterResendRequest request, CancellationToken ct) => registration.ResendAsync(request, ct);
+
+    /// <summary>
+    /// Sign-up step 2: check the code and create the account. Customers and drivers are signed in;
+    /// a provider's business stays inactive until an admin approves it.
+    /// </summary>
+    [HttpPost("register/confirm")]
     [AllowAnonymous]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
-    public Task<AuthResponse> RegisterProvider(RegisterProviderRequest request, CancellationToken ct) =>
-        auth.RegisterProviderAsync(request, ct);
-
-    /// <summary>Register a shared marketplace driver.</summary>
-    [HttpPost("register/driver")]
-    [AllowAnonymous]
-    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
-    public Task<AuthResponse> RegisterDriver(RegisterDriverRequest request, CancellationToken ct) =>
-        auth.RegisterDriverAsync(request, ct);
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public Task<AuthResponse> RegisterConfirm(RegisterConfirmRequest request, CancellationToken ct) => registration.ConfirmAsync(request, ct);
 
     /// <summary>Log in with mobile number or email and password.</summary>
     [HttpPost("login")]

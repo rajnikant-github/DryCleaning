@@ -10,8 +10,14 @@ public interface IAuthService
     Task<AuthResult> VerifyOtpAsync(string identifier, string code, UserRole role);
     Task LogoutAsync();
 
-    /// <summary>Creates an account. Customers and drivers are signed in; providers get <see cref="AuthResult.PendingApproval"/>.</summary>
-    Task<AuthResult> RegisterAsync(Registration registration);
+    /// <summary>Sign-up step 1: checks the details and emails a code. No account exists yet.</summary>
+    Task<RegistrationStart> StartRegistrationAsync(Registration registration);
+
+    /// <summary>Emails a new sign-up code and returns the masked email.</summary>
+    Task<RegistrationStart> ResendRegistrationCodeAsync(string email);
+
+    /// <summary>Sign-up step 2: checks the code and creates the account. Customers and drivers are signed in; providers get <see cref="AuthResult.PendingApproval"/>.</summary>
+    Task<AuthResult> ConfirmRegistrationAsync(string email, string code);
 
     /// <summary>Sends a password-reset code and returns the masked destination.</summary>
     Task<string> RequestPasswordResetAsync(string identifier);

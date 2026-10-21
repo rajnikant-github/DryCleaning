@@ -42,9 +42,54 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
 
     public string? OtpHint => DemoOtp;
 
-    public async Task<AuthResult> RegisterAsync(Registration registration)
+    private readonly Dictionary<string, Registration> _pending = new(StringComparer.OrdinalIgnoreCase);
+
+    public async Task<RegistrationStart> StartRegistrationAsync(Registration registration)
     {
         await MockDataStore.SimulateLatencyAsync();
+        var email = registration.Email?.Trim().ToLowerInvariant();
+        var phone = registration.Phone?.Trim();
+        if (string.IsNullOrEmpty(email))
+            return RegistrationStart.Fail("An email address is required.");
+        lock (store.Gate)
+        {
+            if (store.Users.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(phone) && store.Users.Any(u => u.Phone == phone)))
+                return RegistrationStart.Fail("An account with that email or mobile number already exists.");
+        }
+
+        _pending[email] = registration;
+        return RegistrationStart.Ok(MaskEmail(email));
+    }
+
+    public async Task<RegistrationStart> ResendRegistrationCodeAsync(string email)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        return _pending.ContainsKey(email.Trim())
+            ? RegistrationStart.Ok(MaskEmail(email.Trim().ToLowerInvariant()))
+            : RegistrationStart.Fail("We couldn't find that sign-up. Please start again.");
+    }
+
+    public async Task<AuthResult> ConfirmRegistrationAsync(string email, string code)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        if (!_pending.TryGetValue(email.Trim(), out var registration))
+            return AuthResult.Fail("We couldn't find that sign-up. Please start again.");
+        if (code.Trim() != DemoOtp)
+            return AuthResult.Fail("That code is incorrect. Please try again.");
+
+        _pending.Remove(email.Trim());
+        return CreateAccount(registration);
+    }
+
+    private static string MaskEmail(string email)
+    {
+        var at = email.IndexOf('@');
+        return at < 0 ? email : $"{email[..Math.Min(2, at)]}***{email[at..]}";
+    }
+
+    private AuthResult CreateAccount(Registration registration)
+    {
         lock (store.Gate)
         {
             var email = registration.Email?.Trim().ToLowerInvariant();

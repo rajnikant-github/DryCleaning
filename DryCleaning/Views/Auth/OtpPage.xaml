@@ -10,15 +10,15 @@
     <ScrollView>
         <VerticalStackLayout Padding="24,32" Spacing="20">
             <Border Style="{StaticResource IconTile}" BackgroundColor="{StaticResource AccentSoft}" WidthRequest="64" HeightRequest="64">
-                <Label Text="&#xf3cf;" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
+                <Label Text="&#xf0e0;" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center"  FontFamily="FA" TextColor="{StaticResource InfoDark}"/>
             </Border>
 
             <VerticalStackLayout Spacing="6">
-                <Label Text="Verify your number" Style="{StaticResource H1}" />
+                <Label Text="Verify your email" Style="{StaticResource H1}" />
                 <Label Style="{StaticResource Caption}" FontSize="15">
                     <Label.FormattedText>
                         <FormattedString>
-                            <Span Text="Enter the 6-digit code sent to " />
+                            <Span Text="Enter the 6-digit code we emailed to " />
                             <Span Text="{Binding Destination}" FontFamily="AppSemibold" TextColor="{StaticResource AppForeground}" />
                         </FormattedString>
                     </Label.FormattedText>

@@ -20,53 +20,58 @@ public sealed class AuthService(
     IOptions<JwtOptions> jwtOptions,
     ILogger<AuthService> logger)
 {
-    public async Task<AuthResponse> RegisterCustomerAsync(RegisterCustomerRequest request, CancellationToken ct)
+    /// <summary>Creates the real account (and its customer, provider or driver profile) from a confirmed sign-up.</summary>
+    public async Task<AuthResponse> CreateAccountAsync(PendingRegistration pending, CancellationToken ct)
     {
-        var user = await CreateUserAsync(UserRole.Customer, request.Name, request.Email, request.Phone, request.Password, ct);
-        var customer = new Customer { UserId = user.Id };
-        db.Customers.Add(customer);
-        await db.SaveChangesAsync(ct);
-        QueueWelcomeEmail(user);
-        return await IssueAsync(user, customer.Id, ct);
-    }
+        await EnsureUniqueAsync(pending.Email, pending.Phone, null, ct);
 
-    public async Task<AuthResponse> RegisterProviderAsync(RegisterProviderRequest request, CancellationToken ct)
-    {
-        var user = await CreateUserAsync(UserRole.Provider, request.Name, request.Email, request.Phone, request.Password, ct);
-        var provider = new Provider
-        {
-            UserId = user.Id,
-            BusinessName = request.BusinessName.Trim(),
-            Description = request.Description,
-            Email = request.Email,
-            Phone = request.Phone,
-            IsActive = false // admin approval required
-        };
-        db.ServiceProviders.Add(provider);
+        var details = System.Text.Json.JsonSerializer.Deserialize<RegistrationDetails>(pending.DetailsJson) ?? new RegistrationDetails();
+        var user = new User { Role = pending.Role, Name = pending.Name, Email = pending.Email, Phone = pending.Phone, PasswordHash = pending.PasswordHash };
+        db.Users.Add(user);
 
-        if (request.CategoryIds is { Count: > 0 })
+        Guid profileId;
+        switch (pending.Role)
         {
-            var validIds = await db.Categories.Where(c => request.CategoryIds.Contains(c.Id) && c.IsActive).Select(c => c.Id).ToListAsync(ct);
-            foreach (var categoryId in validIds)
-                db.ServiceProviderCategories.Add(new ServiceProviderCategory { ServiceProviderId = provider.Id, CategoryId = categoryId });
+            case UserRole.Customer:
+                var customer = new Customer { UserId = user.Id };
+                db.Customers.Add(customer);
+                profileId = customer.Id;
+                break;
+
+            case UserRole.Provider:
+                var provider = new Provider
+                {
+                    UserId = user.Id,
+                    BusinessName = details.BusinessName ?? string.Empty,
+                    Description = details.Description,
+                    Email = pending.Email,
+                    Phone = pending.Phone,
+                    IsActive = false // admin approval required
+                };
+                db.ServiceProviders.Add(provider);
+                profileId = provider.Id;
+
+                if (details.CategoryIds.Count > 0)
+                {
+                    var validIds = await db.Categories.Where(c => details.CategoryIds.Contains(c.Id) && c.IsActive).Select(c => c.Id).ToListAsync(ct);
+                    foreach (var categoryId in validIds)
+                        db.ServiceProviderCategories.Add(new ServiceProviderCategory { ServiceProviderId = provider.Id, CategoryId = categoryId });
+                }
+
+                foreach (var adminId in await db.Users.Where(u => u.Role == UserRole.Admin && u.IsActive).Select(u => u.Id).ToListAsync(ct))
+                    db.Notify(adminId, null, "New provider registration", $"{provider.BusinessName} is waiting for approval.", NotificationType.System);
+                break;
+
+            default:
+                var driver = new Driver { UserId = user.Id, LicenseNumber = details.LicenseNumber ?? string.Empty, IsAvailable = false };
+                db.Drivers.Add(driver);
+                profileId = driver.Id;
+                break;
         }
 
-        foreach (var adminId in await db.Users.Where(u => u.Role == UserRole.Admin && u.IsActive).Select(u => u.Id).ToListAsync(ct))
-            db.Notify(adminId, null, "New provider registration", $"{provider.BusinessName} is waiting for approval.", NotificationType.System);
-
         await db.SaveChangesAsync(ct);
         QueueWelcomeEmail(user);
-        return await IssueAsync(user, provider.Id, ct);
-    }
-
-    public async Task<AuthResponse> RegisterDriverAsync(RegisterDriverRequest request, CancellationToken ct)
-    {
-        var user = await CreateUserAsync(UserRole.Driver, request.Name, request.Email, request.Phone, request.Password, ct);
-        var driver = new Driver { UserId = user.Id, LicenseNumber = request.LicenseNumber.Trim(), IsAvailable = false };
-        db.Drivers.Add(driver);
-        await db.SaveChangesAsync(ct);
-        QueueWelcomeEmail(user);
-        return await IssueAsync(user, driver.Id, ct);
+        return await IssueAsync(user, profileId, ct);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct)
@@ -85,7 +90,11 @@ public sealed class AuthService(
         var user = await FindByIdentifierAsync(request.Identifier, ct)
                    ?? throw new NotFoundException("No account found for that mobile number or email.");
 
-        var destination = user.Email ?? user.Phone ?? request.Identifier;
+        // Codes are only ever emailed (no SMS), even when the account was found by its mobile number.
+        if (string.IsNullOrWhiteSpace(user.Email))
+            throw new BadRequestException("This account has no email address, so we can't send a code. Sign in with your password, then add your email in your profile.");
+
+        var destination = user.Email;
         var code = await otp.SendAsync(Normalize(request.Identifier), destination, ct);
         QueueCodeEmail(user, code, passwordReset: false);
         var options = otpOptions.Value;
@@ -194,15 +203,15 @@ public sealed class AuthService(
     {
         var options = otpOptions.Value;
         var user = await FindByIdentifierAsync(request.Identifier, ct);
-        if (user is null || !user.IsActive)
+        if (user is null || !user.IsActive || string.IsNullOrWhiteSpace(user.Email))
             return new RequestOtpResponse
             {
-                Destination = "your registered mobile number or email",
+                Destination = "your registered email",
                 ExpiresInSeconds = options.ExpirySeconds,
                 DevCode = null
             };
 
-        var destination = user.Email ?? user.Phone ?? request.Identifier;
+        var destination = user.Email;
         var code = await otp.SendAsync(ResetKey(request.Identifier), destination, ct);
         QueueCodeEmail(user, code, passwordReset: true);
         return new RequestOtpResponse
@@ -275,26 +284,8 @@ public sealed class AuthService(
             email.Enqueue(EmailTemplates.Code(user.Email, user.Name, code, Math.Max(1, otpOptions.Value.ExpirySeconds / 60), passwordReset));
     }
 
-    private async Task<User> CreateUserAsync(UserRole role, string name, string? email, string? phone, string password, CancellationToken ct)
-    {
-        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
-        phone = string.IsNullOrWhiteSpace(phone) ? null : Normalize(phone);
-        if (email is null && phone is null)
-            throw new BadRequestException("A mobile number or email is required.");
-
-        await EnsureUniqueAsync(email, phone, null, ct);
-
-        var user = new User
-        {
-            Role = role,
-            Name = name.Trim(),
-            Email = email,
-            Phone = phone,
-            PasswordHash = hasher.Hash(password)
-        };
-        db.Users.Add(user);
-        return user;
-    }
+    /// <summary>Throws a 409 when the email or phone already belongs to an account.</summary>
+    public Task EnsureAvailableAsync(string? emailAddress, string? phone, CancellationToken ct) => EnsureUniqueAsync(emailAddress, phone, null, ct);
 
     private async Task EnsureUniqueAsync(string? email, string? phone, Guid? exceptUserId, CancellationToken ct)
     {
@@ -337,6 +328,8 @@ public sealed class AuthService(
             digits = "27" + digits[1..]; // South African local format → international
         return "+" + digits;
     }
+
+    public static string MaskEmail(string destination) => Mask(destination);
 
     private static string Mask(string destination)
     {

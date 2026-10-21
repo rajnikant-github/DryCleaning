@@ -76,6 +76,12 @@ public static class Routes
     public const string ServiceItemIdKey = "serviceItemId";
     public const string FilterKey = "filter";
     public const string IdentifierKey = "identifier";
+    public const string DestinationKey = "destination";
+    public const string PurposeKey = "purpose";
+    public const string ResendSecondsKey = "resendSeconds";
+
+    /// <summary>The Otp page is confirming a new sign-up (not signing an existing account in).</summary>
+    public const string RegisterPurpose = "register";
     public const string ProviderIdKey = "providerId";
     public const string ModeKey = "mode";
     public const string JobIdKey = "jobId";

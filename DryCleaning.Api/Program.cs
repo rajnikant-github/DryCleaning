@@ -114,6 +114,7 @@ builder.Services.AddScoped<WorkingHoursService>();
 builder.Services.AddScoped<DeliveryPricingService>();
 builder.Services.AddScoped<ExtraChargeService>();
 builder.Services.AddScoped<VatSettingService>();
+builder.Services.AddScoped<RegistrationService>();
 builder.Services.AddScoped<CustomerOrderService>();
 builder.Services.AddScoped<ProviderOrderService>();
 builder.Services.AddScoped<DriverService>();

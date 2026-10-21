@@ -36,6 +36,21 @@ public static class EmailTemplates
         return Build(to, $"{code} is your {AppName} code", title, body, text);
     }
 
+    /// <summary>The code that confirms a new sign-up's email address (the account is created once it is entered).</summary>
+    public static EmailMessage SignUpCode(string to, string? name, string code, int validMinutes)
+    {
+        var body = $"""
+            <p style="margin:0 0 16px">{Greeting(name)}</p>
+            <p style="margin:0 0 20px">Use this code to confirm your email address and finish creating your account. It is valid for {validMinutes} minutes.</p>
+            <p style="margin:0 0 20px;text-align:center">
+              <span style="display:inline-block;padding:14px 28px;border-radius:12px;background:#FFF0F0;color:{Coral};font-size:32px;font-weight:700;letter-spacing:8px">{Enc(code)}</span>
+            </p>
+            <p style="margin:0;color:#6B7280;font-size:13px">If you didn't try to sign up, you can ignore this email. Never share this code with anyone.</p>
+            """;
+        var text = $"{GreetingText(name)}\n\nUse this code to confirm your email and finish creating your account: {code}\nIt is valid for {validMinutes} minutes.\n\nIf you didn't try to sign up, you can ignore this email.";
+        return Build(to, $"{code} is your {AppName} sign-up code", "Confirm your email", body, text);
+    }
+
     /// <summary>Sent once after sign-up.</summary>
     public static EmailMessage Welcome(string to, string? name, UserRole role)
     {

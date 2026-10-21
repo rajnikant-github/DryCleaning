@@ -114,8 +114,8 @@ on the phone (SecureStorage) and refreshed automatically, so you stay signed in 
 
 | Where | What |
 |---|---|
-| Login → *Create account* | Sign up for the role picked on the Role screen. Customers and drivers are signed in straight away; a new **Service Provider** (business name, description, categories) is reviewed by an admin first, so the app confirms the registration and returns to Login. Passwords: at least 8 characters with a letter and a number. |
-| Login → *Forgot password?* | Enter your mobile number or email → enter the 6-digit code (shown on screen in Development) and a new password → you're signed in; other devices are signed out. |
+| Login → *Create account* | Sign up for the role picked on the Role screen. An **email is required**: the app emails a 6-digit code and the account is only created once the code is entered (customers and drivers are then signed in straight away; a new **Service Provider** (business name, description, categories) is reviewed by an admin first, so the app confirms the registration and returns to Login). Passwords: at least 8 characters with a letter and a number. |
+| Login → *Forgot password?* | Enter your email (or the mobile number on the account) → enter the 6-digit code we **email** (shown on screen in Development) and a new password → you're signed in; other devices are signed out. |
 | Profile → *Change Password* | Customer, Service Provider and Driver profiles: current password + new password. |
 | Provider Profile → *Edit* (Business) | Business name, description, phone, email and logo (take or choose a photo – uploaded to `POST api/provider/profile/logo`). |
 | Provider Profile → *Manage* (Categories) | Switch the categories you offer on or off; customers only see your products in categories that are on. |

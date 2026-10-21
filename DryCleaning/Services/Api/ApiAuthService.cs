@@ -74,36 +74,58 @@ public sealed class ApiAuthService : IAuthService
         }
     }
 
-    public async Task<AuthResult> RegisterAsync(Registration registration)
+    public async Task<RegistrationStart> StartRegistrationAsync(Registration registration)
     {
-        var json = ApiJsonContext.Default;
-        var email = Clean(registration.Email);
-        var phone = Clean(registration.Phone);
+        OtpHint = null;
         try
         {
-            var auth = registration.Role switch
-            {
-                UserRole.Customer => await _api.SendAsync(HttpMethod.Post, "api/auth/register/customer",
-                    new RegisterCustomerRequest { Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password },
-                    json.RegisterCustomerRequest, json.AuthResponse, authorize: false),
-                UserRole.Driver => await _api.SendAsync(HttpMethod.Post, "api/auth/register/driver",
-                    new RegisterDriverRequest
-                    {
-                        Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password,
-                        LicenseNumber = registration.LicenseNumber?.Trim() ?? string.Empty
-                    },
-                    json.RegisterDriverRequest, json.AuthResponse, authorize: false),
-                UserRole.Provider => await _api.SendAsync(HttpMethod.Post, "api/auth/register/provider",
-                    new RegisterProviderRequest
-                    {
-                        Name = registration.Name.Trim(), Email = email, Phone = phone, Password = registration.Password,
-                        BusinessName = registration.BusinessName?.Trim() ?? string.Empty,
-                        Description = Clean(registration.Description),
-                        CategoryIds = registration.CategoryIds.Distinct().ToList()
-                    },
-                    json.RegisterProviderRequest, json.AuthResponse, authorize: false),
-                _ => throw new ApiException("Only Customer, Service Provider and Driver accounts can be created in the app.")
-            };
+            var response = await _api.SendAsync(HttpMethod.Post, "api/auth/register/start",
+                new RegisterStartRequest
+                {
+                    Role = registration.Role.ToString(),
+                    Name = registration.Name.Trim(),
+                    Email = Clean(registration.Email) ?? string.Empty,
+                    Phone = Clean(registration.Phone),
+                    Password = registration.Password,
+                    BusinessName = Clean(registration.BusinessName),
+                    Description = Clean(registration.Description),
+                    CategoryIds = registration.Role == UserRole.Provider ? registration.CategoryIds.Distinct().ToList() : null,
+                    LicenseNumber = Clean(registration.LicenseNumber)
+                },
+                ApiJsonContext.Default.RegisterStartRequest, ApiJsonContext.Default.RegisterStartResponse, authorize: false);
+            OtpHint = response.DevCode;
+            return RegistrationStart.Ok(response.Destination, response.ResendInSeconds);
+        }
+        catch (ApiException ex)
+        {
+            return RegistrationStart.Fail(ex.Message);
+        }
+    }
+
+    public async Task<RegistrationStart> ResendRegistrationCodeAsync(string email)
+    {
+        OtpHint = null;
+        try
+        {
+            var response = await _api.SendAsync(HttpMethod.Post, "api/auth/register/resend",
+                new RegisterResendRequest { Email = email.Trim() },
+                ApiJsonContext.Default.RegisterResendRequest, ApiJsonContext.Default.RegisterStartResponse, authorize: false);
+            OtpHint = response.DevCode;
+            return RegistrationStart.Ok(response.Destination, response.ResendInSeconds);
+        }
+        catch (ApiException ex)
+        {
+            return RegistrationStart.Fail(ex.Message);
+        }
+    }
+
+    public async Task<AuthResult> ConfirmRegistrationAsync(string email, string code)
+    {
+        try
+        {
+            var auth = await _api.SendAsync(HttpMethod.Post, "api/auth/register/confirm",
+                new RegisterConfirmRequest { Email = email.Trim(), Code = code.Trim() },
+                ApiJsonContext.Default.RegisterConfirmRequest, ApiJsonContext.Default.AuthResponse, authorize: false);
 
             if (auth.User.Role == UserRole.Provider)
             {
@@ -116,6 +138,7 @@ public sealed class ApiAuthService : IAuthService
             await _tokens.SaveAsync(auth);
             SignIn(auth);
             _ = _push.EnableAsync();
+            OtpHint = null;
             return AuthResult.Ok();
         }
         catch (ApiException ex)

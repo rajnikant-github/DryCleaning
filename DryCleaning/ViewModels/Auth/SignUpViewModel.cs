@@ -83,11 +83,12 @@ public sealed partial class SignUpViewModel(
         if (error is not null)
             return;
 
-        var result = await auth.RegisterAsync(new Registration
+        var email = Email.Trim();
+        var result = await auth.StartRegistrationAsync(new Registration
         {
             Role = Role,
             Name = Name.Trim(),
-            Email = string.IsNullOrWhiteSpace(Email) ? null : Email.Trim(),
+            Email = email,
             Phone = string.IsNullOrWhiteSpace(Phone) ? null : Phone.Trim(),
             Password = Password,
             LicenseNumber = IsDriver ? LicenseNumber.Trim() : null,
@@ -98,18 +99,18 @@ public sealed partial class SignUpViewModel(
 
         if (!result.Success)
         {
-            ShowError(result.Error ?? "We couldn't create your account. Please try again.");
+            ShowError(result.Error ?? "We couldn't start your sign-up. Please try again.");
             return;
         }
 
-        if (result.PendingApproval)
+        // No account exists yet: the next screen asks for the code we just emailed and creates it.
+        await Navigation.GoToAsync(Routes.Otp, new Dictionary<string, object>
         {
-            await Dialogs.AlertAsync("Registration received", result.Message ?? "Your business is being reviewed.");
-            await Navigation.GoBackAsync();
-            return;
-        }
-
-        await Navigation.GoToAsync(Routes.HomeFor(session.CurrentUser?.Role ?? Role));
+            [Routes.IdentifierKey] = email,
+            [Routes.DestinationKey] = result.Destination,
+            [Routes.PurposeKey] = Routes.RegisterPurpose,
+            [Routes.ResendSecondsKey] = result.ResendInSeconds
+        });
     });
 
     [RelayCommand]
@@ -125,9 +126,9 @@ public sealed partial class SignUpViewModel(
     {
         if (string.IsNullOrWhiteSpace(Name) || Name.Trim().Length < 2)
             return "Please enter your full name.";
-        if (string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(Phone))
-            return "Enter a mobile number or an email address – you'll use it to sign in.";
-        if (!string.IsNullOrWhiteSpace(Email) && !InputRules.IsValidEmail(Email))
+        if (string.IsNullOrWhiteSpace(Email))
+            return "Enter your email address – we'll email you a code to confirm it.";
+        if (!InputRules.IsValidEmail(Email))
             return "Please enter a valid email address.";
         if (!string.IsNullOrWhiteSpace(Phone) && !InputRules.IsValidPhone(Phone))
             return "Please enter a valid mobile number, e.g. +27 82 123 4567.";

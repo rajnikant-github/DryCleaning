@@ -36,6 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // Schema additions: push devices and refresh tokens
     public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {

@@ -13,6 +13,7 @@ public static class EmailSamples
             EmailTemplates.Welcome(to, "Alex", UserRole.Customer),
             EmailTemplates.Welcome(to, "Alex", UserRole.Provider),
             EmailTemplates.Welcome(to, "Alex", UserRole.Driver),
+            EmailTemplates.SignUpCode(to, "Alex", "350267", 10),
             EmailTemplates.Code(to, "Alex", "482913", 10, passwordReset: false),
             EmailTemplates.Code(to, "Alex", "731095", 10, passwordReset: true),
             EmailTemplates.OrderConfirmation(to, "Alex", SampleOrder(), "Sparkle Dry Cleaners", "ZAR"),

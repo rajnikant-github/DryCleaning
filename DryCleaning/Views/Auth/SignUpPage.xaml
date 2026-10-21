@@ -62,18 +62,18 @@
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Mobile number" Style="{StaticResource FieldLabel}" />
-                    <Border Style="{StaticResource InputField}">
-                        <Entry Text="{Binding Phone}" Placeholder="+27 82 123 4567" Keyboard="Telephone" MaxLength="20" />
-                    </Border>
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Spacing="6">
                     <Label Text="Email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
                         <Entry Text="{Binding Email}" Placeholder="you@example.com" Keyboard="Email" MaxLength="100" />
                     </Border>
-                    <Label Text="Add a mobile number, an email, or both – you can sign in with either." Style="{StaticResource Small}" />
+                    <Label Text="We'll email you a 6-digit code to confirm your address before your account is created." Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Mobile number (optional)" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputField}">
+                        <Entry Text="{Binding Phone}" Placeholder="+27 82 123 4567" Keyboard="Telephone" MaxLength="20" />
+                    </Border>
                 </VerticalStackLayout>
 
                 <!--  Driver only  -->
@@ -126,7 +126,7 @@
         <Border Grid.Row="1" IsVisible="{Binding IsContent}" BackgroundColor="{StaticResource CardColor}"
                 Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeShape="Rectangle" Padding="16,12,16,20">
             <Grid>
-                <Button Text="Create account" Command="{Binding CreateAccountCommand}" IsVisible="{Binding IsNotBusy}" />
+                <Button Text="Continue" Command="{Binding CreateAccountCommand}" IsVisible="{Binding IsNotBusy}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="52" />
             </Grid>
         </Border>

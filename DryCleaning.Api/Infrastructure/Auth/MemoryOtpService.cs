@@ -13,8 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace DryCleaning.Api.Infrastructure.Auth;
 
 /// <summary>
-/// In-memory OTP store. The SMS step is logged only – plug in an SMS provider (e.g. Clickatell, Twilio)
-/// in <see cref="SendAsync"/> before going live.
+/// In-memory OTP store. Codes are delivered by email only (the callers queue the email); there is no SMS.
 /// </summary>
 public sealed class MemoryOtpService(IMemoryCache cache, IOptions<OtpOptions> options, ILogger<MemoryOtpService> logger) : IOtpService
 {
@@ -26,7 +25,7 @@ public sealed class MemoryOtpService(IMemoryCache cache, IOptions<OtpOptions> op
         cache.Set(CacheKey(key), code, TimeSpan.FromSeconds(settings.ExpirySeconds));
         cache.Remove(AttemptsKey(key));
 
-        logger.LogInformation("OTP for {Destination}: {Code} (SMS sending not configured)", destination, code);
+        logger.LogInformation("OTP for {Destination}: {Code} (delivered by email)", destination, code);
         return Task.FromResult(code);
     }
 
