@@ -47,6 +47,8 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <controls:DocumentsCard BindingContext="{Binding DocumentsSection}" />
+
                 <!--  V1: one address per role  -->
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">

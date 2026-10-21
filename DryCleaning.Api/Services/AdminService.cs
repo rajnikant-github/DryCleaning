@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Services;
 
 /// <summary>Admin web portal (A02–A12).</summary>
-public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace)
+public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, VerificationDocumentService documents)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
@@ -148,7 +148,12 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
     {
         var provider = await db.ServiceProviders.FirstOrDefaultAsync(p => p.Id == providerId, ct)
                        ?? throw new NotFoundException("Service provider not found.");
+        // First approval: every required document must be verified. Re-activating an account that was approved before isn't gated.
+        if (isActive && provider.ApprovedAt is null)
+            await documents.EnsureRequiredVerifiedAsync(provider.UserId, UserRole.Provider, ct);
+
         provider.IsActive = isActive;
+        provider.Touch();
         if (isActive)
             provider.ApprovedAt ??= DateTime.UtcNow;
         db.Notify(provider.UserId, null,
@@ -225,8 +230,12 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
     public async Task SetDriverActiveAsync(Guid driverId, bool isActive, CancellationToken ct)
     {
         var driver = await db.Drivers.FirstOrDefaultAsync(d => d.Id == driverId, ct) ?? throw new NotFoundException("Driver not found.");
+        if (isActive && driver.ApprovedAt is null)
+            await documents.EnsureRequiredVerifiedAsync(driver.UserId, UserRole.Driver, ct);
+
         var changed = driver.IsActive != isActive;
         driver.IsActive = isActive;
+        driver.Touch();
         if (isActive)
             driver.ApprovedAt ??= DateTime.UtcNow;
         if (!isActive)

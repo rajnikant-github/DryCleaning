@@ -17,6 +17,7 @@ public static class EmailSamples
             EmailTemplates.Code(to, "Alex", "482913", 10, passwordReset: false),
             EmailTemplates.Code(to, "Alex", "731095", 10, passwordReset: true),
             EmailTemplates.OrderConfirmation(to, "Alex", SampleOrder(), "Sparkle Dry Cleaners", "ZAR"),
+            EmailTemplates.DocumentRejected(to, "Alex", "Driver's licence", "The photo is blurry and the licence number can't be read. Please upload a clear photo of the front and back."),
             EmailTemplates.Announcement(to, "Alex", "Scheduled maintenance tonight", "The app will be unavailable between 23:00 and 23:30 while we make improvements.")
         };
 

@@ -18,6 +18,9 @@ public sealed class AzureBlobOptions
     /// <summary>Public-read container for provider logos.</summary>
     public string PublicContainer { get; set; } = "public-assets";
 
+    /// <summary>Container for identity and business verification documents: no public access and no signed links.</summary>
+    public string ProtectedContainer { get; set; } = "verification-documents";
+
     /// <summary>How long a signed photo link works.</summary>
     public int SignedLinkMinutes { get; set; } = 15;
 }

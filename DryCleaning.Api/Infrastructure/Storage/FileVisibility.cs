@@ -7,5 +7,11 @@ public enum FileVisibility
     Public,
 
     /// <summary>Order photos – only reachable through signed links the API hands out to the order's own parties.</summary>
-    Private
+    Private,
+
+    /// <summary>
+    /// Identity and business documents – never served as a static file and never given a link. The API reads them with
+    /// <see cref="IFileStorage.OpenReadAsync"/> after checking who is asking.
+    /// </summary>
+    Protected
 }

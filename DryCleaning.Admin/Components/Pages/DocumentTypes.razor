@@ -1,0 +1,147 @@
+@page "/document-types"
+@inherits AdminPageBase
+
+<PageTitle>Document types – E Dry Cleaners Admin</PageTitle>
+<h1>Document types</h1>
+<p class="muted">
+    The documents service providers and drivers must upload. A <strong>required</strong> document must be verified before the account can be approved.
+    A document can also ask for a <strong>number</strong> (e.g. licence number) and an <strong>expiry date</strong>. Changes apply straight away; accounts that are
+    already approved stay approved.
+</p>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="toolbar">
+    <button class="btn" @onclick="() => StartNew(UserRole.Driver)">Add driver document</button>
+    <button class="btn" @onclick="() => StartNew(UserRole.Provider)">Add provider document</button>
+</div>
+
+@if (_editing is not null)
+{
+    <div class="card">
+        <h2>@(_editingId is null ? "New document type" : "Edit document type") – @(_editing.Role == UserRole.Provider ? "service provider" : "driver")</h2>
+        <label class="field"><span>Name (shown in the app)</span><input @bind="_editing.Name" maxlength="100" placeholder="e.g. Driver's licence" /></label>
+        <label class="field"><span>Help text (optional)</span><input @bind="_editing.Description" maxlength="300" placeholder="e.g. Front and back of your valid licence" /></label>
+        <label class="field"><span><input type="checkbox" @bind="_editing.IsRequired" /> Required – the account can't be approved until it is verified</span></label>
+        <label class="field"><span>Ask for a number – label (leave empty for no number)</span><input @bind="_editing.NumberLabel" maxlength="60" placeholder="e.g. Licence number" /></label>
+        @if (!string.IsNullOrWhiteSpace(_editing.NumberLabel))
+        {
+            <label class="field"><span>Number must match this pattern (optional, a regular expression – e.g. <code>^[0-9]{13}$</code> for 13 digits)</span><input @bind="_editing.NumberPattern" maxlength="200" /></label>
+        }
+        <label class="field"><span><input type="checkbox" @bind="_editing.HasExpiry" /> Ask for the expiry date</span></label>
+        <label class="field"><span>Position in the list (1 shows first)</span><input type="number" step="1" min="0" @bind="_editing.DisplayOrder" /></label>
+        <label class="field"><span><input type="checkbox" @bind="_editing.IsActive" /> On – ask applicants for it</span></label>
+        <button class="btn" disabled="@(Busy || string.IsNullOrWhiteSpace(_editing.Name))" @onclick="SaveAsync">Save</button>
+        <button class="btn btn-light" @onclick="() => _editing = null">Cancel</button>
+    </div>
+}
+
+@foreach (var role in new[] { UserRole.Driver, UserRole.Provider })
+{
+    <div class="card">
+        <h2>@(role == UserRole.Driver ? "Drivers" : "Service providers")</h2>
+        @if (_types is null)
+        {
+            <div class="empty">Loading…</div>
+        }
+        else if (!_types.Any(t => t.Role == role))
+        {
+            <div class="empty">No documents yet – applicants aren't asked for anything.</div>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Document</th><th>Required</th><th>Number</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var t in _types.Where(t => t.Role == role))
+                {
+                    <tr>
+                        <td><strong>@t.Name</strong>@if (!string.IsNullOrEmpty(t.Description)) { <br /><span class="muted">@t.Description</span> }</td>
+                        <td>@(t.IsRequired ? "Required" : "Optional")</td>
+                        <td>@(t.NumberLabel ?? "–")</td>
+                        <td>@(t.HasExpiry ? "Yes" : "–")</td>
+                        <td><StatusBadge Value="@(t.IsActive ? "Active" : "Inactive")" /></td>
+                        <td class="row-actions">
+                            <button class="btn btn-sm btn-light" @onclick="() => StartEdit(t)">Edit</button>
+                            <button class="btn btn-sm @(t.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(t, !t.IsActive)">@(t.IsActive ? "Turn off" : "Turn on")</button>
+                            @if (_confirmDelete == t.Id)
+                            {
+                                <button class="btn btn-sm btn-danger" disabled="@Busy" @onclick="() => DeleteAsync(t)">Yes, delete</button>
+                                <button class="btn btn-sm btn-light" @onclick="() => _confirmDelete = null">No</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-light" @onclick="() => _confirmDelete = t.Id">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+}
+
+@code {
+    private List<DocumentTypeDto>? _types;
+    private DocumentTypeRequest? _editing;
+    private Guid? _editingId;
+    private Guid? _confirmDelete;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task LoadAsync() => RunAsync(async () => _types = await Api.GetAsync<List<DocumentTypeDto>>("api/admin/document-types"));
+
+    private void StartNew(UserRole role)
+    {
+        _editingId = null;
+        _editing = new DocumentTypeRequest { Role = role, DisplayOrder = (_types?.Count(t => t.Role == role) ?? 0) + 1 };
+        _confirmDelete = null;
+        ClearMessages();
+    }
+
+    private void StartEdit(DocumentTypeDto type)
+    {
+        _editingId = type.Id;
+        _editing = new DocumentTypeRequest
+        {
+            Role = type.Role, Name = type.Name, Description = type.Description, IsRequired = type.IsRequired, NumberLabel = type.NumberLabel,
+            NumberPattern = type.NumberPattern, HasExpiry = type.HasExpiry, IsActive = type.IsActive, DisplayOrder = type.DisplayOrder
+        };
+        _confirmDelete = null;
+        ClearMessages();
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_editing is null)
+            return;
+
+        _editing.Name = _editing.Name.Trim();
+        var request = _editing;
+        var ok = _editingId is { } id
+            ? await RunAsync(() => Api.PutAsync<DocumentTypeDto>($"api/admin/document-types/{id}", request), "Saved. New uploads use it straight away.")
+            : await RunAsync(() => Api.PostAsync<DocumentTypeDto>("api/admin/document-types", request), "Document type added.");
+        if (ok)
+        {
+            _editing = null;
+            await LoadAsync();
+        }
+    }
+
+    private async Task SetActiveAsync(DocumentTypeDto type, bool active)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/document-types/{type.Id}/active", new SetActiveRequest { IsActive = active }),
+            active ? $"{type.Name} is on." : $"{type.Name} is off: applicants aren't asked for it.");
+        if (ok)
+            await LoadAsync();
+    }
+
+    private async Task DeleteAsync(DocumentTypeDto type)
+    {
+        var ok = await RunAsync(() => Api.DeleteAsync($"api/admin/document-types/{type.Id}"), $"{type.Name} deleted.");
+        _confirmDelete = null;
+        if (ok)
+            await LoadAsync();
+    }
+}

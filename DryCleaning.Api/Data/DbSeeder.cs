@@ -41,6 +41,8 @@ public static class DbSeeder
             await db.Database.EnsureCreatedAsync(ct);
         }
 
+        await DocumentTypeSeeder.EnsureDefaultsAsync(db, ct);
+
         if (!seedDemoData || await db.Users.AnyAsync(ct))
             return;
 

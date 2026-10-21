@@ -11,9 +11,13 @@ using DryCleaning.ViewModels.Items;
 namespace DryCleaning.ViewModels.Driver;
 
 /// <summary>D14 – Driver profile.</summary>
-public sealed partial class DriverProfileViewModel(ViewModelServices services, IDriverService drivers, IAuthService auth, ProfilePhotoChanger photoChanger)
+public sealed partial class DriverProfileViewModel(ViewModelServices services, IDriverService drivers, IAuthService auth, ProfilePhotoChanger photoChanger,
+    DocumentsSectionViewModel documentsSection)
     : BaseViewModel(services)
 {
+    /// <summary>The verification documents card.</summary>
+    public DocumentsSectionViewModel DocumentsSection { get; } = documentsSection;
+
     private bool _suppressOnline;
 
     [ObservableProperty] private string name = string.Empty;
@@ -51,6 +55,7 @@ public sealed partial class DriverProfileViewModel(ViewModelServices services, I
     protected override async Task<bool> LoadDataAsync()
     {
         AccountStatus = (await auth.RefreshAccountAsync())?.ProfileStatus ?? AccountStatus;
+        await DocumentsSection.LoadAsync();
         var profile = await drivers.GetProfileAsync();
         Name = profile.User.Name;
         Initials = StringHelpers.Initials(profile.User.Name);

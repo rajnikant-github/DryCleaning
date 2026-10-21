@@ -30,6 +30,8 @@ public static class Routes
     public const string ProviderCategories = "providercategories";
     public const string WorkingHours = "workinghours";
     public const string Notifications = "notifications";
+    public const string Documents = "documents";
+    public const string Document = "document";
     public const string OrderDetail = "orderdetail";
     public const string ReceiveOrder = "receiveorder";
     public const string Inspection = "inspection";
@@ -76,6 +78,7 @@ public static class Routes
     public const string ServiceItemIdKey = "serviceItemId";
     public const string FilterKey = "filter";
     public const string IdentifierKey = "identifier";
+    public const string TypeIdKey = "typeId";
     public const string DestinationKey = "destination";
     public const string PurposeKey = "purpose";
     public const string ResendSecondsKey = "resendSeconds";

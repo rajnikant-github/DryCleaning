@@ -7,4 +7,10 @@ public interface IFileStorage
 
     /// <summary>Turns a stored path into a URL a client can open (signed and short-lived for private files).</summary>
     string GetReadUrl(string storedPath);
+
+    /// <summary>Opens a stored file for streaming through the API (used for <see cref="FileVisibility.Protected"/> files).</summary>
+    Task<(Stream Content, string ContentType)> OpenReadAsync(string storedPath, CancellationToken ct);
+
+    /// <summary>Deletes a stored file. Does nothing when it is already gone.</summary>
+    Task DeleteAsync(string storedPath, CancellationToken ct);
 }

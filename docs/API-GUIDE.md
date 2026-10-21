@@ -26,6 +26,7 @@ which endpoint does what, and which database tables each step reads and writes.
    - [4.9 Provider onboarding and catalog](#49-provider-onboarding-and-catalog)
    - [4.10 Photos](#410-photos)
    - [4.11 Real-time updates (SignalR)](#411-real-time-updates-signalr)
+   - [4.12 Verification documents](#412-verification-documents)
 5. [Endpoint reference](#5-endpoint-reference) (109 endpoints)
    - [5.1 Auth](#51-auth) · [5.2 Me (address, devices, notifications)](#52-me-address-devices-notifications) ·
      [5.3 Public catalog](#53-public-catalog) · [5.4 Customer](#54-customer) · [5.5 Provider](#55-provider) ·
@@ -370,7 +371,7 @@ The app reads the same rows with `GET /api/notifications` (bell list) and `GET /
 ### 4.9 Provider onboarding and catalog
 
 1. `POST /api/auth/register/start` (role `Provider`, with `categoryIds`), then `register/confirm` with the emailed code → business **inactive**; admins notified.
-2. Admin: `GET /api/admin/providers?isActive=false` → `PUT /api/admin/providers/{id}/active` `{ isActive: true }` → provider notified.
+2. Provider: uploads the verification documents the admin asks for (see [4.12](#412-verification-documents)). Admin reviews them, then `GET /api/admin/providers?isActive=false` → `PUT /api/admin/providers/{id}/active` `{ isActive: true }` → provider notified. Approval is refused until every **required** document is verified.
 3. Provider: `PUT /api/me/address` (needed before accepting orders), `PUT /api/provider/profile`, `POST /api/provider/profile/logo`.
 4. Provider: `PUT /api/provider/categories` – which global categories it offers (admins manage the category list).
 5. Provider: `POST /api/provider/products` (under a category) → `POST /api/provider/products/{id}/service-items` (price, estimated days).
@@ -437,6 +438,18 @@ background, so both stay on.
 
 ---
 
+### 4.12 Verification documents
+
+Providers and drivers must show who they are before an admin approves them. **Admins decide which documents are asked for** (portal → *Document types*), and each type can be required or optional, can ask for a **number** (e.g. licence number, with an optional format pattern) and an **expiry date**. A starting list for South Africa is created the first time the API starts.
+
+1. Applicant: `GET /api/me/documents` lists the requested documents with their state (`NotSubmitted`, `Pending`, `Verified`, `Rejected` + the admin's message).
+2. Applicant: `POST /api/me/documents/{typeId}` (multipart: `File`, `Number`, `ExpiresOn`) – a PDF (up to **50 MB**) or a JPG, PNG, HEIC or WEBP photo (up to **15 MB**; the app shrinks photos to a clearly readable size, about 2600 px, before sending them). Both limits are settings. The file's real type is checked, not just its name. Uploading again replaces the file and sends it back to review.
+3. Applicant: `GET /api/me/documents/{typeId}/file` shows them their own upload again (the app's "View uploaded file" button: photos open in the phone's viewer; PDFs open in the web browser through `POST …/preview-link`, a short-lived signed link, with the phone's PDF viewer as a fallback). Admins are notified once the applicant has uploaded everything required. Admin: `GET /api/admin/verification` (queue) → `GET /api/admin/verification/{userId}` → open a file → `…/verify` or `…/reject` with a **required message**.
+4. The applicant gets a push + in-app notice (and an email for a rejection) and uploads a new file for a rejected document.
+5. `PUT /api/admin/providers/{id}/active` and `/drivers/{id}/active` refuse the **first** approval with a `409` listing what is missing, waiting or rejected until every required document is verified. Re-activating an account that was approved before, and accounts approved before this feature, are not affected.
+
+**Privacy.** Files are stored in *protected* storage: outside `wwwroot` locally (`App_Data/protected`, git-ignored) or in a separate Azure container that never gets public or signed links. The API streams a file only to an admin (never cached, `nosniff`), and every time one is opened it is recorded in the document's history. Files are deleted `Verification:RetentionMonths` (12) months after a rejection that was never fixed, or after the account was deactivated.
+
 ## 5. Endpoint reference
 
 *Access:* **Public** = no token; **Signed in** = any role; otherwise the listed role(s).
@@ -468,6 +481,11 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `PUT` | `/api/me/address` | Customer, Provider, Driver | Body: `UpsertAddressRequest` | `AddressDto` | Create or replace my address from a Google Places selection. Customers need one before ordering; providers before accepting orders. |
 | `POST` | `/api/me/devices` | Signed in | Body: `RegisterDeviceRequest` | `204` | Register this phone's push token (`token`, `platform`). Call after sign-in, on app start and when the token changes. |
 | `DELETE` | `/api/me/devices` | Signed in | Query: `token` | `204` | Stop pushes to this phone (`?token=`). Call on logout. |
+| `GET` | `/api/me/documents` | Provider, Driver | — | `MyDocumentsDto` | The documents the admin asks for, with my state for each (`NotSubmitted`, `Pending`, `Verified`, `Rejected` + message) and counts of what is still needed. |
+| `GET` | `/api/me/documents/{typeId}/file` | Provider, Driver | — | the file | The file **I** uploaded for that document, so I can check what I sent (only mine; never cached; `404` if I haven't uploaded one). Opening it isn't recorded in the admin history. |
+| `POST` | `/api/me/documents/{typeId}/preview-link` | Provider, Driver | — | `PreviewLinkDto` | A private link (valid `Verification:PreviewLinkSeconds`, 120 s by default) that opens **my** uploaded file in a web browser, e.g. a PDF preview. Signed, tied to me and to this exact upload (replacing the file kills old links). |
+| `GET` | `/api/documents/preview/{token}` | Public (the link is the credential) | — | the file | Opens a file from a preview link, inline, never cached; `404` once the link has expired or the file was replaced. |
+| `POST` | `/api/me/documents/{typeId}` | Provider, Driver | Multipart: `File`, `Number`, `ExpiresOn` | `MyDocumentsDto` | Upload or replace one document (a PDF up to 50 MB, or a JPG, PNG, HEIC or WEBP photo up to 15 MB; both configurable). `Number` is required when the type has a number (and must match its pattern); `ExpiresOn` when it has an expiry. A new file always goes back to review. |
 | `POST` | `/api/me/photo` | Customer, Provider, Driver | Multipart: `File` | `UserDto` | Set or replace my profile photo (JPG, PNG, HEIC or WEBP, max 5 MB). Stored in the public-read area; `photoUrl` in the response. |
 | `DELETE` | `/api/me/photo` | Customer, Provider, Driver | — | `UserDto` | Remove my profile photo (back to the initials avatar). |
 | `GET` | `/api/notifications` | Signed in | Query: `page`, `pageSize`, `search`, `unreadOnly` | `PagedResult<NotificationDto>` | My in-app notifications, newest first (paged; `unreadOnly=true` to filter). |
@@ -596,6 +614,16 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/admin/driver-jobs/{jobId}/assign` | Admin | Body: `AssignDriverRequest` | `DriverJobDto` | Assign or reassign a job to a driver (`driverId`); the driver is notified. |
 | `GET` | `/api/admin/delivery-pricing` | Admin | — | `DeliveryPricingDto` | The pickup & delivery price rule: `baseFee`, `includedKm`, `pricePerKm`, `minFee`, `maxFee` (null = no limit). Always per km: `pricePerKm` must be more than zero. Starts at R30 for the first 2 km, then R5/km, min R30, max R250. |
 | `PUT` | `/api/admin/delivery-pricing` | Admin | Body: `DeliveryPricingDto` | `DeliveryPricingDto` | Change the rule. Fee = base + per-km beyond the included distance, within min/max; applies to new orders only (each order stores the fee it was charged). |
+| `GET` | `/api/admin/document-types` | Admin | Query: `role` | `IReadOnlyList<DocumentTypeDto>` | All document types (on and off), optionally for `Provider` or `Driver`. |
+| `POST` | `/api/admin/document-types` | Admin | Body: `DocumentTypeRequest` | `DocumentTypeDto` | Add a document: name, role, required or not, optional number label + pattern, optional expiry date. Name must be unique per role. |
+| `PUT` | `/api/admin/document-types/{id}` | Admin | Body: `DocumentTypeRequest` | `DocumentTypeDto` | Change a document type. Applies to new uploads straight away. |
+| `PUT` | `/api/admin/document-types/{id}/active` | Admin | Body: `SetActiveRequest` | `204` | Switch a type on or off. Off = applicants aren't asked for it and it no longer counts. |
+| `DELETE` | `/api/admin/document-types/{id}` | Admin | — | `204` | Delete a type nobody has uploaded for (otherwise `409`: switch it off). |
+| `GET` | `/api/admin/verification` | Admin | Query: `onlyPending` (default true), `role` | `IReadOnlyList<VerificationQueueItemDto>` | Applicants with documents waiting for review (or, with `onlyPending=false`, everyone waiting for approval). |
+| `GET` | `/api/admin/verification/{userId}` | Admin | — | `VerificationApplicantDto` | One provider or driver with every requested document, its state, number, expiry, history, and `canApprove`. |
+| `GET` | `/api/admin/verification/documents/{documentId}/file` | Admin | — | the file | The uploaded file, streamed inline (never cached). Recorded in the history. |
+| `POST` | `/api/admin/verification/documents/{documentId}/verify` | Admin | — | `204` | Mark a document verified; the applicant is notified. |
+| `POST` | `/api/admin/verification/documents/{documentId}/reject` | Admin | Body: `RejectDocumentRequest` | `204` | Reject with a required `message`; the applicant sees it, is notified and emailed, and uploads a new file. |
 | `GET` | `/api/admin/extra-charges` | Admin | — | `IReadOnlyList<ExtraChargeDto>` | All extra charges (on and off), in display order. |
 | `POST` | `/api/admin/extra-charges` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Add an extra charge: a name plus either a fixed `amount` (`type: Fixed`) or a `percent` (`type: Percentage`) of the items (`percentBase: ItemsSubtotal`) or of items + delivery (`ItemsAndDelivery`); `isTaxable` adds VAT on it too. Charges that are on are added to every new order as their own line. Up to 50. |
 | `PUT` | `/api/admin/extra-charges/{id}` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Change a charge's name, description, type, amount/percentage, VAT switch, position or on/off. Applies to new orders only. |
@@ -785,6 +813,41 @@ Used by: `PUT /api/provider/working-hours`
 | `days[].day` | int | yes | 0–6 |
 | `days[].isOpen` | bool | yes | `false` = no pickups that day |
 | `days[].openTime`, `days[].closeTime` | string | when open | `HH:mm` (24-hour), closing at least two hours after opening |
+
+#### DocumentTypeRequest
+
+Used by: `POST /api/admin/document-types`, `PUT /api/admin/document-types/{id}`
+
+| Field | Type | Required | Rules |
+|---|---|---|---|
+| `role` | enum | yes | `Provider` or `Driver` |
+| `name` | string | yes | max 100, unique per role |
+| `description` | string | no | max 300; help text shown in the app |
+| `isRequired` | bool | no | the account can't be approved until it is verified |
+| `numberLabel` | string | no | max 60; when set, the applicant must also type this number (e.g. "Licence number") |
+| `numberPattern` | string | no | max 200; a regular expression the number must match; needs `numberLabel` |
+| `hasExpiry` | bool | no | the applicant must also give an expiry date |
+| `isActive` | bool | no | default `true` |
+| `displayOrder` | int | no | 0–1000, lowest first |
+
+#### RejectDocumentRequest
+
+Used by: `POST /api/admin/verification/documents/{documentId}/reject`: `message` (string, required, max 500) – shown to the applicant.
+
+#### MyDocumentsDto
+
+Returned by: `GET /api/me/documents`, `POST /api/me/documents/{typeId}`
+
+| Field | Type | Notes |
+|---|---|---|
+| `items` | `list<MyDocumentDto>` | `typeId`, `name`, `description`, `isRequired`, `numberLabel`, `hasExpiry`, `state` (`NotSubmitted`/`Pending`/`Verified`/`Rejected`), `number`, `expiresOn`, `fileName`, `rejectionMessage`, `submittedAt` |
+| `requiredCount` | `int` | required documents |
+| `verifiedRequiredCount` | `int` | required and verified |
+| `actionNeededCount` | `int` | required, not uploaded yet or rejected |
+| `pendingRequiredCount` | `int` | required, waiting for an admin |
+| `allRequiredVerified` | `bool` | |
+| `maxPdfBytes` | `long` | largest PDF the server accepts (50 MB by default) |
+| `maxImageBytes` | `long` | largest photo the server accepts (15 MB by default); the app shrinks photos to fit |
 
 #### SendNotificationRequest
 
@@ -1608,6 +1671,8 @@ SQL Server, EF Core migrations in `DryCleaning.Api/Data/Migrations`. Every table
 
 | Table | Purpose | Written by |
 |---|---|---|
+| `DocumentTypes` | The documents admins ask providers and drivers for (name, role, required, number label/pattern, expiry) | `/api/admin/document-types` |
+| `VerificationDocuments` / `DocumentReviewEvents` | Each applicant's current upload per type (protected file path, number, expiry, status, rejection message) and its audit trail (submitted, verified, rejected, viewed) | `/api/me/documents`, `/api/admin/verification/*` |
 | `PendingRegistrations` | Sign-ups waiting for their emailed code (details, hashed password, hashed code, expiry, attempts); a row is deleted when the account is created or the code expires | `/api/auth/register/*` |
 | [`Users`](#users) | Every account: role, name, email, phone, password hash, active flag | Auth register/update, admin deactivate |
 | [`Customers`](#customers) | Customer profile (1:1 with a user) and saved address | Register customer, `PUT /api/me/address` |
@@ -2087,7 +2152,12 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | | `UploadsFolder`, `MaxUploadBytes` | `uploads`, 5 MB | Local folder and max photo size |
 | | `AzureBlob:AccountUrl` / `ConnectionString` | *(empty)* | Storage account (managed identity) or connection string (Azurite) |
 | | `AzureBlob:PrivateContainer`, `PublicContainer` | `order-photos`, `public-assets` | Containers (created on first upload) |
+| | `AzureBlob:ProtectedContainer` | `verification-documents` | Container for verification documents: no public access and no signed links |
 | | `AzureBlob:SignedLinkMinutes` | `15` | How long a signed photo link works |
+| `Verification` | `MaxPdfBytes` | `52428800` (50 MB) | Largest verification PDF accepted. A reverse proxy in front of the API needs an upload limit at least this big |
+| | `MaxImageBytes` | `15728640` (15 MB) | Largest verification photo accepted (the app shrinks photos to fit) |
+| | `PreviewLinkSeconds` | `120` | How long a browser preview link works. Behind a reverse proxy it needs forwarded headers so the link uses the public address, and several API servers need a shared Data Protection key ring |
+| | `RetentionMonths` | `12` | Months after which documents of a never-fixed rejection, or of a deactivated account, are deleted (`0` = never) |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` | `true`, Development only | Migrate and seed demo data on start |
 | `Swagger` | `Enabled` | `true` | Swagger UI at `/swagger` |
 | `Cors` | `AllowedOrigins` | *(empty = any)* | Browser clients |

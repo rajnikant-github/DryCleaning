@@ -20,6 +20,8 @@ public sealed class ApiClient
     private static readonly TimeSpan RefreshMargin = TimeSpan.FromSeconds(60);
 
     private readonly HttpClient _http;
+    private readonly TimeSpan _timeout;
+    private readonly TimeSpan _uploadTimeout;
     private readonly TokenStore _tokens;
     private readonly IConnectivity _connectivity;
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
@@ -31,8 +33,11 @@ public sealed class ApiClient
         _http = new HttpClient
         {
             BaseAddress = new Uri(settings.Api.ResolveBaseUrl()),
-            Timeout = TimeSpan.FromSeconds(Math.Max(5, settings.Api.TimeoutSeconds))
+            // Each request gets its own timeout (normal calls vs. file uploads), applied in SendRawAsync.
+            Timeout = Timeout.InfiniteTimeSpan
         };
+        _timeout = TimeSpan.FromSeconds(Math.Max(5, settings.Api.TimeoutSeconds));
+        _uploadTimeout = TimeSpan.FromSeconds(Math.Max(30, settings.Api.UploadTimeoutSeconds));
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         ApiMapping.BaseAddress = _http.BaseAddress;
     }
@@ -119,7 +124,7 @@ public sealed class ApiClient
                     { new StringContent(type.ToString()), "Type" }
                 };
                 return new HttpRequestMessage(HttpMethod.Post, $"api/orders/{orderId}/photos") { Content = form };
-            }, authorize: true, ct);
+            }, authorize: true, ct, upload: true);
         }
     }
 
@@ -135,8 +140,35 @@ public sealed class ApiClient
             file.Headers.ContentType = new MediaTypeHeaderValue(ContentTypeFor(filePath));
             var form = new MultipartFormDataContent { { file, "File", Path.GetFileName(filePath) } };
             return new HttpRequestMessage(HttpMethod.Post, path) { Content = form };
-        }, authorize: true, ct);
+        }, authorize: true, ct, upload: true);
         return await ReadAsync(response, resultType, ct);
+    }
+
+    /// <summary>Uploads one local file as multipart field "File" together with extra text fields (e.g. a document number).</summary>
+    public async Task<TResult> UploadFileAsync<TResult>(string path, string filePath, IDictionary<string, string> fields, JsonTypeInfo<TResult> resultType, CancellationToken ct = default)
+    {
+        if (!File.Exists(filePath))
+            throw new ApiException("The file could not be found on this phone. Please choose it again.");
+
+        using var response = await SendAsync(() =>
+        {
+            var file = new StreamContent(File.OpenRead(filePath));
+            file.Headers.ContentType = new MediaTypeHeaderValue(ContentTypeFor(filePath));
+            var form = new MultipartFormDataContent { { file, "File", Path.GetFileName(filePath) } };
+            foreach (var (name, value) in fields)
+                form.Add(new StringContent(value), name);
+            return new HttpRequestMessage(HttpMethod.Post, path) { Content = form };
+        }, authorize: true, ct, upload: true);
+        return await ReadAsync(response, resultType, ct);
+    }
+
+    /// <summary>Downloads an authorized file (e.g. the document I uploaded) to a local path.</summary>
+    public async Task DownloadFileAsync(string path, string destinationPath, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(() => new HttpRequestMessage(HttpMethod.Get, path), authorize: true, ct, upload: true);
+        await using var source = await response.Content.ReadAsStreamAsync(ct);
+        await using var file = File.Create(destinationPath);
+        await source.CopyToAsync(file, ct);
     }
 
     /// <summary>Reverse of <see cref="AbsoluteUrl"/>: an address on this API back to "/uploads/x.jpg" before sending it.</summary>
@@ -224,7 +256,7 @@ public sealed class ApiClient
     // ── Plumbing ─────────────────────────────────────────────────────────────
 
     /// <summary>Sends a request (built by <paramref name="create"/> so it can be re-sent after a token refresh).</summary>
-    private async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> create, bool authorize, CancellationToken ct)
+    private async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> create, bool authorize, CancellationToken ct, bool upload = false)
     {
         if (_connectivity.NetworkAccess == Microsoft.Maui.Networking.NetworkAccess.None)
             throw new ApiException("You're offline. Check your connection and try again.");
@@ -233,13 +265,13 @@ public sealed class ApiClient
         if (authorize)
             await AttachTokenAsync(request, forceRefresh: false, ct);
 
-        var response = await SendRawAsync(request, ct);
+        var response = await SendRawAsync(request, ct, upload);
         if (authorize && response.StatusCode == HttpStatusCode.Unauthorized)
         {
             response.Dispose();
             using var retry = create();
             await AttachTokenAsync(retry, forceRefresh: true, ct);
-            response = await SendRawAsync(retry, ct);
+            response = await SendRawAsync(retry, ct, upload);
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 response.Dispose();
@@ -255,11 +287,13 @@ public sealed class ApiClient
         throw error;
     }
 
-    private async Task<HttpResponseMessage> SendRawAsync(HttpRequestMessage request, CancellationToken ct)
+    private async Task<HttpResponseMessage> SendRawAsync(HttpRequestMessage request, CancellationToken ct, bool upload = false)
     {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(upload ? _uploadTimeout : _timeout);
         try
         {
-            return await _http.SendAsync(request, ct);
+            return await _http.SendAsync(request, timeout.Token);
         }
         catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
         {
@@ -328,6 +362,7 @@ public sealed class ApiClient
 
     private static string ContentTypeFor(string path) => Path.GetExtension(path).ToLowerInvariant() switch
     {
+        ".pdf" => "application/pdf",
         ".png" => "image/png",
         ".heic" => "image/heic",
         ".webp" => "image/webp",

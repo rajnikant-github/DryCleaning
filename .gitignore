@@ -448,3 +448,6 @@ DryCleaning.Api/Certificates/
 
 # The single file that holds every secret of the repo (copy secrets.example.json to create it)
 /secrets.json
+
+# Uploaded verification documents (identity data) – never commit
+DryCleaning.Api/App_Data/

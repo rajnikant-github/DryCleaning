@@ -89,8 +89,8 @@ public sealed class AccountStatusCard : ContentView
         _icon.Text = "";
         _title.Text = "Your account is under review";
         _message.Text = IsDriver
-            ? "Our team is reviewing your driver account. You can update your details below. You'll get a notification as soon as it's approved, and then you can go online to accept jobs."
-            : "Our team is reviewing your business. You can finish your profile below. You'll get a notification as soon as it's approved, and then your business goes live for customers.";
+            ? "Our team is reviewing your driver account. Upload your verification documents and update your details below. You'll get a notification as soon as you're approved, and then you can go online to accept jobs."
+            : "Our team is reviewing your business. Upload your verification documents and finish your profile below. You'll get a notification as soon as you're approved, and then your business goes live for customers.";
         SemanticProperties.SetDescription(this, $"{_title.Text}. {_message.Text}");
     }
 }

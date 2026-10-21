@@ -1,0 +1,183 @@
+@page "/verification/{UserId:guid}"
+@inherits AdminPageBase
+
+<PageTitle>Review documents – E Dry Cleaners Admin</PageTitle>
+<p><a href="verification">← Back to verification</a></p>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+@if (_applicant is null)
+{
+    @if (Error is null)
+    {
+        <p class="muted">Loading…</p>
+    }
+}
+else
+{
+    <h1>@_applicant.Name</h1>
+    <div class="card">
+        <dl class="kv">
+            <dt>Role</dt><dd>@(_applicant.Role == UserRole.Provider ? "Service provider" : "Driver")</dd>
+            @if (!string.IsNullOrEmpty(_applicant.BusinessName)) { <dt>Business</dt><dd>@_applicant.BusinessName</dd> }
+            @if (!string.IsNullOrEmpty(_applicant.LicenseNumber)) { <dt>Licence number (on sign-up)</dt><dd>@_applicant.LicenseNumber</dd> }
+            <dt>Email</dt><dd>@_applicant.Email</dd>
+            <dt>Phone</dt><dd>@(string.IsNullOrEmpty(_applicant.Phone) ? "–" : _applicant.Phone)</dd>
+            <dt>Account</dt>
+            <dd>
+                @if (_applicant.ProfileStatus == ProfileStatus.Active) { <StatusBadge Value="@("Active")" /> }
+                else if (_applicant.ProfileStatus == ProfileStatus.PendingApproval) { <span class="badge warn">Waiting for approval</span> }
+                else { <StatusBadge Value="@("Inactive")" /> }
+            </dd>
+            <dt>Required documents</dt><dd>@_applicant.VerifiedRequiredCount of @_applicant.RequiredCount verified</dd>
+        </dl>
+
+        @if (_applicant.ProfileStatus == ProfileStatus.PendingApproval && _applicant.ProfileId is { } profileId)
+        {
+            <button class="btn btn-ok" disabled="@(Busy || !_applicant.CanApprove)" @onclick="() => ApproveAsync(profileId)">Approve account</button>
+            @if (!_applicant.CanApprove)
+            {
+                <span class="muted"> Every required document must be verified first.</span>
+            }
+        }
+    </div>
+
+    <div class="card">
+        <h2>Documents</h2>
+        <table>
+            <thead><tr><th>Document</th><th>Status</th><th>Number</th><th>Expires</th><th>Uploaded</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var d in _applicant.Documents)
+            {
+                <tr class="@(_selected?.TypeId == d.TypeId ? "selected" : "")">
+                    <td><strong>@d.Name</strong>@if (!d.TypeActive) { <span class="badge bad">Switched off</span> } else if (d.IsRequired) { <span class="badge info">Required</span> }</td>
+                    <td>@if (d.State == DocumentState.NotSubmitted) { <span class="muted">Not uploaded</span> } else { <StatusBadge Value="@(d.State.ToString())" /> }</td>
+                    <td>@(d.Number ?? "–")</td>
+                    <td>@(d.HasExpiry ? Fmt.Date(d.ExpiresOn) : "–")</td>
+                    <td>@Fmt.DateTime(d.SubmittedAt)</td>
+                    <td class="row-actions">
+                        @if (d.DocumentId is not null)
+                        {
+                            <button class="btn btn-sm" @onclick="() => Select(d)">@(d.State == DocumentState.Pending ? "Review" : "View")</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_selected is { DocumentId: { } documentId } doc)
+    {
+        <div class="card">
+            <h2>@doc.Name</h2>
+            <dl class="kv">
+                <dt>File</dt><dd>@doc.FileName <span class="muted">(@Size(doc.SizeBytes))</span></dd>
+                @if (doc.NumberLabel is not null) { <dt>@doc.NumberLabel</dt><dd><strong>@doc.Number</strong></dd> }
+                @if (doc.HasExpiry) { <dt>Expiry date</dt><dd>@Fmt.Date(doc.ExpiresOn)</dd> }
+                <dt>Status</dt><dd><StatusBadge Value="@(doc.State.ToString())" /></dd>
+                @if (doc.State == DocumentState.Rejected) { <dt>Your message</dt><dd>@doc.RejectionMessage</dd> }
+            </dl>
+
+            <div class="doc-viewer">
+                @if (doc.ContentType?.StartsWith("image/") == true && doc.ContentType != "image/heic")
+                {
+                    <img src="/documents/@documentId" alt="@doc.Name" />
+                }
+                else if (doc.ContentType == "application/pdf")
+                {
+                    <iframe src="/documents/@documentId" title="@doc.Name"></iframe>
+                }
+                else
+                {
+                    <p class="muted">This file type can't be previewed here. <a href="/documents/@documentId" target="_blank" rel="noopener">Open or download it</a>.</p>
+                }
+            </div>
+            <p>
+                <a class="btn btn-sm" href="/documents/@documentId" target="_blank" rel="noopener">Open in browser tab</a>
+                <span class="muted"> Opens the document full size in your browser (PDFs use the browser's own viewer). Every time you open this file it is recorded in the history below.</span>
+            </p>
+
+            @if (doc.State != DocumentState.Verified)
+            {
+                <button class="btn btn-ok" disabled="@Busy" @onclick="() => VerifyAsync(documentId)">Verify</button>
+            }
+
+            <h3>Reject with a message</h3>
+            <label class="field">
+                <span>Tell the applicant what to fix (they see this next to the document and get an email) (@_reason.Length/500)</span>
+                <textarea @bind="_reason" @bind:event="oninput" maxlength="500" placeholder="e.g. The photo is blurry – please upload a clear photo of both sides."></textarea>
+            </label>
+            <button class="btn btn-danger" disabled="@(Busy || string.IsNullOrWhiteSpace(_reason))" @onclick="() => RejectAsync(documentId)">Reject document</button>
+
+            <h3>History</h3>
+            <table>
+                <thead><tr><th>When</th><th>What</th><th>Who</th><th>Message</th></tr></thead>
+                <tbody>
+                @foreach (var h in doc.History.OrderByDescending(h => h.CreatedAt))
+                {
+                    <tr><td>@Fmt.DateTime(h.CreatedAt)</td><td>@h.Action</td><td>@h.ActorName</td><td>@h.Message</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public Guid UserId { get; set; }
+
+    private VerificationApplicantDto? _applicant;
+    private ReviewDocumentDto? _selected;
+    private string _reason = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        var keep = _selected?.TypeId;
+        await RunAsync(async () => _applicant = await Api.GetAsync<VerificationApplicantDto>($"api/admin/verification/{UserId}"));
+        _selected = keep is null ? null : _applicant?.Documents.FirstOrDefault(d => d.TypeId == keep);
+    }
+
+    private void Select(ReviewDocumentDto doc)
+    {
+        _selected = doc;
+        _reason = string.Empty;
+        ClearMessages();
+    }
+
+    private async Task VerifyAsync(Guid documentId)
+    {
+        if (await RunAsync(() => Api.PostAsync($"api/admin/verification/documents/{documentId}/verify", new object()), "Document verified. The applicant was notified."))
+            await ReloadKeepingMessageAsync();
+    }
+
+    private async Task RejectAsync(Guid documentId)
+    {
+        var request = new RejectDocumentRequest { Message = _reason.Trim() };
+        if (await RunAsync(() => Api.PostAsync($"api/admin/verification/documents/{documentId}/reject", request), "Document rejected. The applicant was notified and can upload a new one."))
+        {
+            _reason = string.Empty;
+            await ReloadKeepingMessageAsync();
+        }
+    }
+
+    private async Task ApproveAsync(Guid profileId)
+    {
+        var path = _applicant!.Role == UserRole.Provider ? $"api/admin/providers/{profileId}/active" : $"api/admin/drivers/{profileId}/active";
+        if (await RunAsync(() => Api.PutAsync(path, new SetActiveRequest { IsActive = true }), $"{_applicant.Name} is approved and can start working."))
+            await ReloadKeepingMessageAsync();
+    }
+
+    /// <summary>Refreshes the page data without wiping the success message that was just shown.</summary>
+    private async Task ReloadKeepingMessageAsync()
+    {
+        var keep = _selected?.TypeId;
+        _applicant = await Api.GetAsync<VerificationApplicantDto>($"api/admin/verification/{UserId}");
+        _selected = keep is null ? null : _applicant.Documents.FirstOrDefault(d => d.TypeId == keep);
+        StateHasChanged();
+    }
+
+    private static string Size(long? bytes) => bytes is null ? "–" : bytes < 1024 * 1024 ? $"{bytes / 1024.0:0.#} KB" : $"{bytes / (1024.0 * 1024.0):0.#} MB";
+}

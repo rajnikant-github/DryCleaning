@@ -9,9 +9,13 @@ using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
 
-public sealed partial class ProfileViewModel(ViewModelServices services, IProviderProfileService profiles, IAuthService auth, ProfilePhotoChanger photoChanger)
+public sealed partial class ProfileViewModel(ViewModelServices services, IProviderProfileService profiles, IAuthService auth, ProfilePhotoChanger photoChanger,
+    DocumentsSectionViewModel documentsSection)
     : BaseViewModel(services)
 {
+    /// <summary>The verification documents card.</summary>
+    public DocumentsSectionViewModel DocumentsSection { get; } = documentsSection;
+
     [ObservableProperty] private string businessName = string.Empty;
     [ObservableProperty] private string description = string.Empty;
     [ObservableProperty] private string ownerName = string.Empty;
@@ -38,6 +42,7 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     protected override async Task<bool> LoadDataAsync()
     {
         AccountStatus = (await auth.RefreshAccountAsync())?.ProfileStatus ?? AccountStatus;
+        await DocumentsSection.LoadAsync();
         var profile = await profiles.GetProfileAsync();
         BusinessName = profile.Provider.BusinessName;
         Description = profile.Provider.Description;

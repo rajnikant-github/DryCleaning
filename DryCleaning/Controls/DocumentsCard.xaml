@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  Verification documents section on the Profile page (BindingContext: DocumentsSectionViewModel). Tapping it opens the list.  -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DryCleaning.ViewModels"
+             x:Class="DryCleaning.Controls.DocumentsCard"
+             x:DataType="vm:DocumentsSectionViewModel"
+             IsVisible="{Binding IsVisible}">
+    <Border Style="{StaticResource Card}">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding OpenCommand}" />
+        </Border.GestureRecognizers>
+        <VerticalStackLayout Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Verification documents" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="&#xf054;" FontFamily="FA" FontSize="14" TextColor="{StaticResource MutedForeground}" VerticalOptions="Center" />
+            </Grid>
+            <Label Text="{Binding Summary}" FontSize="14" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

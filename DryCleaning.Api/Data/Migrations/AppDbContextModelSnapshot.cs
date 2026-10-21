@@ -288,6 +288,92 @@ namespace DryCleaning.Api.Data.Migrations
                     b.ToTable("Disputes", (string)null);
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.DocumentReviewEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("VerificationDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VerificationDocumentId");
+
+                    b.ToTable("DocumentReviewEvents", (string)null);
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.DocumentType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("HasExpiry")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NumberLabel")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("NumberPattern")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Role", "Name")
+                        .IsUnique();
+
+                    b.ToTable("DocumentTypes", (string)null);
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.Driver", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1203,6 +1289,78 @@ namespace DryCleaning.Api.Data.Migrations
                     b.ToTable("VatSettings", (string)null);
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.VerificationDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DocumentTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ExpiresOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Number")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("RejectionMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentTypeId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId", "DocumentTypeId")
+                        .IsUnique();
+
+                    b.ToTable("VerificationDocuments", (string)null);
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.Customer", b =>
                 {
                     b.HasOne("DryCleaning.Api.Domain.Address", "Address")
@@ -1249,6 +1407,17 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("RaisedByUser");
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.DocumentReviewEvent", b =>
+                {
+                    b.HasOne("DryCleaning.Api.Domain.VerificationDocument", "VerificationDocument")
+                        .WithMany("Events")
+                        .HasForeignKey("VerificationDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("VerificationDocument");
                 });
 
             modelBuilder.Entity("DryCleaning.Api.Domain.Driver", b =>
@@ -1529,6 +1698,25 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("ServiceProvider");
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.VerificationDocument", b =>
+                {
+                    b.HasOne("DryCleaning.Api.Domain.DocumentType", "DocumentType")
+                        .WithMany()
+                        .HasForeignKey("DocumentTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DryCleaning.Api.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DocumentType");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.Category", b =>
                 {
                     b.Navigation("Products");
@@ -1586,6 +1774,11 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("Driver");
 
                     b.Navigation("ServiceProvider");
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.VerificationDocument", b =>
+                {
+                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }

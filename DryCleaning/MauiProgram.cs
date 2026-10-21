@@ -11,6 +11,7 @@ using DryCleaning.ViewModels.Customer;
 using DryCleaning.ViewModels.Driver;
 using DryCleaning.ViewModels.Onboarding;
 using DryCleaning.ViewModels.Provider;
+using DryCleaning.Views;
 using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
 using DryCleaning.Views.Driver;
@@ -57,6 +58,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IOrderLinkService, OrderLinkService>();
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
         builder.Services.AddSingleton<ProfilePhotoChanger>();
+        builder.Services.AddSingleton<IDocumentPicker, DocumentPicker>();
+        builder.Services.AddTransient<DocumentsSectionViewModel>();
         builder.Services.AddSingleton<ISessionService, SessionService>();
         builder.Services.AddSingleton<IPreferences>(Preferences.Default);
         builder.Services.AddSingleton<IOnboardingService, OnboardingService>();
@@ -88,6 +91,8 @@ public static class MauiProgram
             .AddPage<RoleSelectionPage, RoleSelectionViewModel>()
             .AddPage<LoginPage, LoginViewModel>()
             .AddPage<OtpPage, OtpViewModel>()
+            .AddPage<DocumentsPage, DocumentsViewModel>()
+            .AddPage<DocumentPage, DocumentViewModel>()
             .AddPage<SignUpPage, SignUpViewModel>()
             .AddPage<ForgotPasswordPage, ForgotPasswordViewModel>()
             .AddPage<ChangePasswordPage, ChangePasswordViewModel>()
@@ -165,6 +170,7 @@ public static class MauiProgram
         services.AddSingleton<IDriverService, MockDriverService>();
         services.AddSingleton<IRealtimeService, MockRealtimeService>();
         services.AddSingleton<IUserPhotoService, MockUserPhotoService>();
+        services.AddSingleton<IVerificationDocumentService, MockVerificationDocumentService>();
         services.AddSingleton<IPushRegistry, NoPushRegistry>();
         services.AddSingleton<IPushService, NoPushService>();
     }
@@ -188,6 +194,7 @@ public static class MauiProgram
         services.AddSingleton<IDriverService, ApiDriverService>();
         services.AddSingleton<IRealtimeService, ApiRealtimeService>();
         services.AddSingleton<IUserPhotoService, ApiUserPhotoService>();
+        services.AddSingleton<IVerificationDocumentService, ApiVerificationDocumentService>();
         services.AddSingleton<IPushRegistry, ApiPushRegistry>();
         services.AddSingleton<IPushService, PushService>();
     }

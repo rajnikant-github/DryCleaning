@@ -1,0 +1,66 @@
+@page "/verification"
+@inherits AdminPageBase
+
+<PageTitle>Verification – E Dry Cleaners Admin</PageTitle>
+<h1>Verification</h1>
+<p class="muted">
+    Service providers and drivers upload their documents in the app. Open an applicant to check each document, then verify it or reject it with a message they will see.
+    An account can only be approved once every required document is verified.
+</p>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="toolbar">
+    <select @bind="_onlyPending" @bind:after="LoadAsync">
+        <option value="true">Waiting for my review</option>
+        <option value="false">Everyone waiting for approval</option>
+    </select>
+    <select @bind="_role" @bind:after="LoadAsync">
+        <option value="">All roles</option>
+        <option value="Provider">Service providers</option>
+        <option value="Driver">Drivers</option>
+    </select>
+</div>
+
+<div class="card">
+    @if (_items is null || _items.Count == 0)
+    {
+        <div class="empty">@(_items is null ? "Loading…" : _onlyPending == "true" ? "Nothing waiting for review." : "Nobody is waiting for approval.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Applicant</th><th>Role</th><th class="num">To review</th><th class="num">Verified</th><th class="num">Rejected</th><th class="num">Required left</th><th>Account</th><th>Last upload</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var q in _items)
+            {
+                <tr>
+                    <td><strong>@q.Name</strong><br /><span class="muted">@q.Detail @q.Email</span></td>
+                    <td>@(q.Role == UserRole.Provider ? "Provider" : "Driver")</td>
+                    <td class="num">@(q.PendingCount > 0 ? q.PendingCount : "–")</td>
+                    <td class="num">@q.VerifiedCount</td>
+                    <td class="num">@q.RejectedCount</td>
+                    <td class="num">@(q.RequiredRemaining == 0 ? "–" : q.RequiredRemaining)</td>
+                    <td>@if (q.ProfileStatus == ProfileStatus.Active) { <StatusBadge Value="@("Active")" /> } else if (q.ProfileStatus == ProfileStatus.PendingApproval) { <span class="badge warn">Waiting for approval</span> } else { <StatusBadge Value="@("Inactive")" /> }</td>
+                    <td>@Fmt.DateTime(q.LastSubmittedAt)</td>
+                    <td class="row-actions"><a class="btn btn-sm" href="verification/@q.UserId">Review</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<VerificationQueueItemDto>? _items;
+    private string _onlyPending = "true";
+    private string _role = string.Empty;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/verification?onlyPending={_onlyPending}" + (_role.Length > 0 ? $"&role={_role}" : "");
+        _items = await Api.GetAsync<List<VerificationQueueItemDto>>(query);
+    });
+}

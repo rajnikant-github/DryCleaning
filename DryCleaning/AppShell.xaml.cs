@@ -1,3 +1,4 @@
+using DryCleaning.Views;
 using DryCleaning.Helpers;
 using DryCleaning.Views.Auth;
 using DryCleaning.Views.Customer;
@@ -14,6 +15,8 @@ public partial class AppShell : Shell
 
         // Pushed (non-tab) pages
         Routing.RegisterRoute(Routes.Otp, typeof(OtpPage));
+        Routing.RegisterRoute(Routes.Documents, typeof(DocumentsPage));
+        Routing.RegisterRoute(Routes.Document, typeof(DocumentPage));
         Routing.RegisterRoute(Routes.SignUp, typeof(SignUpPage));
         Routing.RegisterRoute(Routes.ForgotPassword, typeof(ForgotPasswordPage));
         Routing.RegisterRoute(Routes.ChangePassword, typeof(ChangePasswordPage));

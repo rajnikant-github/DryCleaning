@@ -305,5 +305,6 @@ a profile, because profiles are committed.
 - ✅ App connected to the API (sign-in + saved session with token refresh, all screens, photo upload, Paystack checkout, Google address search)
 - ✅ App: push notifications on Android (native Firebase) and iOS (native APNs) – registers on sign-in, opens the order when a notification is tapped
 - ✅ App: sign-up (all roles), forgot/reset and change password, provider business profile (incl. logo) and categories
+- ✅ Verification documents: admins choose which documents providers and drivers must upload (portal → **Document types**), review each one (verify, or reject with a message) in **Verification**, and can only approve an account once every required document is verified; applicants upload PDFs or photos (with number and expiry where asked) from their Profile page. Files are kept in protected storage, never public links
 - ✅ Email (SendGrid or SMTP): welcome, sign-in/reset codes, payment receipts, optional announcement emails; admin portal **Email** page sends a test
 - ⏳ SMS provider for codes

@@ -37,6 +37,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PendingRegistration> PendingRegistrations => Set<PendingRegistration>();
+    public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();
+    public DbSet<VerificationDocument> VerificationDocuments => Set<VerificationDocument>();
+    public DbSet<DocumentReviewEvent> DocumentReviewEvents => Set<DocumentReviewEvent>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {

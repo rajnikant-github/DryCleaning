@@ -51,6 +51,20 @@ public static class EmailTemplates
         return Build(to, $"{code} is your {AppName} sign-up code", "Confirm your email", body, text);
     }
 
+    /// <summary>An admin rejected a verification document; the message says why and the applicant uploads a new one in the app.</summary>
+    public static EmailMessage DocumentRejected(string to, string? name, string documentName, string message)
+    {
+        var body = $"""
+            <p style="margin:0 0 16px">{Greeting(name)}</p>
+            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Coral}">We couldn't verify your {Enc(documentName)}</p>
+            <p style="margin:0 0 6px">Here is what our team said:</p>
+            <p style="margin:0 0 16px;padding:12px 14px;border-radius:10px;background:#FFF0F0;white-space:pre-line">{Enc(message)}</p>
+            <p style="margin:0">Open the {AppName} app, go to <strong>Profile → Verification documents</strong> and upload a new one. We'll review it as soon as it arrives.</p>
+            """;
+        var text = $"{GreetingText(name)}\n\nWe couldn't verify your {documentName}.\n\nOur team said: {message}\n\nOpen the {AppName} app, go to Profile > Verification documents and upload a new one.";
+        return Build(to, $"Action needed: your {documentName}", "Document needs attention", body, text);
+    }
+
     /// <summary>Sent once after sign-up.</summary>
     public static EmailMessage Welcome(string to, string? name, UserRole role)
     {

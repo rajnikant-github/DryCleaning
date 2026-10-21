@@ -14,7 +14,16 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
     private const float JpegQuality = 0.8f;
     private const long SkipResizeBelowBytes = 500 * 1024;
 
-    public async Task<string?> AddPhotoAsync()
+    // Photos of documents need to stay readable: bigger and sharper than a normal order photo.
+    private const float DocumentLongestSide = 2600f;
+    private const float DocumentJpegQuality = 0.85f;
+    private const float SmallestDocumentSide = 1400f;
+
+    public Task<string?> AddPhotoAsync() => PickAsync(MaxLongestSide, JpegQuality, maxBytes: null);
+
+    public Task<string?> AddDocumentPhotoAsync(long maxBytes) => PickAsync(DocumentLongestSide, DocumentJpegQuality, maxBytes);
+
+    private async Task<string?> PickAsync(float maxLongestSide, float jpegQuality, long? maxBytes)
     {
         try
         {
@@ -56,7 +65,7 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
             await source.CopyToAsync(destination);
             destination.Close();
 
-            return await Task.Run(() => Shrink(target));
+            return await Task.Run(() => Shrink(target, maxLongestSide, jpegQuality, maxBytes));
         }
         catch (FeatureNotSupportedException)
         {
@@ -74,21 +83,35 @@ public sealed class PhotoService(IDialogService dialogs) : IPhotoService
     /// Scales the photo down to <see cref="MaxLongestSide"/> pixels and saves it as JPEG. Falls back to the original
     /// file if the format can't be decoded, so a photo is never lost because of resizing.
     /// </summary>
-    private static string Shrink(string path)
+    private static string Shrink(string path, float maxLongestSide, float jpegQuality, long? maxBytes)
     {
         try
         {
             var extension = Path.GetExtension(path).ToLowerInvariant();
-            if (new FileInfo(path).Length < SkipResizeBelowBytes && extension is ".jpg" or ".jpeg")
+            var length = new FileInfo(path).Length;
+            if (length < SkipResizeBelowBytes && extension is ".jpg" or ".jpeg")
                 return path;
 
             using var input = File.OpenRead(path);
             using Microsoft.Maui.Graphics.IImage original = PlatformImage.FromStream(input);
-            using Microsoft.Maui.Graphics.IImage resized = original.Downsize(MaxLongestSide);
 
             var target = Path.Combine(Path.GetDirectoryName(path)!, $"{Guid.NewGuid():N}.jpg");
-            using (var output = File.Create(target))
-                resized.Save(output, ImageFormat.Jpeg, JpegQuality);
+            var side = maxLongestSide;
+            var quality = jpegQuality;
+            while (true)
+            {
+                using (Microsoft.Maui.Graphics.IImage resized = original.Downsize(side))
+                using (var output = File.Create(target))
+                    resized.Save(output, ImageFormat.Jpeg, quality);
+
+                // Still too big for the server? Lower the quality a little, then the size, never below a readable size.
+                if (maxBytes is null || new FileInfo(target).Length <= maxBytes || (quality <= 0.5f && side <= SmallestDocumentSide))
+                    break;
+                if (quality > 0.5f)
+                    quality = Math.Max(0.5f, quality - 0.1f);
+                else
+                    side = Math.Max(SmallestDocumentSide, side * 0.8f);
+            }
 
             input.Close();
             File.Delete(path);

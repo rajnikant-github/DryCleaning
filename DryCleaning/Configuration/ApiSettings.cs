@@ -17,6 +17,9 @@ public sealed class ApiSettings
 
     public int TimeoutSeconds { get; set; } = 30;
 
+    /// <summary>How long a file upload may take (documents can be up to 50 MB on mobile data).</summary>
+    public int UploadTimeoutSeconds { get; set; } = 300;
+
     /// <summary>Must match Paystack:CallbackUrl in the API's appsettings.json.</summary>
     public string PaymentCallbackUrl { get; set; } = "edrycleaners://payment-complete";
 

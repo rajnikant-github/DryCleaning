@@ -36,6 +36,7 @@
                     <td>@Fmt.Date(p.CreatedAt)</td>
                     <td>@if (p.IsActive) { <StatusBadge Value="@("Active")" /> } else if (p.ProfileStatus == ProfileStatus.Deactivated) { <StatusBadge Value="@("Inactive")" /> } else { <span class="badge warn">Waiting for approval</span> }</td>
                     <td class="row-actions">
+                        <a class="btn btn-sm btn-light" href="verification/@p.UserId">Documents</a>
                         <button class="btn btn-sm @(p.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(p, !p.IsActive)">
                             @(p.IsActive ? "Deactivate" : p.ProfileStatus == ProfileStatus.Deactivated ? "Reactivate" : "Approve")
                         </button>

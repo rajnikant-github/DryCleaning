@@ -68,6 +68,30 @@ app.MapPost("/auth/login", async (HttpContext http, AdminLoginService login, [Fr
     return Results.Redirect("/");
 });
 
+// Shows a verification document in the browser: the portal fetches it from the API with the signed-in admin's token and streams it
+// on (the browser never sees the token, and the file is never cached).
+app.MapGet("/documents/{id:guid}", async (Guid id, HttpContext http, IHttpClientFactory factory, CancellationToken ct) =>
+{
+    var token = http.User.FindFirst(AdminApiClient.TokenClaim)?.Value;
+    if (string.IsNullOrEmpty(token))
+        return Results.Unauthorized();
+
+    var client = factory.CreateClient(AdminApiClient.HttpClientName);
+    using var request = new HttpRequestMessage(HttpMethod.Get, $"api/admin/verification/documents/{id}/file");
+    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+    var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+    if (!response.IsSuccessStatusCode)
+    {
+        response.Dispose();
+        return Results.StatusCode((int)response.StatusCode);
+    }
+
+    http.Response.Headers.CacheControl = "no-store";
+    http.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    http.Response.RegisterForDispose(response);
+    return Results.Stream(await response.Content.ReadAsStreamAsync(ct), response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream");
+}).RequireAuthorization();
+
 app.MapGet("/auth/logout", async (HttpContext http) =>
 {
     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

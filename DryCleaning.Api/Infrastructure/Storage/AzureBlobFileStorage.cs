@@ -8,7 +8,8 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Infrastructure.Storage;
 
 /// <summary>
-/// Azure Blob Storage. Order photos go to a private container and are opened through short-lived signed links;
+/// Azure Blob Storage. Verification documents go to a protected container that never gets signed links (the API streams them);
+/// order photos go to a private container and are opened through short-lived signed links;
 /// provider logos go to a public-read container. The database keeps "blob://container/path" – never a URL –
 /// so links can be re-signed on every request.
 /// </summary>
@@ -37,7 +38,12 @@ public sealed class AzureBlobFileStorage : IFileStorage
     {
         await EnsureContainersAsync(ct);
 
-        var container = visibility == FileVisibility.Public ? _options.PublicContainer : _options.PrivateContainer;
+        var container = visibility switch
+        {
+            FileVisibility.Public => _options.PublicContainer,
+            FileVisibility.Protected => _options.ProtectedContainer,
+            _ => _options.PrivateContainer
+        };
         var blobName = $"{folder.Trim('/')}/{Guid.NewGuid():N}{extension}".Replace('\\', '/');
         var blob = _service.GetBlobContainerClient(container).GetBlobClient(blobName);
 
@@ -60,9 +66,39 @@ public sealed class AzureBlobFileStorage : IFileStorage
             return storedPath;
 
         var container = rest[..slash];
+        // Protected documents never get a link: the API streams them after checking who is asking.
+        if (container == _options.ProtectedContainer)
+            return storedPath;
+
         var blob = _service.GetBlobContainerClient(container).GetBlobClient(rest[(slash + 1)..]);
 
         return container == _options.PublicContainer ? blob.Uri.ToString() : SignedUri(blob).ToString();
+    }
+
+    public async Task<(Stream Content, string ContentType)> OpenReadAsync(string storedPath, CancellationToken ct)
+    {
+        var blob = BlobFor(storedPath) ?? throw new FileNotFoundException("The file was not found.");
+        if (!await blob.ExistsAsync(ct))
+            throw new FileNotFoundException("The file was not found.");
+
+        var download = await blob.DownloadStreamingAsync(cancellationToken: ct);
+        return (download.Value.Content, download.Value.Details.ContentType ?? "application/octet-stream");
+    }
+
+    public async Task DeleteAsync(string storedPath, CancellationToken ct)
+    {
+        if (BlobFor(storedPath) is { } blob)
+            await blob.DeleteIfExistsAsync(cancellationToken: ct);
+    }
+
+    private BlobClient? BlobFor(string storedPath)
+    {
+        if (!storedPath.StartsWith(Scheme, StringComparison.Ordinal))
+            return null;
+
+        var rest = storedPath[Scheme.Length..];
+        var slash = rest.IndexOf('/');
+        return slash <= 0 ? null : _service.GetBlobContainerClient(rest[..slash]).GetBlobClient(rest[(slash + 1)..]);
     }
 
     private Uri SignedUri(BlobClient blob)
@@ -106,6 +142,7 @@ public sealed class AzureBlobFileStorage : IFileStorage
                 return;
             await _service.GetBlobContainerClient(_options.PrivateContainer).CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: ct);
             await _service.GetBlobContainerClient(_options.PublicContainer).CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: ct);
+            await _service.GetBlobContainerClient(_options.ProtectedContainer).CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: ct);
             _containersReady = true;
         }
         finally
@@ -116,6 +153,7 @@ public sealed class AzureBlobFileStorage : IFileStorage
 
     private static string ContentTypeFor(string extension) => extension.ToLowerInvariant() switch
     {
+        ".pdf" => "application/pdf",
         ".png" => "image/png",
         ".heic" => "image/heic",
         ".webp" => "image/webp",
