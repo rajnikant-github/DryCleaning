@@ -283,7 +283,7 @@ public sealed class MockDataStore
         AddNotification(bonganiUser, Orders[2], "Job accepted", $"You're collecting {Orders[2].OrderNumber} from Johan van der Merwe.", NotificationType.Order, now.AddMinutes(-45), true);
         AddNotification(bonganiUser, null, "Weekly payout", "Your earnings for last week have been paid into your bank account.", NotificationType.Payment, now.AddDays(-2), true);
 
-        AddNotification(providerUser, disputed, "Dispute under review", $"EDry Cleaners support is reviewing the dispute on {disputed.OrderNumber}.", NotificationType.System, now.AddDays(-5), true);
+        AddNotification(providerUser, disputed, "Dispute under review", $"E Dry Cleaners support is reviewing the dispute on {disputed.OrderNumber}.", NotificationType.System, now.AddDays(-5), true);
     }
 
     private Category AddCategory(string name, string description, int order)

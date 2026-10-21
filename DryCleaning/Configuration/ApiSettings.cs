@@ -1,6 +1,6 @@
 namespace DryCleaning.Configuration;
 
-/// <summary>Where the app finds the EDry Cleaners API (used when Features.UseMockData is false).</summary>
+/// <summary>Where the app finds the E Dry Cleaners API (used when Features.UseMockData is false).</summary>
 public sealed class ApiSettings
 {
     /// <summary>Production API root (no trailing "api/" – request paths include it).</summary>

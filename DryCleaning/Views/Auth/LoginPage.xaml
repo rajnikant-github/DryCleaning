@@ -69,7 +69,7 @@
                 </Button>
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,8,0,0">
-                    <Label Text="New to EDry Cleaners?" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Text="New to E Dry Cleaners?" Style="{StaticResource Caption}" VerticalOptions="Center" />
                     <Label Text="Create account" Style="{StaticResource LinkLabel}" VerticalOptions="Center">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CreateAccountCommand}" />

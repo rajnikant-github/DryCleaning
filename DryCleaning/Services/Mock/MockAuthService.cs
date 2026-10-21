@@ -120,7 +120,7 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
 
     /// <summary>Shown after a Service Provider signs up (the account needs admin approval).</summary>
     public const string PendingApprovalMessage =
-        "Thanks for registering! Your business is being reviewed by the EDry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
+        "Thanks for registering! Your business is being reviewed by the E Dry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
 
     public Task<bool> RestoreSessionAsync() => Task.FromResult(session.IsSignedIn);
 

@@ -15,7 +15,7 @@
         <MauiXamlInflator>SourceGen</MauiXamlInflator>
 
         <!-- Display name -->
-        <ApplicationTitle>EDry Cleaners</ApplicationTitle>
+        <ApplicationTitle>E Dry Cleaners</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.dev.edrycleaners</ApplicationId>
@@ -30,7 +30,7 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FFFFFF"/>
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1B3A6B"/>
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B3A6B" BaseSize="128,128"/>

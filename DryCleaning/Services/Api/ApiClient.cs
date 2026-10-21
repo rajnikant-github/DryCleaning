@@ -11,7 +11,7 @@ using DryCleaning.Services.Api.Contracts;
 namespace DryCleaning.Services.Api;
 
 /// <summary>
-/// The one place the app talks HTTP to the EDry Cleaners API. Adds the bearer token, refreshes it
+/// The one place the app talks HTTP to the E Dry Cleaners API. Adds the bearer token, refreshes it
 /// when it is about to expire (or the API answers 401), and turns error responses into
 /// <see cref="ApiException"/>s with messages that can be shown to the user.
 /// </summary>
@@ -263,12 +263,12 @@ public sealed class ApiClient
         }
         catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
         {
-            throw new ApiException("EDry Cleaners is taking too long to respond. Please try again.", inner: ex);
+            throw new ApiException("E Dry Cleaners is taking too long to respond. Please try again.", inner: ex);
         }
         catch (HttpRequestException ex)
         {
             Debug.WriteLine($"[ApiClient] {request.Method} {request.RequestUri} failed: {ex.Message}");
-            throw new ApiException("Can't reach EDry Cleaners right now. Check your connection and try again.", inner: ex);
+            throw new ApiException("Can't reach E Dry Cleaners right now. Check your connection and try again.", inner: ex);
         }
     }
 

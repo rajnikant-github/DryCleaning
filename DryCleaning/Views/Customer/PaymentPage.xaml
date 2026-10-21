@@ -38,7 +38,7 @@
                             </Grid>
                         </Border>
                         <Label Text="{Binding CurrencyCode, StringFormat='Charged in {0}.'}" Style="{StaticResource Small}" />
-                        <Label Text="Card details are entered on Paystack's secure page. EDry Cleaners never sees them." Style="{StaticResource Small}" />
+                        <Label Text="Card details are entered on Paystack's secure page. E Dry Cleaners never sees them." Style="{StaticResource Small}" />
                     </VerticalStackLayout>
                 </Border>
 

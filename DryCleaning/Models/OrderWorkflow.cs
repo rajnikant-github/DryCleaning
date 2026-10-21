@@ -127,9 +127,9 @@ public static class OrderWorkflow
         ReadyForDelivery => "Cleaned and packed – a driver will be assigned soon.",
         DeliveryAssigned => "A driver is collecting your order from the provider.",
         OutForDelivery => "Your order is on its way. Share your delivery OTP with the driver.",
-        Delivered or Completed => "Delivered. Thank you for using EDry Cleaners!",
+        Delivered or Completed => "Delivered. Thank you for using E Dry Cleaners!",
         Cancelled => "This order was cancelled.",
-        Disputed => "On hold while EDry Cleaners support reviews an issue.",
+        Disputed => "On hold while E Dry Cleaners support reviews an issue.",
         _ => string.Empty
     };
 }

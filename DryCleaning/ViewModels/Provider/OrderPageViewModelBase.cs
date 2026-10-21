@@ -56,7 +56,7 @@ public abstract partial class OrderPageViewModelBase(ViewModelServices services,
 
     protected async Task<bool> ReportItemIssueAsync(string defaultReason)
     {
-        var description = await Dialogs.PromptAsync(defaultReason, "Describe the issue. EDry Cleaners support and the customer will be notified.", "Report");
+        var description = await Dialogs.PromptAsync(defaultReason, "Describe the issue. E Dry Cleaners support and the customer will be notified.", "Report");
         if (string.IsNullOrWhiteSpace(description))
             return false;
 

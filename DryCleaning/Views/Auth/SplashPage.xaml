@@ -15,12 +15,9 @@
                  HorizontalOptions="Start" VerticalOptions="End" Margin="-60,0,0,-60" />
 
         <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
-            <Border WidthRequest="112" HeightRequest="112" BackgroundColor="{StaticResource White}"
-                    StrokeThickness="0" StrokeShape="RoundRectangle 28" HorizontalOptions="Center">
-                <Image Source="logo_app.png" WidthRequest="72" HeightRequest="72" />
-            </Border>
+            <Image Source="logo_app_white.png" WidthRequest="96" HeightRequest="96" HorizontalOptions="Center" />
             <VerticalStackLayout Spacing="4">
-                <Label Text="EDry Cleaners" Style="{StaticResource Display}" TextColor="{StaticResource White}"
+                <Label Text="E Dry Cleaners" Style="{StaticResource Display}" TextColor="{StaticResource White}"
                        HorizontalTextAlignment="Center" />
                 <Label Text="Clean Clothes. Healthy Life." Style="{StaticResource HeaderCaption}"
                        HorizontalTextAlignment="Center" />

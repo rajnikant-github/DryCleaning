@@ -24,7 +24,7 @@ public class EdryFirebaseMessagingService : FirebaseMessagingService
         // When the app is in the background Android shows the notification itself; this runs when the app is open.
         var notification = message.GetNotification();
         var data = message.Data;
-        var title = notification?.Title ?? (data.TryGetValue("title", out var dataTitle) ? dataTitle : null) ?? "EDry Cleaners";
+        var title = notification?.Title ?? (data.TryGetValue("title", out var dataTitle) ? dataTitle : null) ?? "E Dry Cleaners";
         var body = notification?.Body ?? (data.TryGetValue("body", out var dataBody) ? dataBody : null) ?? string.Empty;
         data.TryGetValue("orderId", out var orderId);
 

@@ -1,7 +1,7 @@
 :root {
-    --navy: #1c3a6b;
-    --navy-dark: #142b50;
-    --coral: #e57464;
+    --navy: #1a1a2e;       /* near-black from the E Dry Cleaners site */
+    --navy-dark: #0f0a1e;
+    --coral: #f24a4a;      /* brand coral */
     --bg: #f6f5f1;
     --card: #ffffff;
     --border: #e4e1d8;
@@ -14,7 +14,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; font-size: 15px; color: var(--text); background: var(--bg); }
+html, body { margin: 0; font-family: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif; font-size: 15px; color: var(--text); background: var(--bg); }
 h1 { font-size: 1.5rem; margin: 0 0 1rem; }
 h2 { font-size: 1.1rem; margin: 0 0 .75rem; }
 a { color: var(--info); text-decoration: none; }
@@ -22,8 +22,11 @@ a:hover { text-decoration: underline; }
 
 .shell { display: flex; min-height: 100vh; }
 .sidebar { width: 220px; flex: none; background: var(--navy); color: #fff; padding: 1rem 0; display: flex; flex-direction: column; }
-.brand { font-size: 1.25rem; font-weight: 700; padding: .25rem 1.25rem 1rem; }
-.brand span { color: var(--coral); margin-left: .25rem; }
+.brand { font-size: 1.05rem; font-weight: 800; padding: .25rem 1.25rem 1rem; display: flex; align-items: center; gap: .5rem; }
+.brand-logo { height: 34px; width: auto; flex: none; filter: brightness(0) invert(1); } /* tints the dark logo white for the dark sidebar */
+.login-logo { height: 56px; width: auto; display: block; margin: 0 auto .5rem; }
+.brand-name { line-height: 1.15; white-space: nowrap; }
+.brand-name em { color: var(--coral); font-style: normal; }
 .nav-item { color: #d7dff0; padding: .55rem 1.25rem; display: block; border-left: 3px solid transparent; }
 .nav-item:hover { background: var(--navy-dark); text-decoration: none; color: #fff; }
 .nav-item.active { background: var(--navy-dark); color: #fff; border-left-color: var(--coral); }
@@ -53,7 +56,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .toolbar .grow { flex: 1; }
 
 input, select, textarea { font: inherit; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text); }
-input:focus, select:focus, textarea:focus { outline: 2px solid #b8c7e6; border-color: var(--navy); }
+input:focus, select:focus, textarea:focus { outline: 2px solid #f7b8b8; border-color: var(--coral); }
 textarea { width: 100%; min-height: 80px; }
 label.field { display: block; margin-bottom: .75rem; }
 label.field span { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .2rem; }
@@ -61,11 +64,11 @@ label.field input, label.field select { width: 100%; }
 label.field input[type="checkbox"] { width: auto; margin-right: .4rem; vertical-align: middle; }
 label.field span:has(> input[type="checkbox"]) { display: flex; align-items: center; color: inherit; font-size: .9rem; }
 
-.btn { font: inherit; border: 1px solid var(--navy); background: var(--navy); color: #fff; padding: .45rem .9rem; border-radius: 8px; cursor: pointer; }
-.btn:hover { background: var(--navy-dark); }
+.btn { font: inherit; border: 1px solid var(--coral); background: var(--coral); color: #fff; padding: .45rem .9rem; border-radius: 8px; cursor: pointer; }
+.btn:hover { filter: brightness(.92); }
 .btn:disabled { opacity: .5; cursor: default; }
 .btn-light { background: #fff; color: var(--navy); border-color: var(--border); }
-.btn-light:hover { background: #f0efea; }
+.btn-light:hover { background: #f0efea; filter: none; }
 .btn-danger { background: var(--bad); border-color: var(--bad); }
 .btn-ok { background: var(--ok); border-color: var(--ok); }
 .btn-sm { padding: .25rem .6rem; font-size: .85rem; }
@@ -98,7 +101,8 @@ label.field span:has(> input[type="checkbox"]) { display: flex; align-items: cen
 
 .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); }
 .login-card { background: #fff; border-radius: 16px; padding: 2rem; width: 360px; max-width: 92vw; }
-.login-card h1 { color: var(--navy); margin-bottom: .25rem; }
+.login-card h1 { color: var(--navy); margin-bottom: .25rem; text-align: center; }
+.login-card .muted { text-align: center; }
 .login-card .btn { width: 100%; padding: .65rem; margin-top: .5rem; }
 
 #blazor-error-ui { background: #fdf0d9; bottom: 0; box-shadow: 0 -1px 2px rgba(0,0,0,.2); display: none; left: 0; padding: .6rem 1.25rem; position: fixed; width: 100%; z-index: 1000; }

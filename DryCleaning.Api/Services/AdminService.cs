@@ -150,7 +150,7 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         provider.IsActive = isActive;
         db.Notify(provider.UserId, null,
             isActive ? "Account approved" : "Account deactivated",
-            isActive ? $"{provider.BusinessName} is now live on EDry Cleaners." : $"{provider.BusinessName} has been deactivated. Contact support for help.",
+            isActive ? $"{provider.BusinessName} is now live on E Dry Cleaners." : $"{provider.BusinessName} has been deactivated. Contact support for help.",
             NotificationType.System);
         await db.SaveChangesAsync(ct);
     }

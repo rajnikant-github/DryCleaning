@@ -164,8 +164,8 @@ if (config.GetValue("Swagger:Enabled", true))
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "EDry Cleaners API v1");
-        options.DocumentTitle = "EDry Cleaners API";
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "E Dry Cleaners API v1");
+        options.DocumentTitle = "E Dry Cleaners API";
         options.EnablePersistAuthorization();
         options.DisplayRequestDuration();
     });

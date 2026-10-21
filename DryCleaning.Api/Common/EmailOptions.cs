@@ -22,8 +22,8 @@ public sealed class EmailOptions
     /// <summary>Sender address (must be verified in SendGrid, or be the mailbox you log in with).</summary>
     public string? From { get; set; }
 
-    /// <summary>Sender name people see, e.g. "EDry Cleaners".</summary>
-    public string Name { get; set; } = "EDry Cleaners";
+    /// <summary>Sender name people see, e.g. "E Dry Cleaners".</summary>
+    public string Name { get; set; } = "E Dry Cleaners";
 
     /// <summary>Where replies go (optional), e.g. a support mailbox.</summary>
     public string? ReplyTo { get; set; }

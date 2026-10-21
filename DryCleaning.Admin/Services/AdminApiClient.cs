@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace DryCleaning.Admin.Services;
 
-/// <summary>Calls the EDry Cleaners API as the signed-in admin (the access token lives in the sign-in cookie's claims).</summary>
+/// <summary>Calls the E Dry Cleaners API as the signed-in admin (the access token lives in the sign-in cookie's claims).</summary>
 public sealed class AdminApiClient(IHttpClientFactory factory, AuthenticationStateProvider auth)
 {
     public const string HttpClientName = "Api";

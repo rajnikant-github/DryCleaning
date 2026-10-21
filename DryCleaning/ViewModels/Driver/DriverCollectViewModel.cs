@@ -50,5 +50,5 @@ public sealed partial class DriverCollectViewModel(ViewModelServices services, I
 
     [RelayCommand]
     private Task ReportProblemAsync() => Dialogs.AlertAsync("Problem at the store",
-        "Don't take a package that is damaged or doesn't match. Ask the provider to fix it, or call EDry Cleaners support on +27 21 555 0100.");
+        "Don't take a package that is damaged or doesn't match. Ask the provider to fix it, or call E Dry Cleaners support on +27 21 555 0100.");
 }

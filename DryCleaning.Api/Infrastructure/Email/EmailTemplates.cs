@@ -11,8 +11,11 @@ namespace DryCleaning.Api.Infrastructure.Email;
 /// </summary>
 public static class EmailTemplates
 {
-    private const string Navy = "#1B3A6B";
-    private const string AppName = "EDry Cleaners";
+    // Brand taken from edrycleaners.co.za: coral accent, near-black text, dark footer, Nunito.
+    private const string Coral = "#F24A4A";
+    private const string Ink = "#1A1A2E";
+    private const string AppName = "E Dry Cleaners";
+    private const string SiteUrl = "https://edrycleaners.co.za";
 
     private static readonly CultureInfo Numbers = new("en-US");
 
@@ -25,7 +28,7 @@ public static class EmailTemplates
             <p style="margin:0 0 16px">{Greeting(name)}</p>
             <p style="margin:0 0 20px">Use this code to {purpose}. It is valid for {validMinutes} minutes.</p>
             <p style="margin:0 0 20px;text-align:center">
-              <span style="display:inline-block;padding:14px 28px;border-radius:12px;background:#EEF4FF;color:{Navy};font-size:32px;font-weight:700;letter-spacing:8px">{Enc(code)}</span>
+              <span style="display:inline-block;padding:14px 28px;border-radius:12px;background:#FFF0F0;color:{Coral};font-size:32px;font-weight:700;letter-spacing:8px">{Enc(code)}</span>
             </p>
             <p style="margin:0;color:#6B7280;font-size:13px">If you didn't ask for this, you can ignore this email. Never share this code with anyone.</p>
             """;
@@ -44,7 +47,7 @@ public static class EmailTemplates
         };
         var body = $"""
             <p style="margin:0 0 16px">{Greeting(name)}</p>
-            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Navy}">Welcome to {AppName}!</p>
+            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Coral}">Welcome to {AppName}!</p>
             <p style="margin:0 0 12px">{Enc(line)}</p>
             <p style="margin:0">{Enc(next)}</p>
             """;
@@ -79,7 +82,7 @@ public static class EmailTemplates
 
         var body = $"""
             <p style="margin:0 0 16px">{Greeting(name)}</p>
-            <p style="margin:0 0 4px;font-size:18px;font-weight:700;color:{Navy}">Payment received – thank you!</p>
+            <p style="margin:0 0 4px;font-size:18px;font-weight:700;color:{Coral}">Payment received – thank you!</p>
             <p style="margin:0 0 20px">Order <strong>{Enc(order.OrderNumber)}</strong> with {Enc(providerName)} is confirmed.</p>
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-top:1px solid #E5E2D8;border-bottom:1px solid #E5E2D8;margin:0 0 16px">
               {rows}
@@ -89,7 +92,7 @@ public static class EmailTemplates
               <tr><td style="padding:3px 0;color:#6B7280">Pickup &amp; delivery</td><td style="padding:3px 0;text-align:right">{Enc(Money(order.DeliveryFee, currency))}</td></tr>
               {extraRows}
               <tr><td style="padding:3px 0;color:#6B7280">{Enc(vatLabel)}</td><td style="padding:3px 0;text-align:right">{Enc(Money(order.Tax, currency))}</td></tr>
-              <tr><td style="padding:8px 0 0;font-weight:700">Total paid</td><td style="padding:8px 0 0;text-align:right;font-weight:700;color:{Navy}">{Enc(Money(order.TotalAmount, currency))}</td></tr>
+              <tr><td style="padding:8px 0 0;font-weight:700">Total paid</td><td style="padding:8px 0 0;text-align:right;font-weight:700;color:{Coral}">{Enc(Money(order.TotalAmount, currency))}</td></tr>
             </table>
             <p style="margin:0 0 4px;color:#6B7280">Pickup</p>
             <p style="margin:0 0 20px">{Enc(pickup)}</p>
@@ -104,7 +107,7 @@ public static class EmailTemplates
     {
         var body = $"""
             <p style="margin:0 0 16px">{Greeting(name)}</p>
-            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Navy}">{Enc(title)}</p>
+            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Coral}">{Enc(title)}</p>
             <p style="margin:0;white-space:pre-line">{Enc(message)}</p>
             """;
         return Build(to, title, title, body, $"{GreetingText(name)}\n\n{title}\n\n{message}");
@@ -114,7 +117,7 @@ public static class EmailTemplates
     public static EmailMessage Test(string to)
     {
         var body = $"""
-            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Navy}">Email is working</p>
+            <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:{Coral}">Email is working</p>
             <p style="margin:0">This is a test email from the {AppName} admin portal. If you can read this, the API can send email.</p>
             """;
         return Build(to, $"{AppName} test email", "Test email", body, $"Email is working. This is a test email from the {AppName} admin portal.");
@@ -128,7 +131,7 @@ public static class EmailTemplates
         To = to,
         Subject = subject,
         Html = Layout(heading, bodyHtml),
-        Text = text + $"\n\n— {AppName}"
+        Text = text + $"\n\n— {AppName}\n{SiteUrl}\nTerms: {SiteUrl}/terms.html · Contact: {SiteUrl}/contact.html\nPowered by Macdroid Software Solutions"
     };
 
     private static string Layout(string heading, string body) => $"""
@@ -139,9 +142,20 @@ public static class EmailTemplates
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F8F7F2;padding:24px 12px">
             <tr><td align="center">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#FFFFFF;border-radius:16px;overflow:hidden;border:1px solid #E5E2D8">
-                <tr><td style="background:{Navy};padding:22px 28px;color:#FFFFFF;font-size:22px;font-weight:800;letter-spacing:.3px">{AppName}</td></tr>
+                <tr><td style="padding:20px 28px;border-bottom:4px solid {Coral}">
+                  <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+                    <td style="padding-right:12px"><a href="{SiteUrl}"><img src="{SiteUrl}/assets/images/logo.png" width="44" height="44" alt="" style="display:block;border:0;border-radius:22px"></a></td>
+                    <td style="font-size:22px;font-weight:800;color:{Ink};letter-spacing:.2px"><a href="{SiteUrl}" style="color:{Ink};text-decoration:none">{AppName}</a></td>
+                  </tr></table>
+                </td></tr>
                 <tr><td style="padding:28px">{body}</td></tr>
-                <tr><td style="padding:16px 28px;background:#F8F7F2;color:#6B7280;font-size:12px">© {DateTime.UtcNow.Year} {AppName}. You're receiving this because you have an account with us.</td></tr>
+                <tr><td style="padding:20px 28px;background:#0F0A1E;color:#C9C7D6;font-size:12px;line-height:1.7">
+                  <a href="{SiteUrl}/terms.html" style="color:#FFFFFF;text-decoration:none">Terms &amp; Conditions</a> &nbsp;·&nbsp;
+                  <a href="{SiteUrl}/terms.html" style="color:#FFFFFF;text-decoration:none">Privacy Policy</a> &nbsp;·&nbsp;
+                  <a href="{SiteUrl}/contact.html" style="color:#FFFFFF;text-decoration:none">Contact us</a><br>
+                  © {DateTime.UtcNow.Year} {AppName}. You're receiving this because you have an account with us.<br>
+                  Powered by <a href="https://macdroidsoftwaresolutions.co.za/" style="color:#FFFFFF;text-decoration:none">Macdroid Software Solutions</a>
+                </td></tr>
               </table>
             </td></tr>
           </table>

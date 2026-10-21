@@ -394,7 +394,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         order.ChangeStatus(OrderStatus.Delivered, driver.UserId, "Delivered to customer · OTP verified");
         order.ChangeStatus(OrderStatus.Completed, driver.UserId, "Order completed");
 
-        db.Notify(order.Customer.UserId, order, "Delivered", $"{order.OrderNumber} has been delivered. Thank you for using EDry Cleaners!");
+        db.Notify(order.Customer.UserId, order, "Delivered", $"{order.OrderNumber} has been delivered. Thank you for using E Dry Cleaners!");
         db.Notify(order.ServiceProvider.UserId, order, "Order completed", $"{order.OrderNumber} was delivered to the customer.");
         await db.SaveChangesAsync(ct);
         return job.ToDetail(driver.Id, Market.DriverEarningPerJob);

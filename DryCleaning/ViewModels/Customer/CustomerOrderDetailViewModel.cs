@@ -131,7 +131,7 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
         if (reason is null)
             return;
 
-        var description = await Dialogs.PromptAsync(reason, "Tell us what happened. EDry Cleaners support will review it with the provider.", "Submit");
+        var description = await Dialogs.PromptAsync(reason, "Tell us what happened. E Dry Cleaners support will review it with the provider.", "Submit");
         if (string.IsNullOrWhiteSpace(description))
             return;
 

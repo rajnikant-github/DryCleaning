@@ -12,10 +12,10 @@ public static class SwaggerSetup
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "EDry Cleaners API",
+                Title = "E Dry Cleaners API",
                 Version = "v1",
                 Description =
-                    "Marketplace API for EDry Cleaners – Customer, Service Provider, Driver and Admin.\n\n" +
+                    "Marketplace API for E Dry Cleaners – Customer, Service Provider, Driver and Admin.\n\n" +
                     "**Sign in:** call `POST /api/auth/login`, copy `accessToken`, click **Authorize** and paste it.\n\n" +
                     "Demo users (Development seed, password `Demo@12345`): admin@edrycleaners.co.za, " +
                     "thandi@sparkledrycleaners.co.za (provider), bongani@drivers.edrycleaners.co.za (driver), sipho@example.co.za (customer)."

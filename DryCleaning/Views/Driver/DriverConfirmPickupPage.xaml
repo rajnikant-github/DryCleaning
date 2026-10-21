@@ -38,7 +38,7 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Customer's pickup code" Style="{StaticResource SectionLabel}" Margin="0" />
-                        <Label Text="{Binding CustomerName, StringFormat='Ask {0} for the 4-digit pickup code shown in their EDry Cleaners app.'}" Style="{StaticResource Caption}" />
+                        <Label Text="{Binding CustomerName, StringFormat='Ask {0} for the 4-digit pickup code shown in their E Dry Cleaners app.'}" Style="{StaticResource Caption}" />
                         <controls:OtpView Code="{Binding Code}" Length="4" />
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource ErrorSoft}" IsVisible="{Binding HasCodeError}" Padding="12,8">
                             <Label Text="{Binding CodeError}" TextColor="{StaticResource ErrorDark}" FontSize="13" />

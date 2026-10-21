@@ -47,7 +47,7 @@
                     </Border>
 
                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="#FFF7ED" IsVisible="{Binding IsOnHold}" Padding="14">
-                        <Label TextColor="#C2410C" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="  This order is on hold while EDry Cleaners support reviews an issue. Please wait for support to contact you." /></FormattedString></Label.FormattedText></Label>
+                        <Label TextColor="#C2410C" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf071;" FontFamily="FA" /><Span Text="  This order is on hold while E Dry Cleaners support reviews an issue. Please wait for support to contact you." /></FormattedString></Label.FormattedText></Label>
                     </Border>
 
                 <!--  Route  -->

@@ -226,7 +226,7 @@ public sealed class AuthService(
 
         user.PasswordHash = hasher.Hash(request.NewPassword);
         await RevokeAllRefreshTokensAsync(user.Id, ct);
-        db.Notify(user.Id, null, "Password changed", "Your EDry Cleaners password was reset. If this wasn't you, contact support.", NotificationType.System);
+        db.Notify(user.Id, null, "Password changed", "Your E Dry Cleaners password was reset. If this wasn't you, contact support.", NotificationType.System);
         await db.SaveChangesAsync(ct);
         return await IssueAsync(user, await ProfileIdAsync(user, ct), ct);
     }

@@ -60,7 +60,7 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
         {
             var me = Me;
             if (!me.IsActive)
-                throw new InvalidOperationException("Your driver account is not active. Please contact EDry Cleaners support.");
+                throw new InvalidOperationException("Your driver account is not active. Please contact E Dry Cleaners support.");
             me.IsAvailable = isOnline;
             me.UpdatedAt = DateTime.Now;
             return me.IsAvailable;
@@ -291,7 +291,7 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
             ChangeStatus(order, OrderStatus.Delivered, "Delivered to customer · OTP verified");
             ChangeStatus(order, OrderStatus.Completed, "Order completed");
 
-            store.Notify(customer.UserId, order, "Delivered", $"{order.OrderNumber} has been delivered. Thank you for using EDry Cleaners!");
+            store.Notify(customer.UserId, order, "Delivered", $"{order.OrderNumber} has been delivered. Thank you for using E Dry Cleaners!");
             store.Notify(store.ProviderById(order.ServiceProviderId).UserId, order, "Order completed",
                 $"{order.OrderNumber} was delivered to the customer.");
         }
@@ -487,7 +487,7 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
     private static void EnsureNotOnHold(Order order)
     {
         if (order.Status == OrderStatus.Disputed)
-            throw new InvalidOperationException("This order is on hold while EDry Cleaners support reviews an issue.");
+            throw new InvalidOperationException("This order is on hold while E Dry Cleaners support reviews an issue.");
         if (order.Status == OrderStatus.Cancelled)
             throw new InvalidOperationException("This order was cancelled.");
     }

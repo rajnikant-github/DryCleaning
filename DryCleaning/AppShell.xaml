@@ -8,7 +8,7 @@
        xmlns:customer="clr-namespace:DryCleaning.Views.Customer"
        xmlns:driver="clr-namespace:DryCleaning.Views.Driver"
        Shell.FlyoutBehavior="Disabled"
-       Title="EDry Cleaners">
+       Title="E Dry Cleaners">
 
     <!--  Entry flow  -->
     <ShellContent Route="splash" ContentTemplate="{DataTemplate auth:SplashPage}" />

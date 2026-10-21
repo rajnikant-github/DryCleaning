@@ -14,8 +14,8 @@
             </Border>
 
             <VerticalStackLayout Spacing="6" Margin="0,8,0,8">
-                <Label Text="Welcome to EDry Cleaners" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
-                <Label Text="How would you like to use EDry Cleaners?" Style="{StaticResource Caption}" FontSize="15" HorizontalTextAlignment="Center" />
+                <Label Text="Welcome to E Dry Cleaners" Style="{StaticResource H1}" HorizontalTextAlignment="Center" />
+                <Label Text="How would you like to use E Dry Cleaners?" Style="{StaticResource Caption}" FontSize="15" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <!--  Customer  -->

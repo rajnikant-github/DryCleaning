@@ -42,7 +42,7 @@ public sealed partial class RoleSelectionViewModel(ViewModelServices services, I
 
         if (selected is not (UserRole.Provider or UserRole.Customer or UserRole.Driver))
         {
-            await Dialogs.AlertAsync("Not available", $"The {selected} role uses the EDry Cleaners admin portal.");
+            await Dialogs.AlertAsync("Not available", $"The {selected} role uses the E Dry Cleaners admin portal.");
             return;
         }
 

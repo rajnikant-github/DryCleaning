@@ -27,9 +27,9 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>EDry Cleaners uses your location to fill in your pickup address.</string>
+	<string>E Dry Cleaners uses your location to fill in your pickup address.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>EDry Cleaners uses the camera to photograph items when receiving, inspecting and packing orders.</string>
+	<string>E Dry Cleaners uses the camera to photograph items when receiving, inspecting and packing orders.</string>
 	<!-- Debug: lets the app call the API on your Mac over http (./run-api.sh). Production uses HTTPS. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -49,6 +49,6 @@
 		</dict>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>EDry Cleaners lets you attach order photos from your library.</string>
+	<string>E Dry Cleaners lets you attach order photos from your library.</string>
 </dict>
 </plist>

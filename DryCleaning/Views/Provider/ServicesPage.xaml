@@ -21,7 +21,7 @@
                 <VerticalStackLayout Padding="16,12,16,24" Spacing="12">
                     <Border Style="{StaticResource SoftPanel}" BackgroundColor="{DynamicResource SecondaryColor}">
                         <Label FontSize="13" TextColor="{DynamicResource Primary}"
-                               Text="Categories are managed by EDry Cleaners. Add Products and Service Items with your own prices." />
+                               Text="Categories are managed by E Dry Cleaners. Add Products and Service Items with your own prices." />
                     </Border>
                     <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Products}">
                         <BindableLayout.EmptyView>
@@ -67,6 +67,6 @@
 
         <controls:PageStateView Grid.Row="1" State="{Binding State}" RetryCommand="{Binding RetryCommand}" ErrorMessage="{Binding ErrorMessage}"
                                 EmptyIcon="&#xf02b;" EmptyTitle="No categories enabled"
-                                EmptyMessage="Contact EDry Cleaners to enable categories for your business." />
+                                EmptyMessage="Contact E Dry Cleaners to enable categories for your business." />
     </Grid>
 </views:BasePage>

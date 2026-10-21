@@ -8,7 +8,7 @@
                 xmlns:vm="clr-namespace:DryCleaning.ViewModels.Customer"
                 x:Class="DryCleaning.Views.Customer.CustomerHomePage"
                 x:DataType="vm:CustomerHomeViewModel"
-                Title="EDry Cleaners">
+                Title="E Dry Cleaners">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Alerts" Command="{Binding OpenNotificationsCommand}" >
             <ToolbarItem.IconImageSource>

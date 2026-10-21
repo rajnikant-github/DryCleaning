@@ -156,7 +156,7 @@ public sealed class ApiAuthService : IAuthService
 
     /// <summary>Shown after a Service Provider signs up (the business needs admin approval).</summary>
     public const string PendingApprovalMessage =
-        "Thanks for registering! Your business is being reviewed by the EDry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
+        "Thanks for registering! Your business is being reviewed by the E Dry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
@@ -210,7 +210,7 @@ public sealed class ApiAuthService : IAuthService
                 await RevokeAsync(auth.RefreshToken);
 
             return AuthResult.Fail(auth.User.Role == UserRole.Admin
-                ? "Admin accounts sign in on the EDry Cleaners admin portal."
+                ? "Admin accounts sign in on the E Dry Cleaners admin portal."
                 : $"This is a {RoleName(auth.User.Role)} account. Go back and choose \"{RoleName(auth.User.Role)}\" to sign in.");
         }
 
