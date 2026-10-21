@@ -30,10 +30,10 @@
                     <td>@(d.IsAvailable ? "Online" : "Offline")</td>
                     <td class="num">@d.ActiveJobs</td>
                     <td class="num">@d.CompletedJobs</td>
-                    <td><StatusBadge Value="@(d.IsActive ? "Active" : "Inactive")" /></td>
+                    <td>@if (d.IsActive) { <StatusBadge Value="@("Active")" /> } else if (d.ProfileStatus == ProfileStatus.PendingApproval) { <span class="badge warn">Waiting for approval</span> } else { <StatusBadge Value="@("Inactive")" /> }</td>
                     <td class="row-actions">
                         <button class="btn btn-sm @(d.IsActive ? "btn-light" : "btn-ok")" disabled="@Busy" @onclick="() => SetActiveAsync(d, !d.IsActive)">
-                            @(d.IsActive ? "Deactivate" : "Activate")
+                            @(d.IsActive ? "Deactivate" : d.ProfileStatus == ProfileStatus.PendingApproval ? "Approve" : "Activate")
                         </button>
                     </td>
                 </tr>

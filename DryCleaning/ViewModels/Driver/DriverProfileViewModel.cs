@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
 using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Driver;
@@ -30,6 +31,13 @@ public sealed partial class DriverProfileViewModel(ViewModelServices services, I
 
     [ObservableProperty] private ImageSource? photoSource;
 
+    /// <summary>Under review / deactivated notice (hidden when the driver is approved).</summary>
+    [ObservableProperty] private ProfileStatus accountStatus;
+
+    // Approval (or deactivation) arrives as a notification: look again straight away.
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.NotificationReceived || message.Kind == RealtimeChangeKind.Reconnected;
+
     public string AppVersion => $"Version {AppInfo.Current.VersionString}";
 
     [RelayCommand]
@@ -42,6 +50,7 @@ public sealed partial class DriverProfileViewModel(ViewModelServices services, I
 
     protected override async Task<bool> LoadDataAsync()
     {
+        AccountStatus = (await auth.RefreshAccountAsync())?.ProfileStatus ?? AccountStatus;
         var profile = await drivers.GetProfileAsync();
         Name = profile.User.Name;
         Initials = StringHelpers.Initials(profile.User.Name);

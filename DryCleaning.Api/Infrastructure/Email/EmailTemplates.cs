@@ -57,7 +57,7 @@ public static class EmailTemplates
         var (line, next) = role switch
         {
             UserRole.Provider => ("Thanks for registering your business.", "Our team will review it and let you know as soon as it's approved. After that you can sign in, add your services and start receiving orders."),
-            UserRole.Driver => ("Thanks for signing up as a driver.", "Go online in the app to see pickup and delivery jobs near you."),
+            UserRole.Driver => ("Thanks for signing up as a driver.", "Our team will review your account and let you know as soon as it's approved. After that, go online in the app to see pickup and delivery jobs near you."),
             _ => ("Thanks for signing up.", "Choose a provider, schedule a pickup and we'll collect, clean and deliver your clothes back to your door.")
         };
         var body = $"""

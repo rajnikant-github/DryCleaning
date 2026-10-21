@@ -31,7 +31,7 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
             Email = provider.Email,
             LogoUrl = FileUrls.Resolve(provider.LogoUrl),
             IsActive = provider.IsActive,
-            Owner = owner.ToDto(provider.Id),
+            Owner = owner.ToDto(provider.Id, ProfileStatusExtensions.StatusOf(provider.IsActive, provider.ApprovedAt)),
             Address = provider.Address?.ToDto(),
             Categories = categories.Select(c => c.ToDto()).ToList()
         };

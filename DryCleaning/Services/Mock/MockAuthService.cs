@@ -119,6 +119,7 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
                 case UserRole.Driver:
                     var driver = new Driver { UserId = user.Id, LicenseNumber = registration.LicenseNumber?.Trim() ?? string.Empty, IsAvailable = false };
                     store.Drivers.Add(driver);
+                    user.ProfileStatus = ProfileStatus.PendingApproval; // demo: approved on the first "Check status"
                     session.SignIn(user, driver.Id);
                     return AuthResult.Ok();
 
@@ -136,7 +137,9 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
                     store.Providers.Add(provider);
                     foreach (var categoryId in registration.CategoryIds.Distinct())
                         store.ServiceProviderCategories.Add(new ServiceProviderCategory { ServiceProviderId = provider.Id, CategoryId = categoryId });
-                    return AuthResult.Pending(PendingApprovalMessage);
+                    user.ProfileStatus = ProfileStatus.PendingApproval; // demo: approved on the first "Check status"
+                    session.SignIn(user, provider.Id);
+                    return AuthResult.Ok();
 
                 default:
                     return AuthResult.Fail("Only Customer, Service Provider and Driver accounts can be created in the app.");
@@ -163,9 +166,18 @@ public sealed class MockAuthService(MockDataStore store, ISessionService session
             throw new InvalidOperationException("Choose a different password.");
     }
 
-    /// <summary>Shown after a Service Provider signs up (the account needs admin approval).</summary>
-    public const string PendingApprovalMessage =
-        "Thanks for registering! Your business is being reviewed by the E Dry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
+    /// <summary>Demo data has no admin, so the first status check "approves" a pending account.</summary>
+    public async Task<User?> RefreshAccountAsync()
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        if (session.CurrentUser is { } user && user.ProfileStatus != ProfileStatus.Active)
+        {
+            user.ProfileStatus = ProfileStatus.Active;
+            user.IsActive = true;
+        }
+
+        return session.CurrentUser;
+    }
 
     public Task<bool> RestoreSessionAsync() => Task.FromResult(session.IsSignedIn);
 

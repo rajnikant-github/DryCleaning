@@ -162,8 +162,8 @@ All amounts are **ZAR** (`currency: "ZAR"`), decimals with 2 places. Prices are 
 |---|---|---|---|
 | **Customer** | `POST /api/auth/register/start` → `confirm` | Catalog, `api/customer/*`, `api/me/*` | Needs an address before ordering |
 | **Provider** | `POST /api/auth/register/start` → `confirm` | `api/provider/*`, `api/me/*` | Inactive until an admin approves; needs an address before accepting orders |
-| **Driver** | `POST /api/auth/register/start` → `confirm` | `api/driver/*`, `api/me/*` | Must be online to accept jobs; one active job at a time |
-| **Admin** | Seeded only (no sign-up) | `api/admin/*` | Approves providers, assigns drivers, resolves disputes |
+| **Driver** | `POST /api/auth/register/start` → `confirm` | `api/driver/*`, `api/me/*` | Inactive until an admin approves; then must be online to accept jobs; one active job at a time |
+| **Admin** | Seeded only (no sign-up) | `api/admin/*` | Approves providers **and drivers**, assigns drivers, resolves disputes |
 
 Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and order photos for orders they're part of.
 
@@ -175,7 +175,7 @@ Every role can use: `api/auth/me*`, `api/notifications/*`, `api/me/devices`, and
 
 | Step | Endpoint | Result | Tables |
 |---|---|---|---|
-| Sign up | `POST /api/auth/register/start` → `POST /api/auth/register/confirm` | Step 1 only holds the details and emails a 6-digit code (**no account yet**). Step 2 checks the code and creates the account + role profile; customer/driver are signed in, provider gets tokens but stays inactive until approved (admins notified). Code valid 10 min, 5 wrong tries cancel the sign-up, one resend per minute (`register/resend`), at most 5 codes per sign-up | `Users`, `Customers` / `ServiceProviders` + `ServiceProviderCategories` / `Drivers`, `RefreshTokens`, `Notifications` |
+| Sign up | `POST /api/auth/register/start` → `POST /api/auth/register/confirm` | Step 1 only holds the details and emails a 6-digit code (**no account yet**). Step 2 checks the code and creates the account + role profile and signs the user in. **Providers and drivers start inactive** (`user.profileStatus: PendingApproval`) until an admin approves them; admins are notified. They can use the app and edit their profile meanwhile; the app shows an "under review" notice on their Profile page. Code valid 10 min, 5 wrong tries cancel the sign-up, one resend per minute (`register/resend`), at most 5 codes per sign-up | `Users`, `Customers` / `ServiceProviders` + `ServiceProviderCategories` / `Drivers`, `RefreshTokens`, `Notifications` |
 | Sign in (password) | `POST /api/auth/login` | Access + refresh token | `RefreshTokens` |
 | Sign in (OTP) | `POST /api/auth/otp/request` → `POST /api/auth/otp/verify` | 6-digit code, 5 min, 5 attempts | `RefreshTokens` (codes are in memory, not in a table). The code is **only emailed**, never sent by SMS, even when the account is found by mobile number; an account with no email gets a 400 and signs in with its password |
 | Keep signed in | `POST /api/auth/refresh` | New access + refresh token (old one revoked) | `RefreshTokens` |
@@ -448,7 +448,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 |---|---|---|---|---|---|
 | `POST` | `/api/auth/register/start` | Public | Body: `RegisterStartRequest` | `RegisterStartResponse` | Sign-up step 1 for a customer, provider or driver. Checks the details (email or phone already used → `409`), **creates nothing**, holds the sign-up and emails a 6-digit code. |
 | `POST` | `/api/auth/register/resend` | Public | Body: `RegisterResendRequest` | `RegisterStartResponse` | Email a new code for a waiting sign-up. One per minute, at most 5 per sign-up. |
-| `POST` | `/api/auth/register/confirm` | Public | Body: `RegisterConfirmRequest` | `AuthResponse` | Sign-up step 2: right code → the account (and customer/provider/driver profile) is created and signed in. A provider's business stays **inactive** until an admin approves it. Wrong code → `401`; the 5th wrong code cancels the sign-up. |
+| `POST` | `/api/auth/register/confirm` | Public | Body: `RegisterConfirmRequest` | `AuthResponse` | Sign-up step 2: right code → the account (and customer/provider/driver profile) is created and signed in. A provider's business and a driver account stay **inactive** until an admin approves them (`user.profileStatus` = `PendingApproval`). Wrong code → `401`; the 5th wrong code cancels the sign-up. |
 | `POST` | `/api/auth/login` | Public | Body: `LoginRequest` | `AuthResponse` | Sign in with mobile number or email plus password. Returns access token (60 min) + refresh token (30 days). |
 | `POST` | `/api/auth/refresh` | Public | Body: `RefreshTokenRequest` | `AuthResponse` | Swap a refresh token for a new access + refresh token. The old refresh token stops working (rotation); re-using it signs the user out everywhere. |
 | `POST` | `/api/auth/logout` | Public | Body: `RefreshTokenRequest` | `204` | Revoke this device's refresh token. Call `DELETE /api/me/devices` first to stop pushes. |
@@ -456,7 +456,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/auth/password/reset` | Public | Body: `ResetPasswordRequest` | `AuthResponse` | Check the reset code, set the new password and sign in. All other sessions are signed out. |
 | `POST` | `/api/auth/otp/request` | Public | Body: `RequestOtpRequest` | `RequestOtpResponse` | Send a 6-digit login code ("Continue with OTP"). Valid 5 minutes, 5 attempts. |
 | `POST` | `/api/auth/otp/verify` | Public | Body: `VerifyOtpRequest` | `AuthResponse` | Check the login code and sign in. |
-| `GET` | `/api/auth/me` | Signed in | — | `UserDto` | The signed-in user (id, role, name, email, phone, profileId). |
+| `GET` | `/api/auth/me` | Signed in | — | `UserDto` | The signed-in user (id, role, name, email, phone, profileId, `profileStatus`). `profileStatus` is `Active`, `PendingApproval` (a provider or driver the admin hasn't approved yet) or `Deactivated` (approved earlier, then switched off); the app shows an "under review" (or "deactivated") notice on the Profile page for the last two. |
 | `PUT` | `/api/auth/me` | Signed in | Body: `UpdateProfileRequest` | `UserDto` | Update my name, email or mobile number (must stay unique). |
 | `POST` | `/api/auth/me/change-password` | Signed in | Body: `ChangePasswordRequest` | `204` | Change my password (current password required). |
 
@@ -1570,6 +1570,7 @@ Wrapper for every paged list.
 | `phone` | `string?` |
 | `profileId` | `Guid?` |
 | `isActive` | `bool` |
+| `profileStatus` | `ProfileStatus` | `Active`, `PendingApproval` or `Deactivated` (providers and drivers; others are always `Active`) |
 | `photoUrl` | `string?` |
 
 
@@ -1708,6 +1709,7 @@ Provider business: name, contact, logo, approved/active.
 | `Email` | `string?` | — |
 | `LogoUrl` | `string?` | — |
 | `IsActive` | `bool` | — |
+| `ApprovedAt` | `DateTime?` | when an admin first approved the business (null = still waiting) |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
 
 #### Drivers
@@ -1722,6 +1724,7 @@ Driver profile: licence, online (`IsAvailable`), active.
 | `LicenseNumber` | `string` | — |
 | `IsAvailable` | `bool` | — |
 | `IsActive` | `bool` | — |
+| `ApprovedAt` | `DateTime?` | when an admin first approved the driver (null = still waiting; new drivers start inactive) |
 | `CreatedAt`, `UpdatedAt` | `DateTime` | UTC |
 
 #### Addresses

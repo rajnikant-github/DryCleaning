@@ -127,14 +127,7 @@ public sealed class ApiAuthService : IAuthService
                 new RegisterConfirmRequest { Email = email.Trim(), Code = code.Trim() },
                 ApiJsonContext.Default.RegisterConfirmRequest, ApiJsonContext.Default.AuthResponse, authorize: false);
 
-            if (auth.User.Role == UserRole.Provider)
-            {
-                // New businesses are reviewed by an admin first – don't keep a session for them yet.
-                if (!string.IsNullOrEmpty(auth.RefreshToken))
-                    await RevokeAsync(auth.RefreshToken);
-                return AuthResult.Pending(PendingApprovalMessage);
-            }
-
+            // Providers and drivers are signed in too: the app shows them the "under review" screen until an admin approves them.
             await _tokens.SaveAsync(auth);
             SignIn(auth);
             _ = _push.EnableAsync();
@@ -177,9 +170,20 @@ public sealed class ApiAuthService : IAuthService
             new ChangePasswordRequest { CurrentPassword = currentPassword, NewPassword = newPassword },
             ApiJsonContext.Default.ChangePasswordRequest);
 
-    /// <summary>Shown after a Service Provider signs up (the business needs admin approval).</summary>
-    public const string PendingApprovalMessage =
-        "Thanks for registering! Your business is being reviewed by the E Dry Cleaners team. We'll let you know as soon as it's approved – then you can sign in.";
+    public async Task<User?> RefreshAccountAsync()
+    {
+        try
+        {
+            var dto = await _api.GetAsync("api/auth/me", ApiJsonContext.Default.UserDto);
+            var user = ApiMapping.ToUser(dto);
+            _session.SignIn(user, dto.ProfileId);
+            return user;
+        }
+        catch (ApiException)
+        {
+            return null; // offline: keep showing what we know
+        }
+    }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

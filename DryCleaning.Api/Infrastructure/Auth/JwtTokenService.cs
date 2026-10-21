@@ -16,7 +16,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : ITokenServic
 {
     public const string ProfileIdClaim = "profile_id";
 
-    public AuthResponse Create(User user, Guid? profileId)
+    public AuthResponse Create(User user, Guid? profileId, ProfileStatus profileStatus = ProfileStatus.Active)
     {
         var settings = options.Value;
         var expires = DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes);
@@ -41,7 +41,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options) : ITokenServic
         };
 
         var token = new JsonWebTokenHandler().CreateToken(descriptor);
-        return new AuthResponse { AccessToken = token, ExpiresAt = expires, User = user.ToDto(profileId) };
+        return new AuthResponse { AccessToken = token, ExpiresAt = expires, User = user.ToDto(profileId, profileStatus) };
     }
 
     public (string Token, string Hash) NewRefreshToken()

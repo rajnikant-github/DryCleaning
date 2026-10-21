@@ -46,6 +46,8 @@
                         </VerticalStackLayout>
                     </Border>
 
+                    <controls:AccountStatusCard Status="{Binding AccountStatus}" IsDriver="True" Margin="16,0" />
+
                     <Border Style="{StaticResource Card}" Margin="16,0">
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="2" VerticalOptions="Center">

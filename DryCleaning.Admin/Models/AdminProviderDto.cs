@@ -9,5 +9,6 @@ public sealed class AdminProviderDto
     public List<string> Categories { get; set; } = [];
     public int OrderCount { get; set; }
     public bool IsActive { get; set; }
+    public ProfileStatus ProfileStatus { get; set; }
     public DateTime CreatedAt { get; set; }
 }

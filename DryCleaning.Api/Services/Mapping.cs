@@ -9,7 +9,7 @@ namespace DryCleaning.Api.Services;
 /// <summary>Entity → DTO mapping and common query shapes.</summary>
 public static class Mapping
 {
-    public static UserDto ToDto(this User user, Guid? profileId) =>
+    public static UserDto ToDto(this User user, Guid? profileId, ProfileStatus profileStatus = ProfileStatus.Active) =>
         new()
         {
             Id = user.Id,
@@ -18,6 +18,7 @@ public static class Mapping
             Email = user.Email,
             Phone = user.Phone,
             ProfileId = profileId,
+            ProfileStatus = profileStatus,
             IsActive = user.IsActive,
             PhotoUrl = FileUrls.Resolve(user.PhotoUrl)
         };

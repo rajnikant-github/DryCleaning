@@ -9,6 +9,9 @@ public class Driver : EntityBase
     public bool IsAvailable { get; set; }
     public bool IsActive { get; set; } = true;
 
+    /// <summary>When an admin first approved the driver (null = never approved yet; older drivers are backfilled).</summary>
+    public DateTime? ApprovedAt { get; set; }
+
     public User User { get; set; } = null!;
     public Address? Address { get; set; }
     public ICollection<DriverJob> Jobs { get; set; } = [];

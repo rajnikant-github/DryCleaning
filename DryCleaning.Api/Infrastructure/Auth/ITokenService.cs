@@ -15,7 +15,7 @@ namespace DryCleaning.Api.Infrastructure.Auth;
 public interface ITokenService
 {
     /// <summary>Creates the short-lived JWT access token (no refresh token – see AuthService.IssueAsync).</summary>
-    AuthResponse Create(User user, Guid? profileId);
+    AuthResponse Create(User user, Guid? profileId, ProfileStatus profileStatus = ProfileStatus.Active);
 
     /// <summary>A new random refresh token and its SHA-256 hash (only the hash is stored).</summary>
     (string Token, string Hash) NewRefreshToken();

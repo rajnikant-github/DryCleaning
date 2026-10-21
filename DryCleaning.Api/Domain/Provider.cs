@@ -14,6 +14,9 @@ public class Provider : EntityBase
     /// <summary>False until approved by an admin.</summary>
     public bool IsActive { get; set; }
 
+    /// <summary>When an admin first approved the business (null = never approved yet).</summary>
+    public DateTime? ApprovedAt { get; set; }
+
     public User User { get; set; } = null!;
     public Address? Address { get; set; }
     public ICollection<ServiceProviderCategory> Categories { get; set; } = [];

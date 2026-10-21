@@ -23,7 +23,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         return new DriverProfileDto
         {
             Id = driver.Id,
-            User = user.ToDto(driver.Id),
+            User = user.ToDto(driver.Id, ProfileStatusExtensions.StatusOf(driver.IsActive, driver.ApprovedAt)),
             LicenseNumber = driver.LicenseNumber,
             IsAvailable = driver.IsAvailable,
             IsActive = driver.IsActive,
@@ -95,7 +95,9 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
     {
         var driver = await profile.DriverAsync(ct);
         if (!driver.IsActive)
-            throw new ForbiddenException("Your driver account is not active.");
+            throw new ForbiddenException(driver.ApprovedAt is null
+                ? "Your driver account is still under review. You can go online once an admin approves it."
+                : "Your driver account has been deactivated. Please contact support.");
         driver.IsAvailable = isAvailable;
         await db.SaveChangesAsync(ct);
         return driver.IsAvailable;
@@ -218,6 +220,10 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
     public async Task<DriverJobDetailDto> AcceptAsync(Guid jobId, CancellationToken ct)
     {
         var driver = await profile.DriverAsync(ct);
+        if (!driver.IsActive)
+            throw new ForbiddenException(driver.ApprovedAt is null
+                ? "Your driver account is still under review. You can accept jobs once an admin approves it."
+                : "Your driver account has been deactivated. Please contact support.");
         if (!driver.IsAvailable)
             throw new ConflictException("Go online to accept jobs.");
         if (await db.DriverJobs.AnyAsync(j => j.DriverId == driver.Id && (j.Status == DriverJobStatus.Assigned || j.Status == DriverJobStatus.InProgress), ct))

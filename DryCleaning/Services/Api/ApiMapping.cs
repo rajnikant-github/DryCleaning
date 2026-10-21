@@ -41,6 +41,7 @@ public static class ApiMapping
         Email = dto.Email ?? string.Empty,
         Phone = dto.Phone ?? string.Empty,
         IsActive = dto.IsActive,
+        ProfileStatus = dto.ProfileStatus,
         PhotoUrl = Absolute(dto.PhotoUrl)
     };
 

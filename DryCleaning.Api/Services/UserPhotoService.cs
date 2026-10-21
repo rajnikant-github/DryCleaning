@@ -45,13 +45,22 @@ public sealed class UserPhotoService(AppDbContext db, CurrentProfile profile, IF
 
     private async Task<UserDto> ToDtoAsync(User user, CancellationToken ct)
     {
-        var profileId = user.Role switch
+        Guid? profileId = null;
+        var status = ProfileStatus.Active;
+        switch (user.Role)
         {
-            UserRole.Customer => (Guid?)(await profile.CustomerAsync(ct)).Id,
-            UserRole.Provider => (await profile.ProviderAsync(ct)).Id,
-            UserRole.Driver => (await profile.DriverAsync(ct)).Id,
-            _ => null
-        };
-        return user.ToDto(profileId);
+            case UserRole.Customer:
+                profileId = (await profile.CustomerAsync(ct)).Id;
+                break;
+            case UserRole.Provider:
+                var provider = await profile.ProviderAsync(ct);
+                (profileId, status) = (provider.Id, ProfileStatusExtensions.StatusOf(provider.IsActive, provider.ApprovedAt));
+                break;
+            case UserRole.Driver:
+                var driver = await profile.DriverAsync(ct);
+                (profileId, status) = (driver.Id, ProfileStatusExtensions.StatusOf(driver.IsActive, driver.ApprovedAt));
+                break;
+        }
+        return user.ToDto(profileId, status);
     }
 }

@@ -130,6 +130,7 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
                 Categories = p.Categories.Where(c => c.IsActive).Select(c => c.Category.Name).ToList(),
                 OrderCount = p.Orders.Count,
                 IsActive = p.IsActive,
+                ProfileStatus = p.IsActive ? ProfileStatus.Active : p.ApprovedAt == null ? ProfileStatus.PendingApproval : ProfileStatus.Deactivated,
                 CreatedAt = p.CreatedAt
             })
             .ToListAsync(ct);
@@ -148,6 +149,8 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var provider = await db.ServiceProviders.FirstOrDefaultAsync(p => p.Id == providerId, ct)
                        ?? throw new NotFoundException("Service provider not found.");
         provider.IsActive = isActive;
+        if (isActive)
+            provider.ApprovedAt ??= DateTime.UtcNow;
         db.Notify(provider.UserId, null,
             isActive ? "Account approved" : "Account deactivated",
             isActive ? $"{provider.BusinessName} is now live on E Dry Cleaners." : $"{provider.BusinessName} has been deactivated. Contact support for help.",
@@ -206,7 +209,8 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
                 IsAvailable = d.IsAvailable,
                 ActiveJobs = d.Jobs.Count(j => j.Status == DriverJobStatus.Assigned || j.Status == DriverJobStatus.InProgress),
                 CompletedJobs = d.Jobs.Count(j => j.Status == DriverJobStatus.Completed),
-                IsActive = d.IsActive && d.User.IsActive
+                IsActive = d.IsActive && d.User.IsActive,
+                ProfileStatus = d.IsActive ? ProfileStatus.Active : d.ApprovedAt == null ? ProfileStatus.PendingApproval : ProfileStatus.Deactivated
             })
             .ToListAsync(ct);
         return new PagedResult<AdminDriverDto>
@@ -221,9 +225,17 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
     public async Task SetDriverActiveAsync(Guid driverId, bool isActive, CancellationToken ct)
     {
         var driver = await db.Drivers.FirstOrDefaultAsync(d => d.Id == driverId, ct) ?? throw new NotFoundException("Driver not found.");
+        var changed = driver.IsActive != isActive;
         driver.IsActive = isActive;
+        if (isActive)
+            driver.ApprovedAt ??= DateTime.UtcNow;
         if (!isActive)
             driver.IsAvailable = false;
+        if (changed)
+            db.Notify(driver.UserId, null,
+                isActive ? "Account approved" : "Account deactivated",
+                isActive ? "Your driver account is approved. Go online to start accepting jobs." : "Your driver account has been deactivated. Contact support for help.",
+                NotificationType.System);
         await db.SaveChangesAsync(ct);
     }
 

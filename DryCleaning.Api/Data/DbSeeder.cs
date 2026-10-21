@@ -87,6 +87,7 @@ public static class DbSeeder
         var provider = new Provider
         {
             User = providerUser,
+            ApprovedAt = DateTime.UtcNow,
             Address = NewAddress("45", "Bree Street", "Cape Town City Centre", "8001", -33.9200000m, 18.4180000m),
             BusinessName = "Sparkle Dry Cleaners",
             Description = "Premium garment and shoe care in the heart of Cape Town since 2012.",
@@ -132,7 +133,8 @@ public static class DbSeeder
                 User = NewUser(UserRole.Driver, name, email, phone),
                 Address = NewAddress("1", "Station Road", suburb, "7925", -33.9370000m, 18.4710000m),
                 LicenseNumber = license,
-                IsAvailable = true
+                IsAvailable = true,
+                ApprovedAt = DateTime.UtcNow
             };
             db.Drivers.Add(driver);
             return driver;

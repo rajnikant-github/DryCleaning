@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DryCleaning.Helpers;
+using DryCleaning.Models;
 using DryCleaning.Services;
+using DryCleaning.Services.Realtime;
 using DryCleaning.ViewModels.Items;
 
 namespace DryCleaning.ViewModels.Provider;
@@ -24,10 +26,18 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     [NotifyPropertyChangedFor(nameof(HasLogo))]
     private ImageSource? logoSource;
 
+    /// <summary>Under review / deactivated notice (hidden when the business is approved).</summary>
+    [ObservableProperty] private ProfileStatus accountStatus;
+
     public bool HasLogo => LogoSource is not null;
+
+    // Approval (or deactivation) arrives as a notification: look again straight away.
+    protected override bool ReactsTo(RealtimeChangedMessage message) =>
+        message.Kind == RealtimeChangeKind.NotificationReceived || message.Kind == RealtimeChangeKind.Reconnected;
 
     protected override async Task<bool> LoadDataAsync()
     {
+        AccountStatus = (await auth.RefreshAccountAsync())?.ProfileStatus ?? AccountStatus;
         var profile = await profiles.GetProfileAsync();
         BusinessName = profile.Provider.BusinessName;
         Description = profile.Provider.Description;

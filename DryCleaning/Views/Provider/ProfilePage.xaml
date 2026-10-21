@@ -11,6 +11,7 @@
     <Grid>
         <ScrollView IsVisible="{Binding IsContent}">
             <VerticalStackLayout Padding="16,24" Spacing="14">
+                <controls:AccountStatusCard Status="{Binding AccountStatus}" />
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                     <Border WidthRequest="80" HeightRequest="80" BackgroundColor="{DynamicResource Primary}" StrokeThickness="0"
                             StrokeShape="RoundRectangle 22" HorizontalOptions="Center">

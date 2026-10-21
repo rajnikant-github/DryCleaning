@@ -11,4 +11,5 @@ public sealed class AdminDriverDto
     public int ActiveJobs { get; set; }
     public int CompletedJobs { get; set; }
     public bool IsActive { get; set; }
+    public ProfileStatus ProfileStatus { get; set; }
 }

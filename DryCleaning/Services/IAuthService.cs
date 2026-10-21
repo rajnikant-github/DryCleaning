@@ -16,7 +16,7 @@ public interface IAuthService
     /// <summary>Emails a new sign-up code and returns the masked email.</summary>
     Task<RegistrationStart> ResendRegistrationCodeAsync(string email);
 
-    /// <summary>Sign-up step 2: checks the code and creates the account. Customers and drivers are signed in; providers get <see cref="AuthResult.PendingApproval"/>.</summary>
+    /// <summary>Sign-up step 2: checks the code and creates the account. The user is signed in; a provider or driver lands on the "under review" screen until an admin approves them.</summary>
     Task<AuthResult> ConfirmRegistrationAsync(string email, string code);
 
     /// <summary>Sends a password-reset code and returns the masked destination.</summary>
@@ -27,6 +27,9 @@ public interface IAuthService
 
     /// <summary>Changes the signed-in user's password. Throws with a user-friendly message on failure.</summary>
     Task ChangePasswordAsync(string currentPassword, string newPassword);
+
+    /// <summary>Asks the API for the signed-in user's current status (e.g. approved yet?) and updates the session. Returns the fresh user, or null when offline.</summary>
+    Task<User?> RefreshAccountAsync();
 
     /// <summary>Signs back in with the session saved on this phone (API mode). True when a user is signed in.</summary>
     Task<bool> RestoreSessionAsync();

@@ -63,9 +63,12 @@ public sealed class AuthService(
                 break;
 
             default:
-                var driver = new Driver { UserId = user.Id, LicenseNumber = details.LicenseNumber ?? string.Empty, IsAvailable = false };
+                var driver = new Driver { UserId = user.Id, LicenseNumber = details.LicenseNumber ?? string.Empty, IsAvailable = false, IsActive = false }; // admin approval required
                 db.Drivers.Add(driver);
                 profileId = driver.Id;
+
+                foreach (var adminId in await db.Users.Where(u => u.Role == UserRole.Admin && u.IsActive).Select(u => u.Id).ToListAsync(ct))
+                    db.Notify(adminId, null, "New driver registration", $"{user.Name} is waiting for approval.", NotificationType.System);
                 break;
         }
 
@@ -124,7 +127,7 @@ public sealed class AuthService(
         var userId = profile.UserId;
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct)
                    ?? throw new NotFoundException("User not found.");
-        return user.ToDto(await ProfileIdAsync(user, ct));
+        return user.ToDto(await ProfileIdAsync(user, ct), await ProfileStatusAsync(user, ct));
     }
 
     public async Task<UserDto> UpdateMeAsync(UpdateProfileRequest request, CancellationToken ct)
@@ -139,7 +142,7 @@ public sealed class AuthService(
         user.Email = email;
         user.Phone = phone;
         await db.SaveChangesAsync(ct);
-        return user.ToDto(await ProfileIdAsync(user, ct));
+        return user.ToDto(await ProfileIdAsync(user, ct), await ProfileStatusAsync(user, ct));
     }
 
     public async Task ChangePasswordAsync(ChangePasswordRequest request, CancellationToken ct)
@@ -245,7 +248,7 @@ public sealed class AuthService(
     /// <summary>Access token + a new refresh token (stored hashed).</summary>
     private async Task<AuthResponse> IssueAsync(User user, Guid? profileId, CancellationToken ct, bool save = true)
     {
-        var access = tokens.Create(user, profileId);
+        var access = tokens.Create(user, profileId, await ProfileStatusAsync(user, ct));
         var (refresh, hash) = tokens.NewRefreshToken();
         var expires = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenDays);
         db.RefreshTokens.Add(new RefreshToken { UserId = user.Id, TokenHash = hash, ExpiresAt = expires });
@@ -307,6 +310,16 @@ public sealed class AuthService(
         var phone = Normalize(value);
         return db.Users.FirstOrDefaultAsync(u => u.Phone == phone, ct);
     }
+
+    /// <summary>Whether a provider or driver is still waiting for approval (or was deactivated); everyone else is active.</summary>
+    private async Task<ProfileStatus> ProfileStatusAsync(User user, CancellationToken ct) => user.Role switch
+    {
+        UserRole.Provider => await db.ServiceProviders.Where(p => p.UserId == user.Id)
+            .Select(p => p.IsActive ? ProfileStatus.Active : p.ApprovedAt == null ? ProfileStatus.PendingApproval : ProfileStatus.Deactivated).FirstOrDefaultAsync(ct),
+        UserRole.Driver => await db.Drivers.Where(d => d.UserId == user.Id)
+            .Select(d => d.IsActive ? ProfileStatus.Active : d.ApprovedAt == null ? ProfileStatus.PendingApproval : ProfileStatus.Deactivated).FirstOrDefaultAsync(ct),
+        _ => ProfileStatus.Active
+    };
 
     private async Task<Guid?> ProfileIdAsync(User user, CancellationToken ct) => user.Role switch
     {

@@ -14,4 +14,7 @@ public sealed class AdminDriverDto
     public required int ActiveJobs { get; init; }
     public required int CompletedJobs { get; init; }
     public required bool IsActive { get; init; }
+
+    /// <summary><c>PendingApproval</c> for a new driver, <c>Deactivated</c> if approved earlier and later switched off.</summary>
+    public ProfileStatus ProfileStatus { get; init; }
 }

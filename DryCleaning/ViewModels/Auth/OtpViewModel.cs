@@ -89,14 +89,6 @@ public sealed partial class OtpViewModel(ViewModelServices services, IAuthServic
         }
 
         _countdown?.Cancel();
-        if (result.PendingApproval)
-        {
-            // A new provider's business waits for admin approval, so there is no session yet: back to sign-in.
-            await Dialogs.AlertAsync("Registration received", result.Message ?? "Your business is being reviewed.");
-            await Navigation.GoToAsync(Routes.Login);
-            return;
-        }
-
         await Navigation.GoToAsync(Routes.HomeFor(session.CurrentUser?.Role ?? session.SelectedRole));
     });
 
