@@ -14,7 +14,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 
 ## Contents
 
-> **Publishing to a server?** Go to the [Server checklist](#2-server-checklist) (every setting and key to change) and [File storage (MinIO)](#file-storage-minio).
+> **Publishing to a server?** Go to the [Server checklist](#2-server-checklist) (every setting and key to change), [File storage (MinIO)](#file-storage-minio) and [Deploy to Azure](#deploy-to-azure-app-service).
 
 - [Quick start](#quick-start)
   - [API + Swagger](#api--swagger)
@@ -25,6 +25,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
   - [1. Point the app at the server](#1-point-the-app-at-the-server)
   - [2. Server checklist](#2-server-checklist)
   - [File storage (MinIO)](#file-storage-minio)
+  - [Deploy to Azure (App Service)](#deploy-to-azure-app-service)
   - [3. Smoke test after each deploy](#3-smoke-test-after-each-deploy)
   - [Troubleshooting](#troubleshooting)
 - [Switching environments](#switching-environments)
@@ -268,6 +269,72 @@ policy itself on first use, and **refuses to start** when the keys are missing.
   `https://` address, set `Url` and `UseSsl=true`, and delete the two entries.
 - **Old files:** photos saved before the switch (the former local `uploads` folder) are not shown; copy them into the bucket under the
   same folders if you need them.
+
+### Deploy to Azure (App Service)
+
+One-time setup, then one command per release. Replace the names in `<angle brackets>`. Use the same resource group and region for everything
+(for South Africa: `southafricanorth`). You need the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az login` once).
+
+**1. Create the resources (once)**
+
+```bash
+az group create -n edry-rg -l southafricanorth
+az sql server create -g edry-rg -n <sql-server-name> -l southafricanorth -u edryadmin -p '<strong-sql-password>'
+az sql db create -g edry-rg -s <sql-server-name> -n EDryCleaners --service-objective S0
+az sql server firewall-rule create -g edry-rg -s <sql-server-name> -n AllowAzure --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+az appservice plan create -g edry-rg -n edry-plan --is-linux --sku B1
+az webapp create -g edry-rg -p edry-plan -n <api-app-name> --runtime "DOTNETCORE:10.0"
+```
+
+If `DOTNETCORE:10.0` is not offered in your region yet, publish self-contained instead
+(`dotnet publish DryCleaning.Api -c Release --self-contained -r linux-x64 -o publish/api`) or use a container.
+
+**2. Turn on what the API needs**
+
+```bash
+az webapp update -g edry-rg -n <api-app-name> --https-only true
+az webapp config set -g edry-rg -n <api-app-name> --web-sockets-enabled true --always-on true
+```
+
+WebSockets are required for the live updates (SignalR). Keep the plan at **one instance** – more instances need a SignalR backplane.
+
+**3. Set the settings and keys** (they become environment variables; `__` separates sections). Every row of the
+[Server checklist](#2-server-checklist) applies – at minimum:
+
+```bash
+az webapp config appsettings set -g edry-rg -n <api-app-name> --settings \
+  ASPNETCORE_ENVIRONMENT=Production \
+  "ConnectionStrings__DefaultConnection=Server=tcp:<sql-server-name>.database.windows.net,1433;Database=EDryCleaners;User ID=edryadmin;Password=<strong-sql-password>;Encrypt=True;TrustServerCertificate=False;MultipleActiveResultSets=True" \
+  Jwt__SigningKey='<32+ random characters>' \
+  Storage__Minio__AccessKey='<minio user>' Storage__Minio__SecretKey='<minio secret>' \
+  Paystack__SecretKey='<sk_live_...>' Paystack__PublicKey='<pk_live_...>' \
+  Email__Username='<mailbox>' Email__Password='<password>' Email__From='<sender address>' \
+  Routes__ApiKey='<google key>' Swagger__Enabled=false
+```
+
+Add the Firebase, APNs and CORS settings from the checklist in the same way. Better still, keep the secrets in Azure Key Vault and
+reference them from the app settings.
+
+**4. Publish and upload (every release)**
+
+```bash
+dotnet publish DryCleaning.Api -c Release -o publish/api
+cd publish/api && zip -r ../api.zip . && cd ../..
+az webapp deploy -g edry-rg -n <api-app-name> --src-path publish/api.zip --type zip
+```
+
+The API applies its database migrations when it starts. Open `https://<api-app-name>.azurewebsites.net/swagger` (while Swagger is
+enabled) or run the [smoke test](#3-smoke-test-after-each-deploy).
+
+**5. Point everything at it**
+- The mobile app's production address (`Api:BaseUrl`, see [Point the app at the server](#1-point-the-app-at-the-server)) and the Paystack webhook
+  (`https://<api-app-name>.azurewebsites.net/api/payments/paystack/webhook`).
+- For your own domain: `az webapp config hostname add` and a free App Service managed certificate.
+- **Admin portal:** a second web app made the same way (`DryCleaning.Admin`, `az webapp create ... -n <admin-app-name>`), with
+  `Api__BaseUrl=https://<api-app-name>.azurewebsites.net/` and `ASPNETCORE_ENVIRONMENT=Production`.
+
+MinIO stays where it is (it is not an Azure service); the API reaches it with the address and keys above. Never open the database firewall to
+the whole internet – the `AllowAzure` rule only admits Azure services.
 
 ### 3. Smoke test after each deploy
 
