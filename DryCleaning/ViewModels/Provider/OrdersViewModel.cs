@@ -34,7 +34,7 @@ public sealed partial class OrdersViewModel : OrderListViewModelBase, IQueryAttr
 
     private Task OpenNextStepAsync(OrderSummary order)
     {
-        var action = ProviderActions.ForStatus(order.Status);
+        var action = ProviderActions.ForStatus(order.Status, order.DriverHandedOver);
         return action is null
             ? OpenOrderAsync(order)
             : Navigation.GoToAsync(action.Route, Param(Routes.OrderIdKey, order.Id));

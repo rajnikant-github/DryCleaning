@@ -26,6 +26,9 @@ public sealed class OrderDetailDto
     public required decimal TotalAmount { get; init; }
     public required string Currency { get; init; }
     public required bool IsPaid { get; init; }
+
+    /// <summary>True once the driver has handed the picked-up items over to the provider (the pickup job is completed).</summary>
+    public required bool DriverHandedOver { get; init; }
     public required IReadOnlyList<StatusHistoryDto> History { get; init; }
     public required IReadOnlyList<OrderPhotoDto> Photos { get; init; }
     public required IReadOnlyList<DriverJobDto> DriverJobs { get; init; }

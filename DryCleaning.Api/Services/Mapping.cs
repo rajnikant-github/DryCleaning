@@ -169,6 +169,7 @@ public static class Mapping
         .Include(o => o.Items).ThenInclude(i => i.Product)
         .Include(o => o.Payments)
         .Include(o => o.Disputes)
+        .Include(o => o.DriverJobs)
         .AsSplitQuery();
 
     /// <summary>Includes needed for <see cref="ToDetail"/>.</summary>
@@ -191,6 +192,10 @@ public static class Mapping
 
     public static bool IsPaid(this Order o) => o.Payments.Any(p => p.Status == PaymentStatus.Success);
 
+    /// <summary>The driver has dropped the picked-up items at the provider (pickup job completed). Needs <c>DriverJobs</c> loaded.</summary>
+    public static bool DriverHandedOver(this Order o) =>
+        o.DriverJobs.Any(j => j.JobType == DriverJobType.Pickup && j.Status == DriverJobStatus.Completed);
+
     public static bool HasOpenDispute(this Order o) =>
         o.Disputes.Any(d => d.Status is DisputeStatus.Open or DisputeStatus.UnderReview);
 
@@ -206,6 +211,7 @@ public static class Mapping
         TotalAmount = o.TotalAmount,
         IsPaid = o.IsPaid(),
         HasOpenDispute = o.HasOpenDispute(),
+        DriverHandedOver = o.DriverHandedOver(),
         PickupDate = o.PickupDate,
         PickupSlot = o.PickupSlot,
         CreatedAt = o.CreatedAt,
@@ -323,6 +329,7 @@ public static class Mapping
         TotalAmount = o.TotalAmount,
         Currency = currency,
         IsPaid = o.IsPaid(),
+        DriverHandedOver = o.DriverHandedOver(),
         History = o.StatusHistory.OrderBy(h => h.CreatedAt).Select(h => new StatusHistoryDto
         {
             Status = h.Status,

@@ -34,7 +34,8 @@ public static class MockMapping
             PickupSlot = order.PickupSlot,
             IsPaid = store.Payments.Any(p => p.OrderId == order.Id && p.Status == PaymentStatus.Success),
             DriverName = job?.DriverId is { } driverId ? store.UserById(store.DriverById(driverId).UserId).Name : null,
-            HasOpenDispute = store.Disputes.Any(d => d.OrderId == order.Id && d.Status is DisputeStatus.Open or DisputeStatus.UnderReview)
+            HasOpenDispute = store.Disputes.Any(d => d.OrderId == order.Id && d.Status is DisputeStatus.Open or DisputeStatus.UnderReview),
+            DriverHandedOver = true // demo data has no separate hand-over step
         };
     }
 

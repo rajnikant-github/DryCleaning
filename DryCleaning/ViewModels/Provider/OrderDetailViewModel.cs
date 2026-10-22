@@ -20,6 +20,8 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
     public ObservableCollection<string> PhotoPaths { get; } = [];
     public ObservableCollection<ExtraChargeLine> ExtraCharges { get; } = [];
 
+    private bool _driverHandedOver;
+
     [ObservableProperty] private string createdText = string.Empty;
     [ObservableProperty] private string customerPhone = string.Empty;
     [ObservableProperty] private string customerInitials = string.Empty;
@@ -111,7 +113,8 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
     {
         ShowAcceptReject = status == OrderStatus.Created;
 
-        var action = ProviderActions.ForStatus(status);
+        _driverHandedOver = d.DriverHandedOver;
+        var action = ProviderActions.ForStatus(status, d.DriverHandedOver);
         var waitingForDeliveryDriver = d.AwaitingDriverFor == DriverJobType.Delivery;
         if (waitingForDeliveryDriver)
             action = null;
@@ -120,7 +123,7 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
 
         WaitingHint = waitingForDeliveryDriver
             ? "Delivery job posted · waiting for a driver to accept"
-            : ProviderActions.HintFor(status) ?? string.Empty;
+            : ProviderActions.HintFor(status, d.DriverHandedOver) ?? string.Empty;
         HasWaitingHint = !HasPrimaryAction && !string.IsNullOrEmpty(WaitingHint);
 
         ShowDemoPickup = Services.Settings.Features.ShowDemoActions &&
@@ -163,7 +166,7 @@ public sealed partial class OrderDetailViewModel(ViewModelServices services, IPr
     [RelayCommand]
     private Task PrimaryActionAsync()
     {
-        var action = ProviderActions.ForStatus(Status);
+        var action = ProviderActions.ForStatus(Status, _driverHandedOver);
         return action is null
             ? Task.CompletedTask
             : Navigation.GoToAsync(action.Route, Param(Routes.OrderIdKey, OrderId));

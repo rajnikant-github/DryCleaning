@@ -15,6 +15,7 @@ public sealed class OrderSummaryDto
     public decimal TotalAmount { get; set; }
     public bool IsPaid { get; set; }
     public bool HasOpenDispute { get; set; }
+    public bool DriverHandedOver { get; set; }
     public DateTime? PickupDate { get; set; }
     public string? PickupSlot { get; set; }
     public DateTime CreatedAt { get; set; }

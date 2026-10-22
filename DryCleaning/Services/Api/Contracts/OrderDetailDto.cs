@@ -23,6 +23,7 @@ public sealed class OrderDetailDto
     public decimal TotalAmount { get; set; }
     public string Currency { get; set; } = string.Empty;
     public bool IsPaid { get; set; }
+    public bool DriverHandedOver { get; set; }
     public List<StatusHistoryDto> History { get; set; } = [];
     public List<OrderPhotoDto> Photos { get; set; } = [];
     public List<DriverJobDto> DriverJobs { get; set; } = [];

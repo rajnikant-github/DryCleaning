@@ -17,4 +17,7 @@ public sealed class OrderSummary
     public DateTime? PickupDate { get; init; }
     public string? PickupSlot { get; init; }
     public bool IsPaid { get; init; }
+
+    /// <summary>The driver has dropped the picked-up items at the provider (the provider can now confirm receipt).</summary>
+    public bool DriverHandedOver { get; init; }
 }

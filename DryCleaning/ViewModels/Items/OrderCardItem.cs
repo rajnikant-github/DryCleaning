@@ -27,12 +27,12 @@ public sealed class OrderCardItem
         PrimaryActionCommand = new AsyncRelayCommand(() => primaryAction?.Invoke(summary) ?? Task.CompletedTask);
 
         ShowAcceptReject = accept is not null && summary.Status == OrderStatus.Created;
-        var action = ProviderActions.ForStatus(summary.Status);
+        var action = ProviderActions.ForStatus(summary.Status, summary.DriverHandedOver);
         HasPrimaryAction = !ShowAcceptReject && primaryAction is not null && action is not null;
         PrimaryActionText = action?.Label ?? string.Empty;
         HintText = hint ?? (summary.HasOpenDispute && summary.Status != OrderStatus.Disputed
             ? "Issue reported"
-            : ProviderActions.HintFor(summary.Status) ?? string.Empty);
+            : ProviderActions.HintFor(summary.Status, summary.DriverHandedOver) ?? string.Empty);
     }
 
     public OrderSummary Summary { get; }

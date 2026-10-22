@@ -56,6 +56,8 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasIncomingDriver))]
+    [NotifyPropertyChangedFor(nameof(CanReceiveIncoming))]
+    [NotifyPropertyChangedFor(nameof(IncomingDriverText))]
     private OrderSummary? incomingDriverOrder;
 
     [ObservableProperty]
@@ -74,12 +76,15 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
             ? "1 order is ready for delivery handoff."
             : $"{ReadyCount} orders are ready for delivery handoff.";
     public bool HasIncomingDriver => IncomingDriverOrder is not null;
+    public bool CanReceiveIncoming => IncomingDriverOrder is { DriverHandedOver: true };
     public bool HasNoTodaysOrders => !HasTodaysOrders;
     public bool HasNoRecentActivity => !HasRecentActivity;
     public string IncomingDriverName => IncomingDriverOrder?.DriverName ?? "Driver";
     public string IncomingDriverText => IncomingDriverOrder is null
         ? string.Empty
-        : $"Bringing {IncomingDriverOrder.OrderNumber} · {IncomingDriverOrder.CustomerName} ({IncomingDriverOrder.ItemCount} items)";
+        : IncomingDriverOrder.DriverHandedOver
+            ? $"Handed over {IncomingDriverOrder.OrderNumber} · {IncomingDriverOrder.CustomerName} ({IncomingDriverOrder.ItemCount} items) · tap to confirm"
+            : $"Bringing {IncomingDriverOrder.OrderNumber} · {IncomingDriverOrder.CustomerName} ({IncomingDriverOrder.ItemCount} items)";
 
     public ObservableCollection<OrderCardItem> TodaysOrders { get; } = [];
     public ObservableCollection<ActivityItem> RecentActivity { get; } = [];
@@ -119,7 +124,7 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
 
     private Task OpenNextStepAsync(OrderSummary order)
     {
-        var action = ProviderActions.ForStatus(order.Status);
+        var action = ProviderActions.ForStatus(order.Status, order.DriverHandedOver);
         return action is null
             ? OpenOrderAsync(order)
             : Navigation.GoToAsync(action.Route, Param(Routes.OrderIdKey, order.Id));
@@ -136,7 +141,7 @@ public sealed partial class DashboardViewModel(ViewModelServices services, IProv
 
     [RelayCommand]
     private Task OpenIncomingAsync() =>
-        IncomingDriverOrder is null
+        IncomingDriverOrder is not { DriverHandedOver: true }
             ? Task.CompletedTask
             : Navigation.GoToAsync(Routes.ReceiveOrder, Param(Routes.OrderIdKey, IncomingDriverOrder.Id));
 

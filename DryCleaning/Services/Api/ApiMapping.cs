@@ -194,6 +194,7 @@ public static class ApiMapping
         TotalAmount = dto.TotalAmount,
         IsPaid = dto.IsPaid,
         HasOpenDispute = dto.HasOpenDispute,
+        DriverHandedOver = dto.DriverHandedOver,
         PickupDate = CalendarDate(dto.PickupDate),
         PickupSlot = dto.PickupSlot,
         CreatedAt = Local(dto.CreatedAt),
@@ -286,7 +287,8 @@ public static class ApiMapping
             ProviderPhone = dto.Provider.Phone ?? string.Empty,
             ProviderAddress = dto.ProviderAddress is null ? null : ToAddress(dto.ProviderAddress),
             PickupCode = dto.PickupCode,
-            DeliveryOtp = dto.DeliveryOtp
+            DeliveryOtp = dto.DeliveryOtp,
+            DriverHandedOver = dto.DriverHandedOver
         };
     }
 

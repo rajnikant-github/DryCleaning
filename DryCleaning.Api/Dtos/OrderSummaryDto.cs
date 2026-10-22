@@ -14,6 +14,9 @@ public sealed class OrderSummaryDto
     public required decimal TotalAmount { get; init; }
     public required bool IsPaid { get; init; }
     public required bool HasOpenDispute { get; init; }
+
+    /// <summary>True once the driver has handed the picked-up items over to the provider (the pickup job is completed).</summary>
+    public required bool DriverHandedOver { get; init; }
     public required DateTime? PickupDate { get; init; }
     public required string? PickupSlot { get; init; }
     public required DateTime CreatedAt { get; init; }

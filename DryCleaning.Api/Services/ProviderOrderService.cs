@@ -161,12 +161,9 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
         var order = await LoadAsync(orderId, ct);
         var expected = order.Items.Sum(i => i.Quantity);
 
-        var job = order.DriverJobs.LastOrDefault(j => j.JobType == DriverJobType.Pickup && j.Status != DriverJobStatus.Cancelled);
-        if (job is not null && job.Status != DriverJobStatus.Completed)
-        {
-            job.Status = DriverJobStatus.Completed;
-            job.CompletedAt = DateTime.UtcNow;
-        }
+        // The provider can only confirm what has arrived after the driver has handed the items over.
+        if (!order.DriverHandedOver())
+            throw new ConflictException("The driver has not handed this order over yet. You can receive it once the driver taps hand over.");
 
         db.OrderVerifications.Add(new OrderVerification
         {

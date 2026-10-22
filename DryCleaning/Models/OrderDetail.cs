@@ -29,6 +29,9 @@ public sealed class OrderDetail
     /// <summary>Set while a pickup/delivery job is waiting on the driver marketplace.</summary>
     public DriverJobType? AwaitingDriverFor { get; init; }
 
+    /// <summary>The driver has dropped the picked-up items at the provider (the provider can now confirm receipt).</summary>
+    public bool DriverHandedOver { get; init; }
+
     public bool IsPaid => Payment?.Status == PaymentStatus.Success;
     public int ExpectedItemCount => Items.Sum(i => i.Quantity);
 }
