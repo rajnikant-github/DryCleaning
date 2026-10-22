@@ -418,6 +418,9 @@ a profile, because profiles are committed.
 `Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
 [server checklist](#2-server-checklist).
 
+
+**iOS 26 look:** `UIDesignRequiresCompatibility` is set in `DryCleaning/Platforms/iOS/Info.plist` so iOS 26+ keeps the classic navigation and tab bars. Without it, Liquid Glass draws the back arrow dark on glass and ignores the app's white header colour. Apple calls this key temporary; if a future iOS ignores it, give each page a custom white back button instead.
+
 ## Configuration
 
 - **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), the demo-data VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
