@@ -46,7 +46,7 @@
 
     <!--  Brushes (Border.Stroke etc. need Brush, not Color)  -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#1B3A6B" />
-    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#142C50" Offset="0" />
         <GradientStop Color="#315B94" Offset="1" />
     </LinearGradientBrush>

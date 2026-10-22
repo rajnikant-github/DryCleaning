@@ -32,8 +32,9 @@ public sealed class ColorTheme(
     public Color GradientStart { get; } = Color.FromArgb(gradientStart);
     public Color GradientEnd { get; } = Color.FromArgb(gradientEnd);
 
+    /// <summary>Vertical gradient: its top colour is the navigation bar colour, so a header blends into the bar above it.</summary>
     public LinearGradientBrush CreateGradientBrush() => new(
         [new GradientStop(GradientStart, 0), new GradientStop(GradientEnd, 1)],
         new Point(0, 0),
-        new Point(1, 1));
+        new Point(0, 1));
 }
