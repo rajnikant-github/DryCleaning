@@ -27,7 +27,7 @@
                                 RetryCommand="{Binding RetryCommand}"
                                 ErrorMessage="{Binding ErrorMessage}" />
 
-        <Label Grid.Row="1" Text="{Binding PageText}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" Padding="0,8,0,12"
+        <Label Grid.Row="1" Text="{Binding PageText}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" Padding="0,8,0,12" BackgroundColor="{StaticResource White}" ZIndex="2"
                IsVisible="{Binding HasFailed, Converter={StaticResource InvertedBool}}" />
     </Grid>
 </views:BasePage>

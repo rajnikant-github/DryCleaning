@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Messaging;
 using DryCleaning.Services;
 using DryCleaning.Services.Push;
@@ -20,7 +21,20 @@ public partial class App : Application
         _realtime = realtime;
 
         // Shell reads its tab bar colours once, so a resource change alone leaves the selected tab in the old colour.
-        WeakReferenceMessenger.Default.Register<App, ThemeChangedMessage>(this, static (app, message) => app.RefreshTabBar(message.Theme));
+        WeakReferenceMessenger.Default.Register<App, ThemeChangedMessage>(this, static (app, message) =>
+        {
+            app.RefreshTabBar(message.Theme);
+            PaintStatusBar(message.Theme);
+        });
+    }
+
+    /// <summary>Android: the status bar takes the navigation bar colour (the theme's gradient start), so the two read as one block.</summary>
+    private static void PaintStatusBar(ColorTheme theme)
+    {
+#if ANDROID
+        CommunityToolkit.Maui.Core.Platform.StatusBar.SetColor(theme.GradientStart);
+        CommunityToolkit.Maui.Core.Platform.StatusBar.SetStyle(StatusBarStyle.LightContent); // white clock and icons
+#endif
     }
 
     private void RefreshTabBar(ColorTheme theme)
@@ -44,6 +58,7 @@ public partial class App : Application
     {
         var window = new Window(_shell);
         // Live updates only while the app is on screen; push notifications cover the background.
+        window.Created += (_, _) => PaintStatusBar(ColorThemes.ByKey(Preferences.Default.Get<string?>("edc.app.theme", null)));
         window.Activated += (_, _) => _ = _realtime.StartAsync();
         window.Stopped += (_, _) => _ = _realtime.StopAsync();
         return window;

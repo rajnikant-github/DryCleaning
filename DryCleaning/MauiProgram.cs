@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui;
 using MauiNativePdfView;
 using DryCleaning.Configuration;
 using DryCleaning.Helpers;
@@ -31,6 +32,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .UseMauiNativePdfView()
             .ConfigureFonts(fonts =>
             {

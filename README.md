@@ -419,6 +419,8 @@ a profile, because profiles are committed.
 [server checklist](#2-server-checklist).
 
 
+**MAUI version and workload:** the app uses MAUI NuGet 10.0.60 and `CommunityToolkit.Maui` 15.0.0 (it paints the Android status bar the same colour as the navigation bar, for every colour theme). Keep the installed .NET MAUI workload at **release 10.0.108** (`sudo dotnet workload update --version 10.0.108`): newer releases move iOS to SDK 27.1, which needs Xcode 27.1. After pulling a change like this, delete the `bin` and `obj` folders of `DryCleaning/` once and build again, or the Android app can crash on start with a `MissingMethodException`.
+
 **iOS 26 look:** `UIDesignRequiresCompatibility` is set in `DryCleaning/Platforms/iOS/Info.plist` so iOS 26+ keeps the classic navigation and tab bars. Without it, Liquid Glass draws the back arrow dark on glass and ignores the app's white header colour. Apple calls this key temporary; if a future iOS ignores it, give each page a custom white back button instead.
 
 ## Configuration
