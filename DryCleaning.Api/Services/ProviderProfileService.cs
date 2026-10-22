@@ -43,7 +43,8 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
         provider.BusinessName = request.BusinessName.Trim();
         provider.Description = request.Description;
         provider.Phone = request.Phone;
-        provider.Email = request.Email;
+        if (!EmailRules.IsSame(provider.Email, request.Email))
+            throw new BadRequestException("The business email address can't be changed.");
         // The app echoes back the URL it was given; keep the stored path unless the logo really changed.
         if (request.LogoUrl != FileUrls.Resolve(provider.LogoUrl))
             provider.LogoUrl = request.LogoUrl;

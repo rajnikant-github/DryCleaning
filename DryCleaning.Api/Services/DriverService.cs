@@ -39,13 +39,8 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var user = await db.Users.FirstAsync(u => u.Id == driver.UserId, ct);
         if (!string.IsNullOrWhiteSpace(request.Name))
             user.Name = request.Name.Trim();
-        if (request.Email is not null)
-        {
-            var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim().ToLowerInvariant();
-            if (email is not null && await db.Users.AnyAsync(u => u.Id != user.Id && u.Email == email, ct))
-                throw new ConflictException("That email address is already in use.");
-            user.Email = email;
-        }
+        if (request.Email is not null && !EmailRules.IsSame(user.Email, request.Email))
+            throw new BadRequestException("Your email address can't be changed.");
         if (!string.IsNullOrWhiteSpace(request.Phone))
         {
             var phone = request.Phone.Trim();

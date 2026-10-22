@@ -133,12 +133,12 @@ public sealed class AuthService(
     {
         var userId = profile.UserId;
         var user = await db.Users.FirstAsync(u => u.Id == userId, ct);
-        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim().ToLowerInvariant();
+        if (!EmailRules.IsSame(user.Email, request.Email))
+            throw new BadRequestException("Your email address can't be changed.");
         var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : Normalize(request.Phone);
-        await EnsureUniqueAsync(email, phone, user.Id, ct);
+        await EnsureUniqueAsync(user.Email, phone, user.Id, ct);
 
         user.Name = request.Name.Trim();
-        user.Email = email;
         user.Phone = phone;
         await db.SaveChangesAsync(ct);
         return user.ToDto(await ProfileIdAsync(user, ct), await ProfileStatusAsync(user, ct));

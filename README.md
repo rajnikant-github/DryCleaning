@@ -1157,7 +1157,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/auth/otp/request` | Public | Body: `RequestOtpRequest` | `RequestOtpResponse` | Send a 6-digit login code ("Continue with OTP"). Valid 5 minutes, 5 attempts. |
 | `POST` | `/api/auth/otp/verify` | Public | Body: `VerifyOtpRequest` | `AuthResponse` | Check the login code and sign in. |
 | `GET` | `/api/auth/me` | Signed in | — | `UserDto` | The signed-in user (id, role, name, email, phone, profileId, `profileStatus`). `profileStatus` is `Active`, `PendingApproval` (a provider or driver the admin hasn't approved yet) or `Deactivated` (approved earlier, then switched off); the app shows an "under review" (or "deactivated") notice on the Profile page for the last two. |
-| `PUT` | `/api/auth/me` | Signed in | Body: `UpdateProfileRequest` | `UserDto` | Update my name, email or mobile number (must stay unique). |
+| `PUT` | `/api/auth/me` | Signed in | Body: `UpdateProfileRequest` | `UserDto` | Update my name or mobile number (must stay unique). The email is the sign-in key and **can't be changed**: a different email returns 400; repeating the current one is accepted. |
 | `POST` | `/api/auth/me/change-password` | Signed in | Body: `ChangePasswordRequest` | `204` | Change my password (current password required). |
 
 #### 5.2 Me (address, devices, notifications)
@@ -1236,7 +1236,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/provider/orders/{id}/issues` | Provider | Body: `IssueRequest` | `DisputeDto` | Report a discrepancy or damage; the customer is notified, the order continues. |
 | `POST` | `/api/provider/orders/{id}/disputes` | Provider | Body: `IssueRequest` | `DisputeDto` | Raise a dispute: order → `Disputed` (on hold) until an admin resolves it. |
 | `GET` | `/api/provider/profile` | Provider | — | `ProviderProfileDto` | My business profile (owner, address, logo, categories, active/approved). |
-| `PUT` | `/api/provider/profile` | Provider | Body: `UpdateProviderProfileRequest` | `ProviderProfileDto` | Update business name, description, phone, email, logo URL. |
+| `PUT` | `/api/provider/profile` | Provider | Body: `UpdateProviderProfileRequest` | `ProviderProfileDto` | Update business name, description, phone, logo URL. The business email **can't be changed**: a different email returns 400; repeating the current one is accepted. |
 | `POST` | `/api/provider/profile/logo` | Provider | Body: multipart form | `ProviderProfileDto` | Upload a new logo (multipart `file`; JPG, PNG, HEIC or WEBP). Returns the profile with the new `logoUrl`. |
 | `GET` | `/api/provider/categories` | Provider | — | `IReadOnlyList<ProviderCategoryDto>` | All global categories with `isEnabled` for my business. |
 | `PUT` | `/api/provider/categories` | Provider | Body: `SetProviderCategoriesRequest` | `IReadOnlyList<ProviderCategoryDto>` | Choose which global categories my business offers (providers can't create categories). |
@@ -1248,7 +1248,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | Method | Path | Access | Request | Response | What it does |
 |---|---|---|---|---|---|
 | `GET` | `/api/driver/profile` | Driver | — | `DriverProfileDto` | My driver profile (user, licence number, availability, address). |
-| `PUT` | `/api/driver/profile` | Driver | Body: `UpdateDriverProfileRequest` | `DriverProfileDto` | Update licence number, name, email, phone. |
+| `PUT` | `/api/driver/profile` | Driver | Body: `UpdateDriverProfileRequest` | `DriverProfileDto` | Update licence number, name, phone. The email is the sign-in key and **can't be changed**: a different email returns 400; repeating the current one is accepted. |
 | `GET` | `/api/driver/dashboard` | Driver | — | `DriverDashboardDto` | Dashboard: online status, available jobs, active job, completed and earnings today. |
 | `PUT` | `/api/driver/availability` | Driver | Body: `SetActiveRequest` | `bool` | Go online (`isActive: true`) or offline. Must be online to accept jobs. |
 | `GET` | `/api/driver/jobs/available` | Driver | Query: `page`, `pageSize`, `search` | `PagedResult<DriverJobDto>` | Jobs waiting for a driver (pickup and delivery), paged. |

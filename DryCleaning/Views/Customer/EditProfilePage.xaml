@@ -23,8 +23,10 @@
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Email" Style="{StaticResource FieldLabel}" />
                     <Border Style="{StaticResource InputField}">
-                        <Entry Text="{Binding Email}" Placeholder="you@example.com" Keyboard="Email" MaxLength="150" />
+                        <Entry Text="{Binding Email}" Placeholder="you@example.com" Keyboard="Email" MaxLength="150"
+                               IsReadOnly="True" TextColor="{StaticResource MutedForeground}" />
                     </Border>
+                    <Label Text="This is your sign-in email and can't be changed." Style="{StaticResource Small}" TextColor="{StaticResource MutedForeground}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Mobile number" Style="{StaticResource FieldLabel}" />
