@@ -177,19 +177,6 @@ public sealed partial class PickupAddressViewModel(
     [RelayCommand]
     private void ToggleDetails() => ShowDetails = !ShowDetails;
 
-    [RelayCommand]
-    private Task UseCurrentLocationAsync() => RunBusyAsync(async () =>
-    {
-        var address = await places.GetCurrentLocationAddressAsync();
-        if (address is null)
-        {
-            await Dialogs.AlertAsync("Location", "Allow location access, or search for your address instead.");
-            return;
-        }
-
-        SetSelected(address);
-    });
-
     private bool CanConfirm() => Selected is not null;
 
     [RelayCommand(CanExecute = nameof(CanConfirm))]

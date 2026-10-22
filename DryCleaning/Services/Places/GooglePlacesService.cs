@@ -16,7 +16,6 @@ namespace DryCleaning.Services.Places;
 public sealed class GooglePlacesService : IPlacesService
 {
     private const string PlacesBase = "https://places.googleapis.com/v1/";
-    private const string GeocodeUrl = "https://maps.googleapis.com/maps/api/geocode/json";
     private const string DetailsFields = "id,formattedAddress,addressComponents,location,plusCode";
 
     private readonly GoogleMapsSettings _settings;
@@ -102,65 +101,6 @@ public sealed class GooglePlacesService : IPlacesService
 
         return Finish(address);
     }
-
-    public async Task<Address?> GetCurrentLocationAddressAsync()
-    {
-        try
-        {
-            var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            if (status != PermissionStatus.Granted)
-                return null;
-
-            var location = await Geolocation.Default.GetLastKnownLocationAsync()
-                           ?? await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
-            if (location is null)
-                return null;
-
-            var latLng = string.Create(CultureInfo.InvariantCulture, $"{location.Latitude},{location.Longitude}");
-            var url = $"{GeocodeUrl}?latlng={latLng}&language={_settings.LanguageCode}&key={Uri.EscapeDataString(_settings.ApiKey)}";
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            using var json = await SendAsync(request);
-
-            var root = json.RootElement;
-            var apiStatus = Str(root, "status");
-            if (apiStatus != "OK")
-            {
-                Debug.WriteLine($"[Places] Geocoding returned {apiStatus}: {Str(root, "error_message")}");
-                return null;
-            }
-
-            var first = root.GetProperty("results").EnumerateArray().FirstOrDefault();
-            if (first.ValueKind != JsonValueKind.Object)
-                return null;
-
-            var address = new Address
-            {
-                GooglePlaceId = Str(first, "place_id"),
-                FormattedAddress = Str(first, "formatted_address") ?? string.Empty,
-                PlusCode = first.TryGetProperty("plus_code", out var plus) ? Str(plus, "global_code") : null,
-                Latitude = Math.Round((decimal)location.Latitude, 7),
-                Longitude = Math.Round((decimal)location.Longitude, 7)
-            };
-
-            if (first.TryGetProperty("geometry", out var geometry) && geometry.TryGetProperty("location", out var loc))
-            {
-                address.Latitude = Coordinate(loc, "lat");
-                address.Longitude = Coordinate(loc, "lng");
-            }
-
-            foreach (var c in first.GetProperty("address_components").EnumerateArray())
-                Apply(address, Types(c), Str(c, "long_name"), Str(c, "short_name"));
-
-            return Finish(address);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Places] Current location failed: {ex.Message}");
-            return null;
-        }
-    }
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     private async Task<JsonDocument> SendAsync(HttpRequestMessage request)
     {

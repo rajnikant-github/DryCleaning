@@ -51,29 +51,6 @@ public sealed class MockPlacesService : IPlacesService
         return ToAddress(s);
     }
 
-    public async Task<Address?> GetCurrentLocationAddressAsync()
-    {
-        try
-        {
-            var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            if (status != PermissionStatus.Granted)
-                return null;
-
-            var location = await Geolocation.Default.GetLastKnownLocationAsync()
-                           ?? await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
-            if (location is null)
-                return ToAddress(Samples[10]);
-
-            // Nearest sample address (real reverse-geocoding comes with the Google API key).
-            var nearest = Samples.OrderBy(s => Math.Pow((double)s.Lat - location.Latitude, 2) + Math.Pow((double)s.Lng - location.Longitude, 2)).First();
-            return ToAddress(nearest);
-        }
-        catch (Exception)
-        {
-            return ToAddress(Samples[10]);
-        }
-    }
-
     private static Address ToAddress((string Id, string Number, string Route, string Suburb, string Postal, decimal Lat, decimal Lng) s) => new()
     {
         GooglePlaceId = s.Id,

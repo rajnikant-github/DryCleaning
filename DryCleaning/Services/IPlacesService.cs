@@ -7,5 +7,4 @@ public interface IPlacesService
 {
     Task<IReadOnlyList<PlacePrediction>> AutocompleteAsync(string query);
     Task<Address> GetDetailsAsync(string placeId);
-    Task<Address?> GetCurrentLocationAddressAsync();
 }

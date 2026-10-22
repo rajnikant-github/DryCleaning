@@ -12,11 +12,6 @@
 	<!-- Photo verification (receive, inspection, quality check) -->
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" android:required="false" />
-	<!-- Customer pickup address ("Use my current location") -->
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<uses-feature android:name="android.hardware.location" android:required="false" />
-	<uses-feature android:name="android.hardware.location.gps" android:required="false" />
 	<queries>
 		<!-- MediaPicker.CapturePhotoAsync -->
 		<intent>
