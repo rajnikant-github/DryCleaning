@@ -429,15 +429,12 @@ FodyWeavers.xsd
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
 
-# App environment chosen with ./set-app-env.sh (local to each developer)
+# The App section of secrets.json for the environment chosen with ./set-app-env.sh (generated, local to each developer; may hold a Google Maps key)
+DryCleaning/appsettings.secrets.json
+# Old per-environment files from before everything moved into secrets.json
 DryCleaning/appsettings.env.json
 
-# App keys (Google Maps, ...) – never commit. Kept per environment on your machine only
-# (DryCleaning/environments/<name>.secrets.json); set-app-env copies the chosen one into the build.
-DryCleaning/environments/*.secrets.json
-DryCleaning/appsettings.secrets.json
-
-# Photos and logos uploaded to a local/dev API (production uses Azure Blob Storage). Keep the folder, ignore the files.
+# Photos and logos uploaded to a local/dev API (files now live in MinIO). Keep the folder, ignore the files.
 DryCleaning.Api/wwwroot/uploads/*
 !DryCleaning.Api/wwwroot/uploads/.gitkeep
 

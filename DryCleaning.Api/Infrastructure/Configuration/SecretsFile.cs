@@ -62,6 +62,9 @@ public static class SecretsFile
         }
     }
 
+    /// <summary>The full path of the secrets file in use, or null when there is none.</summary>
+    public static string? FindPath(IHostEnvironment environment) => Locate(environment.ContentRootPath);
+
     /// <summary>The block name for the current environment: Development → local.</summary>
     public static string EnvironmentBlock(IHostEnvironment environment)
     {

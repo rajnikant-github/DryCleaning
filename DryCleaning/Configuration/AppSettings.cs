@@ -5,20 +5,17 @@ using System.Text.Json.Serialization;
 namespace DryCleaning.Configuration;
 
 /// <summary>
-/// App configuration loaded from the embedded <c>appsettings.json</c> at the project root.
-/// Change currency, VAT, feature flags or API URL there – no code changes needed.
-/// <c>./set-app-env.sh &lt;environment&gt;</c> writes <c>appsettings.env.json</c>; its values override
-/// <c>appsettings.json</c> (sections are merged, so a profile only lists what differs).
-/// Keys such as GoogleMaps:ApiKey live only on the developer's machine in <c>environments/&lt;name&gt;.secrets.json</c>
-/// (git-ignored); set-app-env copies the chosen environment's file to <c>appsettings.secrets.json</c>, merged last.
+/// App configuration. Every setting lives in the repository's single git-ignored <c>secrets.json</c>, in the "App" section of each
+/// environment block (local, mock, staging, production). <c>./set-app-env.sh &lt;environment&gt;</c> copies that section into
+/// <c>appsettings.secrets.json</c>, which is built into the app and merged over the near-empty <c>appsettings.json</c>.
+/// Anything missing falls back to the defaults of the settings classes in this folder.
 /// </summary>
 public sealed class AppSettings
 {
     private const string BaseResource = "DryCleaning.appsettings.json";
-    private const string EnvironmentResource = "DryCleaning.appsettings.env.json";
     private const string SecretsResource = "DryCleaning.appsettings.secrets.json";
 
-    /// <summary>Name of the environment profile in use (mock, local, staging, production), or empty for plain appsettings.json.</summary>
+    /// <summary>Name of the environment in use (mock, local, staging, production), or empty when none was chosen.</summary>
     public string Environment { get; set; } = string.Empty;
 
     public CurrencySettings Currency { get; set; } = new();
@@ -32,8 +29,6 @@ public sealed class AppSettings
         try
         {
             var merged = ReadResource(BaseResource) ?? new JsonObject();
-            if (ReadResource(EnvironmentResource) is { } overrides)
-                Merge(merged, overrides);
             if (ReadResource(SecretsResource) is { } secrets)
                 Merge(merged, secrets);
 

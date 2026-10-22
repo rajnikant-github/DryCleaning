@@ -1,7 +1,0 @@
-{
-  "Environment": "mock",
-  "Features": {
-    "UseMockData": true,
-    "ShowDemoActions": true
-  }
-}

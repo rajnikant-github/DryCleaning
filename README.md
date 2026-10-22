@@ -33,7 +33,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 - [API (.NET 10)](#api-net-10)
   - [Run locally](#run-locally)
   - [Troubleshooting (running the API)](#troubleshooting-running-the-api)
-  - [Configuration (`appsettings.json`)](#configuration-appsettingsjson)
+  - [Configuration (`secrets.json`)](#configuration-secretsjson)
   - [Sign-in, sessions and passwords](#sign-in-sessions-and-passwords)
   - [Push notifications (Android: Firebase, iOS: Apple APNs)](#push-notifications-android-firebase-ios-apple-apns)
   - [Paystack flow](#paystack-flow)
@@ -77,7 +77,7 @@ Demo users (password `Demo@12345`): `sipho@example.co.za` (Customer), `thandi@sp
 
 Open `DryCleaning.sln` in Rider (or Visual Studio) and run the **DryCleaning** project on an Android emulator or iOS simulator.
 
-The app talks to the **real API** (`"UseMockData": false` in `DryCleaning/appsettings.json`):
+The app talks to the **real API** (`"UseMockData": false` in the `local` → `App` → `Features` section of `secrets.json`):
 
 > Tip: `./set-app-env.sh local` / `mock` / `staging` switches all of this in one command – see
 > [Switching environments](#switching-environments).
@@ -149,28 +149,32 @@ Use Paystack test keys and a [test card](https://paystack.com/docs/payments/test
 
 ## Secrets: one file for everything
 
-Every secret of the repo lives in **one git-ignored file at the repository root: `secrets.json`**. Create it by copying the
-committed template and filling it in:
+**Every setting and every secret of the whole repo lives in one git-ignored file at the repository root: `secrets.json`**, for all
+environments. It replaces the settings that used to sit in `appsettings.json`, `appsettings.Development.json`, the app's
+`environments/*.json` profiles and the app's `appsettings.json`. Create it by copying the committed template
+(`./run-api.sh` and `./set-app-env.sh` also create it for you when it is missing):
 
 ```bash
 cp secrets.example.json secrets.json     # then edit secrets.json (chmod 600 is a good idea)
 ```
 
-It has one block per environment (`local`, `staging`, `production`) and, in each, one section per project:
+`secrets.example.json` is the full template: every setting with its default value, and empty fields for the keys. It has one block per
+environment (`local`, `mock` – app demo data –, `staging`, `production`) and, in each, one section per project:
 
 | Section | Read by | Holds |
 |---|---|---|
 | `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key (`Routes.ApiKey`, for driving distance), the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), the email login (`Email.*`), the MinIO file-storage keys (`Storage.Minio.AccessKey` / `SecretKey`), and any other API setting you want kept out of git |
-| `Admin` | the admin portal | nothing secret yet (it only needs the API address) |
-| `App` | `./set-app-env.sh <env>` → the mobile app build | keys that are restricted in Google's console, e.g. `GoogleMaps.ApiKey`. **Never put server secrets here** – anything in the app can be extracted |
+| `Admin` | the admin portal | the API address (`Api.BaseUrl`) |
+| `App` | `./set-app-env.sh <env>` → the mobile app build | currency, pricing, features, API addresses and the restricted Google Maps key (`GoogleMaps.ApiKey`). **Never put server secrets here** – anything in the app can be extracted |
 
 - **Which block:** the API and portal pick the block from `ASPNETCORE_ENVIRONMENT` (`Development` → `local`). Override with
   `EDRY_ENVIRONMENT=staging`. Override the file location with `EDRY_SECRETS_FILE=/path/secrets.json`.
-- **Order of precedence:** `appsettings*.json` < user-secrets < `secrets.json` < real environment variables. So on a server you can skip the
+- **Order of precedence:** the near-empty `appsettings*.json` (logging only) < user-secrets < `secrets.json` < real environment variables. So on a server you can skip the
   file and set variables like `Paystack__SecretKey`; they win over the file.
 - **Production:** don't copy `secrets.json` to the server or into an image. Keep the `production` block empty on developer
   machines and supply production values as environment variables or from a secret manager (e.g. Azure Key Vault).
 - **Property names ending in `Json`** keep their object as raw JSON text (that is how the Firebase file is pasted in unchanged).
+- **Required values:** the API refuses to start, and says exactly what is missing, unless `ConnectionStrings:DefaultConnection`, `Jwt:SigningKey` (32+ characters) and `Storage:Minio:AccessKey` / `SecretKey` are set (in this file or as environment variables).
 - **Rotating a key** = edit one line in `secrets.json` and restart the API.
 
 ## Admin portal
@@ -180,7 +184,7 @@ cd DryCleaning.Admin && dotnet run --launch-profile http   # http://localhost:51
 ```
 
 Sign in with an **Admin** account (locally `admin@edrycleaners.co.za`, password in the [API guide](#1-quick-start)).
-The portal calls the API at `Api:BaseUrl` (`DryCleaning.Admin/appsettings.json`, default `http://localhost:5180/`); in production set
+The portal calls the API at `Api:BaseUrl` (in `secrets.json` → `<environment>` → `Admin` → `Api` → `BaseUrl`, `http://localhost:5180/` locally); in production set
 `Api__BaseUrl` to your API address. It keeps no data of its own, so there is nothing to migrate. The sign-in lasts as long as
 the API's access token (60 minutes), then you sign in again.
 
@@ -193,9 +197,8 @@ Use this when the API runs on a server (staging or production) instead of your m
 
 ### 1. Point the app at the server
 
-Quickest: put the server address in `DryCleaning/environments/staging.json` and run `./set-app-env.sh staging`
-(see [Switching environments](#switching-environments)). The settings it applies, if you prefer to edit
-`DryCleaning/appsettings.json` directly:
+Quickest: put the server address in `secrets.json` → `staging` → `App` → `Api` → `BaseUrl` and run `./set-app-env.sh staging`
+(see [Switching environments](#switching-environments)). The settings it applies:
 
 ```json
 "Features": { "UseMockData": false },
@@ -216,9 +219,9 @@ Quickest: put the server address in `DryCleaning/environments/staging.json` and 
 ### 2. Server checklist
 
 **Go-live checklist.** Set every row below on the server as environment variables (`__` separates sections, e.g.
-`Jwt__SigningKey`) or in `appsettings.Production.json` – never commit real secrets. The defaults in `appsettings.json` are for
-development only: the connection string holds the local Docker password, and the API **will not start** without
-`Jwt__SigningKey` and the two MinIO keys.
+`Jwt__SigningKey`) – never commit real secrets. The values in the `local` block of `secrets.example.json` are for
+development only: the connection string holds the local Docker password. The API **will not start** without
+`ConnectionStrings__DefaultConnection`, `Jwt__SigningKey` and the two MinIO keys, and its error message lists what is missing.
 
 | Setting | Value |
 |---|---|
@@ -248,10 +251,10 @@ alike. There is no other store and no debug/release switch.
 
 | Setting (`Storage:Minio`) | Where | Value |
 |---|---|---|
-| `Url` | `appsettings.json` | `77.237.233.114:9000` (no `http://`) |
-| `BucketName` | `appsettings.json` | `edrycleaners-api` – created automatically. **Never use the reference project's bucket `edrycleaners`**: its policy lets anyone read every file in it |
-| `UseSsl` | `appsettings.json` | `false` today (plain http) |
-| `SignedLinkMinutes` | `appsettings.json` | `15` – lifetime of an order-photo link |
+| `Url` | `secrets.json` | `77.237.233.114:9000` (no `http://`) |
+| `BucketName` | `secrets.json` | `edrycleaners-api` – created automatically. **Never use the reference project's bucket `edrycleaners`**: its policy lets anyone read every file in it |
+| `UseSsl` | `secrets.json` | `false` today (plain http) |
+| `SignedLinkMinutes` | `secrets.json` | `15` – lifetime of an order-photo link |
 | `PublicUrl` | optional | an https/CDN address for logos |
 | `AccessKey` / `SecretKey` | `secrets.json` locally, environment variables on a server | never in git |
 
@@ -364,8 +367,7 @@ the whole internet – the `AllowAzure` rule only admits Azure services.
 
 ## Switching environments
 
-`set-app-env.sh` (macOS) / `set-app-env.ps1` (Windows) point the app at an environment without editing
-`DryCleaning/appsettings.json`:
+`set-app-env.sh` (macOS) / `set-app-env.ps1` (Windows) point the app at an environment of `secrets.json` without editing any file:
 
 ```bash
 ./set-app-env.sh local                          # API on this machine (./run-api.sh) – emulator / simulator
@@ -375,7 +377,7 @@ the whole internet – the `AllowAzure` rule only admits Azure services.
 ./set-app-env.sh production                     # https://edrycleaners.co.za/
 ./set-app-env.sh --show                         # which environment / server the next build uses
 ./set-app-env.sh --list                         # available environments (current one marked)
-./set-app-env.sh --reset                        # back to appsettings.json as committed
+./set-app-env.sh --reset                        # back to the built-in defaults (no environment)
 ```
 ```powershell
 .\set-app-env.ps1 local                        # same commands on Windows
@@ -395,27 +397,24 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
 
 **How it works**
 
-- Each environment is a small file in `DryCleaning/environments/<name>.json` that lists only the settings that
-  differ from `appsettings.json` (sections are merged key by key).
-- The script validates it and copies it to `DryCleaning/appsettings.env.json`. That file is git-ignored, so switching
-  never shows up in `git status`; each developer picks their own environment.
-- The app embeds `appsettings.env.json` when it exists and `AppSettings.Load()` merges it over `appsettings.json`.
-  Without it the app uses `appsettings.json` exactly as committed.
+- An environment is a block of `secrets.json` (`local`, `mock`, `staging`, `production`). Its **`App` section** holds the app's settings:
+  `Environment`, `Currency`, `Pricing`, `Features`, `Api` (addresses, timeouts) and `GoogleMaps`.
+- The script copies that section to `DryCleaning/appsettings.secrets.json`. That file is git-ignored, so switching never shows up
+  in `git status`; each developer picks their own environment. The `Api` and `Admin` sections never go into the app.
+- The app embeds `appsettings.secrets.json` when it exists and `AppSettings.Load()` merges it over the near-empty `appsettings.json`;
+  anything missing falls back to the defaults in `DryCleaning/Configuration/*.cs`.
 - `--device-ip` / `-DeviceIp` sets both local URLs to `http://<ip>:5180/` and adds the IP to
   `Platforms/Android/Resources/xml/network_security_config.xml` (Android blocks plain `http` otherwise). That file
   is committed – remove the extra IP before a release. Start the API with the `http` profile so the phone can reach
   it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
-- Keys: the `App` section of that environment in `secrets.json` (git-ignored) is copied as `appsettings.secrets.json`;
-  switching to an environment without one removes the key from the build. `--reset` removes both files.
+- `--reset` removes `appsettings.secrets.json`, so the app uses its built-in defaults (no environment, no keys).
 - Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
 
-**Change or add an environment** – edit `DryCleaning/environments/staging.json` to your real test-server address
-(`Api:BaseUrl`), or add e.g. `uat.json` with the same shape and run `./set-app-env.sh uat`. Any setting from
-`appsettings.json` can go in a profile – but keys go in `secrets.json` (git-ignored), never in
-a profile, because profiles are committed.
+**Change or add an environment** – edit its block in `secrets.json` (for example `staging` → `App` → `Api` → `BaseUrl`), or add a new block
+such as `uat` with an `App` section of the same shape and run `./set-app-env.sh uat`.
 
 **API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
-`Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
+`Staging`/`Production` on a server) plus the matching block of `secrets.json` and environment variables – see the
 [server checklist](#2-server-checklist).
 
 
@@ -425,12 +424,8 @@ a profile, because profiles are committed.
 
 ## Configuration
 
-- **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), the demo-data VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
-  mock data and demo switches, API URLs (production + local Debug), payment callback.
-  Overrides written by `set-app-env`: `appsettings.env.json` (environment) and `appsettings.secrets.json` (that
-  environment's keys, from `secrets.json`) – all git-ignored, never committed.
-- **API** – `DryCleaning.Api/appsettings.json`: connection string, marketplace rules, JWT, Paystack, OTP, storage.
-  Real secrets live in the single `secrets.json` (see [Secrets](#secrets-one-file-for-everything)) or in server environment variables.
+- **App** – `secrets.json` → `<environment>` → `App`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), the demo-data VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job, mock data and demo switches, API URLs (production + local Debug), payment callback, the Google Maps key. `./set-app-env.sh` copies it to the git-ignored `DryCleaning/appsettings.secrets.json`, which the app embeds.
+- **API** – `secrets.json` → `<environment>` → `Api`: connection string, marketplace rules, JWT, Paystack, OTP, storage, push, email and every other setting; server environment variables override it. `DryCleaning.Api/appsettings.json` only keeps logging.
 
 ---
 
@@ -541,7 +536,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
      -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
    ```
    Wait for `docker logs edry-sql` to show *SQL Server is now ready for client connections*.
-   Change `ConnectionStrings:DefaultConnection` in `appsettings.json` if your server or password differs.
+   Change `ConnectionStrings:DefaultConnection` in `secrets.json` (local → Api) if your server or password differs.
 2. **Tools**:
    ```bash
    dotnet tool install --global dotnet-ef
@@ -567,9 +562,9 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | Windows: port 1433 in use | A local SQL Server service is running – stop it in *Services*, or `netstat -ano \| findstr :1433` to find it. |
 | Browser certificate warning | `dotnet dev-certs https --trust`, or use http://localhost:5180/swagger |
 | `401 Unauthorized` in Swagger | Access token missing or expired (1 day in Development) or wrong role – log in again, or call `POST /api/auth/refresh` with the `refreshToken`. |
-| Paystack endpoints fail | Add your test keys (`sk_test_…`, `pk_test_…`) to `appsettings.Development.json`. |
+| Paystack endpoints fail | Add your test keys (`sk_test_…`, `pk_test_…`) to `secrets.json` (local → Api → Paystack). |
 
-### Configuration (`appsettings.json`)
+### Configuration (`secrets.json`)
 
 | Section | Purpose |
 |---|---|
@@ -641,7 +636,7 @@ the app can open the right screen. On Android these keys arrive in the FCM `data
 
 1. In the Apple Developer account: the App ID has the **Push Notifications** capability, and you have an **APNs auth key** (`AuthKey_XXXX.p8`).
 2. Paste the `.p8` text into `secrets.json` at `<env>` → `Api` → `ApnsSettings` → `PrivateKey` (newlines as `\n`), and keep the non-secret
-   settings in `appsettings.json`:
+   settings in the same section:
 
    | Setting | Meaning |
    |---|---|
@@ -2838,7 +2833,7 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 
 ### 10. Configuration
 
-`DryCleaning.Api/appsettings.json` (override with the repository's `secrets.json` – see the main README – or environment variables, e.g. `Paystack__SecretKey`).
+The repository's single `secrets.json` (`<environment>` → `Api`, see the main README), which environment variables override, e.g. `Paystack__SecretKey`. `DryCleaning.Api/appsettings.json` only keeps logging.
 
 | Section | Key | Default | Purpose |
 |---|---|---|---|

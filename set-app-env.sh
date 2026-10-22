@@ -7,30 +7,28 @@
 #                                          Same, for a physical phone on your Wi-Fi
 #   ./set-app-env.sh mock                  Demo data, no API needed
 #   ./set-app-env.sh staging               App → test server
-#   ./set-app-env.sh production            App → https://edrycleaners.co.za/
+#   ./set-app-env.sh production            App → the live server
 #   ./set-app-env.sh --show                Which environment / server the next build uses
 #   ./set-app-env.sh --list                Available environments
-#   ./set-app-env.sh --reset               Back to plain DryCleaning/appsettings.json
+#   ./set-app-env.sh --reset               Back to the built-in defaults (no environment)
 #   ./set-app-env.sh --help                Show this help        (short forms: -s, -l, -h)
 #
-# Profiles live in DryCleaning/environments/<name>.json and only list what differs from
-# appsettings.json. The chosen one is copied to DryCleaning/appsettings.env.json (git-ignored) and
-# built into the app – rebuild/redeploy the app after switching.
-# Keys (Google Maps) live only in the repository's single secrets.json (git-ignored, on your machine),
-# in the "App" section of the environment's block: { "local": { "App": { "GoogleMaps": { "ApiKey": "…" } } } }.
-# Only that App section is copied into the build (the Api section never goes into the app); environments
-# without keys get none (address search then uses sample addresses). See secrets.example.json.
+# ONE file holds every setting for every environment: the repository's git-ignored secrets.json
+# (copy secrets.example.json to create it). Each environment is a block ("local", "mock", "staging",
+# "production") and its "App" section is the mobile app's settings – API address, features, pricing,
+# the Google Maps key. This script copies that App section into DryCleaning/appsettings.secrets.json
+# (git-ignored), which is built into the app – rebuild and redeploy the app after switching.
+# Only the App section goes into the app (the Api and Admin sections never do): anything in the app can be extracted.
 # "permission denied"? Run once: chmod +x set-app-env.sh   (or use: bash set-app-env.sh)
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$SCRIPT_DIR/DryCleaning"
-ENV_DIR="$APP_DIR/environments"
-BASE_FILE="$APP_DIR/appsettings.json"
-TARGET_FILE="$APP_DIR/appsettings.env.json"
-SECRETS_FILE="$APP_DIR/appsettings.secrets.json"          # generated – keys of the chosen environment
-SECRETS_JSON="$SCRIPT_DIR/secrets.json"                    # the single file with every secret (git-ignored)
+BASE_FILE="$APP_DIR/appsettings.json"                     # built-in defaults (committed, almost empty)
+GENERATED="$APP_DIR/appsettings.secrets.json"             # generated – the App section of the chosen environment
+SECRETS_JSON="$SCRIPT_DIR/secrets.json"                    # the single file with every setting (git-ignored)
+EXAMPLE_JSON="$SCRIPT_DIR/secrets.example.json"
 NSC_FILE="$APP_DIR/Platforms/Android/Resources/xml/network_security_config.xml"
 API_PORT=5180
 
@@ -39,7 +37,9 @@ ok()   { echo "  ${green}✓${reset} $*"; }
 warn() { echo "  ${yellow}!${reset} $*"; }
 fail() { echo "  ${red}✗${reset} $*" >&2; exit 1; }
 
-usage() { sed -n '3,20p' "$0" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '3,22p' "$0" | sed 's/^# \{0,1\}//'; }
+
+command -v python3 >/dev/null 2>&1 || fail "python3 is needed to read secrets.json."
 
 # Value of a "Key": value pair in a JSON file (simple string/bool values; keys are unique in our files).
 json_value() {
@@ -47,38 +47,44 @@ json_value() {
   sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\{0,1\}\([^\",}]*\)\"\{0,1\}.*/\1/p" "$2" | head -1 | sed 's/[[:space:]]*$//'
 }
 
-# Effective value: secrets file, then environment file, then appsettings.json (same order as the app).
+# Effective value: the generated App section first, then the built-in defaults (same order as the app).
 setting() {
-  local v; v="$(json_value "$1" "$SECRETS_FILE")"
-  [ -n "$v" ] || v="$(json_value "$1" "$TARGET_FILE")"
+  local v; v="$(json_value "$1" "$GENERATED")"
   [ -n "$v" ] || v="$(json_value "$1" "$BASE_FILE")"
   echo "$v"
 }
 
 validate_json() {
-  if command -v python3 >/dev/null 2>&1; then
-    python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$1" 2>/dev/null || fail "$(basename "$1") is not valid JSON."
-  elif command -v plutil >/dev/null 2>&1; then
-    plutil -convert json -o /dev/null "$1" >/dev/null 2>&1 || fail "$(basename "$1") is not valid JSON."
-  fi
+  python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$1" 2>/dev/null || fail "$(basename "$1") is not valid JSON."
 }
 
-profiles() {
-  local f b
-  for f in "$ENV_DIR"/*.json; do
-    [ -f "$f" ] || continue
-    b="$(basename "$f" .json)"
-    case "$b" in *.secrets) continue ;; esac
-    echo "$b"
-  done
+# secrets.json is the one file for everything: create it from the template when it is missing.
+ensure_secrets_json() {
+  [ -f "$SECRETS_JSON" ] && return 0
+  [ -f "$EXAMPLE_JSON" ] || fail "secrets.json and secrets.example.json are both missing – run this script from the repository."
+  cp "$EXAMPLE_JSON" "$SECRETS_JSON"
+  chmod 600 "$SECRETS_JSON" 2>/dev/null
+  warn "secrets.json did not exist – created it from secrets.example.json. Fill in your keys there (git-ignored)."
 }
 
-has_key() { [ -n "$(json_value ApiKey "$1")" ]; }
-
-# The "App" section of an environment's block in secrets.json, as JSON (empty when there is none).
-app_secrets() {
+# Environments = the blocks of secrets.json that have an App section.
+env_names() {
   [ -f "$SECRETS_JSON" ] || return 0
-  command -v python3 >/dev/null 2>&1 || fail "python3 is needed to read secrets.json."
+  python3 - "$SECRETS_JSON" <<'PY'
+import json, sys
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8-sig"))
+except ValueError as e:
+    sys.exit("secrets.json is not valid JSON: %s" % e)
+for name, block in data.items():
+    if isinstance(block, dict) and isinstance(block.get("App"), dict):
+        print(name)
+PY
+}
+
+# The App section of an environment's block, as JSON (empty when there is none).
+app_section() {
+  [ -f "$SECRETS_JSON" ] || return 0
   python3 - "$SECRETS_JSON" "$1" <<'PY'
 import json, sys
 try:
@@ -86,31 +92,36 @@ try:
 except ValueError as e:
     sys.exit("secrets.json is not valid JSON: %s" % e)
 app = (data.get(sys.argv[2]) or {}).get("App")
-if app:
+if isinstance(app, dict):
     print(json.dumps(app, indent=2))
 PY
 }
 
-# True when the environment has a non-empty Google Maps key in secrets.json.
-has_app_key() { app_secrets "$1" | grep -q '"ApiKey": "[^"]\+"'; }
+# One-line description of an environment for --list.
+describe() {
+  app_section "$1" | python3 -c '
+import json, sys
+a = json.load(sys.stdin)
+if (a.get("Features") or {}).get("UseMockData"): d = "demo data, no API"
+elif (a.get("Api") or {}).get("UseLocalApiInDebug"): d = "API on this machine (port '"$API_PORT"')"
+else: d = (a.get("Api") or {}).get("BaseUrl", "")
+if (a.get("GoogleMaps") or {}).get("ApiKey"): d += " · Google key"
+print(d)'
+}
 
 list() {
-  echo "${bold}Environments${reset} ${dim}(DryCleaning/environments/)${reset}"
-  local current; current="$(json_value Environment "$TARGET_FILE")"
-  for p in $(profiles); do
-    local f="$ENV_DIR/$p.json" desc
-    if [ "$(json_value UseMockData "$f")" = "true" ]; then desc="demo data, no API"
-    elif [ "$(json_value UseLocalApiInDebug "$f")" = "true" ]; then desc="API on this machine (port $API_PORT)"
-    else desc="$(json_value BaseUrl "$f")"; fi
-    has_app_key "$p" && desc="$desc · Google key"
-    if [ "$p" = "$current" ]; then echo "  ${green}● $p${reset}  ${dim}$desc  (current)${reset}"
-    else echo "  ○ $p  ${dim}$desc${reset}"; fi
+  ensure_secrets_json
+  echo "${bold}Environments${reset} ${dim}(blocks of secrets.json with an App section)${reset}"
+  local current p; current="$(json_value Environment "$GENERATED")"
+  for p in $(env_names); do
+    if [ "$p" = "$current" ]; then echo "  ${green}● $p${reset}  ${dim}$(describe "$p")  (current)${reset}"
+    else echo "  ○ $p  ${dim}$(describe "$p")${reset}"; fi
   done
 }
 
 show() {
-  local name; name="$(json_value Environment "$TARGET_FILE")"
-  echo "${bold}App environment:${reset} ${name:-none (plain appsettings.json)}"
+  local name; name="$(json_value Environment "$GENERATED")"
+  echo "${bold}App environment:${reset} ${name:-none (built-in defaults)}"
   if [ "$(setting UseMockData)" = "true" ]; then
     echo "  Data:          demo data (no API calls)"
     return
@@ -122,8 +133,7 @@ show() {
   else
     echo "  Debug + Release builds: $base"
   fi
-  if has_key "$SECRETS_FILE"; then echo "  Google Maps:   key set ${dim}(secrets.json → ${name:-?}.App)${reset}"
-  elif [ -n "$(setting ApiKey)" ]; then echo "  Google Maps:   key set ${yellow}(in a committed file – move it to secrets.json → <env>.App)${reset}"
+  if [ -n "$(json_value ApiKey "$GENERATED")" ]; then echo "  Google Maps:   key set ${dim}(secrets.json → ${name:-?}.App)${reset}"
   else echo "  Google Maps:   no key – sample addresses"; fi
 }
 
@@ -137,43 +147,27 @@ add_device_ip_to_android() {
   ok "Android allows http to $ip ${dim}(network_security_config.xml – remove it before a release)${reset}"
 }
 
-# Copies the App section of secrets.json (for this environment) into the build, or removes the previous environment's keys.
-apply_secrets() {
-  local name="$1" block; block="$(app_secrets "$name")"
-  if [ -n "$block" ]; then
-    printf '%s\n' "$block" > "$SECRETS_FILE"
-    validate_json "$SECRETS_FILE"
-    ok "Keys from secrets.json → $name.App ${dim}(git-ignored)${reset}"
-  else
-    rm -f "$SECRETS_FILE"
-    if [ "$name" = "local" ]; then
-      warn "No $name.App section in secrets.json – address search will use sample addresses. To add your Google key:"
-      echo "      Copy secrets.example.json to secrets.json (repository root) and fill in local → App → GoogleMaps → ApiKey,"
-      echo "      then run ./set-app-env.sh local again."
-    else
-      echo "  ${dim}– No keys for $name (address search uses sample addresses).${reset}"
-    fi
-  fi
-}
-
 use_profile() {
-  local name="$1" ip="$2" source="$ENV_DIR/$1.json"
-  [ -f "$source" ] || { echo "Unknown environment '$name'."; echo; list; exit 1; }
-  validate_json "$source"
+  local name="$1" ip="$2" section
+  ensure_secrets_json
+  section="$(app_section "$name")"
+  if [ -z "$section" ]; then
+    echo "No App section for '$name' in secrets.json."; echo; list; exit 1
+  fi
 
+  printf '%s\n' "$section" > "$GENERATED"
   if [ -n "$ip" ]; then
-    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || fail "--device-ip needs an IPv4 address like 192.168.1.20 (got '$ip')."
-    [ "$(json_value UseLocalApiInDebug "$source")" = "true" ] || fail "--device-ip only applies to an environment that uses the local API (e.g. local)."
+    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || { rm -f "$GENERATED"; fail "--device-ip needs an IPv4 address like 192.168.1.20 (got '$ip')."; }
+    [ "$(json_value UseLocalApiInDebug "$GENERATED")" = "true" ] || { rm -f "$GENERATED"; fail "--device-ip only applies to an environment that uses the local API (e.g. local)."; }
+    local tmp; tmp="$(mktemp)"
     sed -e "s#\"LocalBaseUrlAndroid\"[[:space:]]*:[[:space:]]*\"[^\"]*\"#\"LocalBaseUrlAndroid\": \"http://$ip:$API_PORT/\"#" \
         -e "s#\"LocalBaseUrlApple\"[[:space:]]*:[[:space:]]*\"[^\"]*\"#\"LocalBaseUrlApple\": \"http://$ip:$API_PORT/\"#" \
-        "$source" > "$TARGET_FILE"
-  else
-    cp "$source" "$TARGET_FILE"
+        "$GENERATED" > "$tmp" && cat "$tmp" > "$GENERATED" && rm -f "$tmp"
   fi
-  validate_json "$TARGET_FILE"
-  ok "Using ${bold}$name${reset} ${dim}→ DryCleaning/appsettings.env.json${reset}"
+  validate_json "$GENERATED"
+  rm -f "$APP_DIR/appsettings.env.json"   # the old per-environment profile file, no longer used
+  ok "Using ${bold}$name${reset} ${dim}← secrets.json → $name.App → DryCleaning/appsettings.secrets.json (git-ignored)${reset}"
   [ -n "$ip" ] && add_device_ip_to_android "$ip"
-  apply_secrets "$name"
 
   # Sanity checks
   local mock base; mock="$(setting UseMockData)"; base="$(setting BaseUrl)"
@@ -182,6 +176,9 @@ use_profile() {
     case "$base" in https://*) ;; *) warn "BaseUrl '$base' is not https – phones will refuse it.";; esac
     case "$base" in */) ;; *) warn "BaseUrl should end with '/'.";; esac
     case "$base" in */api/) warn "BaseUrl should be the server root, without 'api/'.";; esac
+  fi
+  if [ -z "$(json_value ApiKey "$GENERATED")" ] && [ "$mock" != "true" ]; then
+    echo "  ${dim}– No Google Maps key in $name.App → GoogleMaps → ApiKey (address search uses sample addresses).${reset}"
   fi
   if [ -n "$ip" ]; then
     echo "  ${dim}Start the API so the phone can reach it:  cd DryCleaning.Api && dotnet run --launch-profile http${reset}"
@@ -194,7 +191,7 @@ use_profile() {
   echo "${bold}Next:${reset} rebuild and run the app (settings are built into the app)."
 }
 
-# ── Arguments ───────────────────────────────────────────────────────────────
+# ── Arguments ─────────────────────────────────────────────────────────
 PROFILE=""; DEVICE_IP=""; ACTION="use"
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -216,8 +213,8 @@ case "$ACTION" in
   show) show ;;
   list) list ;;
   reset)
-    rm -f "$TARGET_FILE" "$SECRETS_FILE"
-    ok "Removed DryCleaning/appsettings.env.json and appsettings.secrets.json – the app uses appsettings.json as committed (no keys)."
+    rm -f "$GENERATED" "$APP_DIR/appsettings.env.json"
+    ok "Removed DryCleaning/appsettings.secrets.json – the app uses its built-in defaults (no environment, no keys)."
     echo; show ;;
   use)
     if [ -z "$PROFILE" ]; then usage; echo; list; exit 1; fi

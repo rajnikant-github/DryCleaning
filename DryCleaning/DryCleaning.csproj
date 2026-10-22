@@ -52,11 +52,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- App configuration: currency, VAT, feature flags, API URL -->
+        <!-- Built-in defaults (almost empty): the real app settings come from secrets.json -> <environment> -> App, copied by ./set-app-env.sh -->
         <EmbeddedResource Include="appsettings.json" LogicalName="DryCleaning.appsettings.json" />
-        <!-- Environment overrides written by ./set-app-env.sh (git-ignored). Values here win over appsettings.json. -->
-        <EmbeddedResource Include="appsettings.env.json" LogicalName="DryCleaning.appsettings.env.json" Condition="Exists('appsettings.env.json')" />
-        <!-- Keys of the chosen environment, copied by ./set-app-env.sh from environments/<name>.secrets.json (git-ignored). Merged last. -->
+        <!-- The App section of the chosen environment, copied by ./set-app-env.sh from the single secrets.json (git-ignored). Merged last. -->
         <EmbeddedResource Include="appsettings.secrets.json" LogicalName="DryCleaning.appsettings.secrets.json" Condition="Exists('appsettings.secrets.json')" />
     </ItemGroup>
 

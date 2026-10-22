@@ -9,17 +9,15 @@ EDry Cleaners - switch the mobile app between environments (Windows PowerShell 5
   .\set-app-env.ps1 production                 App -> https://edrycleaners.co.za/
   .\set-app-env.ps1 -Show                      Which environment / server the next build uses
   .\set-app-env.ps1 -List                      Available environments
-  .\set-app-env.ps1 -Reset                     Back to plain DryCleaning\appsettings.json
+  .\set-app-env.ps1 -Reset                     Back to the built-in defaults (no environment)
   .\set-app-env.ps1 -Help                      Show this help
   (macOS-style --show, --list, --reset, --help, --device-ip also work)
 
-Profiles live in DryCleaning\environments\<name>.json and only list what differs from
-appsettings.json. The chosen one is copied to DryCleaning\appsettings.env.json (git-ignored) and
-built into the app - rebuild/redeploy the app after switching.
-Keys (Google Maps) live only in the repository's single secrets.json (git-ignored, on your machine), in the
-"App" section of the environment's block: { "local": { "App": { "GoogleMaps": { "ApiKey": "..." } } } }.
-Only that App section is copied into the build (the Api section never goes into the app); environments
-without keys get none (address search then uses sample addresses). See secrets.example.json.
+ONE file holds every setting for every environment: the repository's git-ignored secrets.json (copy
+secrets.example.json to create it). Each environment is a block ("local", "mock", "staging", "production") and its
+"App" section is the mobile app's settings - API address, features, pricing, the Google Maps key. This script copies
+that App section into DryCleaning\appsettings.secrets.json (git-ignored), which is built into the app - rebuild and
+redeploy the app after switching. Only the App section goes into the app (the Api and Admin sections never do).
 "running scripts is disabled"? Use: powershell -ExecutionPolicy Bypass -File .\set-app-env.ps1 local
 #>
 [CmdletBinding()]
@@ -36,11 +34,11 @@ param(
 $ErrorActionPreference = 'Stop'
 $ApiPort = 5180
 $AppDir = Join-Path $PSScriptRoot 'DryCleaning'
-$EnvDir = Join-Path $AppDir 'environments'
 $BaseFile = Join-Path $AppDir 'appsettings.json'
-$TargetFile = Join-Path $AppDir 'appsettings.env.json'
-$SecretsFile = Join-Path $AppDir 'appsettings.secrets.json'   # generated - keys of the chosen environment
-$SecretsJson = Join-Path $PSScriptRoot 'secrets.json'          # the single file with every secret (git-ignored)
+$OldEnvFile = Join-Path $AppDir 'appsettings.env.json'     # the old per-environment profile file, no longer used
+$ExampleJson = Join-Path $PSScriptRoot 'secrets.example.json'
+$SecretsFile = Join-Path $AppDir 'appsettings.secrets.json'   # generated - the App section of the chosen environment
+$SecretsJson = Join-Path $PSScriptRoot 'secrets.json'          # the single file with every setting (git-ignored)
 $NscFile = Join-Path $AppDir 'Platforms\Android\Resources\xml\network_security_config.xml'
 
 function Ok([string]$m)   { Write-Host "  [ok] $m" -ForegroundColor Green }
@@ -71,10 +69,9 @@ function Get-Value($obj, [string[]]$path) {
     return $cur
 }
 
-# Effective value: secrets file, then environment file, then appsettings.json (same order as the app).
+# Effective value: the generated App section first, then the built-in defaults (same order as the app).
 function Get-Setting([string[]]$path) {
     $v = Get-Value (Read-Json $SecretsFile) $path
-    if ($null -eq $v -or $v -eq '') { $v = Get-Value (Read-Json $TargetFile) $path }
     if ($null -eq $v -or $v -eq '') { $v = Get-Value (Read-Json $BaseFile) $path }
     return $v
 }
@@ -90,20 +87,30 @@ function Get-AppSecrets([string]$name) {
 
 function Test-AppKey([string]$name) { return [bool](Get-Value (Get-AppSecrets $name) @('GoogleMaps', 'ApiKey')) }
 
+# secrets.json is the one file for everything: create it from the template when it is missing.
+function Initialize-SecretsJson {
+    if (Test-Path -LiteralPath $SecretsJson) { return }
+    if (-not (Test-Path -LiteralPath $ExampleJson)) { Fail 'secrets.json and secrets.example.json are both missing - run this script from the repository.' }
+    Copy-Item -LiteralPath $ExampleJson -Destination $SecretsJson
+    Warn 'secrets.json did not exist - created it from secrets.example.json. Fill in your keys there (git-ignored).'
+}
+
+# Environments = the blocks of secrets.json that have an App section.
 function Get-Profiles {
-    if (-not (Test-Path -LiteralPath $EnvDir)) { return @() }
-    return @(Get-ChildItem -LiteralPath $EnvDir -Filter '*.json' | Sort-Object Name | ForEach-Object { $_.BaseName } |
-        Where-Object { $_ -notlike '*.secrets' })
+    $root = Read-Json $SecretsJson
+    if ($null -eq $root) { return @() }
+    return @($root.PSObject.Properties | Where-Object { $null -ne (Get-Value $_.Value @('App')) } | ForEach-Object { $_.Name })
 }
 
 function Show-List {
-    Write-Host 'Environments (DryCleaning\environments\)'
-    $current = Get-Value (Read-Json $TargetFile) @('Environment')
+    Initialize-SecretsJson
+    Write-Host 'Environments (blocks of secrets.json with an App section)'
+    $current = Get-Value (Read-Json $SecretsFile) @('Environment')
     foreach ($p in Get-Profiles) {
-        $json = Read-Json (Join-Path $EnvDir "$p.json")
-        if ((Get-Value $json @('Features', 'UseMockData')) -eq $true) { $desc = 'demo data, no API' }
-        elseif ((Get-Value $json @('Api', 'UseLocalApiInDebug')) -eq $true) { $desc = "API on this machine (port $ApiPort)" }
-        else { $desc = Get-Value $json @('Api', 'BaseUrl') }
+        $app = Get-AppSecrets $p
+        if ((Get-Value $app @('Features', 'UseMockData')) -eq $true) { $desc = 'demo data, no API' }
+        elseif ((Get-Value $app @('Api', 'UseLocalApiInDebug')) -eq $true) { $desc = "API on this machine (port $ApiPort)" }
+        else { $desc = Get-Value $app @('Api', 'BaseUrl') }
         if (Test-AppKey $p) { $desc = "$desc - Google key" }
         if ($p -eq $current) { Write-Host "  * $p  $desc  (current)" -ForegroundColor Green }
         else { Write-Host "    $p  $desc" }
@@ -111,8 +118,8 @@ function Show-List {
 }
 
 function Show-Current {
-    $name = Get-Value (Read-Json $TargetFile) @('Environment')
-    if (-not $name) { $name = 'none (plain appsettings.json)' }
+    $name = Get-Value (Read-Json $SecretsFile) @('Environment')
+    if (-not $name) { $name = 'none (built-in defaults)' }
     Write-Host "App environment: $name"
     if ((Get-Setting @('Features', 'UseMockData')) -eq $true) {
         Write-Host '  Data:          demo data (no API calls)'
@@ -126,9 +133,7 @@ function Show-Current {
     else {
         Write-Host "  Debug + Release builds: $base"
     }
-    $envName = Get-Value (Read-Json $TargetFile) @('Environment')
-    if (Test-Key $SecretsFile) { Write-Host "  Google Maps:   key set (secrets.json: $envName.App)" }
-    elseif (Get-Setting @('GoogleMaps', 'ApiKey')) { Write-Host '  Google Maps:   key set (in a committed file - move it to secrets.json: <env>.App)' -ForegroundColor Yellow }
+    if (Test-Key $SecretsFile) { Write-Host "  Google Maps:   key set (secrets.json: $name.App)" }
     else { Write-Host '  Google Maps:   no key - sample addresses' }
 }
 
@@ -149,48 +154,30 @@ function Add-DeviceIpToAndroid([string]$ip) {
     Ok "Android allows http to $ip (network_security_config.xml - remove it before a release)"
 }
 
-# Copies the App section of secrets.json (for this environment) into the build, or removes the previous environment's keys.
-function Set-Secrets([string]$name) {
-    $block = Get-AppSecrets $name
-    if ($null -ne $block) {
-        Write-Utf8NoBom $SecretsFile (($block | ConvertTo-Json -Depth 10) + "`n")
-        Ok "Keys from secrets.json -> $name.App (git-ignored)"
-    }
-    else {
-        if (Test-Path -LiteralPath $SecretsFile) { Remove-Item -LiteralPath $SecretsFile }
-        if ($name -eq 'local') {
-            Warn "No $name.App section in secrets.json - address search will use sample addresses. To add your Google key:"
-            Write-Host '      Copy secrets.example.json to secrets.json (repository root) and fill in local > App > GoogleMaps > ApiKey,'
-            Write-Host '      then run .\set-app-env.ps1 local again.'
-        }
-        else { Write-Host "  - No keys for $name (address search uses sample addresses)." }
-    }
-}
-
 function Use-Profile([string]$name, [string]$ip) {
-    $source = Join-Path $EnvDir "$name.json"
-    if (-not (Test-Path -LiteralPath $source)) {
-        Write-Host "Unknown environment '$name'."
+    Initialize-SecretsJson
+    $app = Get-AppSecrets $name
+    if ($null -eq $app) {
+        Write-Host "No App section for '$name' in secrets.json."
         Write-Host ''
         Show-List
         exit 1
     }
-    $json = Read-Json $source
-    $text = [System.IO.File]::ReadAllText($source)
+    $text = ($app | ConvertTo-Json -Depth 10) + "`n"
 
     if ($ip) {
         if ($ip -notmatch '^(\d{1,3}\.){3}\d{1,3}$') { Fail "-DeviceIp needs an IPv4 address like 192.168.1.20 (got '$ip')." }
-        if ((Get-Value $json @('Api', 'UseLocalApiInDebug')) -ne $true) { Fail '-DeviceIp only applies to an environment that uses the local API (e.g. local).' }
+        if ((Get-Value $app @('Api', 'UseLocalApiInDebug')) -ne $true) { Fail '-DeviceIp only applies to an environment that uses the local API (e.g. local).' }
         $url = "http://${ip}:$ApiPort/"
         $text = [regex]::Replace($text, '"LocalBaseUrlAndroid"\s*:\s*"[^"]*"', """LocalBaseUrlAndroid"": ""$url""")
         $text = [regex]::Replace($text, '"LocalBaseUrlApple"\s*:\s*"[^"]*"', """LocalBaseUrlApple"": ""$url""")
     }
 
-    Write-Utf8NoBom $TargetFile $text
-    $null = Read-Json $TargetFile
-    Ok "Using $name -> DryCleaning\appsettings.env.json"
+    Write-Utf8NoBom $SecretsFile $text
+    $null = Read-Json $SecretsFile
+    if (Test-Path -LiteralPath $OldEnvFile) { Remove-Item -LiteralPath $OldEnvFile }
+    Ok "Using $name <- secrets.json > $name.App > DryCleaning\appsettings.secrets.json (git-ignored)"
     if ($ip) { Add-DeviceIpToAndroid $ip }
-    Set-Secrets $name
 
     # Sanity checks
     $mock = (Get-Setting @('Features', 'UseMockData')) -eq $true
@@ -201,6 +188,7 @@ function Use-Profile([string]$name, [string]$ip) {
         if (-not $base.EndsWith('/')) { Warn "BaseUrl should end with '/'." }
         if ($base.EndsWith('/api/')) { Warn "BaseUrl should be the server root, without 'api/'." }
     }
+    if (-not $mock -and -not (Test-Key $SecretsFile)) { Write-Host "  - No Google Maps key in $name.App > GoogleMaps > ApiKey (address search uses sample addresses)." }
     if ($ip) { Write-Host '  Start the API so the phone can reach it:  cd DryCleaning.Api; dotnet run --launch-profile http' }
     elseif ($name -eq 'local') { Write-Host '  Start the API first:  .\run-api.ps1' }
     Write-Host ''
@@ -237,8 +225,8 @@ if ($Help) { Show-Usage; exit 0 }
 if ($Show) { Show-Current; exit 0 }
 if ($List) { Show-List; exit 0 }
 if ($Reset) {
-    foreach ($f in @($TargetFile, $SecretsFile)) { if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f } }
-    Ok 'Removed DryCleaning\appsettings.env.json and appsettings.secrets.json - the app uses appsettings.json as committed (no keys).'
+    foreach ($f in @($OldEnvFile, $SecretsFile)) { if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f } }
+    Ok 'Removed DryCleaning\appsettings.secrets.json - the app uses its built-in defaults (no environment, no keys).'
     Write-Host ''
     Show-Current
     exit 0

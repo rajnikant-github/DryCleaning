@@ -23,6 +23,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddSecretsFile(builder.Environment, "Api"); // the repository's single secrets.json (git-ignored)
 var config = builder.Configuration;
 
+// Every setting lives in the repository's single secrets.json: stop early, and say exactly what is missing.
+{
+    var missing = new List<string>();
+    if (string.IsNullOrWhiteSpace(config.GetConnectionString("DefaultConnection")))
+        missing.Add("ConnectionStrings:DefaultConnection (the database)");
+    if (string.IsNullOrWhiteSpace(config["Jwt:SigningKey"]) || config["Jwt:SigningKey"]!.Length < 32)
+        missing.Add("Jwt:SigningKey (at least 32 characters)");
+    if (string.IsNullOrWhiteSpace(config["Storage:Minio:AccessKey"]) || string.IsNullOrWhiteSpace(config["Storage:Minio:SecretKey"]))
+        missing.Add("Storage:Minio:AccessKey and Storage:Minio:SecretKey (file storage)");
+
+    if (missing.Count > 0)
+    {
+        var block = SecretsFile.EnvironmentBlock(builder.Environment);
+        var file = SecretsFile.FindPath(builder.Environment);
+        throw new InvalidOperationException(
+            (file is null
+                ? $"secrets.json was not found. Copy secrets.example.json to secrets.json in the repository root (or set EDRY_SECRETS_FILE). "
+                : $"{file} is missing values. ") +
+            $"Add to the \"{block}\" -> \"Api\" section (or set them as environment variables): " + string.Join("; ", missing) + ".");
+    }
+}
+
 // ── Options ──────────────────────────────────────────────────────────────────
 builder.Services.Configure<MarketplaceOptions>(config.GetSection(MarketplaceOptions.Section));
 builder.Services.Configure<JwtOptions>(config.GetSection(JwtOptions.Section));
@@ -52,7 +74,7 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 // ── Authentication (JWT) & authorization (roles) ─────────────────────────────
 var jwt = config.GetSection(JwtOptions.Section).Get<JwtOptions>() ?? new JwtOptions();
 if (string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Length < 32)
-    throw new InvalidOperationException("Jwt:SigningKey must be set and at least 32 characters (use user-secrets or environment variables).");
+    throw new InvalidOperationException("Jwt:SigningKey must be set and at least 32 characters (secrets.json or an environment variable).");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

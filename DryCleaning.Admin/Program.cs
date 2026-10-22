@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient(AdminApiClient.HttpClientName, client =>
 {
-    var baseUrl = builder.Configuration["Api:BaseUrl"] ?? throw new InvalidOperationException("Api:BaseUrl is not configured.");
+    var baseUrl = builder.Configuration["Api:BaseUrl"] ?? throw new InvalidOperationException("Api:BaseUrl is not configured: add it to secrets.json (<environment> -> Admin -> Api -> BaseUrl) or set Api__BaseUrl.");
     client.BaseAddress = new Uri(baseUrl.EndsWith('/') ? baseUrl : baseUrl + "/");
     client.Timeout = TimeSpan.FromSeconds(30);
 });

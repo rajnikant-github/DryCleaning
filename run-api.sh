@@ -16,7 +16,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-# Settings – must match ConnectionStrings:DefaultConnection in DryCleaning.Api/appsettings.json
+# Settings – must match ConnectionStrings:DefaultConnection in secrets.json (local → Api), the API's single settings file
 CONTAINER="edry-sql"
 SA_PASSWORD='YourStrong!Passw0rd'
 SQL_PORT=1433
@@ -56,6 +56,14 @@ for arg in "$@"; do
 done
 
 [ -d "$API_DIR" ] || fail "Can't find DryCleaning.Api next to this script." "Put run-api.sh in the repo root (the folder with DryCleaning.sln)."
+
+# Every setting lives in the one git-ignored secrets.json: create it from the template on a fresh checkout.
+if [ ! -f "$SCRIPT_DIR/secrets.json" ] && [ -f "$SCRIPT_DIR/secrets.example.json" ]; then
+  cp "$SCRIPT_DIR/secrets.example.json" "$SCRIPT_DIR/secrets.json" && chmod 600 "$SCRIPT_DIR/secrets.json" 2>/dev/null
+  echo "${yellow}!${reset} secrets.json did not exist – created it from secrets.example.json."
+  echo "  Fill in local → Api → Storage → Minio → AccessKey / SecretKey (the API will not start without them), then run this script again."
+  exit 1
+fi
 
 # ═════════════════════════════════════════════════════════════════════════════
 # PHASE 1 – CHECK (read-only: nothing is installed, started or changed here)

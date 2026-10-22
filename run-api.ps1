@@ -31,7 +31,7 @@ param(
 
 $ErrorActionPreference = 'Continue'
 
-# Settings - must match ConnectionStrings:DefaultConnection in DryCleaning.Api\appsettings.json
+# Settings - must match ConnectionStrings:DefaultConnection in secrets.json (local > Api), the API's single settings file
 $Container    = 'edry-sql'
 $SaPassword   = 'YourStrong!Passw0rd'
 $SqlPort      = 1433
@@ -107,6 +107,14 @@ if ($Stop) {
 
 if (-not (Test-Path $ApiDir)) {
     Fail "Can't find DryCleaning.Api next to this script." @('Put run-api.ps1 in the repo root (the folder with DryCleaning.sln).')
+}
+
+# Every setting lives in the one git-ignored secrets.json: create it from the template on a fresh checkout.
+$SecretsPath = Join-Path $ScriptDir 'secrets.json'
+$ExamplePath = Join-Path $ScriptDir 'secrets.example.json'
+if (-not (Test-Path $SecretsPath) -and (Test-Path $ExamplePath)) {
+    Copy-Item -LiteralPath $ExamplePath -Destination $SecretsPath
+    Fail 'secrets.json did not exist - created it from secrets.example.json.' @('Fill in local > Api > Storage > Minio > AccessKey / SecretKey (the API will not start without them), then run this script again.')
 }
 
 # -- Docker / SQL helpers ------------------------------------------------------
