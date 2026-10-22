@@ -160,7 +160,7 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 | `Push` | `Enabled`, `FirebaseCredentialsJson` (the Firebase service-account JSON itself, kept in `secrets.json`) or `FirebaseCredentialsPath` (a file). Nothing set → Android pushes are only logged |
 | `Email` | `Key` (a SendGrid key starting `SG.`, preferred) or `SmtpServer`, `Port`, `Username`, `Password`; plus `From`, `Name`, `ReplyTo`, `Enabled` (keys and passwords live in `secrets.json`). Not configured = emails are only logged. Admin portal → **Email** shows the status and sends a test email |
 | `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` (the `.p8` text, kept in `secrets.json`) or `PrivateKeyPath` (a file), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
-| `Storage` | `Local` (wwwroot) or `AzureBlob` provider, containers, signed-link lifetime, max photo size |
+| `Storage` | MinIO address, bucket, keys, signed-link lifetime, max photo size (see the main README, "File storage (MinIO)") |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
 
 Secrets (don't commit real keys): put them in the repository's single git-ignored `secrets.json` (template: `secrets.example.json`,

@@ -393,17 +393,10 @@ Catalog shape: **Category** (global) → **Product** (per provider, e.g. "Suit")
 JPG, PNG, HEIC or WEBP; max 5 MB (`Storage:MaxUploadBytes`). The app shrinks every photo before upload
 (longest side 1600 px, JPEG quality 80%), so a 17 MB phone photo arrives as about 1 MB.
 
-**Where files live** (`Storage:Provider`):
-
-| Provider | Where | `url` in responses | Use for |
-|---|---|---|---|
-| `Local` (default) | `wwwroot/uploads/orders/<orderId>/…` on the API's disk | relative, e.g. `/uploads/orders/…`; open it on the API base URL. Anyone with the link can open it. | Development, a single server with a persistent disk |
-| `AzureBlob` | Azure Blob Storage | absolute. **Order photos**: private container, short-lived signed link (`Storage:AzureBlob:SignedLinkMinutes`, default 15) – list the photos again to get a fresh link. **Provider logos**: public-read container, plain link. | Azure hosting |
-
-With `AzureBlob` the database stores `blob://container/path`, not a URL; the API turns it into a link on every response.
-Older `/uploads/...` rows keep working. Sign-in to Azure uses the App Service's managed identity (role **Storage Blob
-Data Contributor** on the storage account) – set `Storage__AzureBlob__AccountUrl`. For local testing with Azurite set
-`Storage__AzureBlob__ConnectionString=UseDevelopmentStorage=true`.
+**Where files live:** in MinIO, the only file store (see the main README, "File storage (MinIO)"). The database stores
+`minio://<public|private|protected>/…`, never a URL; the API turns it into a link on every response. **Order photos** (`private/`)
+get a short-lived signed link (`Storage:Minio:SignedLinkMinutes`, default 15) – list the photos again to get a fresh link.
+**Provider logos** (`public/`) get a plain link. Verification documents (`protected/`) never get a link; the API streams them.
 
 ### 4.11 Real-time updates (SignalR)
 
@@ -2148,12 +2141,10 @@ All `GET` endpoints only read. Every write to `Notifications` also queues a push
 | `Paystack` | `SecretKey`, `PublicKey` | *(secret)* | Payments + webhook signature |
 | | `CallbackUrl` | `edrycleaners://payment-complete` | Where Paystack returns to the app |
 | `Otp` | `Length`, `ExpirySeconds`, `MaxAttempts` | `6`, `300`, `5` | Login / reset codes |
-| `Storage` | `Provider` | `Local` | `Local` (wwwroot) or `AzureBlob` |
-| | `UploadsFolder`, `MaxUploadBytes` | `uploads`, 5 MB | Local folder and max photo size |
-| | `AzureBlob:AccountUrl` / `ConnectionString` | *(empty)* | Storage account (managed identity) or connection string (Azurite) |
-| | `AzureBlob:PrivateContainer`, `PublicContainer` | `order-photos`, `public-assets` | Containers (created on first upload) |
-| | `AzureBlob:ProtectedContainer` | `verification-documents` | Container for verification documents: no public access and no signed links |
-| | `AzureBlob:SignedLinkMinutes` | `15` | How long a signed photo link works |
+| `Storage` | `Minio:Url`, `Minio:BucketName`, `Minio:UseSsl` | `77.237.233.114:9000`, `edrycleaners-api`, `false` | MinIO is the only file store (see the main README, "File storage (MinIO)") |
+| | `Minio:AccessKey`, `Minio:SecretKey` | *(secret)* | MinIO user for this app – the API won't start without them |
+| | `Minio:PublicUrl`, `Minio:SignedLinkMinutes` | *(empty)*, `15` | Optional https/CDN address for logos; lifetime of an order-photo link |
+| | `MaxUploadBytes` | 5 MB | Largest photo or logo accepted |
 | `Verification` | `MaxPdfBytes` | `52428800` (50 MB) | Largest verification PDF accepted. A reverse proxy in front of the API needs an upload limit at least this big |
 | | `MaxImageBytes` | `15728640` (15 MB) | Largest verification photo accepted (the app shrinks photos to fit) |
 | | `PreviewLinkSeconds` | `120` | How long a browser preview link works. Behind a reverse proxy it needs forwarded headers so the link uses the public address, and several API servers need a shared Data Protection key ring |

@@ -26,7 +26,7 @@ It has one block per environment (`local`, `staging`, `production`) and, in each
 
 | Section | Read by | Holds |
 |---|---|---|
-| `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key (`Routes.ApiKey`, for driving distance), the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), and any other API setting you want kept out of git |
+| `Api` | the API (`DryCleaning.Api`) | Paystack keys and callback URL, Routes API key (`Routes.ApiKey`, for driving distance), the Firebase service-account JSON (`Push.FirebaseCredentialsJson`, pasted in as an object), the Apple APNs `.p8` text (`ApnsSettings.PrivateKey`), the email login (`Email.*`), the MinIO file-storage keys (`Storage.Minio.AccessKey` / `SecretKey`), and any other API setting you want kept out of git |
 | `Admin` | the admin portal | nothing secret yet (it only needs the API address) |
 | `App` | `./set-app-env.sh <env>` → the mobile app build | keys that are restricted in Google's console, e.g. `GoogleMaps.ApiKey`. **Never put server secrets here** – anything in the app can be extracted |
 
@@ -61,6 +61,7 @@ drivers. Each recipient gets an in-app notification and a push on their phone.
 - [Testing the app against a deployed API](#testing-the-app-against-a-deployed-api)
   - [1. Point the app at the server](#1-point-the-app-at-the-server)
   - [2. Server checklist](#2-server-checklist)
+  - [File storage (MinIO)](#file-storage-minio)
   - [3. Smoke test after each deploy](#3-smoke-test-after-each-deploy)
   - [Troubleshooting](#troubleshooting)
 - [Switching environments](#switching-environments)
@@ -189,8 +190,10 @@ Quickest: put the server address in `DryCleaning/environments/staging.json` and 
 
 ### 2. Server checklist
 
-Set these on the server as environment variables (`__` separates sections, e.g. `Jwt__SigningKey`) or in
-`appsettings.Production.json` – never commit real secrets.
+**Go-live checklist.** Set every row below on the server as environment variables (`__` separates sections, e.g.
+`Jwt__SigningKey`) or in `appsettings.Production.json` – never commit real secrets. The defaults in `appsettings.json` are for
+development only: the connection string holds the local Docker password, and the API **will not start** without
+`Jwt__SigningKey` and the two MinIO keys.
 
 | Setting | Value |
 |---|---|
@@ -203,8 +206,44 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
 | `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
 | `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
+| `Email__Username` / `Email__Password` / `Email__From` (+ `Email__SmtpServer`, `Email__Port`) | The sending mailbox (Office 365 SMTP) – or `Email__Key` for SendGrid. Without it, emails are only logged and nobody receives sign-up or reset codes. |
+| `Routes__ApiKey` | Google key for driving distance (Routes API enabled, restricted to your server). Also set the app's `GoogleMaps.ApiKey` in the `App` block of `secrets.json` (Places + Geocoding enabled, restricted to the app). |
+| `Storage__Minio__AccessKey` / `Storage__Minio__SecretKey` | A MinIO user limited to this app's bucket – never the MinIO admin account. See [File storage (MinIO)](#file-storage-minio). |
+| `Cors__AllowedOrigins` | The browser origins that may call the API (empty = any). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
-| Uploads | **Azure:** set `Storage__Provider=AzureBlob` and `Storage__AzureBlob__AccountUrl=https://<account>.blob.core.windows.net`, and give the App Service's managed identity the **Storage Blob Data Contributor** role on that account. Order photos are then private (signed 15-minute links); logos are public. **Other hosting:** the default `Local` provider saves under `wwwroot/uploads` – use persistent disk, not a container's temporary file system. |
+| Uploads | Every photo, logo and verification document goes to MinIO – see [File storage (MinIO)](#file-storage-minio). Nothing is saved on the API server's disk. |
+
+**Before launch, rotate anything that was ever shared in a chat, ticket or email** (Paystack keys, the MinIO password, mailbox
+password, JWT signing key) and use the live Paystack keys only on the production server.
+
+### File storage (MinIO)
+
+All files live in **MinIO** (S3-compatible, the same store as the reference project) – locally, on staging and in production
+alike. There is no other store and no debug/release switch.
+
+| Setting (`Storage:Minio`) | Where | Value |
+|---|---|---|
+| `Url` | `appsettings.json` | `77.237.233.114:9000` (no `http://`) |
+| `BucketName` | `appsettings.json` | `edrycleaners-api` – created automatically. **Never use the reference project's bucket `edrycleaners`**: its policy lets anyone read every file in it |
+| `UseSsl` | `appsettings.json` | `false` today (plain http) |
+| `SignedLinkMinutes` | `appsettings.json` | `15` – lifetime of an order-photo link |
+| `PublicUrl` | optional | an https/CDN address for logos |
+| `AccessKey` / `SecretKey` | `secrets.json` locally, environment variables on a server | never in git |
+
+Inside the bucket: `public/` (logos – anyone can read), `private/` (order photos – 15-minute signed links) and `protected/`
+(verification documents – no link ever; the API streams them after a permission check). The API creates the bucket and sets this
+policy itself on first use, and **refuses to start** when the keys are missing.
+
+- **Set up a machine (local or live):** add the keys (locally under `local` → `Api` → `Storage` → `Minio` in `secrets.json`; on a
+  server as `Storage__Minio__AccessKey` / `Storage__Minio__SecretKey`), start the API, upload one photo and open it. No database
+  change and no app update is needed.
+- **Plain http:** phones refuse `http://` addresses by default, so the app has an explicit allowance for the MinIO address and nothing
+  else – iOS `DryCleaning/Platforms/iOS/Info.plist` (`NSExceptionDomains`) and Android
+  `DryCleaning/Platforms/Android/Resources/xml/network_security_config.xml`. If the MinIO address changes, update both. Logos and order
+  photos then travel unencrypted between MinIO and the phone (verification documents do not). To remove the allowance, give MinIO an
+  `https://` address, set `Url` and `UseSsl=true`, and delete the two entries.
+- **Old files:** photos saved before the switch (the former local `uploads` folder) are not shown; copy them into the bucket under the
+  same folders if you need them.
 
 ### 3. Smoke test after each deploy
 
@@ -228,7 +267,7 @@ Set these on the server as environment variables (`__` separates sections, e.g. 
 | Login works in Swagger but the app says "This is a … account" | You picked a different role on the role screen than the account has. |
 | Code email never arrives | Check the spam folder, the **Email** page in the admin portal (status + test email) and the `Email` settings in `secrets.json`. |
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
-| Photos missing after a restart/redeploy | Using `Local` storage without persistent disk – switch to `Storage__Provider=AzureBlob`. |
+| Photos or logos don't load in the app | The MinIO address isn't allowed for plain http in the app, or MinIO is unreachable – see [File storage (MinIO)](#file-storage-minio). |
 | Photos not loading after a while (Azure) | Signed links expire after 15 minutes; reload the order to get new ones. |
 | "Address search isn't working" | Check `secrets.json` has your key under `<env>` → `App` → `GoogleMaps` and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
 
