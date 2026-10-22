@@ -84,6 +84,15 @@
                                     <Label Text="{Binding PickupText}" FontSize="14" />
                                 </VerticalStackLayout>
                             </Grid>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" IsVisible="{Binding ShowDriverNotes}">
+                                <Label Text="&#xf27a;" FontSize="18" FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" VerticalOptions="Start" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Note for the driver" Style="{StaticResource Small}" />
+                                    <Label Text="{Binding DriverNotesText}" FontSize="14" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="2" Text="{Binding DriverNotesButtonText}" Style="{StaticResource TextButton}" Command="{Binding EditDriverNotesCommand}"
+                                        IsVisible="{Binding CanEditDriverNotes}" VerticalOptions="Start" />
+                            </Grid>
                         </VerticalStackLayout>
                     </Border>
 
@@ -136,6 +145,44 @@
                                        Style="{StaticResource BodyMedium}" TextColor="{DynamicResource Primary}" Margin="0,4,0,0" HorizontalOptions="End" />
                             </Grid>
                             </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Rate the provider  -->
+                    <Border Style="{StaticResource Card}" IsVisible="{Binding CanRate}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Rate your experience" Style="{StaticResource SectionLabel}" />
+                            <Label Text="How was your order from this provider?" Style="{StaticResource Small}" />
+                            <HorizontalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding RatingStars}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="items:StarItem">
+                                        <Label Text="&#xf005;" FontFamily="FA" FontSize="34" TextColor="{Binding StarColor}" SemanticProperties.Description="{Binding Number, StringFormat='{0} stars'}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CustomerOrderDetailViewModel}}, Path=SetStarsCommand}" CommandParameter="{Binding Number}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                            <Border Style="{StaticResource InputField}" Padding="12,4">
+                                <Editor Text="{Binding RatingComment}" Placeholder="Add a comment (optional)" MaxLength="500" AutoSize="TextChanges" MinimumHeightRequest="60" FontSize="14" />
+                            </Border>
+                            <Button Text="Submit rating" Style="{StaticResource PrimaryButton}" Command="{Binding SubmitRatingCommand}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" IsVisible="{Binding HasRating}">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Your rating" Style="{StaticResource SectionLabel}" />
+                            <HorizontalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding GivenStars}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="items:StarItem">
+                                        <Label Text="&#xf005;" FontFamily="FA" FontSize="22" TextColor="{Binding StarColor}" />
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding GivenRatingText}" Style="{StaticResource Small}" />
+                            <Label Text="{Binding GivenRatingComment}" FontSize="14" IsVisible="{Binding GivenRatingComment, Converter={StaticResource HasValue}}" />
                         </VerticalStackLayout>
                     </Border>
 

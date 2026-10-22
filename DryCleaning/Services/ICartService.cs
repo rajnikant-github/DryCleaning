@@ -19,6 +19,9 @@ public interface ICartService
     DateTime? PickupDate { get; set; }
     string? PickupSlot { get; set; }
 
+    /// <summary>Optional note for the driver, e.g. "leave the parcel at the gate".</summary>
+    string? DriverNotes { get; set; }
+
     bool BelongsToOtherProvider(Guid providerId);
     void Add(Guid providerId, string providerName, CartLine line);
     void UpdateQuantity(Guid lineId, int quantity);

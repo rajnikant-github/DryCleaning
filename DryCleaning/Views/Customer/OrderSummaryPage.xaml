@@ -46,6 +46,22 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <!--  Note for the driver  -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Text="&#xf27a;" FontSize="18" VerticalOptions="Start" FontFamily="FA" WidthRequest="25" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Note for the driver (optional)" Style="{StaticResource Small}" />
+                                <Label Text="For example: leave the parcel at the gate, or call when you arrive." Style="{StaticResource Small}" TextColor="{StaticResource MutedForeground}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Border Style="{StaticResource InputField}" Padding="12,4">
+                            <Editor Text="{Binding DriverNotes}" Placeholder="Add a note for the driver" MaxLength="300" AutoSize="TextChanges" MinimumHeightRequest="64" FontSize="14" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
                 <!--  Items  -->
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout>

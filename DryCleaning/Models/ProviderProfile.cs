@@ -6,4 +6,5 @@ public sealed class ProviderProfile
     public required User Owner { get; init; }
     public required Address Address { get; init; }
     public IReadOnlyList<Category> Categories { get; init; } = [];
+    public ProviderRatingSummary Ratings { get; init; } = new();
 }

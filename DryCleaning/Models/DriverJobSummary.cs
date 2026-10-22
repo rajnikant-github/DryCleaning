@@ -22,6 +22,9 @@ public sealed class DriverJobSummary
     public double DistanceKm { get; init; }
     public DateTime? PickupDate { get; init; }
     public string? PickupSlot { get; init; }
+
+    /// <summary>The customer's note for the driver, e.g. "leave the parcel at the gate".</summary>
+    public string? DriverNotes { get; init; }
     public DateTime CreatedAt { get; init; }
     public DateTime? AssignedAt { get; init; }
     public DateTime? CompletedAt { get; init; }

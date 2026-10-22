@@ -21,6 +21,7 @@ public sealed class CartService(AppSettings settings) : ICartService
     public Address? PickupAddress { get; set; }
     public DateTime? PickupDate { get; set; }
     public string? PickupSlot { get; set; }
+    public string? DriverNotes { get; set; }
 
     public bool BelongsToOtherProvider(Guid providerId) => ProviderId is not null && ProviderId != providerId && !IsEmpty;
 
@@ -67,6 +68,7 @@ public sealed class CartService(AppSettings settings) : ICartService
         ProviderName = string.Empty;
         PickupDate = null;
         PickupSlot = null;
+        DriverNotes = null;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

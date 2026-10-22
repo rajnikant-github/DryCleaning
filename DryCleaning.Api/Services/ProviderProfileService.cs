@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace DryCleaning.Api.Services;
 
-public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profile, IFileStorage storage, IOptions<StorageOptions> options)
+public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profile, IFileStorage storage, IOptions<StorageOptions> options, RatingService ratings)
 {
     private static readonly string[] AllowedLogoExtensions = [".jpg", ".jpeg", ".png", ".heic", ".webp"];
 
@@ -22,6 +22,8 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
             .OrderBy(c => c.DisplayOrder)
             .ToListAsync(ct);
 
+        var summary = (await ratings.SummariesAsync([provider.Id], ct)).GetValueOrDefault(provider.Id);
+
         return new ProviderProfileDto
         {
             Id = provider.Id,
@@ -33,7 +35,10 @@ public sealed class ProviderProfileService(AppDbContext db, CurrentProfile profi
             IsActive = provider.IsActive,
             Owner = owner.ToDto(provider.Id, ProfileStatusExtensions.StatusOf(provider.IsActive, provider.ApprovedAt)),
             Address = provider.Address?.ToDto(),
-            Categories = categories.Select(c => c.ToDto()).ToList()
+            Categories = categories.Select(c => c.ToDto()).ToList(),
+            RatingAverage = summary.Count == 0 ? null : summary.Average,
+            RatingCount = summary.Count,
+            LatestRatings = await ratings.LatestWithCommentsAsync(provider.Id, 5, ct)
         };
     }
 

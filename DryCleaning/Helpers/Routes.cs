@@ -29,6 +29,7 @@ public static class Routes
     public const string EditBusinessProfile = "editbusinessprofile";
     public const string ProviderCategories = "providercategories";
     public const string WorkingHours = "workinghours";
+    public const string ProviderRatings = "providerratings";
     public const string Notifications = "notifications";
     public const string IncomingOrderAlert = "incomingorderalert";
     public const string Documents = "documents";

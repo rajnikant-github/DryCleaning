@@ -13,4 +13,6 @@ public sealed class CreateOrderRequest
 
     /// <summary>Requested pickup window label, e.g. "09:00 AM – 11:00 AM".</summary>
     public string? PickupSlot { get; set; }
+    /// <summary>Optional note for the driver (up to 300 characters), e.g. "leave the parcel at the gate".</summary>
+    public string? DriverNotes { get; set; }
 }

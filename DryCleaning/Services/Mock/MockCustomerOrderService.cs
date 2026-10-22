@@ -140,7 +140,8 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
                 PickupAddressId = address.Id,
                 Status = OrderStatus.Created,
                 PickupDate = cart.PickupDate,
-                PickupSlot = cart.PickupSlot
+                PickupSlot = cart.PickupSlot,
+                DriverNotes = string.IsNullOrWhiteSpace(cart.DriverNotes) ? null : cart.DriverNotes.Trim()
             };
 
             foreach (var line in cart.Lines)
@@ -172,6 +173,25 @@ public sealed class MockCustomerOrderService(MockDataStore store, ISessionServic
             store.AddCodes(order, customer, OrderStatus.Created);
             return order.Id;
         }
+    }
+
+    public async Task UpdateDriverNotesAsync(Guid orderId, string? notes)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        lock (store.Gate)
+        {
+            var order = store.OrderById(orderId);
+            if (order.Status is not (OrderStatus.Created or OrderStatus.Confirmed or OrderStatus.PickupAssigned))
+                throw new InvalidOperationException("The note for the driver can't be changed once the items have been collected.");
+            order.DriverNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+        }
+    }
+
+    public async Task RateOrderAsync(Guid orderId, int stars, string? comment)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        // Demo data keeps no ratings; the call just succeeds.
+        _ = (orderId, stars, comment);
     }
 
     public async Task CancelOrderAsync(Guid orderId, string reason)

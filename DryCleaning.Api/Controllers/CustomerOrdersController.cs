@@ -11,7 +11,7 @@ namespace DryCleaning.Api.Controllers;
 [Route("api/customer/orders")]
 [Authorize(Roles = Roles.Customer)]
 [Produces("application/json")]
-public sealed class CustomerOrdersController(CustomerOrderService orders, PaymentService payments) : ControllerBase
+public sealed class CustomerOrdersController(CustomerOrderService orders, PaymentService payments, RatingService ratings) : ControllerBase
 {
     /// <summary>Price a cart (subtotal, VAT, delivery fee) without creating an order.</summary>
     [HttpPost("quote")]
@@ -37,6 +37,14 @@ public sealed class CustomerOrdersController(CustomerOrderService orders, Paymen
     /// <summary>Order details incl. timeline, driver info, pickup code and delivery OTP.</summary>
     [HttpGet("{id:guid}")]
     public Task<OrderDetailDto> Get(Guid id, CancellationToken ct) => orders.GetAsync(id, ct);
+
+    /// <summary>Add or change the note for the driver ("leave the parcel at the gate"). Allowed until the items are collected.</summary>
+    [HttpPut("{id:guid}/driver-notes")]
+    public Task<OrderDetailDto> UpdateDriverNotes(Guid id, DriverNotesRequest request, CancellationToken ct) => orders.UpdateDriverNotesAsync(id, request, ct);
+
+    /// <summary>Rate the service provider (1 to 5 stars and an optional comment) after the order is completed. One rating per order; it can't be changed.</summary>
+    [HttpPost("{id:guid}/rating")]
+    public Task<RatingDto> Rate(Guid id, SubmitRatingRequest request, CancellationToken ct) => ratings.SubmitAsync(id, request, ct);
 
     /// <summary>Cancel before the items are collected.</summary>
     [HttpPost("{id:guid}/cancel")]

@@ -23,6 +23,7 @@ public sealed class CreateOrderValidator : AbstractValidator<CreateOrderRequest>
             .Must(d => d is null || d.Value <= DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)))
             .WithMessage("Pickup can be scheduled up to 30 days ahead.");
         RuleFor(x => x.PickupSlot).MaximumLength(50);
+        RuleFor(x => x.DriverNotes).MaximumLength(300);
         RuleFor(x => x.PickupSlot).NotEmpty().When(x => x.PickupDate is not null)
             .WithMessage("Choose a pickup time slot.");
     }

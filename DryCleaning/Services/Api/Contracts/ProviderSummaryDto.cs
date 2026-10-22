@@ -13,4 +13,6 @@ public sealed class ProviderSummaryDto
     public List<string> Categories { get; set; } = [];
     public decimal? StartingPrice { get; set; }
     public int? FastestDays { get; set; }
+    public double? RatingAverage { get; set; }
+    public int RatingCount { get; set; }
 }

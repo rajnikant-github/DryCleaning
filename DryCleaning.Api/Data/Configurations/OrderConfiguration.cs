@@ -20,6 +20,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         b.Property(x => x.TotalAmount).HasPrecision(10, 2);
         b.Property(x => x.PickupDate).HasColumnType("date");
         b.Property(x => x.PickupSlot).HasMaxLength(50);
+        b.Property(x => x.DriverNotes).HasMaxLength(300);
         b.HasOne(x => x.Customer).WithMany(c => c.Orders).HasForeignKey(x => x.CustomerId);
         b.HasOne(x => x.ServiceProvider).WithMany(p => p.Orders).HasForeignKey(x => x.ServiceProviderId);
         b.HasOne(x => x.PickupAddress).WithMany().HasForeignKey(x => x.PickupAddressId);

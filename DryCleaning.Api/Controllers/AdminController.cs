@@ -123,6 +123,20 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     public Task<DisputeDto> ResolveDispute(Guid disputeId, ResolveDisputeRequest request, CancellationToken ct) =>
         admin.ResolveDisputeAsync(disputeId, request, ct);
 
+    // Ratings
+    /// <summary>Customer ratings of providers, newest first.</summary>
+    [HttpGet("ratings")]
+    public Task<PagedResult<AdminRatingDto>> Ratings([FromQuery] PagedRequest request, [FromQuery] bool onlyWithComment, [FromServices] RatingService ratings, CancellationToken ct) =>
+        ratings.GetAdminListAsync(request, onlyWithComment, ct);
+
+    /// <summary>Hide an abusive comment from the app (the stars still count), or show it again.</summary>
+    [HttpPut("ratings/{ratingId:guid}/comment-hidden")]
+    public async Task<IActionResult> HideRatingComment(Guid ratingId, HideCommentRequest request, [FromServices] RatingService ratings, CancellationToken ct)
+    {
+        await ratings.SetCommentHiddenAsync(ratingId, request.Hidden, ct);
+        return NoContent();
+    }
+
     // Pickup & delivery pricing
     [HttpGet("delivery-pricing")]
     public Task<DeliveryPricingDto> GetDeliveryPricing(CancellationToken ct) => pricing.GetAsync(ct);

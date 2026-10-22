@@ -1137,6 +1137,19 @@ Providers and drivers must show who they are before an admin approves them. **Ad
 
 **Privacy.** Files are stored in *protected* storage: outside `wwwroot` locally (`App_Data/protected`, git-ignored) or in a separate Azure container that never gets public or signed links. The API streams a file only to an admin (never cached, `nosniff`), and every time one is opened it is recorded in the document's history. Files are deleted `Verification:RetentionMonths` (12) months after a rejection that was never fixed, or after the account was deactivated.
 
+#### 4.13 Notes for the driver and provider ratings
+
+**Note for the driver.** The customer can add a note when placing the order (Order Summary screen) or later from the order detail
+("Note for the driver" → Add / Edit), for example "leave the parcel at the gate". It is returned as `driverNotes` on the order and on
+the driver's job (shown as a yellow *Customer note* card on both the pickup and the delivery job). It can be changed until the items
+are collected; the driver is notified of a change.
+
+**Ratings.** After an order is `Completed` the customer sees *Rate your experience* on the order detail: 1 to 5 stars and an optional
+comment, once per order. The order detail returns `canRate` and, afterwards, `rating`. Customers see each provider's average and count
+(`ratingAverage`, `ratingCount`; "New" before the first rating) on the provider list and card. The provider sees the average, the
+count and the latest comments (customer's first name only) on **Profile → Customer ratings** (a summary and the latest 2 comments; `GET /api/provider/profile`), and every rating on the **Customer ratings** page (**See all**, newest first, loaded a page at a time, with a *Comments only* switch). In the admin
+portal, **Ratings** lists every rating and lets an admin hide an abusive comment (the stars still count).
+
 ### 5. Endpoint reference
 
 *Access:* **Public** = no token; **Signed in** = any role; otherwise the listed role(s).
@@ -1202,6 +1215,8 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/customer/orders` | Customer | Query: `filter`, `page`, `pageSize`, `search` | `PagedResult<OrderSummaryDto>` | My orders by tab: `filter` = Active / Completed / Cancelled / All. |
 | `GET` | `/api/customer/orders/counts` | Customer | — | `CustomerOrderCountsDto` | Badge counts for the Active / Completed / Cancelled tabs. |
 | `GET` | `/api/customer/orders/{id}` | Customer | — | `OrderDetailDto` | Order detail: items, totals, timeline, driver jobs, photos, payments, disputes, **pickup code** and **delivery OTP**. |
+| `PUT` | `/api/customer/orders/{id}/driver-notes` | Customer | Body: `DriverNotesRequest` `{ notes }` (max 300 characters; empty clears it) | `OrderDetailDto` | Add or change the note for the driver ("leave the parcel at the gate"). Allowed until the items are collected (`Created`, `Confirmed`, `PickupAssigned`); after that 409. A driver who already accepted the pickup gets a "Customer note updated" notification. The note can also be sent when placing the order (`CreateOrderRequest.driverNotes`). |
+| `POST` | `/api/customer/orders/{id}/rating` | Customer | Body: `SubmitRatingRequest` `{ stars (1–5), comment? (max 500) }` | `RatingDto` | Rate the provider once the order is `Completed`. One rating per order; it can't be changed (409). The provider is notified. |
 | `POST` | `/api/customer/orders/{id}/cancel` | Customer | Body: `ReasonRequest` | `OrderDetailDto` | Cancel with a reason. Only before pickup (`Created`, `Confirmed`, `PickupAssigned`). Open driver jobs are cancelled; the provider is notified. |
 | `POST` | `/api/customer/orders/{id}/disputes` | Customer | Body: `IssueRequest` | `DisputeDto` | Raise a dispute: order → `Disputed` (on hold) until an admin resolves it. |
 | `POST` | `/api/customer/orders/{id}/payments/paystack` | Customer | — | `InitializePaymentResponse` | Start Paystack checkout for a `Created`, unpaid order. Open `authorizationUrl` in a browser. |
@@ -1325,6 +1340,9 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `POST` | `/api/admin/notifications/send` | Admin | Body: `SendNotificationRequest` | `SendNotificationResult` | Send an announcement to one user (`audience: User` + `userId`), `AllUsers`, `Customers`, `Providers` or `Drivers`. Each recipient gets an in-app notification (type `System`), a push to their phones and the live update in open apps. Group sends reach active customers, providers and drivers only (not admins, not deactivated accounts). `alsoEmail: true` also emails it to recipients with an email address; `emailsQueued` in the result says how many. |
 | `GET` | `/api/admin/email` | Admin | — | `EmailStatusDto` | Whether email is set up: `isConfigured`, `provider` (SendGrid / SMTP / Not configured) and `from`. Never returns keys or passwords. |
 | `POST` | `/api/admin/email/test` | Admin | Body: `TestEmailRequest` (`to`) | `204` | Sends a test email straight away (not queued); a refused send returns `400` with the mail server's reason. |
+| `GET` | `/api/provider/ratings` | Provider | Query: `onlyWithComment`, `page`, `pageSize` | `PagedResult<RatingDto>` | My customer ratings, newest first. Backs the app's *Customer ratings* page (Profile → See all). A comment an admin hid is not returned. |
+| `GET` | `/api/admin/ratings` | Admin | Query: `onlyWithComment`, `page`, `pageSize`, `search` (order number or provider) | `PagedResult<AdminRatingDto>` | All customer ratings, newest first, with the comment as written. |
+| `PUT` | `/api/admin/ratings/{id}/comment-hidden` | Admin | Body: `{ hidden }` | 204 | Hide an abusive comment from the app (the stars still count) or show it again. |
 | `GET` | `/api/admin/disputes` | Admin | Query: `status`, `page`, `pageSize`, `search` | `PagedResult<DisputeDto>` | All disputes (paged, `status`). |
 | `POST` | `/api/admin/disputes/{disputeId}/review` | Admin | — | `DisputeDto` | Mark a dispute `UnderReview`. |
 | `POST` | `/api/admin/disputes/{disputeId}/resolve` | Admin | Body: `ResolveDisputeRequest` | `DisputeDto` | Resolve or reject with a resolution text, optionally moving the order to a new status (e.g. `Processing`, `Completed`, `Cancelled`). Both parties are notified. |

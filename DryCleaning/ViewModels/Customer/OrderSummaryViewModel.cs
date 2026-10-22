@@ -22,6 +22,7 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
     [ObservableProperty] private string addressText = string.Empty;
     [ObservableProperty] private string pickupText = string.Empty;
     [ObservableProperty] private string estimatedCompletionText = string.Empty;
+    [ObservableProperty] private string driverNotes = string.Empty;
     [ObservableProperty] private decimal subTotal;
     [ObservableProperty] private decimal deliveryFee;
     [ObservableProperty] private decimal tax;
@@ -34,12 +35,15 @@ public sealed partial class OrderSummaryViewModel(ViewModelServices services, IC
     [NotifyPropertyChangedFor(nameof(HasVat))]
     private decimal vatRate;
 
+    partial void OnDriverNotesChanged(string value) => cart.DriverNotes = value;
+
     public string VatLabel => VatText.Label(VatRate);
     public bool HasVat => VatRate > 0;
 
     protected override async Task<bool> LoadDataAsync()
     {
         ProviderName = cart.ProviderName;
+        DriverNotes = cart.DriverNotes ?? string.Empty;
         AddressText = cart.PickupAddress?.FormattedAddress ?? "No address selected";
         PickupText = cart.PickupDate is { } date ? $"{date:dddd, d MMMM} · {cart.PickupSlot}" : "No time selected";
         EstimatedCompletionText = cart.PickupDate is { } pickup

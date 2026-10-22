@@ -129,6 +129,32 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         return await GetAsync(orderId, ct);
     }
 
+    /// <summary>Set or change the note for the driver. Allowed until the items are collected.</summary>
+    public async Task<OrderDetailDto> UpdateDriverNotesAsync(Guid orderId, DriverNotesRequest request, CancellationToken ct)
+    {
+        var customer = await profile.CustomerAsync(ct);
+        var order = await db.Orders
+                        .Include(o => o.DriverJobs).ThenInclude(j => j.Driver!)
+                        .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == customer.Id, ct)
+                    ?? throw new NotFoundException("Order not found.");
+
+        if (order.Status is not (OrderStatus.Created or OrderStatus.Confirmed or OrderStatus.PickupAssigned))
+            throw new ConflictException("The note for the driver can't be changed once the items have been collected.");
+
+        var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
+        if (notes == order.DriverNotes)
+            return await GetAsync(orderId, ct);
+
+        order.DriverNotes = notes;
+
+        // A driver who already accepted the pickup is told, so they read the new note.
+        foreach (var job in order.DriverJobs.Where(j => j.Status is DriverJobStatus.Assigned && j.Driver is not null))
+            db.Notify(job.Driver!.UserId, order, "Customer note updated", $"The customer updated the note for {order.OrderNumber}.");
+
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(orderId, ct);
+    }
+
     public async Task<DisputeDto> RaiseDisputeAsync(Guid orderId, IssueRequest request, CancellationToken ct)
     {
         var customer = await profile.CustomerAsync(ct);
@@ -166,7 +192,8 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         {
             ServiceProviderId = provider.Id,
             PickupDate = request.PickupDate?.ToDateTime(TimeOnly.MinValue),
-            PickupSlot = string.IsNullOrWhiteSpace(request.PickupSlot) ? null : request.PickupSlot.Trim()
+            PickupSlot = string.IsNullOrWhiteSpace(request.PickupSlot) ? null : request.PickupSlot.Trim(),
+            DriverNotes = string.IsNullOrWhiteSpace(request.DriverNotes) ? null : request.DriverNotes.Trim()
         };
 
         // One order line per cart line, so each keeps its own special instructions.

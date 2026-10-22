@@ -14,6 +14,7 @@ public sealed class OrderDetailDto
     public AddressDto? ProviderAddress { get; set; }
     public DateTime? PickupDate { get; set; }
     public string? PickupSlot { get; set; }
+    public string? DriverNotes { get; set; }
     public List<OrderItemDto> Items { get; set; } = [];
     public decimal SubTotal { get; set; }
     public decimal Tax { get; set; }
@@ -24,6 +25,8 @@ public sealed class OrderDetailDto
     public string Currency { get; set; } = string.Empty;
     public bool IsPaid { get; set; }
     public bool DriverHandedOver { get; set; }
+    public RatingDto? Rating { get; set; }
+    public bool CanRate { get; set; }
     public List<StatusHistoryDto> History { get; set; } = [];
     public List<OrderPhotoDto> Photos { get; set; } = [];
     public List<DriverJobDto> DriverJobs { get; set; } = [];

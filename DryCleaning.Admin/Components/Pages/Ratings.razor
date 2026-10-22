@@ -1,0 +1,101 @@
+@page "/ratings"
+@inherits AdminPageBase
+
+<PageTitle>Ratings – E Dry Cleaners Admin</PageTitle>
+<h1>Ratings</h1>
+
+<div class="toolbar">
+    <input class="grow" placeholder="Search order number or provider" @bind="_search" @bind:event="oninput" @onkeydown="OnKey" />
+    <label><input type="checkbox" @bind="_onlyWithComment" @bind:after="ReloadAsync" /> Only with a comment</label>
+    <button class="btn" @onclick="ReloadAsync">Search</button>
+</div>
+
+<Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
+
+<div class="card">
+    @if (_page is null || _page.Items.Count == 0)
+    {
+        <div class="empty">@(_page is null ? "Loading…" : "No ratings yet.")</div>
+    }
+    else
+    {
+        <table>
+            <thead><tr><th>Order</th><th>Provider</th><th>Customer</th><th>Stars</th><th>Comment</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var r in _page.Items)
+            {
+                <tr>
+                    <td><a href="/orders/@r.OrderId">@r.OrderNumber</a></td>
+                    <td>@r.ProviderName</td>
+                    <td>@r.CustomerName</td>
+                    <td>@(new string('★', r.Stars))<span class="muted">@(new string('☆', 5 - r.Stars))</span></td>
+                    <td>
+                        @if (string.IsNullOrWhiteSpace(r.Comment))
+                        {
+                            <span class="muted">No comment</span>
+                        }
+                        else
+                        {
+                            <span>@r.Comment</span>
+                            @if (r.CommentHidden)
+                            {
+                                <br /><span class="muted">Hidden from the app</span>
+                            }
+                        }
+                    </td>
+                    <td>@Fmt.DateTime(r.CreatedAt)</td>
+                    <td class="row-actions">
+                        @if (!string.IsNullOrWhiteSpace(r.Comment))
+                        {
+                            <button class="btn btn-sm btn-light" disabled="@Busy" @onclick="() => SetHiddenAsync(r, !r.CommentHidden)">@(r.CommentHidden ? "Show comment" : "Hide comment")</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <Pager Page="_pageNumber" TotalPages="_page.TotalPages" PageChanged="GoToPageAsync" />
+    }
+</div>
+
+@code {
+    private PagedResult<AdminRatingDto>? _page;
+    private int _pageNumber = 1;
+    private string _search = string.Empty;
+    private bool _onlyWithComment;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        return LoadAsync();
+    }
+
+    private Task GoToPageAsync(int page)
+    {
+        _pageNumber = page;
+        return LoadAsync();
+    }
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await ReloadAsync();
+    }
+
+    private async Task SetHiddenAsync(AdminRatingDto rating, bool hidden)
+    {
+        var ok = await RunAsync(() => Api.PutAsync($"api/admin/ratings/{rating.Id}/comment-hidden", new { hidden }),
+            hidden ? "The comment is now hidden from the app." : "The comment is visible in the app again.");
+        if (ok)
+            rating.CommentHidden = hidden;
+    }
+
+    private Task LoadAsync() => RunAsync(async () =>
+    {
+        var query = $"api/admin/ratings?page={_pageNumber}&pageSize=20&onlyWithComment={_onlyWithComment.ToString().ToLowerInvariant()}";
+        if (!string.IsNullOrWhiteSpace(_search)) query += "&search=" + Uri.EscapeDataString(_search.Trim());
+        _page = await Api.GetAsync<PagedResult<AdminRatingDto>>(query);
+    });
+}

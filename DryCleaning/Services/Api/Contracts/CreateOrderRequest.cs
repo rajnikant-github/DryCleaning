@@ -9,4 +9,5 @@ public sealed class CreateOrderRequest
     public List<CreateOrderItemRequest> Items { get; set; } = [];
     public DateOnly? PickupDate { get; set; }
     public string? PickupSlot { get; set; }
+    public string? DriverNotes { get; set; }
 }

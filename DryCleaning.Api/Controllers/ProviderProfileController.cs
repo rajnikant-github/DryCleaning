@@ -16,6 +16,11 @@ public sealed class ProviderProfileController(ProviderProfileService profiles, P
     [HttpGet("profile")]
     public Task<ProviderProfileDto> GetProfile(CancellationToken ct) => profiles.GetAsync(ct);
 
+    /// <summary>My customer ratings, newest first (paged). <c>onlyWithComment</c> hides ratings that are stars only.</summary>
+    [HttpGet("ratings")]
+    public Task<PagedResult<RatingDto>> Ratings([FromQuery] PagedRequest request, [FromQuery] bool onlyWithComment, [FromServices] RatingService ratings, CancellationToken ct) =>
+        ratings.GetMineAsync(request, onlyWithComment, ct);
+
     [HttpPut("profile")]
     public Task<ProviderProfileDto> UpdateProfile(UpdateProviderProfileRequest request, CancellationToken ct) => profiles.UpdateAsync(request, ct);
 

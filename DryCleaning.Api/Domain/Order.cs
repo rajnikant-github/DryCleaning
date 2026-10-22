@@ -23,6 +23,9 @@ public class Order : EntityBase
     /// <summary>Requested pickup window, e.g. "09:00 AM – 11:00 AM" (schema addition: Orders.PickupSlot).</summary>
     public string? PickupSlot { get; set; }
 
+    /// <summary>The customer's note for the driver, e.g. "leave the parcel at the gate" (editable until the items are collected).</summary>
+    public string? DriverNotes { get; set; }
+
     public Customer Customer { get; set; } = null!;
     public Provider ServiceProvider { get; set; } = null!;
     public Address PickupAddress { get; set; } = null!;
@@ -34,6 +37,9 @@ public class Order : EntityBase
     public ICollection<Payment> Payments { get; set; } = [];
     public ICollection<DriverJob> DriverJobs { get; set; } = [];
     public ICollection<Dispute> Disputes { get; set; } = [];
+
+    /// <summary>The customer's rating of the provider (one per completed order).</summary>
+    public Rating? Rating { get; set; }
 
     /// <summary>Moves the order to a new status (validated) and records history.</summary>
     public OrderStatusHistory ChangeStatus(OrderStatus to, Guid? changedByUserId, string? notes = null)

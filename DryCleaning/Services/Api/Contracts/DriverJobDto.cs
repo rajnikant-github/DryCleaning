@@ -26,5 +26,6 @@ public sealed class DriverJobDto
     public OrderStatus OrderStatus { get; set; }
     public DateTime? PickupDate { get; set; }
     public string? PickupSlot { get; set; }
+    public string? DriverNotes { get; set; }
     public bool IsOnHold { get; set; }
 }

@@ -105,6 +105,7 @@ public static class MauiProgram
             .AddPage<EditBusinessProfilePage, EditBusinessProfileViewModel>()
             .AddPage<ProviderCategoriesPage, ProviderCategoriesViewModel>()
             .AddPage<WorkingHoursPage, WorkingHoursViewModel>()
+            .AddPage<RatingsPage, RatingsViewModel>()
             .AddPage<DashboardPage, DashboardViewModel>()
             .AddPage<OrdersPage, OrdersViewModel>()
             .AddPage<OrderHistoryPage, OrderHistoryViewModel>()

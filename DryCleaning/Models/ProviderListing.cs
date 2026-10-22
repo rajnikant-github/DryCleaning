@@ -9,4 +9,6 @@ public sealed class ProviderListing
     public IReadOnlyList<string> Categories { get; init; } = [];
     public decimal? StartingPrice { get; init; }
     public int? FastestDays { get; init; }
+    public double? RatingAverage { get; init; }
+    public int RatingCount { get; init; }
 }

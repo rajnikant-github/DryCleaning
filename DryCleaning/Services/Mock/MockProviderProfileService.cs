@@ -27,6 +27,12 @@ public sealed class MockProviderProfileService(MockDataStore store, ISessionServ
         }
     }
 
+    public async Task<RatingsPage> GetRatingsAsync(int page, int pageSize, bool onlyWithComment)
+    {
+        await MockDataStore.SimulateLatencyAsync();
+        return new RatingsPage(); // demo data keeps no ratings
+    }
+
     public async Task UpdateProfileAsync(ProviderProfileUpdate update)
     {
         await MockDataStore.SimulateLatencyAsync();

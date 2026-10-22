@@ -34,6 +34,8 @@ public sealed partial class DriverJobDetailViewModel(ViewModelServices services,
     [ObservableProperty] private string routeDistanceText = string.Empty;
     [ObservableProperty] private string slotText = string.Empty;
     [ObservableProperty] private bool hasSlot;
+    [ObservableProperty] private string customerNote = string.Empty;
+    [ObservableProperty] private bool hasCustomerNote;
     [ObservableProperty] private bool showContacts;
 
     [ObservableProperty] private bool canAccept;
@@ -65,6 +67,9 @@ public sealed partial class DriverJobDetailViewModel(ViewModelServices services,
         RouteDistanceText = $"{Geo.DistanceText(job.DistanceKm)} · ~{Geo.EtaMinutes(job.DistanceKm)} min drive";
         HasSlot = job.IsPickup && job.PickupDate is not null;
         SlotText = job.PickupDate is { } date ? $"{DriverText.Day(date)}{(string.IsNullOrEmpty(job.PickupSlot) ? "" : $" · {job.PickupSlot}")}" : string.Empty;
+
+        CustomerNote = job.DriverNotes ?? string.Empty;
+        HasCustomerNote = !string.IsNullOrWhiteSpace(CustomerNote);
 
         // Phone numbers are only shared once the driver has the job.
         ShowContacts = d.IsMine && d.NextStep is not (DriverJobStep.Done or DriverJobStep.Unavailable);

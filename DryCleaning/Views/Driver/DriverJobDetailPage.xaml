@@ -87,6 +87,12 @@
                         <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource InfoSoft}" IsVisible="{Binding HasSlot}" Padding="12,8">
                             <Label TextColor="{StaticResource InfoDark}" FontSize="13" ><Label.FormattedText><FormattedString><Span Text="&#xf017;" FontFamily="FA" /><Span Text="{Binding SlotText, StringFormat='  Customer pickup window: {0}'}" /></FormattedString></Label.FormattedText></Label>
                         </Border>
+                        <Border Style="{StaticResource SoftPanel}" BackgroundColor="{StaticResource WarningSoft}" IsVisible="{Binding HasCustomerNote}" Padding="12,8">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Customer note" FontSize="12" FontFamily="AppSemibold" TextColor="{StaticResource WarningDark}" />
+                                <Label Text="{Binding CustomerNote}" FontSize="14" TextColor="{StaticResource WarningDark}" />
+                            </VerticalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
                 </Border>
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  All customer ratings of this provider  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:items="clr-namespace:DryCleaning.ViewModels.Items"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels.Provider"
+                x:Class="DryCleaning.Views.Provider.RatingsPage"
+                x:DataType="vm:RatingsViewModel"
+                Title="Customer ratings">
+    <Grid RowDefinitions="Auto,*">
+        <Border Style="{StaticResource Card}" Margin="16,12,16,4">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                <Label Text="&#xf005;" FontFamily="FA" FontSize="30" TextColor="#F59E0B" VerticalOptions="Center" />
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding AverageText}" Style="{StaticResource H2}" />
+                    <Label Text="{Binding SummaryText}" Style="{StaticResource Small}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2" HorizontalOptions="End">
+                    <Label Text="Comments only" Style="{StaticResource Small}" HorizontalTextAlignment="End" />
+                    <Switch IsToggled="{Binding OnlyWithComment}" HorizontalOptions="End" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <RefreshView Grid.Row="1" IsVisible="{Binding IsContent}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Ratings}" SelectionMode="None"
+                            RemainingItemsThreshold="4" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.Header>
+                    <BoxView HeightRequest="8" Color="Transparent" />
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:RatingRowItem">
+                        <Border Style="{StaticResource Card}" Margin="16,0,16,10">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding StarsText}" FontSize="18" TextColor="#F59E0B" />
+                                    <Label Grid.Column="1" Text="{Binding DateText}" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="{Binding Who}" Style="{StaticResource Small}" />
+                                <Label Text="{Binding Comment}" FontSize="14" IsVisible="{Binding HasComment}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <controls:PageStateView Grid.Row="1"
+                                State="{Binding State}"
+                                RetryCommand="{Binding RetryCommand}"
+                                ErrorMessage="{Binding ErrorMessage}"
+                                EmptyIcon="&#xf005;"
+                                EmptyTitle="No ratings to show"
+                                EmptyMessage="Ratings appear here after customers rate their completed orders." />
+    </Grid>
+</views:BasePage>

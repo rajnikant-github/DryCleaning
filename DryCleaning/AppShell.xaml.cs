@@ -24,6 +24,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(Routes.EditBusinessProfile, typeof(EditBusinessProfilePage));
         Routing.RegisterRoute(Routes.ProviderCategories, typeof(ProviderCategoriesPage));
         Routing.RegisterRoute(Routes.WorkingHours, typeof(WorkingHoursPage));
+        Routing.RegisterRoute(Routes.ProviderRatings, typeof(RatingsPage));
         Routing.RegisterRoute(Routes.Notifications, typeof(NotificationsPage));
         Routing.RegisterRoute(Routes.IncomingOrderAlert, typeof(IncomingOrderAlertPage));
         Routing.RegisterRoute(Routes.OrderDetail, typeof(OrderDetailPage));

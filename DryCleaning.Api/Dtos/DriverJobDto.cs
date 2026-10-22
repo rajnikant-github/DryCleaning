@@ -25,5 +25,8 @@ public sealed class DriverJobDto
     public required OrderStatus OrderStatus { get; init; }
     public required DateTime? PickupDate { get; init; }
     public required string? PickupSlot { get; init; }
+
+    /// <summary>The customer's note for the driver (leave at the gate, etc.).</summary>
+    public required string? DriverNotes { get; init; }
     public required bool IsOnHold { get; init; }
 }

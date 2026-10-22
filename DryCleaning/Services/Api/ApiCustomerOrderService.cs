@@ -94,6 +94,7 @@ public sealed class ApiCustomerOrderService(ApiClient api, ISessionService sessi
             ServiceProviderId = cart.ProviderId.Value,
             PickupDate = System.DateOnly.FromDateTime(cart.PickupDate.Value),
             PickupSlot = cart.PickupSlot,
+            DriverNotes = string.IsNullOrWhiteSpace(cart.DriverNotes) ? null : cart.DriverNotes.Trim(),
             Items = cart.Lines.Select(l => new CreateOrderItemRequest
             {
                 ServiceItemId = l.ServiceItemId,
@@ -119,6 +120,13 @@ public sealed class ApiCustomerOrderService(ApiClient api, ISessionService sessi
 
     public Task CancelOrderAsync(Guid orderId, string reason) =>
         api.SendAsync(HttpMethod.Post, $"api/customer/orders/{orderId}/cancel", new ReasonRequest { Reason = reason }, Json.ReasonRequest);
+
+    public Task UpdateDriverNotesAsync(Guid orderId, string? notes) =>
+        api.SendAsync(HttpMethod.Put, $"api/customer/orders/{orderId}/driver-notes", new DriverNotesRequest { Notes = notes }, Json.DriverNotesRequest);
+
+    public Task RateOrderAsync(Guid orderId, int stars, string? comment) =>
+        api.SendAsync(HttpMethod.Post, $"api/customer/orders/{orderId}/rating",
+            new SubmitRatingRequest { Stars = stars, Comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim() }, Json.SubmitRatingRequest);
 
     public Task RaiseDisputeAsync(Guid orderId, string reason, string description) =>
         api.SendAsync(HttpMethod.Post, $"api/customer/orders/{orderId}/disputes",

@@ -416,6 +416,7 @@ public sealed class MockDriverService(MockDataStore store, ISessionService sessi
             DistanceKm = Geo.DistanceKm(from, to),
             PickupDate = order.PickupDate,
             PickupSlot = order.PickupSlot,
+            DriverNotes = order.DriverNotes,
             CreatedAt = job.CreatedAt,
             AssignedAt = job.AssignedAt,
             CompletedAt = job.CompletedAt,

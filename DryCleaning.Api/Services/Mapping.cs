@@ -185,10 +185,26 @@ public static class Mapping
         .Include(o => o.Payments)
         .Include(o => o.Verifications)
         .Include(o => o.Disputes).ThenInclude(d => d.RaisedByUser)
+        .Include(o => o.Rating)
         .Include(o => o.DriverJobs).ThenInclude(j => j.Driver!).ThenInclude(d => d.User)
         .Include(o => o.DriverJobs).ThenInclude(j => j.PickupAddress)
         .Include(o => o.DriverJobs).ThenInclude(j => j.DeliveryAddress)
         .AsSplitQuery();
+
+    /// <summary>The first word of the customer's name, so a provider never sees the full name in a rating.</summary>
+    public static string FirstName(string? fullName) =>
+        string.IsNullOrWhiteSpace(fullName) ? "Customer" : fullName.Trim().Split(' ', 2)[0];
+
+    public static RatingDto ToDto(this Rating r, string orderNumber, string customerName) => new()
+    {
+        Id = r.Id,
+        OrderId = r.OrderId,
+        OrderNumber = orderNumber,
+        Stars = r.Stars,
+        Comment = r.CommentHidden ? null : r.Comment,
+        CustomerName = FirstName(customerName),
+        CreatedAt = r.CreatedAt
+    };
 
     public static bool IsPaid(this Order o) => o.Payments.Any(p => p.Status == PaymentStatus.Success);
 
@@ -259,6 +275,7 @@ public static class Mapping
             OrderStatus = order.Status,
             PickupDate = order.PickupDate,
             PickupSlot = order.PickupSlot,
+            DriverNotes = order.DriverNotes,
             IsOnHold = order.Status == OrderStatus.Disputed
         };
     }
@@ -320,6 +337,7 @@ public static class Mapping
         ProviderAddress = o.ServiceProvider.Address?.ToDto(),
         PickupDate = o.PickupDate,
         PickupSlot = o.PickupSlot,
+        DriverNotes = o.DriverNotes,
         Items = o.Items.OrderBy(i => i.CreatedAt).Select(i => i.ToDto()).ToList(),
         SubTotal = o.SubTotal,
         Tax = o.Tax,
@@ -330,6 +348,8 @@ public static class Mapping
         Currency = currency,
         IsPaid = o.IsPaid(),
         DriverHandedOver = o.DriverHandedOver(),
+        Rating = o.Rating?.ToDto(o.OrderNumber, o.Customer.User.Name),
+        CanRate = includeCustomerCodes && o.Status == OrderStatus.Completed && o.Rating is null,
         History = o.StatusHistory.OrderBy(h => h.CreatedAt).Select(h => new StatusHistoryDto
         {
             Status = h.Status,

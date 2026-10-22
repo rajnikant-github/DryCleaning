@@ -23,6 +23,9 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
     [ObservableProperty] private string email = string.Empty;
     [ObservableProperty] private string address = string.Empty;
     [ObservableProperty] private string categoriesText = string.Empty;
+    [ObservableProperty] private string ratingSummaryText = string.Empty;
+    [ObservableProperty] private bool hasRatings;
+    [ObservableProperty] private string latestRatingsText = string.Empty;
     [ObservableProperty] private string ownerInitials = string.Empty;
     [ObservableProperty] private ImageSource? photoSource;
 
@@ -54,8 +57,17 @@ public sealed partial class ProfileViewModel(ViewModelServices services, IProvid
         Address = profile.Address.FormattedAddress;
         LogoSource = ImageSources.FromPathOrUrl(profile.Provider.LogoUrl);
         CategoriesText = string.Join("  ·  ", profile.Categories.Select(c => c.Name));
+        HasRatings = profile.Ratings.Count > 0;
+        RatingSummaryText = profile.Ratings is { Average: { } average, Count: > 0 } r
+            ? $"{average:0.0} out of 5 · {r.Count} {(r.Count == 1 ? "rating" : "ratings")}"
+            : "No ratings yet";
+        LatestRatingsText = string.Join("\n\n", profile.Ratings.Latest.Take(2)
+            .Select(x => $"{new string('★', x.Stars)}{new string('☆', 5 - x.Stars)}  {x.CustomerName}\n{x.Comment}"));
         return true;
     }
+
+    [RelayCommand]
+    private Task OpenRatingsAsync() => Navigation.GoToAsync(Routes.ProviderRatings);
 
     [RelayCommand]
     private Task ChangePhotoAsync() => RunBusyAsync(async () =>

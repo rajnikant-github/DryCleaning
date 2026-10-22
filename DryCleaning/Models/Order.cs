@@ -20,4 +20,7 @@ public sealed class Order : EntityBase
 
     /// <summary>Requested pickup window, e.g. "09:00 – 11:00" (added to schema: Orders.PickupSlot).</summary>
     public string? PickupSlot { get; set; }
+
+    /// <summary>The customer's note for the driver, e.g. "leave the parcel at the gate".</summary>
+    public string? DriverNotes { get; set; }
 }

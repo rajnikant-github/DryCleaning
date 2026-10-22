@@ -117,6 +117,7 @@ builder.Services.AddHostedService<DocumentRetentionService>();
 builder.Services.AddScoped<VerificationUploadLimitFilter>();
 builder.Services.Configure<VerificationOptions>(builder.Configuration.GetSection(VerificationOptions.Section));
 builder.Services.AddScoped<CustomerOrderService>();
+builder.Services.AddScoped<RatingService>();
 builder.Services.AddScoped<ProviderOrderService>();
 builder.Services.AddScoped<DriverService>();
 builder.Services.AddScoped<PaymentService>();

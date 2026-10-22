@@ -21,6 +21,9 @@ public interface IProviderProfileService
     /// <summary>Sets which categories this provider offers (at least one).</summary>
     Task SetCategoriesAsync(IReadOnlyList<Guid> categoryIds);
 
+    /// <summary>One page of my customer ratings, newest first.</summary>
+    Task<RatingsPage> GetRatingsAsync(int page, int pageSize, bool onlyWithComment);
+
     /// <summary>My pickup days and hours: seven entries, Sunday first.</summary>
     Task<IReadOnlyList<WorkingHour>> GetWorkingHoursAsync();
 

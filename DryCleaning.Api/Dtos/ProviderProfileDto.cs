@@ -14,4 +14,9 @@ public sealed class ProviderProfileDto
     public required UserDto Owner { get; init; }
     public required AddressDto? Address { get; init; }
     public required IReadOnlyList<CategoryDto> Categories { get; init; }
+    public required double? RatingAverage { get; init; }
+    public required int RatingCount { get; init; }
+
+    /// <summary>The newest ratings that have a visible comment.</summary>
+    public required IReadOnlyList<RatingDto> LatestRatings { get; init; }
 }

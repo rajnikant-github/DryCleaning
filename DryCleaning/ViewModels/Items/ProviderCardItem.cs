@@ -20,5 +20,9 @@ public sealed class ProviderCardItem(ProviderListing provider, Func<ProviderList
         1 => "Next day available",
         var d => $"From {d} days"
     };
+    public string RatingText => provider.RatingAverage is { } average && provider.RatingCount > 0
+        ? $"  {average:0.0} ({provider.RatingCount})"
+        : "  New";
+
     public IAsyncRelayCommand OpenCommand { get; } = new AsyncRelayCommand(() => open(provider));
 }

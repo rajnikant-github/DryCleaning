@@ -26,7 +26,13 @@ public sealed class ApiProviderProfileService(ApiClient api) : IProviderProfileS
             },
             Owner = ApiMapping.ToUser(dto.Owner),
             Address = address,
-            Categories = dto.Categories.OrderBy(c => c.DisplayOrder).Select(ApiMapping.ToCategory).ToList()
+            Categories = dto.Categories.OrderBy(c => c.DisplayOrder).Select(ApiMapping.ToCategory).ToList(),
+            Ratings = new ProviderRatingSummary
+            {
+                Average = dto.RatingAverage,
+                Count = dto.RatingCount,
+                Latest = dto.LatestRatings.Select(ApiMapping.ToRating).ToList()
+            }
         };
     }
 
@@ -41,6 +47,18 @@ public sealed class ApiProviderProfileService(ApiClient api) : IProviderProfileS
                 LogoUrl = api.RelativeUrl(update.LogoUrl)
             },
             ApiJsonContext.Default.UpdateProviderProfileRequest);
+
+    public async Task<RatingsPage> GetRatingsAsync(int page, int pageSize, bool onlyWithComment)
+    {
+        var result = await api.GetAsync(
+            $"api/provider/ratings?page={page}&pageSize={pageSize}&onlyWithComment={onlyWithComment.ToString().ToLowerInvariant()}",
+            ApiJsonContext.Default.PagedResultRatingDto);
+        return new RatingsPage
+        {
+            Items = result.Items.Select(ApiMapping.ToRating).ToList(),
+            HasMore = page * pageSize < result.TotalCount
+        };
+    }
 
     public async Task<Address> SaveAddressAsync(Address address) =>
         ApiMapping.ToAddress(await api.SendAsync(HttpMethod.Put, "api/me/address", ApiMapping.ToUpsert(address),

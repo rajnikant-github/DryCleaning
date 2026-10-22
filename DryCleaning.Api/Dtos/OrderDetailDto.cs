@@ -13,6 +13,9 @@ public sealed class OrderDetailDto
     public required AddressDto? ProviderAddress { get; init; }
     public required DateTime? PickupDate { get; init; }
     public required string? PickupSlot { get; init; }
+
+    /// <summary>The customer's note for the driver (leave at the gate, etc.).</summary>
+    public required string? DriverNotes { get; init; }
     public required IReadOnlyList<OrderItemDto> Items { get; init; }
     public required decimal SubTotal { get; init; }
     public required decimal Tax { get; init; }
@@ -29,6 +32,12 @@ public sealed class OrderDetailDto
 
     /// <summary>True once the driver has handed the picked-up items over to the provider (the pickup job is completed).</summary>
     public required bool DriverHandedOver { get; init; }
+
+    /// <summary>The customer's rating of the provider, once given.</summary>
+    public required RatingDto? Rating { get; init; }
+
+    /// <summary>True when the order is completed and not rated yet (customers only).</summary>
+    public required bool CanRate { get; init; }
     public required IReadOnlyList<StatusHistoryDto> History { get; init; }
     public required IReadOnlyList<OrderPhotoDto> Photos { get; init; }
     public required IReadOnlyList<DriverJobDto> DriverJobs { get; init; }

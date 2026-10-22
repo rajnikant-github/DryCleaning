@@ -31,6 +31,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<DriverJob> DriverJobs => Set<DriverJob>();
     public DbSet<Dispute> Disputes => Set<Dispute>();
+    public DbSet<Rating> Ratings => Set<Rating>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     // Schema additions: push devices and refresh tokens

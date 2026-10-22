@@ -37,7 +37,10 @@
                                         <Label Style="{StaticResource Small}" TextColor="{StaticResource InfoDark}" VerticalOptions="Center" ><Label.FormattedText><FormattedString><Span Text="&#xf2f2;" FontFamily="FA" /><Span Text="{Binding TurnaroundText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
                                         <Label Grid.Column="1" Text="{Binding StartingPriceText}" TextColor="{DynamicResource Primary}" FontFamily="AppSemibold" FontSize="14" />
                                     </Grid>
-                                    <Label Text="{Binding CategoriesText}" Style="{StaticResource Small}" />
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding CategoriesText}" Style="{StaticResource Small}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Style="{StaticResource Small}" VerticalOptions="Center"><Label.FormattedText><FormattedString><Span Text="&#xf005;" FontFamily="FA" TextColor="#F59E0B" /><Span Text="{Binding RatingText}" /></FormattedString></Label.FormattedText></Label>
+                                    </Grid>
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>

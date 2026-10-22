@@ -589,6 +589,10 @@ namespace DryCleaning.Api.Data.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<string>("DriverNotes")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1091,6 +1095,48 @@ namespace DryCleaning.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("ProviderWorkingHours", (string)null);
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.Rating", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("CommentHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServiceProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Stars")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.ToTable("Ratings", (string)null);
                 });
 
             modelBuilder.Entity("DryCleaning.Api.Domain.RefreshToken", b =>
@@ -1657,6 +1703,33 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("ServiceProvider");
                 });
 
+            modelBuilder.Entity("DryCleaning.Api.Domain.Rating", b =>
+                {
+                    b.HasOne("DryCleaning.Api.Domain.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DryCleaning.Api.Domain.Order", "Order")
+                        .WithOne("Rating")
+                        .HasForeignKey("DryCleaning.Api.Domain.Rating", "OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DryCleaning.Api.Domain.Provider", "ServiceProvider")
+                        .WithMany()
+                        .HasForeignKey("ServiceProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("ServiceProvider");
+                });
+
             modelBuilder.Entity("DryCleaning.Api.Domain.RefreshToken", b =>
                 {
                     b.HasOne("DryCleaning.Api.Domain.User", "User")
@@ -1745,6 +1818,8 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Navigation("Payments");
 
                     b.Navigation("Photos");
+
+                    b.Navigation("Rating");
 
                     b.Navigation("StatusHistory");
 

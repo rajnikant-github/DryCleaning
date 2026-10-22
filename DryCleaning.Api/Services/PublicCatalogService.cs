@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Services;
 
 /// <summary>Customer-facing catalog: Category → Provider → Product → Service Item.</summary>
-public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOptions> marketplace)
+public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOptions> marketplace, RatingService ratings)
 {
     public async Task<PagedResult<ProviderSummaryDto>> GetProvidersAsync(Guid? categoryId, PagedRequest request, CancellationToken ct)
     {
@@ -25,7 +25,8 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             query = query.Where(p => p.BusinessName.Contains(request.Search));
 
         var (items, total) = await query.OrderBy(p => p.BusinessName).AsSplitQuery().PageAsync(request, ct);
-        var dtos = items.Select(p => ToSummary(p, categoryId)).ToList();
+        var summaries = await ratings.SummariesAsync(items.Select(p => p.Id).ToList(), ct);
+        var dtos = items.Select(p => ToSummary(p, categoryId, summaries.GetValueOrDefault(p.Id))).ToList();
 
         return new PagedResult<ProviderSummaryDto>
         {
@@ -46,7 +47,8 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == providerId && p.IsActive && p.User.IsActive, ct)
             ?? throw new NotFoundException("Service provider not found.");
-        return ToSummary(provider, categoryId);
+        var summaries = await ratings.SummariesAsync([provider.Id], ct);
+        return ToSummary(provider, categoryId, summaries.GetValueOrDefault(provider.Id));
     }
 
     /// <summary>C08 – one product with its active service items (prices).</summary>
@@ -61,7 +63,7 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
         return product.ToDto(activeItemsOnly: true);
     }
 
-    private static ProviderSummaryDto ToSummary(Provider p, Guid? categoryId)
+    private static ProviderSummaryDto ToSummary(Provider p, Guid? categoryId, (double Average, int Count) rating)
     {
         var activeItems = p.Products
             .Where(pr => pr.IsActive && (categoryId == null || pr.CategoryId == categoryId))
@@ -76,7 +78,9 @@ public sealed class PublicCatalogService(AppDbContext db, IOptions<MarketplaceOp
             Locality = p.Address?.SubLocality ?? p.Address?.Locality,
             Categories = p.Categories.Where(c => c.IsActive && c.Category.IsActive).Select(c => c.Category.Name).ToList(),
             StartingPrice = activeItems.Count == 0 ? null : activeItems.Min(s => s.Price),
-            FastestDays = activeItems.Count == 0 ? null : activeItems.Min(s => s.EstimatedDays)
+            FastestDays = activeItems.Count == 0 ? null : activeItems.Min(s => s.EstimatedDays),
+            RatingAverage = rating.Count == 0 ? null : rating.Average,
+            RatingCount = rating.Count
         };
     }
 

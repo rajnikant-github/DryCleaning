@@ -15,4 +15,7 @@ public sealed class ProviderProfileDto
     public UserDto Owner { get; set; } = new();
     public AddressDto? Address { get; set; }
     public List<CategoryDto> Categories { get; set; } = [];
+    public double? RatingAverage { get; set; }
+    public int RatingCount { get; set; }
+    public List<RatingDto> LatestRatings { get; set; } = [];
 }

@@ -14,4 +14,8 @@ public sealed class ProviderSummaryDto
 
     /// <summary>Shortest EstimatedDays among the provider's active items (in the requested category, if any).</summary>
     public required int? FastestDays { get; init; }
+
+    /// <summary>Average stars (1 decimal) from customers, or null before the first rating.</summary>
+    public required double? RatingAverage { get; init; }
+    public required int RatingCount { get; init; }
 }

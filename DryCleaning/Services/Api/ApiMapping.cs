@@ -124,7 +124,20 @@ public static class ApiMapping
         Locality = dto.Locality,
         Categories = dto.Categories,
         StartingPrice = dto.StartingPrice,
-        FastestDays = dto.FastestDays
+        FastestDays = dto.FastestDays,
+        RatingAverage = dto.RatingAverage,
+        RatingCount = dto.RatingCount
+    };
+
+    public static Rating ToRating(RatingDto dto) => new()
+    {
+        Id = dto.Id,
+        OrderId = dto.OrderId,
+        OrderNumber = dto.OrderNumber,
+        Stars = dto.Stars,
+        Comment = dto.Comment,
+        CustomerName = dto.CustomerName,
+        CreatedAt = Local(dto.CreatedAt)
     };
 
     public static ServiceItem ToServiceItem(ServiceItemDto dto) => new()
@@ -241,6 +254,7 @@ public static class ApiMapping
                 TotalAmount = dto.TotalAmount,
                 PickupDate = CalendarDate(dto.PickupDate),
                 PickupSlot = dto.PickupSlot,
+                DriverNotes = dto.DriverNotes,
                 CreatedAt = Local(dto.CreatedAt),
                 UpdatedAt = Local(dto.UpdatedAt)
             },
@@ -288,7 +302,9 @@ public static class ApiMapping
             ProviderAddress = dto.ProviderAddress is null ? null : ToAddress(dto.ProviderAddress),
             PickupCode = dto.PickupCode,
             DeliveryOtp = dto.DeliveryOtp,
-            DriverHandedOver = dto.DriverHandedOver
+            DriverHandedOver = dto.DriverHandedOver,
+            Rating = dto.Rating is null ? null : ToRating(dto.Rating),
+            CanRate = dto.CanRate
         };
     }
 
@@ -367,6 +383,7 @@ public static class ApiMapping
             DistanceKm = Geo.DistanceKm(from, to),
             PickupDate = CalendarDate(dto.PickupDate),
             PickupSlot = dto.PickupSlot,
+            DriverNotes = dto.DriverNotes,
             CreatedAt = Local(dto.CreatedAt),
             AssignedAt = Local(dto.AssignedAt),
             CompletedAt = Local(dto.CompletedAt),
@@ -420,6 +437,7 @@ public static class ApiMapping
         DistanceKm = s.DistanceKm,
         PickupDate = s.PickupDate,
         PickupSlot = s.PickupSlot,
+        DriverNotes = s.DriverNotes,
         CreatedAt = s.CreatedAt,
         AssignedAt = s.AssignedAt,
         CompletedAt = s.CompletedAt,

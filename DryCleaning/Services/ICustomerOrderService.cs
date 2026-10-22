@@ -15,5 +15,11 @@ public interface ICustomerOrderService
     /// <summary>Creates the order from the cart (prices recalculated). Returns the new order id.</summary>
     Task<Guid> PlaceOrderAsync(ICartService cart);
     Task CancelOrderAsync(Guid orderId, string reason);
+
+    /// <summary>Add, change or clear the note for the driver (allowed until the items are collected).</summary>
+    Task UpdateDriverNotesAsync(Guid orderId, string? notes);
+
+    /// <summary>Rate the provider after the order is completed: 1 to 5 stars and an optional comment. One rating per order.</summary>
+    Task RateOrderAsync(Guid orderId, int stars, string? comment);
     Task RaiseDisputeAsync(Guid orderId, string reason, string description);
 }

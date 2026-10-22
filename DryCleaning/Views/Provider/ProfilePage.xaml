@@ -63,6 +63,17 @@
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Customer ratings" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="See all" Style="{StaticResource TextButton}" Command="{Binding OpenRatingsCommand}" IsVisible="{Binding HasRatings}" />
+                        </Grid>
+                        <Label FontSize="14"><Label.FormattedText><FormattedString><Span Text="&#xf005;" FontFamily="FA" TextColor="#F59E0B" /><Span Text="{Binding RatingSummaryText, StringFormat='  {0}'}" /></FormattedString></Label.FormattedText></Label>
+                        <Label Text="{Binding LatestRatingsText}" Style="{StaticResource Small}" IsVisible="{Binding HasRatings}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Enabled categories" Style="{StaticResource SectionLabel}" Margin="0" VerticalOptions="Center" />
                             <Button Grid.Column="1" Text="Manage" Style="{StaticResource TextButton}" Command="{Binding ManageCategoriesCommand}" />
                         </Grid>

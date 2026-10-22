@@ -20,6 +20,12 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
     public ObservableCollection<ExtraChargeLine> ExtraCharges { get; } = [];
     public ObservableCollection<TimelineStep> Timeline { get; } = [];
 
+    /// <summary>The five tappable stars of the "Rate your experience" card.</summary>
+    public ObservableCollection<StarItem> RatingStars { get; } = [.. Enumerable.Range(1, 5).Select(n => new StarItem(n))];
+
+    /// <summary>The five read-only stars of a rating that was already given.</summary>
+    public ObservableCollection<StarItem> GivenStars { get; } = [.. Enumerable.Range(1, 5).Select(n => new StarItem(n))];
+
     [ObservableProperty] private string createdText = string.Empty;
     [ObservableProperty] private string statusMessage = string.Empty;
     [ObservableProperty] private string addressText = string.Empty;
@@ -35,6 +41,17 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
     [ObservableProperty] private bool isPaid;
     [ObservableProperty] private bool canPay;
     [ObservableProperty] private bool canCancel;
+    [ObservableProperty] private bool canRate;
+    [ObservableProperty] private bool hasRating;
+    [ObservableProperty] private int selectedStars;
+    [ObservableProperty] private string ratingComment = string.Empty;
+    [ObservableProperty] private string givenRatingText = string.Empty;
+    [ObservableProperty] private string givenRatingComment = string.Empty;
+    [ObservableProperty] private bool showDriverNotes;
+    [ObservableProperty] private bool canEditDriverNotes;
+    [ObservableProperty] private string driverNotes = string.Empty;
+    [ObservableProperty] private string driverNotesText = string.Empty;
+    [ObservableProperty] private string driverNotesButtonText = "Add";
     [ObservableProperty] private bool canRaiseDispute;
     [ObservableProperty] private bool isActive;
 
@@ -78,6 +95,12 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
 
         CanPay = order.Status == OrderStatus.Created && !d.IsPaid;
         CanCancel = order.Status is OrderStatus.Created or OrderStatus.Confirmed or OrderStatus.PickupAssigned;
+        // The note can be added or changed until the driver has collected the items.
+        CanEditDriverNotes = CanCancel;
+        DriverNotes = order.DriverNotes ?? string.Empty;
+        DriverNotesText = string.IsNullOrWhiteSpace(DriverNotes) ? "No note added" : DriverNotes;
+        DriverNotesButtonText = string.IsNullOrWhiteSpace(DriverNotes) ? "Add" : "Edit";
+        ShowDriverNotes = CanEditDriverNotes || !string.IsNullOrWhiteSpace(DriverNotes);
         CanRaiseDispute = d.OpenDispute is null &&
                           order.Status != OrderStatus.Created &&
                           OrderWorkflow.CanTransition(order.Status, OrderStatus.Disputed);
@@ -89,6 +112,20 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
         ShowDeliveryOtp = !string.IsNullOrEmpty(d.DeliveryOtp) &&
                           order.Status is OrderStatus.DeliveryAssigned or OrderStatus.OutForDelivery;
         DeliveryOtp = d.DeliveryOtp ?? string.Empty;
+
+        CanRate = d.CanRate;
+        HasRating = d.Rating is not null;
+        GivenRatingText = d.Rating is null ? string.Empty : $"You rated {d.ProviderName} {d.Rating.Stars} out of 5";
+        GivenRatingComment = d.Rating?.Comment ?? string.Empty;
+        foreach (var star in GivenStars)
+            star.IsFilled = d.Rating is not null && star.Number <= d.Rating.Stars;
+        if (!d.CanRate)
+        {
+            SelectedStars = 0;
+            RatingComment = string.Empty;
+            foreach (var star in RatingStars)
+                star.IsFilled = false;
+        }
 
         HasDispute = d.OpenDispute is not null;
         DisputeTitle = d.OpenDispute is null ? string.Empty : $"{d.OpenDispute.Reason} · {d.OpenDispute.Status}";
@@ -106,6 +143,40 @@ public sealed partial class CustomerOrderDetailViewModel(ViewModelServices servi
 
     [RelayCommand]
     private Task TrackAsync() => Navigation.GoToAsync(Routes.OrderTracking, Param(Routes.OrderIdKey, OrderId));
+
+    [RelayCommand]
+    private void SetStars(int stars)
+    {
+        SelectedStars = stars;
+        foreach (var star in RatingStars)
+            star.IsFilled = star.Number <= stars;
+    }
+
+    [RelayCommand]
+    private Task SubmitRatingAsync() => RunBusyAsync(async () =>
+    {
+        if (SelectedStars is < 1 or > 5)
+        {
+            await Dialogs.AlertAsync("Choose a rating", "Tap the stars to rate the provider from 1 to 5.");
+            return;
+        }
+
+        await Orders.RateOrderAsync(OrderId, SelectedStars, RatingComment);
+        await LoadAsync(showSkeleton: false);
+    });
+
+    [RelayCommand]
+    private Task EditDriverNotesAsync() => RunBusyAsync(async () =>
+    {
+        var notes = await Dialogs.PromptAsync("Note for the driver",
+            "For example: leave the parcel at the gate, or call when you arrive. Leave empty to remove the note.",
+            "Save", "Add a note for the driver", DriverNotes);
+        if (notes is null)
+            return;
+
+        await Orders.UpdateDriverNotesAsync(OrderId, notes.Trim());
+        await LoadAsync(showSkeleton: false);
+    });
 
     [RelayCommand]
     private Task CancelOrderAsync() => RunBusyAsync(async () =>

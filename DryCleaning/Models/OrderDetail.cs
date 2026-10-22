@@ -32,6 +32,12 @@ public sealed class OrderDetail
     /// <summary>The driver has dropped the picked-up items at the provider (the provider can now confirm receipt).</summary>
     public bool DriverHandedOver { get; init; }
 
+    /// <summary>The customer's rating of the provider, once given.</summary>
+    public Rating? Rating { get; init; }
+
+    /// <summary>The order is completed and not rated yet (customers only).</summary>
+    public bool CanRate { get; init; }
+
     public bool IsPaid => Payment?.Status == PaymentStatus.Success;
     public int ExpectedItemCount => Items.Sum(i => i.Quantity);
 }
