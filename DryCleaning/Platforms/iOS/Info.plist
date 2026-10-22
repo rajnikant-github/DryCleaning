@@ -30,11 +30,20 @@
 	<string>E Dry Cleaners uses your location to fill in your pickup address.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>E Dry Cleaners uses the camera to photograph items when receiving, inspecting and packing orders.</string>
-	<!-- Debug: lets the app call the API on your Mac over http (./run-api.sh). Production uses HTTPS. -->
+	<!-- Debug: lets the app call the API on your Mac over http (./run-api.sh). Production uses HTTPS.
+	     The MinIO file server (photos and logos) is reached over plain http at its IP address – only that address is allowed. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>77.237.233.114</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 	<!-- Paystack redirects back to the app with edrycleaners://payment-complete -->
 	<key>CFBundleURLTypes</key>

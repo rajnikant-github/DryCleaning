@@ -91,11 +91,8 @@ builder.Services.AddHttpClient(GoogleRouteDistanceService.HttpClientName, client
     client.Timeout = TimeSpan.FromSeconds(8); // a slow Google must not hold up checkout
 });
 builder.Services.AddSingleton<IRouteDistanceService, GoogleRouteDistanceService>();
-// Photos and logos: wwwroot for development / single server, Azure Blob Storage when hosted in Azure.
-if (config.GetSection(StorageOptions.Section).Get<StorageOptions>()?.UseAzureBlob == true)
-    builder.Services.AddSingleton<IFileStorage, AzureBlobFileStorage>();
-else
-    builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+// Photos, logos and documents: always MinIO (settings in Storage:Minio; the keys come from secrets.json or environment variables).
+builder.Services.AddSingleton<IFileStorage, MinioFileStorage>();
 builder.Services.AddHttpClient<IPaystackClient, PaystackClient>((sp, client) =>
 {
     var baseUrl = config.GetSection(PaystackOptions.Section).Get<PaystackOptions>()?.BaseUrl ?? "https://api.paystack.co/";
@@ -183,7 +180,7 @@ if (!app.Environment.IsDevelopment())
     // being redirected to an https address the dev certificate doesn't cover.
     app.UseHttpsRedirection();
 }
-app.UseStaticFiles(); // serves /uploads/... photos
+app.UseStaticFiles(); // serves wwwroot (the Paystack return page)
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
