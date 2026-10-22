@@ -10,14 +10,7 @@
                 x:DataType="vm:ProductDetailViewModel"
                 Title="{Binding Title}">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Edit" Command="{Binding EditProductCommand}">
-            <ToolbarItem.IconImageSource>
-                <!-- iOS 26 draws text bar buttons dark on glass; as an image the text stays white. -->
-                <OnPlatform x:TypeArguments="ImageSource" Default="{x:Null}">
-                    <On Platform="iOS"><FontImageSource FontFamily="AppSemibold" Glyph="Edit" Size="16" Color="White" /></On>
-                </OnPlatform>
-            </ToolbarItem.IconImageSource>
-        </ToolbarItem>
+        <ToolbarItem Text="Edit" Command="{Binding EditProductCommand}" />
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*,Auto">

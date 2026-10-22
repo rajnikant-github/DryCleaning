@@ -10,14 +10,7 @@
                 x:DataType="vm:OrdersViewModel"
                 Title="Orders">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="History" Command="{Binding OpenHistoryCommand}">
-            <ToolbarItem.IconImageSource>
-                <!-- iOS 26 draws text bar buttons dark on glass; as an image the text stays white. -->
-                <OnPlatform x:TypeArguments="ImageSource" Default="{x:Null}">
-                    <On Platform="iOS"><FontImageSource FontFamily="AppSemibold" Glyph="History" Size="16" Color="White" /></On>
-                </OnPlatform>
-            </ToolbarItem.IconImageSource>
-        </ToolbarItem>
+        <ToolbarItem Text="History" Command="{Binding OpenHistoryCommand}" />
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,*">

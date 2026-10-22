@@ -419,7 +419,7 @@ a profile, because profiles are committed.
 [server checklist](#2-server-checklist).
 
 
-**iOS 26 back arrow:** iOS 26 ("Liquid Glass") draws the default back arrow dark on a glass button and ignores the white header colour. `Views/BasePage.cs` therefore gives every pushed page its own white back arrow (Font Awesome chevron) and detaches it on tab root pages, which have nothing to go back to. Keep new pages deriving from `BasePage`. Text-only navigation-bar buttons (History, Edit, Mark all read, + Product) are drawn dark by iOS 26 too, so on iOS they are given a white image of their text (`ToolbarItem.IconImageSource` with a `FontImageSource` inside an `OnPlatform`); do the same for any new text toolbar item.
+**iOS 26 back arrow:** iOS 26 ("Liquid Glass") draws the default back arrow dark on a glass button and ignores the white header colour. `Views/BasePage.cs` therefore gives every pushed page its own white back arrow (Font Awesome chevron) and detaches it on tab root pages, which have nothing to go back to. Keep new pages deriving from `BasePage`.
 
 ## Configuration
 
