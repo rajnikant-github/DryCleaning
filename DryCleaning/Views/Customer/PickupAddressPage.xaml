@@ -46,10 +46,6 @@
                 <Label Text="No matching addresses. Try a street name or suburb." Style="{StaticResource Small}" IsVisible="{Binding ShowNoResults}" />
                 <Label Text="{Binding SearchError}" Style="{StaticResource Small}" TextColor="{StaticResource ErrorDark}" IsVisible="{Binding HasSearchError}" />
 
-                <Button Text="Use my current location" ContentLayout="Left,8" Style="{StaticResource SecondaryButton}" Command="{Binding UseCurrentLocationCommand}" >
-                    <Button.ImageSource><FontImageSource FontFamily="FA" Glyph="&#xf3c5;" Size="16" Color="{DynamicResource Primary}" /></Button.ImageSource>
-                </Button>
-
                 <!--  Map placeholder  -->
                 <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="150" BackgroundColor="#E0F2FE" IsVisible="{Binding HasSelection}">
                     <Grid>

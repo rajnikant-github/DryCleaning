@@ -119,7 +119,7 @@ Next / Skip) before the role picker, built from the Figma "Customer General Onbo
 remembers that on the phone, so later launches go straight to the role picker (or to the home screen when signed in). To see it again,
 uninstall the app (Android) or, on an iOS simulator, also log out first, because the iOS keychain keeps the sign-in after an uninstall.
 
-**Address search** uses Google: Places API (New) for suggestions and Geocoding API for "Use my current location".
+**Address search** uses Google Places API (New) for suggestions. The "Use my current location" button was removed from the Pickup Address screen, so the Geocoding API is not needed (the app's Geocoding code stays for a later release).
 The key is **never committed**. It lives in the repository's single secrets file (see [Secrets](#secrets-one-file-for-everything)),
 under `local` → `App` → `GoogleMaps` → `ApiKey`. Add it there, then run `./set-app-env.sh local` to copy the `App` section into the build.
 
@@ -232,7 +232,7 @@ development only: the connection string holds the local Docker password, and the
 | `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
 | `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
 | `Email__Username` / `Email__Password` / `Email__From` (+ `Email__SmtpServer`, `Email__Port`) | The sending mailbox (Office 365 SMTP) – or `Email__Key` for SendGrid. Without it, emails are only logged and nobody receives sign-up or reset codes. |
-| `Routes__ApiKey` | Google key for driving distance (Routes API enabled, restricted to your server). Also set the app's `GoogleMaps.ApiKey` in the `App` block of `secrets.json` (Places + Geocoding enabled, restricted to the app). |
+| `Routes__ApiKey` | Google key for driving distance (Routes API enabled, restricted to your server). Also set the app's `GoogleMaps.ApiKey` in the `App` block of `secrets.json` (Places enabled, restricted to the app). |
 | `Storage__Minio__AccessKey` / `Storage__Minio__SecretKey` | A MinIO user limited to this app's bucket – never the MinIO admin account. See [File storage (MinIO)](#file-storage-minio). |
 | `Cors__AllowedOrigins` | The browser origins that may call the API (empty = any). |
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
@@ -360,7 +360,7 @@ the whole internet – the `AllowAzure` rule only admits Azure services.
 | Paystack page doesn't return to the app | Check `Paystack:CallbackUrl` is `edrycleaners://payment-complete`. If Paystack rejects that address, the API needs a small https page that forwards to the app. |
 | Photos or logos don't load in the app | The MinIO address isn't allowed for plain http in the app, or MinIO is unreachable – see [File storage (MinIO)](#file-storage-minio). |
 | Photos not loading after a while (Azure) | Signed links expire after 15 minutes; reload the order to get new ones. |
-| "Address search isn't working" | Check `secrets.json` has your key under `<env>` → `App` → `GoogleMaps` and re-run `./set-app-env.sh <name>`, enable Places API (New) and Geocoding API for it in Google Cloud Console, and check the key's restrictions. |
+| "Address search isn't working" | Check `secrets.json` has your key under `<env>` → `App` → `GoogleMaps` and re-run `./set-app-env.sh <name>`, enable Places API (New) for it in Google Cloud Console, and check the key's restrictions. |
 
 ## Switching environments
 

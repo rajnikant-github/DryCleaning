@@ -1,9 +1,8 @@
 namespace DryCleaning.Configuration;
 
 /// <summary>
-/// Google Places (address search) and Geocoding (current location). Leave ApiKey empty, or set
-/// UseSampleAddresses, to use the sample Cape Town addresses. The key needs "Places API (New)" and
-/// "Geocoding API" enabled.
+/// Google Places (address search). Leave ApiKey empty, or set
+/// UseSampleAddresses, to use the sample Cape Town addresses. The key needs "Places API (New)" enabled.
 /// </summary>
 public sealed class GoogleMapsSettings
 {
