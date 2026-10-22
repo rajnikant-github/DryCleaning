@@ -418,6 +418,9 @@ a profile, because profiles are committed.
 `Staging`/`Production` on a server) plus `appsettings.{Environment}.json` and environment variables – see the
 [server checklist](#2-server-checklist).
 
+
+**iOS 26 back arrow:** iOS 26 ("Liquid Glass") draws the default back arrow dark on a glass button and ignores the white header colour. `Views/BasePage.cs` therefore gives every pushed page its own white back arrow (Font Awesome chevron) and detaches it on tab root pages, which have nothing to go back to. Keep new pages deriving from `BasePage`.
+
 ## Configuration
 
 - **App** – `DryCleaning/appsettings.json`: currency (ZAR / R / en-US, so amounts read R1,234.50 – use en-ZA for R1 234,50), the demo-data VAT, the per-km pickup & delivery price for demo data (with the API the admin portal sets it), driver earning per job,
