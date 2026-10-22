@@ -10,7 +10,14 @@
                 x:DataType="vm:CatalogViewModel"
                 Title="Services">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="+ Product" Command="{Binding AddProductCommand}" />
+        <ToolbarItem Text="+ Product" Command="{Binding AddProductCommand}">
+            <ToolbarItem.IconImageSource>
+                <!-- iOS 26 draws text bar buttons dark on glass; as an image the text stays white. -->
+                <OnPlatform x:TypeArguments="ImageSource" Default="{x:Null}">
+                    <On Platform="iOS"><FontImageSource FontFamily="AppSemibold" Glyph="+ Product" Size="16" Color="White" /></On>
+                </OnPlatform>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
     <Grid RowDefinitions="Auto,*">
         <controls:SegmentBar ItemsSource="{Binding Categories}" />

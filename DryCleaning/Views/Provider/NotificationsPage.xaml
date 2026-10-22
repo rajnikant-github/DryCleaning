@@ -10,7 +10,14 @@
                 x:DataType="vm:NotificationsViewModel"
                 Title="Notifications">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Mark all read" Command="{Binding MarkAllReadCommand}" />
+        <ToolbarItem Text="Mark all read" Command="{Binding MarkAllReadCommand}">
+            <ToolbarItem.IconImageSource>
+                <!-- iOS 26 draws text bar buttons dark on glass; as an image the text stays white. -->
+                <OnPlatform x:TypeArguments="ImageSource" Default="{x:Null}">
+                    <On Platform="iOS"><FontImageSource FontFamily="AppSemibold" Glyph="Mark all read" Size="16" Color="White" /></On>
+                </OnPlatform>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <Grid>
