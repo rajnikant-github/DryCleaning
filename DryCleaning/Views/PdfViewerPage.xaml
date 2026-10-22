@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--  View an uploaded PDF inside the app  -->
+<views:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:DryCleaning.Views"
+                xmlns:controls="clr-namespace:DryCleaning.Controls"
+                xmlns:vm="clr-namespace:DryCleaning.ViewModels"
+                xmlns:pdf="http://eightbot.com/maui/pdfview"
+                x:Class="DryCleaning.Views.PdfViewerPage"
+                x:DataType="vm:PdfViewerViewModel"
+                Title="{Binding Title}">
+    <Grid RowDefinitions="*,Auto">
+        <pdf:PdfView x:Name="Viewer" Error="OnViewerError"
+                     Source="{Binding Source}"
+                     CurrentPage="{Binding CurrentPage, Mode=TwoWay}"
+                     PageCount="{Binding PageCount, Mode=OneWayToSource}"
+                     IsVisible="{Binding HasFailed, Converter={StaticResource InvertedBool}}" />
+
+        <VerticalStackLayout VerticalOptions="Center" Padding="32" Spacing="14" IsVisible="{Binding HasFailed}">
+            <Label Text="&#xf1c1;" FontFamily="FA" FontSize="44" HorizontalOptions="Center" TextColor="{StaticResource MutedForeground}" />
+            <Label Text="{Binding FailureMessage}" Style="{StaticResource BodyMedium}" HorizontalTextAlignment="Center" />
+            <Button Text="Open in browser" Style="{StaticResource PrimaryButton}" Command="{Binding OpenInBrowserCommand}" />
+        </VerticalStackLayout>
+
+        <controls:PageStateView Grid.RowSpan="2"
+                                State="{Binding State}"
+                                RetryCommand="{Binding RetryCommand}"
+                                ErrorMessage="{Binding ErrorMessage}" />
+
+        <Label Grid.Row="1" Text="{Binding PageText}" Style="{StaticResource Small}" HorizontalTextAlignment="Center" Padding="0,8,0,12"
+               IsVisible="{Binding HasFailed, Converter={StaticResource InvertedBool}}" />
+    </Grid>
+</views:BasePage>

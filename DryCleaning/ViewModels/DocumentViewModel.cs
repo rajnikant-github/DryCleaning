@@ -93,24 +93,18 @@ public sealed partial class DocumentViewModel(ViewModelServices services, IVerif
         return true;
     }
 
-    /// <summary>Opens the file I uploaded earlier in the phone's own viewer, so I can check what I sent.</summary>
+    /// <summary>Opens the file I uploaded earlier so I can check what I sent: a PDF in the app's own viewer, a photo in the phone's viewer.</summary>
     [RelayCommand]
     private Task ViewFileAsync() => RunBusyAsync(async () =>
     {
-        // A PDF opens in the web browser through a short-lived private link; if that isn't possible (demo mode, offline hiccup)
-        // or the file is a photo, it is downloaded and shown in the phone's own viewer instead.
         if (_uploadedFileName?.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) == true)
         {
-            try
-            {
-                var link = await documents.GetPreviewLinkAsync(_typeId);
-                await Browser.Default.OpenAsync(link, BrowserLaunchMode.External);
-                return;
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Documents] Browser preview failed, using the phone's viewer: {ex.Message}");
-            }
+            // The viewer downloads the file with my sign-in; if it can't show it, it offers the web-browser preview.
+            var query = Param(Routes.TypeIdKey, _typeId);
+            query[Routes.FileNameKey] = _uploadedFileName;
+            query[Routes.TitleKey] = Title;
+            await Navigation.GoToAsync(Routes.PdfViewer, query);
+            return;
         }
 
         var path = await documents.DownloadAsync(_typeId, _uploadedFileName ?? "document");

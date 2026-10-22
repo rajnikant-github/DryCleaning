@@ -30,24 +30,24 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1B3A6B"/>
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1B3A6B" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B3A6B" BaseSize="128,128"/>
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B3A6B" BaseSize="128,128" />
 
         <!-- Images -->
-        <MauiImage Include="Resources\Images\*"/>
-        <MauiImage Update="Resources\Images\tab_*.svg" BaseSize="24,24"/>
-        <MauiImage Update="Resources\Images\ic_*.svg" BaseSize="24,24"/>
-        <MauiImage Update="Resources\Images\logo_*.svg" BaseSize="64,64"/>
+        <MauiImage Include="Resources\Images\*" />
+        <MauiImage Update="Resources\Images\tab_*.svg" BaseSize="24,24" />
+        <MauiImage Update="Resources\Images\ic_*.svg" BaseSize="24,24" />
+        <MauiImage Update="Resources\Images\logo_*.svg" BaseSize="64,64" />
 
         <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*"/>
+        <MauiFont Include="Resources\Fonts\*" />
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)"/>
+        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
         <!-- Incoming full-screen alert sound, packaged as Alerts/alert.mp3. -->
-        <MauiAsset Include="Resources\Alerts\**" LogicalName="Alerts\%(RecursiveDir)%(Filename)%(Extension)"/>
+        <MauiAsset Include="Resources\Alerts\**" LogicalName="Alerts\%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -60,19 +60,20 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13"/>
+        <PackageReference Include="Eightbot.MauiNativePdfView" Version="1.1.2" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
-        <GoogleServicesJson Include="Platforms\Android\google-services.json"/>
+        <GoogleServicesJson Include="Platforms\Android\google-services.json" />
         <!-- Native Firebase Cloud Messaging for Android push notifications (iOS uses Apple's APNs directly, no Firebase) -->
-        <PackageReference Include="Xamarin.Firebase.Messaging" Version="125.1.3"/>
-        <PackageReference Include="Xamarin.GooglePlayServices.Tasks" Version="118.4.1.3"/>
+        <PackageReference Include="Xamarin.Firebase.Messaging" Version="125.1.3" />
+        <PackageReference Include="Xamarin.GooglePlayServices.Tasks" Version="118.4.1.3" />
         <!-- Firebase pulls Fragment 1.9 (which now contains the Kotlin extensions) next to the older Fragment.Ktx; keep them on the same version or dexing fails with duplicate classes. -->
-        <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0"/>
+        <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
     </ItemGroup>
 
     <!-- iOS push notifications: aps-environment is "development" for Debug builds and "production" for Release (App Store / TestFlight). -->

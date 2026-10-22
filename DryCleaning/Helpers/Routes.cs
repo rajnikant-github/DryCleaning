@@ -81,6 +81,9 @@ public static class Routes
     public const string FilterKey = "filter";
     public const string IdentifierKey = "identifier";
     public const string TypeIdKey = "typeId";
+    public const string FileNameKey = "fileName";
+    public const string TitleKey = "title";
+    public const string PdfViewer = "pdfviewer";
     public const string DestinationKey = "destination";
     public const string PurposeKey = "purpose";
     public const string ResendSecondsKey = "resendSeconds";

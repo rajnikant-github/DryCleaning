@@ -1,3 +1,4 @@
+using MauiNativePdfView;
 using DryCleaning.Configuration;
 using DryCleaning.Helpers;
 using DryCleaning.Services;
@@ -30,6 +31,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiNativePdfView()
             .ConfigureFonts(fonts =>
             {
                 // The app's text font is Nunito (Figma). Every style and control uses these two aliases, so switching
@@ -99,6 +101,7 @@ public static class MauiProgram
             .AddPage<OtpPage, OtpViewModel>()
             .AddPage<DocumentsPage, DocumentsViewModel>()
             .AddPage<DocumentPage, DocumentViewModel>()
+            .AddPage<PdfViewerPage, PdfViewerViewModel>()
             .AddPage<SignUpPage, SignUpViewModel>()
             .AddPage<ForgotPasswordPage, ForgotPasswordViewModel>()
             .AddPage<ChangePasswordPage, ChangePasswordViewModel>()

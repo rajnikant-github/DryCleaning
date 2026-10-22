@@ -18,6 +18,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(Routes.Otp, typeof(OtpPage));
         Routing.RegisterRoute(Routes.Documents, typeof(DocumentsPage));
         Routing.RegisterRoute(Routes.Document, typeof(DocumentPage));
+        Routing.RegisterRoute(Routes.PdfViewer, typeof(PdfViewerPage));
         Routing.RegisterRoute(Routes.SignUp, typeof(SignUpPage));
         Routing.RegisterRoute(Routes.ForgotPassword, typeof(ForgotPasswordPage));
         Routing.RegisterRoute(Routes.ChangePassword, typeof(ChangePasswordPage));
