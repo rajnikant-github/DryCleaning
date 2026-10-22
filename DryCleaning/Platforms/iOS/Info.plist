@@ -26,9 +26,6 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
-	<!-- iOS 26+: keep the classic navigation and tab bars (Liquid Glass would draw the back arrow dark on glass, ignoring the white header foreground). -->
-	<key>UIDesignRequiresCompatibility</key>
-	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>E Dry Cleaners uses the camera to photograph items when receiving, inspecting and packing orders.</string>
 	<!-- Debug: lets the app call the API on your Mac over http (./run-api.sh). Production uses HTTPS.
