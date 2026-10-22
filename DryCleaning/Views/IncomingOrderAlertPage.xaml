@@ -9,7 +9,7 @@
                 Background="{DynamicResource PrimaryGradientBrush}"
                 Shell.NavBarIsVisible="False"
                 Shell.TabBarIsVisible="False">
-    <Grid Padding="28,24" SemanticProperties.Hint="Tap anywhere to review the new order">
+    <Grid Padding="28,24" BackgroundColor="Transparent" SemanticProperties.Hint="Tap anywhere to review the new order">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding ReviewCommand}" />
         </Grid.GestureRecognizers>
