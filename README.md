@@ -243,6 +243,17 @@ development only: the connection string holds the local Docker password. The API
 | `Swagger__Enabled` | `true` on staging; your choice in production. |
 | Uploads | Every photo, logo and verification document goes to MinIO – see [File storage (MinIO)](#file-storage-minio). Nothing is saved on the API server's disk. |
 
+**Or use `secrets.json` on the server.** Instead of environment variables, the same settings can come from a `secrets.json` file
+(see [Secrets: one file for everything](#secrets-one-file-for-everything)) with a filled-in `production` block (`Staging` → the `staging` block).
+
+- The API reads the block that matches `ASPNETCORE_ENVIRONMENT` (`Production` → `production`). `EDRY_ENVIRONMENT=<block>` forces another block.
+- It looks for the file in its own folder and up to five folders above it. `dotnet publish` does **not** copy `secrets.json`, so put it on the
+  server yourself and, if it is not in a parent folder, set `EDRY_SECRETS_FILE=/full/path/to/secrets.json`.
+- Environment variables still win over the file, so you can keep most settings in the file and override a few (for example the database
+  connection) on the host.
+- The file holds live secrets: copy it over a secure channel, restrict who can read it, keep it out of the published zip and out of git, and
+  delete your copies once the server has it. On Azure, application settings or Key Vault are the safer place.
+
 **Before launch, rotate anything that was ever shared in a chat, ticket or email** (Paystack keys, the MinIO password, mailbox
 password, JWT signing key) and use the live Paystack keys only on the production server.
 
