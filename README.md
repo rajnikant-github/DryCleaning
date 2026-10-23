@@ -65,7 +65,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 ```
 
 Checks your setup first (Docker, SQL Server container, .NET 10, `dotnet-ef`, HTTPS certificate, migrations),
-fixes only what's missing after asking, then runs the API and opens **https://localhost:7180/swagger**.
+fixes only what's missing after asking, then runs the API and the admin portal and opens **https://localhost:7180/swagger** and **http://localhost:5190** (macOS script; the Windows script starts only the API – run the portal below). `--no-admin` runs only the API.
 Check only: `--check` / `-Check`. Fresh database: `--reset-db` / `-ResetDb`. All options, other ways to run
 the scripts (permissions, execution policy) and troubleshooting:
 [Run locally](#run-locally).
@@ -179,6 +179,8 @@ environment (`local`, `mock` – app demo data –, `staging`, `production`) and
 
 ## Admin portal
 
+`./run-api.sh` already starts the portal next to the API on macOS. To run it on its own (or on Windows):
+
 ```bash
 cd DryCleaning.Admin && dotnet run --launch-profile http   # http://localhost:5190
 ```
@@ -233,7 +235,7 @@ development only: the connection string holds the local Docker password. The API
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
 | `Push__FirebaseCredentialsJson` | The Firebase service-account JSON (the whole file's text) for Android pushes (optional – without it they are only logged). |
-| `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `appsettings.json` (optional – without the key they are only logged). |
+| `ApnsSettings__PrivateKey` (+ `ApnsSettings__UseSandbox=false` on TestFlight/App Store) | The text of the Apple APNs `.p8` key for iPhone pushes (or a file path in `ApnsSettings__PrivateKeyPath`); `TeamId`, `KeyId`, `BundleId` are in `secrets.json` → `ApnsSettings` (optional – without the key they are only logged). |
 | `Email__Username` / `Email__Password` / `Email__From` (+ `Email__SmtpServer`, `Email__Port`) | The sending mailbox (Office 365 SMTP) – or `Email__Key` for SendGrid. Without it, emails are only logged and nobody receives sign-up or reset codes. |
 | `Routes__ApiKey` | Google key for driving distance (Routes API enabled, restricted to your server). Also set the app's `GoogleMaps.ApiKey` in the `App` block of `secrets.json` (Places enabled, restricted to the app). |
 | `Storage__Minio__AccessKey` / `Storage__Minio__SecretKey` | A MinIO user limited to this app's bucket – never the MinIO admin account. See [File storage (MinIO)](#file-storage-minio). |
@@ -569,12 +571,12 @@ OTP login in Development: the code is returned in the `POST /api/auth/otp/reques
 
 | Section | Purpose |
 |---|---|
-| `Marketplace` | Currency (`ZAR`), driver earning per job (the pickup & delivery price, extra charges and VAT are set on the admin portal's Pricing page), `RequirePaymentBeforeAccept` |
+| `Marketplace` | Currency (`ZAR`) and `RequirePaymentBeforeAccept` (the pickup & delivery price, extra charges, VAT and driver pay per job are set on the admin portal's Pricing page) |
 | `Jwt` | Issuer, audience, **SigningKey (≥ 32 chars – keep it in `secrets.json` / env vars)**, `ExpiryMinutes` (access token, 60; 1440 in Development), `RefreshTokenDays` (30) |
 | `Paystack` | `SecretKey`, `PublicKey`, `CallbackUrl` (app deep link) |
 | `Otp` | Length/expiry, `MaxAttempts` (wrong guesses before a code is invalidated, 5). Codes are only emailed, never returned by the API |
 | `Push` | `Enabled`, `FirebaseCredentialsJson` (the Firebase service-account JSON itself, kept in `secrets.json`) or `FirebaseCredentialsPath` (a file). Nothing set → Android pushes are only logged |
-| `Email` | `Key` (a SendGrid key starting `SG.`, preferred) or `SmtpServer`, `Port`, `Username`, `Password`; plus `From`, `Name`, `ReplyTo`, `Enabled` (keys and passwords live in `secrets.json`). Not configured = emails are only logged. Admin portal → **Email** shows the status and sends a test email |
+| `Email` | `SmtpServer`, `Port`, `Username`, `Password` (Office 365 SMTP – what we use), or `Key` (a SendGrid key starting `SG.`); plus `From`, `Name`, `ReplyTo`, `Enabled` (keys and passwords live in `secrets.json`). Not configured = emails are only logged. Admin portal → **Email** shows the status and sends a test email |
 | `ApnsSettings` | `TeamId`, `KeyId`, `BundleId`, `PrivateKey` (the `.p8` text, kept in `secrets.json`) or `PrivateKeyPath` (a file), `UseSandbox` – iPhone pushes through Apple. Missing key → iOS pushes are only logged |
 | `Storage` | MinIO address, bucket, keys, signed-link lifetime, max photo size (see the main README, "File storage (MinIO)") |
 | `Database` | `InitializeOnStartup`, `SeedDemoData` |
@@ -735,7 +737,7 @@ One place for everything about the EDry Cleaners API: how to call it, how each b
 which endpoint does what, and which database tables each step reads and writes.
 
 > **Source of truth:** the code in `DryCleaning.Api/`. This guide describes the API as of the
-> `raj/api-integration` branch. Live, try-it-out docs: **Swagger** at `https://localhost:7180/swagger`
+> `main` branch. Live, try-it-out docs: **Swagger** at `https://localhost:7180/swagger`
 > (or `http://localhost:5180/swagger`) after `./run-api.sh`.
 
 ### 1. Quick start
@@ -1263,7 +1265,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 
 | Method | Path | Access | Request | Response | What it does |
 |---|---|---|---|---|---|
-| `GET` | `/api/driver/profile` | Driver | — | `DriverProfileDto` | My driver profile (user, licence number, availability, address). |
+| `GET` | `/api/driver/profile` | Driver | — | `DriverProfileDto` | My driver profile (user, licence number, availability, address, total earnings). |
 | `PUT` | `/api/driver/profile` | Driver | Body: `UpdateDriverProfileRequest` | `DriverProfileDto` | Update licence number, name, phone. The email is the sign-in key and **can't be changed**: a different email returns 400; repeating the current one is accepted. |
 | `GET` | `/api/driver/dashboard` | Driver | — | `DriverDashboardDto` | Dashboard: online status, available jobs, active job, completed and earnings today. |
 | `PUT` | `/api/driver/availability` | Driver | Body: `SetActiveRequest` | `bool` | Go online (`isActive: true`) or offline. Must be online to accept jobs. |
@@ -1272,7 +1274,7 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `GET` | `/api/driver/jobs/counts` | Driver | — | `DriverJobCountsDto` | Badge counts: Available / Mine / Completed. |
 | `GET` | `/api/driver/jobs/by-order/{orderId}` | Driver | — | `DriverJobDetailDto` | The job a notification refers to: my job for that order, else an open one. |
 | `GET` | `/api/driver/jobs/history` | Driver | Query: `page`, `pageSize`, `search` | `PagedResult<DriverJobDto>` | Completed jobs, newest first. |
-| `GET` | `/api/driver/earnings` | Driver | Query: `period` | `DriverEarningsDto` | Earnings for `period` = Week (7 daily bars) or Month (4 weekly bars). Flat rate per job. |
+| `GET` | `/api/driver/earnings` | Driver | Query: `period` | `DriverEarningsDto` | Earnings for `period` = Week (7 daily bars) or Month (4 weekly bars). Each job counts the pay it was created with; `ratePerJob` is what a job created now pays. |
 | `GET` | `/api/driver/jobs/{jobId}` | Driver | — | `DriverJobDetailDto` | Job detail: addresses, items, `nextStep`; phone numbers once the job is mine. |
 | `POST` | `/api/driver/jobs/{jobId}/accept` | Driver | — | `DriverJobDetailDto` | Take a `Pending` job (one active job at a time, must be online). Order → `PickupAssigned` or `DeliveryAssigned`. |
 | `POST` | `/api/driver/jobs/{jobId}/release` | Driver | — | `DriverJobDetailDto` | Give an accepted job back before starting it. Order goes back to `Confirmed` / `ReadyForDelivery`. |
@@ -1332,6 +1334,8 @@ Body/response type names link to [section 6](#6-request-bodies-and-validation-ru
 | `PUT` | `/api/admin/extra-charges/{id}` | Admin | Body: `ExtraChargeRequest` | `ExtraChargeDto` | Change a charge's name, description, type, amount/percentage, VAT switch, position or on/off. Applies to new orders only. |
 | `GET` | `/api/admin/vat` | Admin | — | `VatSettingDto` | The VAT rule: `rate` (%, e.g. 15), `isEnabled`, `appliesToDelivery`. Starts at 15%, on, items only. |
 | `PUT` | `/api/admin/vat` | Admin | Body: `VatSettingDto` | `VatSettingDto` | Change the VAT rule. Applies to new orders only; each order keeps the `vatRate` it was charged. |
+| `GET` | `/api/admin/driver-pay` | Admin | — | `DriverPaySettingDto` | What a driver is paid per completed job: `payPerJob`. Starts at 35. |
+| `PUT` | `/api/admin/driver-pay` | Admin | Body: `DriverPaySettingDto` | `DriverPaySettingDto` | Change the pay (0–100000). Applies to jobs created from now on; each job keeps the pay it was created with. |
 | `POST` | `/api/admin/pricing/preview` | Admin | Body: `PricePreviewRequest` (`itemsSubTotal`, `deliveryFee`) | `PricePreviewDto` | Price a sample order with the saved extra charges and VAT (what the portal's price preview shows). |
 | `PUT` | `/api/admin/extra-charges/{id}/active` | Admin | Body: `SetActiveRequest` | `204` | Switch a charge on or off without deleting it. |
 | `DELETE` | `/api/admin/extra-charges/{id}` | Admin | — | `204` | Delete a charge. Orders already placed keep their own copy. |
@@ -2036,6 +2040,7 @@ Returned by every sign-in endpoint. Store `accessToken` and `refreshToken` secur
 | `isAvailable` | `bool` |
 | `isActive` | `bool` |
 | `address` | `AddressDto?` |
+| `totalEarnings` | `decimal` |
 
 ##### EarningsBarDto
 
