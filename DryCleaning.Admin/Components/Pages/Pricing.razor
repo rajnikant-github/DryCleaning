@@ -3,7 +3,7 @@
 
 <PageTitle>Pricing – E Dry Cleaners Admin</PageTitle>
 <h1>Pricing</h1>
-<p class="muted">Everything that makes up an order's price: pickup &amp; delivery, extra charges and VAT. Changes apply to new orders only; existing orders keep what they were charged.</p>
+<p class="muted">Everything that makes up an order's price: pickup &amp; delivery, extra charges and VAT, plus what drivers are paid. Changes apply to new orders and jobs only; existing ones keep what they were charged or paid.</p>
 
 <Notice Error="@Error" Success="@Success" SessionExpired="SessionExpired" />
 
@@ -57,6 +57,16 @@ else
             <label class="field"><span>VAT rate (%)</span><input type="number" step="0.01" min="0" max="100" @bind="_vat.Rate" disabled="@(!_vat.IsEnabled)" /></label>
             <label class="field"><span><input type="checkbox" @bind="_vat.AppliesToDelivery" disabled="@(!_vat.IsEnabled)" /> Also charge VAT on the pickup &amp; delivery fee</span></label>
             <button class="btn" disabled="@Busy" @onclick="SaveVatAsync">Save VAT</button>
+        }
+    </div>
+
+    <div class="card">
+        <h2>Driver pay</h2>
+        <p class="muted">What a driver is paid for each completed pickup or delivery job. A job keeps the pay it was created with, so changing this only affects jobs created from now on.</p>
+        @if (_driverPay is not null)
+        {
+            <label class="field"><span>Pay per job (@_currency)</span><input type="number" step="0.01" min="0" @bind="_driverPay.PayPerJob" /></label>
+            <button class="btn" disabled="@Busy" @onclick="SaveDriverPayAsync">Save driver pay</button>
         }
     </div>
 
@@ -204,6 +214,7 @@ else
 
     private DeliveryPricingDto? _rule;
     private VatSettingDto? _vat;
+    private DriverPaySettingDto? _driverPay;
     private List<ExtraChargeDto>? _charges;
     private ExtraChargeRequest? _editing;
     private Guid? _editingId;
@@ -218,6 +229,7 @@ else
         {
             _rule = await Api.GetAsync<DeliveryPricingDto>("api/admin/delivery-pricing");
             _vat = await Api.GetAsync<VatSettingDto>("api/admin/vat");
+            _driverPay = await Api.GetAsync<DriverPaySettingDto>("api/admin/driver-pay");
         });
         await LoadChargesAsync();
         await PreviewAsync();
@@ -231,6 +243,11 @@ else
         _vat = await Api.PutAsync<VatSettingDto>("api/admin/vat", _vat!);
         _preview = await Api.PostAsync<PricePreviewDto>("api/admin/pricing/preview", new PricePreviewRequest { ItemsSubTotal = _previewItems, DeliveryFee = _previewDelivery });
     }, "VAT saved. New orders use it straight away.");
+
+    private Task SaveDriverPayAsync() => RunAsync(async () =>
+    {
+        _driverPay = await Api.PutAsync<DriverPaySettingDto>("api/admin/driver-pay", _driverPay!);
+    }, "Driver pay saved. Jobs created from now on use it.");
 
     private Task PreviewAsync() => RunAsync(async () =>
         _preview = await Api.PostAsync<PricePreviewDto>("api/admin/pricing/preview", new PricePreviewRequest { ItemsSubTotal = _previewItems, DeliveryFee = _previewDelivery }));

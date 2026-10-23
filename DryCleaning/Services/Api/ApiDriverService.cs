@@ -164,7 +164,7 @@ public sealed class ApiDriverService(ApiClient api, AppSettings settings) : IDri
             },
             BaseAddress = p.Address is null ? null : ApiMapping.ToAddress(p.Address),
             CompletedJobs = completed,
-            TotalEarnings = completed * settings.Pricing.DriverEarningPerJob
+            TotalEarnings = p.TotalEarnings
         };
     }
 

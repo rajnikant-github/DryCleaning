@@ -15,7 +15,7 @@ namespace DryCleaning.Api.Controllers;
 [Authorize(Roles = Roles.Admin)]
 [Produces("application/json")]
 public sealed class AdminController(AdminService admin, CategoryService categories, DeliveryPricingService pricing,
-    AdminNotificationService notifications, ExtraChargeService extraCharges, VatSettingService vatSettings, IOptions<MarketplaceOptions> marketplace, IOptions<EmailOptions> emailOptions, IEmailSender emailSender) : ControllerBase
+    AdminNotificationService notifications, ExtraChargeService extraCharges, VatSettingService vatSettings, DriverPayService driverPay, IOptions<MarketplaceOptions> marketplace, IOptions<EmailOptions> emailOptions, IEmailSender emailSender) : ControllerBase
 {
     /// <summary>A02 – totals, revenue, disputes and order charts.</summary>
     [HttpGet("dashboard")]
@@ -199,6 +199,14 @@ public sealed class AdminController(AdminService admin, CategoryService categori
     /// <summary>Set the VAT rate, switch VAT on/off, and choose whether it also applies to the delivery fee. Applies to new orders only.</summary>
     [HttpPut("vat")]
     public Task<VatSettingDto> SetVat(VatSettingDto request, CancellationToken ct) => vatSettings.UpdateAsync(request, ct);
+
+    /// <summary>What a driver is paid per completed job.</summary>
+    [HttpGet("driver-pay")]
+    public Task<DriverPaySettingDto> GetDriverPay(CancellationToken ct) => driverPay.GetAsync(ct);
+
+    /// <summary>Set the driver pay per job. Applies to jobs created from now on; existing jobs keep their pay.</summary>
+    [HttpPut("driver-pay")]
+    public Task<DriverPaySettingDto> SetDriverPay(DriverPaySettingDto request, CancellationToken ct) => driverPay.UpdateAsync(request, ct);
 
     /// <summary>Prices a sample order with the current extra charges and VAT, so admins can check their settings.</summary>
     [HttpPost("pricing/preview")]

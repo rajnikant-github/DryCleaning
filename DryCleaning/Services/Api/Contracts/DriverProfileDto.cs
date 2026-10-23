@@ -11,4 +11,5 @@ public sealed class DriverProfileDto
     public bool IsAvailable { get; set; }
     public bool IsActive { get; set; }
     public AddressDto? Address { get; set; }
+    public decimal TotalEarnings { get; set; }
 }

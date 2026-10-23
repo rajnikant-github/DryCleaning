@@ -2,7 +2,7 @@ using DryCleaning.Api.Domain;
 
 namespace DryCleaning.Api.Dtos;
 
-/// <summary>D13 – earnings are completed jobs × Marketplace:DriverEarningPerJob (no payouts table in V1).</summary>
+/// <summary>D13 – earnings are the pay stored on each completed job (set by the admin portal's driver pay setting when the job was created; no payouts table in V1).</summary>
 public sealed class DriverEarningsDto
 {
     public required EarningsPeriod Period { get; init; }

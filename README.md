@@ -463,7 +463,8 @@ Open Terminal (zsh or bash both work – the script always runs with bash):
 
 | Command | What it does |
 |---|---|
-| `./run-api.sh` | Check → fix what's missing (asks first) → run → open Swagger |
+| `./run-api.sh local` (or just `./run-api.sh`) | Check → fix what's missing (asks first) → run the API **and the admin portal** → open Swagger (`https://localhost:7180/swagger`) and the admin portal (`http://localhost:5190`). Ctrl+C stops both |
+| `./run-api.sh --no-admin` | Run only the API |
 | `./run-api.sh --check` | Checks only, changes nothing |
 | `./run-api.sh --yes` (or `-y`) | Fix without asking |
 | `./run-api.sh --reset-db` | Recreate the SQL Server container – **wipes local data**, reseeds demo data |
@@ -1004,7 +1005,7 @@ stateDiagram-v2
 
 Rules: the driver must be **online**; only **one active job** (Assigned/InProgress) at a time; a job can only be
 **released** before it starts; jobs of `Cancelled` or `Disputed` orders can't be progressed. Admins can assign or
-reassign any job with `POST /api/admin/driver-jobs/{jobId}/assign`. Earnings: flat `DriverEarningPerJob` per completed job.
+reassign any job with `POST /api/admin/driver-jobs/{jobId}/assign`. Earnings: each job stores the pay it was created with, set on the admin portal's Pricing page ("Driver pay"); changing it affects only jobs created afterwards.
 
 #### 4.6 Pickup code and delivery OTP
 
@@ -2839,7 +2840,6 @@ The repository's single `secrets.json` (`<environment>` → `Api`, see the main 
 |---|---|---|---|
 | `ConnectionStrings` | `DefaultConnection` | local Docker SQL Server | Database |
 | `Marketplace` | `Currency` | `ZAR` | Currency code in responses |
-| | `DriverEarningPerJob` | `35.00` | Driver pay per completed job |
 | | `RequirePaymentBeforeAccept` | `true` | Providers only see paid new orders |
 | `Jwt` | `Issuer`, `Audience` | `EDryCleaners`, `EDryCleaners.App` | Token validation |
 | | `SigningKey` | *(secret, ≥ 32 chars)* | Token signing – the API won't start without it |

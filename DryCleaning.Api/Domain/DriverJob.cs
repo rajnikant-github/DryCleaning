@@ -13,6 +13,9 @@ public class DriverJob : EntityBase
     public DateTime? AssignedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
 
+    /// <summary>What the driver is paid for this job, fixed when the job is created from the admin portal's driver pay setting.</summary>
+    public decimal Earning { get; set; }
+
     public Order Order { get; set; } = null!;
     public Driver? Driver { get; set; }
     public Address PickupAddress { get; set; } = null!;

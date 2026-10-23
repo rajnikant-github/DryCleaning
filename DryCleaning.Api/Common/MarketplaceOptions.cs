@@ -9,7 +9,6 @@ public sealed class MarketplaceOptions
     public const string Section = "Marketplace";
 
     public string Currency { get; set; } = "ZAR";
-    public decimal DriverEarningPerJob { get; set; } = 35m;
 
     /// <summary>When true, providers only see/accept orders with a successful payment.</summary>
     public bool RequirePaymentBeforeAccept { get; set; } = true;

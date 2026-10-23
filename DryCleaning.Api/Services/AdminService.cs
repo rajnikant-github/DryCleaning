@@ -291,7 +291,7 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
     {
         var order = await db.Orders.WithDetailIncludes().FirstOrDefaultAsync(o => o.Id == orderId, ct)
                     ?? throw new NotFoundException("Order not found.");
-        return order.ToDetail(Market.Currency, Market.DriverEarningPerJob, includeCustomerCodes: false);
+        return order.ToDetail(Market.Currency, includeCustomerCodes: false);
     }
 
     // ── A10 Driver jobs ──────────────────────────────────────────────────────
@@ -317,7 +317,7 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
         var (items, total) = await jobs.OrderByDescending(j => j.CreatedAt).PageAsync(query, ct);
         return new PagedResult<DriverJobDto>
         {
-            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Items = items.Select(j => j.ToDto(j.Order)).ToList(),
             Page = query.Page,
             PageSize = query.PageSize,
             TotalCount = total
@@ -364,7 +364,7 @@ public sealed class AdminService(AppDbContext db, CurrentProfile profile, IOptio
 
         db.Notify(driver.UserId, job.Order, "Job assigned", $"You've been assigned the {job.JobType.ToString().ToLowerInvariant()} job for {job.Order.OrderNumber}.");
         await db.SaveChangesAsync(ct);
-        return job.ToDto(job.Order, Market.DriverEarningPerJob);
+        return job.ToDto(job.Order);
     }
 
     // ── A11 Payments ─────────────────────────────────────────────────────────

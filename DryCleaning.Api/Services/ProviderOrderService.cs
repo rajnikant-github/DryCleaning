@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace DryCleaning.Api.Services;
 
 /// <summary>Service Provider workflow (P02–P10).</summary>
-public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace)
+public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, DriverPayService driverPay)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
@@ -111,7 +111,7 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
     public async Task<OrderDetailDto> GetOrderAsync(Guid orderId, CancellationToken ct)
     {
         var order = await LoadAsync(orderId, ct, detail: true);
-        return order.ToDetail(Market.Currency, Market.DriverEarningPerJob, includeCustomerCodes: false);
+        return order.ToDetail(Market.Currency, includeCustomerCodes: false);
     }
 
     // ── P03/P04 Accept / Reject ──────────────────────────────────────────────
@@ -135,7 +135,8 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
             JobType = DriverJobType.Pickup,
             Status = DriverJobStatus.Pending,
             PickupAddressId = order.PickupAddressId,
-            DeliveryAddressId = provider.AddressId.Value
+            DeliveryAddressId = provider.AddressId.Value,
+            Earning = await driverPay.CurrentRateAsync(ct)
         });
 
         db.Notify(order.Customer.UserId, order, "Order confirmed", $"{provider.BusinessName} accepted {order.OrderNumber}. We're finding a driver for pickup.");
@@ -261,7 +262,8 @@ public sealed class ProviderOrderService(AppDbContext db, CurrentProfile profile
             JobType = DriverJobType.Delivery,
             Status = DriverJobStatus.Pending,
             PickupAddressId = order.ServiceProvider.AddressId.Value,
-            DeliveryAddressId = order.PickupAddressId
+            DeliveryAddressId = order.PickupAddressId,
+            Earning = await driverPay.CurrentRateAsync(ct)
         });
 
         await NotifyAvailableDriversAsync(order, "New delivery job", ct);

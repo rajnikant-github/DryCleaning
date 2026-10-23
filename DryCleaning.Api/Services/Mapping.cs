@@ -249,7 +249,7 @@ public static class Mapping
         EstimatedDays = i.ServiceItem.EstimatedDays
     };
 
-    public static DriverJobDto ToDto(this DriverJob j, Order order, decimal earnings)
+    public static DriverJobDto ToDto(this DriverJob j, Order order)
     {
         var toProvider = j.JobType == DriverJobType.Pickup;
         return new DriverJobDto
@@ -268,7 +268,7 @@ public static class Mapping
             DeliveryName = toProvider ? order.ServiceProvider.BusinessName : order.Customer.User.Name,
             DeliveryAddress = j.DeliveryAddress.ToDto(),
             ItemCount = order.Items.Sum(i => i.Quantity),
-            EstimatedEarnings = earnings,
+            EstimatedEarnings = j.Earning,
             AssignedAt = j.AssignedAt,
             CompletedAt = j.CompletedAt,
             CreatedAt = j.CreatedAt,
@@ -284,7 +284,7 @@ public static class Mapping
     /// D03 job detail. Needs Order → Customer.User, ServiceProvider, Items → Product.Category / ServiceItem.
     /// Phone numbers are only included while the job is the caller's own and active.
     /// </summary>
-    public static DriverJobDetailDto ToDetail(this DriverJob j, Guid callerDriverId, decimal earnings)
+    public static DriverJobDetailDto ToDetail(this DriverJob j, Guid callerDriverId)
     {
         var order = j.Order;
         var isMine = j.DriverId == callerDriverId;
@@ -293,7 +293,7 @@ public static class Mapping
 
         return new DriverJobDetailDto
         {
-            Job = j.ToDto(order, earnings),
+            Job = j.ToDto(order),
             NextStep = step,
             IsMine = isMine,
             CustomerName = order.Customer.User.Name,
@@ -326,7 +326,7 @@ public static class Mapping
     }
 
     /// <param name="includeCustomerCodes">Only the customer may see the pickup code and delivery OTP.</param>
-    public static OrderDetailDto ToDetail(this Order o, string currency, decimal driverEarning, bool includeCustomerCodes) => new()
+    public static OrderDetailDto ToDetail(this Order o, string currency, bool includeCustomerCodes) => new()
     {
         Id = o.Id,
         OrderNumber = o.OrderNumber,
@@ -358,7 +358,7 @@ public static class Mapping
             CreatedAt = h.CreatedAt
         }).ToList(),
         Photos = o.Photos.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
-        DriverJobs = o.DriverJobs.OrderBy(j => j.CreatedAt).Select(j => j.ToDto(o, driverEarning)).ToList(),
+        DriverJobs = o.DriverJobs.OrderBy(j => j.CreatedAt).Select(j => j.ToDto(o)).ToList(),
         Payments = o.Payments.OrderBy(p => p.CreatedAt).Select(p => p.ToDto()).ToList(),
         Disputes = o.Disputes.OrderBy(d => d.CreatedAt).Select(d => d.ToDto()).ToList(),
         PickupCode = includeCustomerCodes ? o.Verifications.FirstOrDefault(v => v.Type == VerificationType.QR && v.VerifiedAt == null)?.OtpCode : null,

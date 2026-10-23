@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ServiceProviderCategory> ServiceProviderCategories => Set<ServiceProviderCategory>();
     public DbSet<VatSetting> VatSettings => Set<VatSetting>();
+    public DbSet<DriverPaySetting> DriverPaySettings => Set<DriverPaySetting>();
     public DbSet<ExtraCharge> ExtraCharges => Set<ExtraCharge>();
     public DbSet<OrderExtraCharge> OrderExtraCharges => Set<OrderExtraCharge>();
     public DbSet<DeliveryPricing> DeliveryPricing => Set<DeliveryPricing>();

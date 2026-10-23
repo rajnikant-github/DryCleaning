@@ -12,7 +12,7 @@ namespace DryCleaning.Api.Services;
 /// Pickup  (CustomerToProvider): accept → verify pickup code → hand over to provider.
 /// Delivery (ProviderToCustomer): accept → collect from provider → deliver with customer OTP.
 /// </summary>
-public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace)
+public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOptions<MarketplaceOptions> marketplace, DriverPayService driverPay)
 {
     private MarketplaceOptions Market => marketplace.Value;
 
@@ -27,7 +27,8 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             LicenseNumber = driver.LicenseNumber,
             IsAvailable = driver.IsAvailable,
             IsActive = driver.IsActive,
-            Address = driver.Address?.ToDto()
+            Address = driver.Address?.ToDto(),
+            TotalEarnings = await db.DriverJobs.Where(j => j.DriverId == driver.Id && j.Status == DriverJobStatus.Completed).SumAsync(j => (decimal?)j.Earning, ct) ?? 0m
         };
     }
 
@@ -77,11 +78,11 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             DriverName = user.Name,
             IsAvailable = driver.IsAvailable,
             AvailableJobs = available,
-            ActiveJob = active?.ToDetail(driver.Id, Market.DriverEarningPerJob),
+            ActiveJob = active?.ToDetail(driver.Id),
             CompletedToday = completedToday,
-            EarningsToday = completedToday * Market.DriverEarningPerJob,
+            EarningsToday = todaysJobs.Where(j => j.Status == DriverJobStatus.Completed && j.CompletedAt >= today).Sum(j => j.Earning),
             UnreadNotifications = unread,
-            TodaysJobs = todaysJobs.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            TodaysJobs = todaysJobs.Select(j => j.ToDto(j.Order)).ToList(),
             Currency = Market.Currency
         };
     }
@@ -109,7 +110,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var (items, total) = await AvailableQuery().OrderBy(j => j.CreatedAt).PageAsync(request, ct);
         return new PagedResult<DriverJobDto>
         {
-            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Items = items.Select(j => j.ToDto(j.Order)).ToList(),
             Page = request.Page,
             PageSize = request.PageSize,
             TotalCount = total
@@ -126,7 +127,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var (items, total) = await jobs.OrderByDescending(j => j.CompletedAt ?? j.AssignedAt).PageAsync(query, ct);
         return new PagedResult<DriverJobDto>
         {
-            Items = items.Select(j => j.ToDto(j.Order, Market.DriverEarningPerJob)).ToList(),
+            Items = items.Select(j => j.ToDto(j.Order)).ToList(),
             Page = query.Page,
             PageSize = query.PageSize,
             TotalCount = total
@@ -149,7 +150,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         var driver = await profile.DriverAsync(ct);
         var job = await JobQuery().FirstOrDefaultAsync(j => j.Id == jobId && (j.DriverId == driver.Id || j.Status == DriverJobStatus.Pending), ct)
                   ?? throw new NotFoundException("This job is no longer available.");
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     /// <summary>Resolves a notification's order to a job: the caller's own job first, then one still on the marketplace.</summary>
@@ -165,7 +166,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
                       .OrderByDescending(j => j.CreatedAt)
                       .FirstOrDefaultAsync(ct)
                   ?? throw new NotFoundException("This job is no longer available.");
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── D13 Earnings ─────────────────────────────────────────────────────────
@@ -182,15 +183,15 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             .OrderByDescending(j => j.CompletedAt)
             .ToListAsync(ct);
 
-        var rate = Market.DriverEarningPerJob;
+        var rate = await driverPay.CurrentRateAsync(ct);
         var bucketDays = period == EarningsPeriod.Week ? 1 : 7;
         var buckets = period == EarningsPeriod.Week ? 7 : 4;
         var bars = Enumerable.Range(0, buckets).Select(i =>
         {
             var start = from.AddDays(i * bucketDays);
-            var count = jobs.Count(j => j.CompletedAt >= start && j.CompletedAt < start.AddDays(bucketDays));
+            var inBucket = jobs.Where(j => j.CompletedAt >= start && j.CompletedAt < start.AddDays(bucketDays)).ToList();
             var label = period == EarningsPeriod.Week ? start.ToString("ddd") : start.ToString("d MMM");
-            return new EarningsBarDto { Label = label, Start = start, Amount = count * rate, Jobs = count };
+            return new EarningsBarDto { Label = label, Start = start, Amount = inBucket.Sum(j => j.Earning), Jobs = inBucket.Count };
         }).ToList();
 
         return new DriverEarningsDto
@@ -198,15 +199,15 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             Period = period,
             From = from,
             To = today,
-            Total = jobs.Count * rate,
+            Total = jobs.Sum(j => j.Earning),
             JobCount = jobs.Count,
             PickupCount = jobs.Count(j => j.JobType == DriverJobType.Pickup),
             DeliveryCount = jobs.Count(j => j.JobType == DriverJobType.Delivery),
             RatePerJob = rate,
-            AveragePerJob = jobs.Count == 0 ? 0 : rate,
+            AveragePerJob = jobs.Count == 0 ? 0 : jobs.Average(j => j.Earning),
             Currency = Market.Currency,
             Bars = bars,
-            Jobs = jobs.Select(j => j.ToDto(j.Order, rate)).ToList()
+            Jobs = jobs.Select(j => j.ToDto(j.Order)).ToList()
         };
     }
 
@@ -248,7 +249,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         db.Notify(order.ServiceProvider.UserId, order, "Driver assigned", $"{driverName} accepted the {job.JobType.ToString().ToLowerInvariant()} job for {order.OrderNumber}.");
 
         await SaveWithConcurrencyGuardAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     /// <summary>Driver drops an accepted job before collecting items – it goes back to the marketplace.</summary>
@@ -269,7 +270,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
             $"The driver released the {job.JobType.ToString().ToLowerInvariant()} job for {order.OrderNumber}. It's back on the marketplace.");
 
         await db.SaveChangesAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── D05/D06 Pickup from customer (item check + pickup code) ──────────────
@@ -328,7 +329,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
                 NotificationType.System);
         db.Notify(order.Customer.UserId, order, "Items picked up", $"Your items for {order.OrderNumber} are on the way to {order.ServiceProvider.BusinessName}.");
         await db.SaveChangesAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── D08 Hand over to provider ────────────────────────────────────────────
@@ -351,7 +352,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
 
         db.Notify(job.Order.ServiceProvider.UserId, job.Order, "Items delivered", $"{job.Order.OrderNumber} was handed over. Please confirm receipt.");
         await db.SaveChangesAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── D09/D10 Collect from provider ────────────────────────────────────────
@@ -371,7 +372,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         job.Order.ChangeStatus(OrderStatus.OutForDelivery, driver.UserId, Truncate(notes, 500));
         db.Notify(job.Order.Customer.UserId, job.Order, "Out for delivery", $"{job.Order.OrderNumber} is on its way. Have your delivery OTP ready.");
         await db.SaveChangesAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── D11 Deliver to customer (OTP) ────────────────────────────────────────
@@ -398,7 +399,7 @@ public sealed class DriverService(AppDbContext db, CurrentProfile profile, IOpti
         db.Notify(order.Customer.UserId, order, "Delivered", $"{order.OrderNumber} has been delivered. Thank you for using E Dry Cleaners!");
         db.Notify(order.ServiceProvider.UserId, order, "Order completed", $"{order.OrderNumber} was delivered to the customer.");
         await db.SaveChangesAsync(ct);
-        return job.ToDetail(driver.Id, Market.DriverEarningPerJob);
+        return job.ToDetail(driver.Id);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

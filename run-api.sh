@@ -2,9 +2,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # EDry Cleaners – one-command local API runner (macOS, Intel or Apple Silicon)
 #
-#   ./run-api.sh             Check → fix only what's missing (asks first) → run API → open Swagger
+#   ./run-api.sh local       Check → fix only what's missing (asks first) → run the API and the admin portal
+#                            → open Swagger and the admin portal in the browser   (same as ./run-api.sh)
 #   ./run-api.sh --check     Only run the checks, change nothing
 #   ./run-api.sh --yes       Fix what's missing without asking
+#   ./run-api.sh --no-admin  Run only the API (no admin portal)
 #   ./run-api.sh --reset-db  Recreate the SQL Server container (wipes local data)
 #   ./run-api.sh --stop      Stop the SQL Server container
 #   ./run-api.sh --help      Show this help        (short forms: -h, -y)
@@ -12,7 +14,7 @@
 # Options can be combined, e.g.  ./run-api.sh --reset-db --yes
 # "permission denied"? Run once: chmod +x run-api.sh   (or use: bash run-api.sh)
 # Works from any folder, e.g.    ~/Repos/DryCleaning/run-api.sh
-# Ctrl+C stops the API. SQL Server keeps running in Docker for the next run.
+# Ctrl+C stops the API and the admin portal. SQL Server keeps running in Docker for the next run.
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
@@ -25,9 +27,11 @@ DOTNET_MAJOR=10
 # Named migrations, oldest first. A missing one is created (only if the model actually needs it).
 MIGRATIONS=(AddPickupSlotAndItemNotes AddPushDevicesAndRefreshTokens ClientGeneratedIds AddUserPhoto AddProviderWorkingHours AddDeliveryPricing AddExtraCharges AddConfigurablePricing AddPendingRegistrations AddAccountApproval AddVerificationDocuments)
 SWAGGER_URL="https://localhost:7180/swagger"
+ADMIN_URL="http://localhost:5190"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_DIR="$SCRIPT_DIR/DryCleaning.Api"
+ADMIN_DIR="$SCRIPT_DIR/DryCleaning.Admin"
 export PATH="$PATH:$HOME/.dotnet/tools"
 
 # ── Output helpers ──────────────────────────────────────────────────────────
@@ -41,15 +45,17 @@ step()    { echo; echo "${bold}▶ $*${reset}"; }
 ok()      { echo "  ${green}✓${reset} $*"; }
 fail()    { echo; echo "  ${red}✗ $1${reset}"; shift; [ $# -gt 0 ] && printf '    %s\n' "$@"; echo; exit 1; }
 
-usage() { sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+usage() { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 
-MODE="run"; ASSUME_YES=false; RESET_DB=false
+MODE="run"; ASSUME_YES=false; RESET_DB=false; RUN_ADMIN=true
 for arg in "$@"; do
   case "$arg" in
     --help|-h)  usage ;;
     --check)    MODE="check" ;;
     --yes|-y)   ASSUME_YES=true ;;
     --reset-db) RESET_DB=true ;;
+    --no-admin) RUN_ADMIN=false ;;
+    local)      ;;   # the only environment this script runs: settings come from the "local" block of secrets.json
     --stop)     docker stop "$CONTAINER" >/dev/null 2>&1 && echo "Stopped $CONTAINER." || echo "$CONTAINER is not running."; exit 0 ;;
     *)          echo "Unknown option: $arg"; usage ;;
   esac
@@ -305,20 +311,48 @@ fi
 # ═════════════════════════════════════════════════════════════════════════════
 step "Starting the API"
 echo "  Swagger:  ${bold}$SWAGGER_URL${reset}   (http: http://localhost:5180/swagger)"
+$RUN_ADMIN && echo "  Admin:    ${bold}$ADMIN_URL${reset}   (log: /tmp/edry-admin.log)"
 echo "  Demo logins (password Demo@12345):"
 echo "    Customer  sipho@example.co.za"
 echo "    Provider  thandi@sparkledrycleaners.co.za"
 echo "    Driver    bongani@drivers.edrycleaners.co.za"
 echo "    Admin     admin@edrycleaners.co.za"
 echo "  In Swagger: POST /api/auth/login → copy accessToken → Authorize → paste."
-echo "  Ctrl+C stops the API (SQL Server keeps running; ./run-api.sh --stop stops it)."
+echo "  Ctrl+C stops the API$($RUN_ADMIN && echo ' and the admin portal') (SQL Server keeps running; ./run-api.sh --stop stops it)."
 echo
 
+# The admin portal runs next to the API (skipped when its port is already taken, e.g. a copy you started yourself).
+ADMIN_PID=""
+if $RUN_ADMIN; then
+  if [ ! -d "$ADMIN_DIR" ]; then
+    echo "  ${yellow}!${reset} DryCleaning.Admin not found – skipping the admin portal."
+    RUN_ADMIN=false
+  elif lsof -iTCP:5190 -sTCP:LISTEN -P >/dev/null 2>&1; then
+    ok "Admin portal is already running on $ADMIN_URL"
+  else
+    dotnet run --project "$ADMIN_DIR" --launch-profile http >/tmp/edry-admin.log 2>&1 &
+    ADMIN_PID=$!
+  fi
+fi
+
 ( for _ in $(seq 1 60); do
-    curl -sk -o /dev/null "$SWAGGER_URL/index.html" && { open "$SWAGGER_URL"; exit 0; }
+    curl -sk -o /dev/null "$SWAGGER_URL/index.html" && { open "$SWAGGER_URL"; break; }
     sleep 2
-  done ) &
+  done
+  if $RUN_ADMIN; then
+    for _ in $(seq 1 60); do
+      curl -s -o /dev/null "$ADMIN_URL" && { open "$ADMIN_URL"; exit 0; }
+      sleep 2
+    done
+  fi ) &
 OPENER_PID=$!
-trap 'kill $OPENER_PID 2>/dev/null' EXIT
+stop_helpers() {
+  kill $OPENER_PID 2>/dev/null
+  if [ -n "$ADMIN_PID" ]; then
+    pkill -P "$ADMIN_PID" 2>/dev/null   # the portal process started by "dotnet run"
+    kill "$ADMIN_PID" 2>/dev/null
+  fi
+}
+trap stop_helpers EXIT
 
 dotnet run --no-build --launch-profile https

@@ -230,6 +230,7 @@ public static class DbSeeder
                 Status = pickupDone ? DriverJobStatus.Completed : DriverJobStatus.Assigned,
                 PickupAddressId = order.PickupAddressId,
                 DeliveryAddressId = provider.AddressId!.Value,
+                Earning = 35m,
                 AssignedAt = DateTime.UtcNow,
                 CompletedAt = pickupDone ? DateTime.UtcNow : null
             });

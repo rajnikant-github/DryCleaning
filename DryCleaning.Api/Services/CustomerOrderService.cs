@@ -105,7 +105,7 @@ public sealed class CustomerOrderService(AppDbContext db, CurrentProfile profile
         var customer = await profile.CustomerAsync(ct);
         var order = await db.Orders.WithDetailIncludes().FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == customer.Id, ct)
                     ?? throw new NotFoundException("Order not found.");
-        return order.ToDetail(Market.Currency, Market.DriverEarningPerJob, includeCustomerCodes: true);
+        return order.ToDetail(Market.Currency, includeCustomerCodes: true);
     }
 
     public async Task<OrderDetailDto> CancelAsync(Guid orderId, ReasonRequest request, CancellationToken ct)

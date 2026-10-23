@@ -435,6 +435,10 @@ namespace DryCleaning.Api.Data.Migrations
                     b.Property<Guid?>("DriverId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("Earning")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("JobType")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -472,6 +476,26 @@ namespace DryCleaning.Api.Data.Migrations
                     b.HasIndex("Status", "JobType");
 
                     b.ToTable("DriverJobs", (string)null);
+                });
+
+            modelBuilder.Entity("DryCleaning.Api.Domain.DriverPaySetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PayPerJob")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DriverPaySettings", (string)null);
                 });
 
             modelBuilder.Entity("DryCleaning.Api.Domain.ExtraCharge", b =>

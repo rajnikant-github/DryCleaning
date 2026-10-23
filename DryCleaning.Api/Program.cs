@@ -133,6 +133,7 @@ builder.Services.AddScoped<WorkingHoursService>();
 builder.Services.AddScoped<DeliveryPricingService>();
 builder.Services.AddScoped<ExtraChargeService>();
 builder.Services.AddScoped<VatSettingService>();
+builder.Services.AddScoped<DriverPayService>();
 builder.Services.AddScoped<RegistrationService>();
 builder.Services.AddScoped<VerificationDocumentService>();
 builder.Services.AddHostedService<DocumentRetentionService>();

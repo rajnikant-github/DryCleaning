@@ -17,5 +17,6 @@ public sealed class DriverJobConfiguration : IEntityTypeConfiguration<DriverJob>
         b.HasOne(x => x.DeliveryAddress).WithMany().HasForeignKey(x => x.DeliveryAddressId);
         b.HasIndex(x => new { x.Status, x.JobType });
         b.HasIndex(x => x.DriverId);
+        b.Property(x => x.Earning).HasPrecision(18, 2);
     }
 }
