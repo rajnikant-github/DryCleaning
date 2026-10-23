@@ -5,8 +5,7 @@
 #   ./set-app-env.sh local                 App → API on this machine (./run-api.sh)
 #   ./set-app-env.sh local --device-ip 192.168.1.20
 #                                          Same, for a physical phone on your Wi-Fi
-#   ./set-app-env.sh mock                  Demo data, no API needed
-#   ./set-app-env.sh staging               App → test server
+#   ./set-app-env.sh development           App → the shared test server
 #   ./set-app-env.sh production            App → the live server
 #   ./set-app-env.sh --show                Which environment / server the next build uses
 #   ./set-app-env.sh --list                Available environments
@@ -14,7 +13,7 @@
 #   ./set-app-env.sh --help                Show this help        (short forms: -s, -l, -h)
 #
 # ONE file holds every setting for every environment: the repository's git-ignored secrets.json
-# (copy secrets.example.json to create it). Each environment is a block ("local", "mock", "staging",
+# (copy secrets.example.json to create it). Each environment is a block ("local", "development",
 # "production") and its "App" section is the mobile app's settings – API address, features, pricing,
 # the Google Maps key. This script copies that App section into DryCleaning/appsettings.secrets.json
 # (git-ignored), which is built into the app – rebuild and redeploy the app after switching.

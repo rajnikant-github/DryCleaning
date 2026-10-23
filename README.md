@@ -9,7 +9,7 @@ Customers book pickups, service providers clean the items, and shared marketplac
 | [`DryCleaning.Api/`](DryCleaning.Api/) | ASP.NET Core Web API (.NET 10) – SQL Server, EF Core, JWT, Swagger, Paystack. See [API](#api-net-10) and the [API guide](#api-guide--endpoints-workflows-and-data) below |
 | [`DryCleaning.Admin/`](DryCleaning.Admin/) | Admin web portal (Blazor, .NET 10) – dashboard, orders, driver jobs, payments, disputes, provider approvals, drivers, customers, categories, delivery pricing, extra order charges and push announcements to any user or everyone. Talks to the API only |
 | `run-api.sh` / `run-api.ps1` | One-command local API runner – macOS (bash) / Windows (PowerShell) |
-| `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (mock, local, staging, production) |
+| `set-app-env.sh` / `set-app-env.ps1` | Switch the app between environments (local, development, production) |
 | `DryCleaning.sln` | Solution with all projects |
 
 ## Contents
@@ -79,7 +79,7 @@ Open `DryCleaning.sln` in Rider (or Visual Studio) and run the **DryCleaning** p
 
 The app talks to the **real API** (`"UseMockData": false` in the `local` → `App` → `Features` section of `secrets.json`):
 
-> Tip: `./set-app-env.sh local` / `mock` / `staging` switches all of this in one command – see
+> Tip: `./set-app-env.sh local` / `development` / `production` switches all of this in one command – see
 > [Switching environments](#switching-environments).
 
 1. Start the API first: `./run-api.sh` (it listens on `http://localhost:5180`).
@@ -89,7 +89,7 @@ The app talks to the **real API** (`"UseMockData": false` in the `local` → `Ap
    - Physical phone → set `Api:LocalBaseUrlAndroid` / `Api:LocalBaseUrlApple` to `http://<your Mac's LAN IP>:5180/`
      (and on Android add that IP to `Platforms/Android/Resources/xml/network_security_config.xml`). Start the API with the
      `http` profile so the phone can reach it: `cd DryCleaning.Api && dotnet run --launch-profile http`.
-3. Release builds use `Api:BaseUrl` (`https://edrycleaners.co.za/`). To test against a server, see
+3. Release builds use `Api:BaseUrl` (`https://api.edrycleaners.co.za/`). To test against a server, see
    [Testing the app against a deployed API](#testing-the-app-against-a-deployed-api).
 
 Pick a role, then sign in with a demo account (password `Demo@12345`). Codes (sign-up, forgot password) are only ever **emailed** – never shown in the app or returned by the API – so use a real email address you can open. Choosing the wrong role for an account shows which role to pick. The session is kept
@@ -159,7 +159,7 @@ cp secrets.example.json secrets.json     # then edit secrets.json (chmod 600 is 
 ```
 
 `secrets.example.json` is the full template: every setting with its default value, and empty fields for the keys. It has one block per
-environment (`local`, `mock` – app demo data –, `staging`, `production`) and, in each, one section per project:
+environment (`local` – your machine –, `development` – the shared test server –, `production` – the live server) and, in each, one section per project:
 
 | Section | Read by | Holds |
 |---|---|---|
@@ -168,7 +168,7 @@ environment (`local`, `mock` – app demo data –, `staging`, `production`) and
 | `App` | `./set-app-env.sh <env>` → the mobile app build | currency, pricing, features, API addresses and the restricted Google Maps key (`GoogleMaps.ApiKey`). **Never put server secrets here** – anything in the app can be extracted |
 
 - **Which block:** the API and portal pick the block from `ASPNETCORE_ENVIRONMENT` (`Development` → `local`). Override with
-  `EDRY_ENVIRONMENT=staging`. Override the file location with `EDRY_SECRETS_FILE=/path/secrets.json`.
+  `EDRY_ENVIRONMENT=development` (this is how the shared test server picks the `development` block, see the [server checklist](#2-server-checklist)). Override the file location with `EDRY_SECRETS_FILE=/path/secrets.json`.
 - **Order of precedence:** the near-empty `appsettings*.json` (logging only) < user-secrets < `secrets.json` < real environment variables. So on a server you can skip the
   file and set variables like `Paystack__SecretKey`; they win over the file.
 - **Production:** don't copy `secrets.json` to the server or into an image. Keep the `production` block empty on developer
@@ -195,11 +195,11 @@ drivers. Each recipient gets an in-app notification and a push on their phone.
 
 ## Testing the app against a deployed API
 
-Use this when the API runs on a server (staging or production) instead of your machine.
+Use this when the API runs on a server (development or production) instead of your machine.
 
 ### 1. Point the app at the server
 
-Quickest: put the server address in `secrets.json` → `staging` → `App` → `Api` → `BaseUrl` and run `./set-app-env.sh staging`
+Quickest: put the server address in `secrets.json` → `development` → `App` → `Api` → `BaseUrl` and run `./set-app-env.sh development`
 (see [Switching environments](#switching-environments)). The settings it applies:
 
 ```json
@@ -227,10 +227,10 @@ development only: the connection string holds the local Docker password. The API
 
 | Setting | Value |
 |---|---|
-| `ASPNETCORE_ENVIRONMENT` | `Production` (or `Staging`). Development-only behaviour (OTP code in the response, HTTP allowed, demo data) is then off. |
+| `ASPNETCORE_ENVIRONMENT` | `Production` on both servers. Development-only behaviour (OTP code in the response, HTTP allowed, demo data) is then off. On the shared **test** server also set `EDRY_ENVIRONMENT=development` so it reads the `development` block; the live server needs nothing more. |
 | `ConnectionStrings__DefaultConnection` | Your SQL Server. With `Database:InitializeOnStartup: true` (default) the API applies migrations on start-up. |
 | `Jwt__SigningKey` | A long random secret (32+ characters). Changing it later signs everyone out. |
-| `Paystack__SecretKey` / `Paystack__PublicKey` | Test keys (`sk_test_…`/`pk_test_…`) on staging, live keys only in production. |
+| `Paystack__SecretKey` / `Paystack__PublicKey` | Test keys (`sk_test_…`/`pk_test_…`) on the development server, live keys only in production. |
 | `Paystack__CallbackUrl` | `edrycleaners://payment-complete` – must match `Api:PaymentCallbackUrl` in the app. |
 | Paystack dashboard → Webhook URL | `https://your-server.example.com/api/payments/paystack/webhook` |
 | `Database__SeedDemoData` | `true` on a **test** server to get the demo accounts (only seeds an empty database). Keep `false` in production. |
@@ -240,11 +240,11 @@ development only: the connection string holds the local Docker password. The API
 | `Routes__ApiKey` | Google key for driving distance (Routes API enabled, restricted to your server). Also set the app's `GoogleMaps.ApiKey` in the `App` block of `secrets.json` (Places enabled, restricted to the app). |
 | `Storage__Minio__AccessKey` / `Storage__Minio__SecretKey` | A MinIO user limited to this app's bucket – never the MinIO admin account. See [File storage (MinIO)](#file-storage-minio). |
 | `Cors__AllowedOrigins` | The browser origins that may call the API (empty = any). |
-| `Swagger__Enabled` | `true` on staging; your choice in production. |
+| `Swagger__Enabled` | `true` on the development server; your choice in production. |
 | Uploads | Every photo, logo and verification document goes to MinIO – see [File storage (MinIO)](#file-storage-minio). Nothing is saved on the API server's disk. |
 
 **Or use `secrets.json` on the server.** Instead of environment variables, the same settings can come from a `secrets.json` file
-(see [Secrets: one file for everything](#secrets-one-file-for-everything)) with a filled-in `production` block (`Staging` → the `staging` block).
+(see [Secrets: one file for everything](#secrets-one-file-for-everything)) with a filled-in `production` block (the development server also sets `EDRY_ENVIRONMENT=development` to read the `development` block).
 
 - The API reads the block that matches `ASPNETCORE_ENVIRONMENT` (`Production` → `production`). `EDRY_ENVIRONMENT=<block>` forces another block.
 - It looks for the file in its own folder and up to five folders above it. `dotnet publish` does **not** copy `secrets.json`, so put it on the
@@ -259,7 +259,7 @@ password, JWT signing key) and use the live Paystack keys only on the production
 
 ### File storage (MinIO)
 
-All files live in **MinIO** (S3-compatible, the same store as the reference project) – locally, on staging and in production
+All files live in **MinIO** (S3-compatible, the same store as the reference project) – locally, on the development server and in production
 alike. There is no other store and no debug/release switch.
 
 | Setting (`Storage:Minio`) | Where | Value |
@@ -385,9 +385,8 @@ the whole internet – the `AllowAzure` rule only admits Azure services.
 ```bash
 ./set-app-env.sh local                          # API on this machine (./run-api.sh) – emulator / simulator
 ./set-app-env.sh local --device-ip 192.168.1.20 # API on this machine – physical phone on your Wi-Fi
-./set-app-env.sh mock                           # demo data, no API
-./set-app-env.sh staging                        # test server
-./set-app-env.sh production                     # https://edrycleaners.co.za/
+./set-app-env.sh development                    # shared test server
+./set-app-env.sh production                     # https://api.edrycleaners.co.za/
 ./set-app-env.sh --show                         # which environment / server the next build uses
 ./set-app-env.sh --list                         # available environments (current one marked)
 ./set-app-env.sh --reset                        # back to the built-in defaults (no environment)
@@ -399,18 +398,19 @@ the whole internet – the `AllowAzure` rule only admits Azure services.
 ```
 
 Then **rebuild and run the app** – settings are built into the app. In Debug builds the role screen shows the
-environment and server at the bottom (e.g. `Environment: staging · https://staging.edrycleaners.co.za/`).
+environment and server at the bottom (e.g. `Environment: development · https://dev.edrycleaners.co.za/`).
 
 | Environment | Data | Debug builds call | Release builds call |
 |---|---|---|---|
-| `mock` | Demo data on the phone | – | – |
 | `local` | Your local API | `http://10.0.2.2:5180/` (Android emulator), `http://localhost:5180/` (iOS simulator) | `Api:BaseUrl` |
-| `staging` | Test server | `https://staging.edrycleaners.co.za/` | same |
-| `production` | Live server | `https://edrycleaners.co.za/` | same |
+| `development` | Shared test server | `https://dev.edrycleaners.co.za/` | same |
+| `production` | Live server | `https://api.edrycleaners.co.za/` | same |
+
+Demo data on the phone (no API) is not a separate environment: set `Features` → `UseMockData` to `true` in the `local` → `App` block, run `./set-app-env.sh local` and rebuild.
 
 **How it works**
 
-- An environment is a block of `secrets.json` (`local`, `mock`, `staging`, `production`). Its **`App` section** holds the app's settings:
+- An environment is a block of `secrets.json` (`local`, `development`, `production`). Its **`App` section** holds the app's settings:
   `Environment`, `Currency`, `Pricing`, `Features`, `Api` (addresses, timeouts) and `GoogleMaps`.
 - The script copies that section to `DryCleaning/appsettings.secrets.json`. That file is git-ignored, so switching never shows up
   in `git status`; each developer picks their own environment. The `Api` and `Admin` sections never go into the app.
@@ -423,11 +423,11 @@ environment and server at the bottom (e.g. `Environment: staging · https://stag
 - `--reset` removes `appsettings.secrets.json`, so the app uses its built-in defaults (no environment, no keys).
 - Warnings: production with demo data, and a server URL that isn't `https://`, doesn't end with `/`, or ends with `api/`.
 
-**Change or add an environment** – edit its block in `secrets.json` (for example `staging` → `App` → `Api` → `BaseUrl`), or add a new block
+**Change or add an environment** – edit its block in `secrets.json` (for example `development` → `App` → `Api` → `BaseUrl`), or add a new block
 such as `uat` with an `App` section of the same shape and run `./set-app-env.sh uat`.
 
 **API side** – the API already switches with `ASPNETCORE_ENVIRONMENT` (`Development` locally via `run-api.sh`,
-`Staging`/`Production` on a server) plus the matching block of `secrets.json` and environment variables – see the
+`Production` on a server, with `EDRY_ENVIRONMENT=development` on the test server) plus the matching block of `secrets.json` and environment variables – see the
 [server checklist](#2-server-checklist).
 
 

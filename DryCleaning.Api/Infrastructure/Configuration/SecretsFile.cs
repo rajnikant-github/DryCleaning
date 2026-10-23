@@ -8,7 +8,7 @@ namespace DryCleaning.Shared.Secrets;
 
 /// <summary>
 /// Reads the repository's single git-ignored <c>secrets.json</c> (see <c>secrets.example.json</c>). The file has one block per
-/// environment (<c>local</c>, <c>staging</c>, <c>production</c>) and, inside it, one section per project (<c>Api</c>, <c>Admin</c>, <c>App</c>).
+/// environment (<c>local</c>, <c>development</c>, <c>production</c>) and, inside it, one section per project (<c>Api</c>, <c>Admin</c>, <c>App</c>).
 /// A project adds its own section as configuration: above appsettings*.json and user-secrets, below environment variables,
 /// so real server environment variables still win in production.
 /// This file is linked into the admin portal, so both projects share one implementation.

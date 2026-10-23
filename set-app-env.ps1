@@ -4,8 +4,7 @@ EDry Cleaners - switch the mobile app between environments (Windows PowerShell 5
   .\set-app-env.ps1 local                      App -> API on this machine (.\run-api.ps1)
   .\set-app-env.ps1 local -DeviceIp 192.168.1.20
                                                Same, for a physical phone on your Wi-Fi
-  .\set-app-env.ps1 mock                       Demo data, no API needed
-  .\set-app-env.ps1 staging                    App -> test server
+  .\set-app-env.ps1 development                App -> the shared test server
   .\set-app-env.ps1 production                 App -> https://edrycleaners.co.za/
   .\set-app-env.ps1 -Show                      Which environment / server the next build uses
   .\set-app-env.ps1 -List                      Available environments
@@ -14,7 +13,7 @@ EDry Cleaners - switch the mobile app between environments (Windows PowerShell 5
   (macOS-style --show, --list, --reset, --help, --device-ip also work)
 
 ONE file holds every setting for every environment: the repository's git-ignored secrets.json (copy
-secrets.example.json to create it). Each environment is a block ("local", "mock", "staging", "production") and its
+secrets.example.json to create it). Each environment is a block ("local", "development", "production") and its
 "App" section is the mobile app's settings - API address, features, pricing, the Google Maps key. This script copies
 that App section into DryCleaning\appsettings.secrets.json (git-ignored), which is built into the app - rebuild and
 redeploy the app after switching. Only the App section goes into the app (the Api and Admin sections never do).

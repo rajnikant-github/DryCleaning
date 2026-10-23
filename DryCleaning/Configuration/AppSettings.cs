@@ -6,7 +6,7 @@ namespace DryCleaning.Configuration;
 
 /// <summary>
 /// App configuration. Every setting lives in the repository's single git-ignored <c>secrets.json</c>, in the "App" section of each
-/// environment block (local, mock, staging, production). <c>./set-app-env.sh &lt;environment&gt;</c> copies that section into
+/// environment block (local, development, production). <c>./set-app-env.sh &lt;environment&gt;</c> copies that section into
 /// <c>appsettings.secrets.json</c>, which is built into the app and merged over the near-empty <c>appsettings.json</c>.
 /// Anything missing falls back to the defaults of the settings classes in this folder.
 /// </summary>
@@ -15,7 +15,7 @@ public sealed class AppSettings
     private const string BaseResource = "DryCleaning.appsettings.json";
     private const string SecretsResource = "DryCleaning.appsettings.secrets.json";
 
-    /// <summary>Name of the environment in use (mock, local, staging, production), or empty when none was chosen.</summary>
+    /// <summary>Name of the environment in use (local, development, production), or empty when none was chosen.</summary>
     public string Environment { get; set; } = string.Empty;
 
     public CurrencySettings Currency { get; set; } = new();
