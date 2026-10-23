@@ -449,3 +449,6 @@ DryCleaning.Api/Certificates/
 # Uploaded verification documents (identity data) – never commit
 DryCleaning.Api/App_Data/
 .DS_Store
+
+# Push keys and Firebase/Apple files kept in the project root: secrets, never commit
+/SecretFiles/
